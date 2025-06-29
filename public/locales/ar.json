@@ -1,4 +1,3 @@
-
 {
   "appName": "محور دعم نيكسوس",
   "login.title": "محور دعم نيكسوس",
@@ -105,7 +104,7 @@
   "newTicket.titleFinalize": "ضع اللمسات الأخيرة على تذكرة الدعم الخاصة بك",
   "newTicket.subtitleFinalize": "تم تلخيص محادثتك بواسطة الذكاء الاصطناعي. يرجى مراجعة وتعديل التفاصيل أدناه قبل الإرسال.",
   "newTicket.loadingMessageSummary": "جاري تحليل المحادثة وإعداد تذكرتك...",
-  "newTicket.error.summaryFailed": "فشل في الحصول على ملخص الذكاء الاصطناعي: {{error}}. يرجى ملء النموذج يدويًا.",
+  "newTicket.error.summaryFailed": "تعذر الحصول على ملخص بالذكاء الاصطناعي لهذه المحادثة بسبب مشكلة مؤقتة في الخدمة. يرجى مراجعة التفاصيل أدناه وملء أي معلومات مفقودة يدويًا.",
   "newTicket.form.returnToDashboardButton": "العودة إلى لوحة التحكم",
   "newTicket.form.submitButtonFinal": "إرسال التذكرة",
   "ticketDetail.backToDashboardButton": "العودة إلى لوحة التحكم",
@@ -442,6 +441,5 @@
   "contact.pageTitle": "اتصل بنا",
   "contact.subtitle": "نحن نحب أن نسمع منك. لأي أسئلة أو شراكات أو استفسارات خاصة بالشركات، يرجى التواصل معنا.",
   "contact.email.label": "يمكنك الاتصال بنا مباشرة على:",
-  "contact.email.address": "harbi.a@laposte.net",
-  "contact.backToHome": "العودة إلى الصفحة الرئيسية"
+  "contact.email.address": "harbi.a@laposte.net"
 }

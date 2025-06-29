@@ -49,7 +49,8 @@ const NewTicketPage: React.FC = () => {
       } catch (e: any) {
         if (isMounted) {
           console.error("Failed to get summary from AI:", e);
-          setErrors({ form: t('newTicket.error.summaryFailed', { default: `Failed to get AI summary: ${e.message}. Please fill out the form manually.` }) });
+          // The translation key now contains the full user-friendly message.
+          setErrors({ form: t('newTicket.error.summaryFailed') });
           // Set a default description so user knows what happened
           const fallbackDescription = state.chatHistory.map(m => `[${m.sender}] ${m.text}`).join('\n');
           setDescription(fallbackDescription);

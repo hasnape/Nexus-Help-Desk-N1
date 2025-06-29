@@ -102,6 +102,14 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        // The root of the problem: onAuthStateChange fires on TOKEN_REFRESHED when a tab is focused.
+        // This was causing the entire app state to reload, which looked like a restart and could get stuck.
+        // By ignoring this event, we keep the app state stable during tab changes.
+        // The Supabase client handles using the new token automatically for future API calls.
+        if (event === 'TOKEN_REFRESHED') {
+          return;
+        }
+        
         if (authStateLoading.current) return;
         
         authStateLoading.current = true;
@@ -137,10 +145,8 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
             
             if (profileError || !userProfile) {
               console.error('Error fetching user profile or profile not found:', JSON.stringify(profileError, null, 2));
+              // This will trigger a SIGNED_OUT event, which will clear the state correctly.
               await supabase.auth.signOut();
-              setUser(null);
-              setTickets([]);
-              setAllUsers([]);
             } else {
               setUser(userProfile);
               const [usersResponse, ticketsResponse] = await Promise.all([
@@ -155,6 +161,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
               else setTickets(ticketsResponse.data ? ticketsResponse.data.map(reviveTicketDates) : []);
             }
           } else {
+            // This handles INITIAL_SESSION with no user, and SIGNED_OUT events.
             setUser(null);
             setTickets([]);
             setAllUsers([]);

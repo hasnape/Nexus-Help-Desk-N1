@@ -1,19 +1,21 @@
 
-
 import { GoogleGenAI, GenerateContentResponse, Content } from "@google/genai";
 import { ChatMessage, Ticket, TicketPriority } from '../types'; 
 import { Locale } from "../contexts/LanguageContext"; // Import Locale type
 import { TICKET_CATEGORY_KEYS } from "../constants";
 
+// The API key is assumed to be injected by the build process through process.env.
 const API_KEY = process.env.API_KEY;
 
 let ai: GoogleGenAI | null = null;
+const AI_UNAVAILABLE_ERROR = "AI Service Unavailable: API Key not configured or invalid.";
+
 if (API_KEY) {
   ai = new GoogleGenAI({ apiKey: API_KEY });
 } else {
+  // This warning will show in the browser's developer console if the API key is not available at build time.
   console.warn(
-    "API_KEY environment variable is not set. Gemini API calls will not work. Ensure `process.env.API_KEY` is available." +
-    " For production, this key should be on a backend server."
+    "API_KEY environment variable not set. Gemini API calls will not work. Ensure API_KEY is defined in your environment settings."
   );
 }
 
@@ -42,7 +44,10 @@ export async function summarizeAndCategorizeChat(
     chatHistory: ChatMessage[],
     language: Locale
 ): Promise<{ title: string; description: string; category: string; priority: TicketPriority }> {
-    if (!ai) throw new Error("AI Service Unavailable: API Key not configured.");
+    if (!ai) {
+        // Standardized error throwing. The calling component is responsible for translation.
+        throw new Error(AI_UNAVAILABLE_ERROR);
+    }
     
     const geminiFormattedHistory = formatChatHistoryForGemini(chatHistory);
     const targetLanguage = getLanguageName(language);
@@ -54,7 +59,7 @@ export async function summarizeAndCategorizeChat(
 Based on the full conversation, you MUST generate a JSON object with four specific keys: "title", "description", "category", and "priority".
 The response MUST be ONLY a raw JSON object, without any markdown like \`\`\`json.
 
-1.  **title**: Create a short, descriptive title (5-10 words) for the ticket. This should summarize the user's core problem.
+1.  **title**: Create a short, descriptive title (5-10 words) for the ticket. This summarizes the user's core problem.
 2.  **description**: Write a comprehensive summary of the entire conversation. Include the initial problem, key details provided by the user, and any troubleshooting steps already attempted by the assistant.
 3.  **category**: Choose the BEST matching category from this specific list: [${validCategories}]. You MUST select one of these exact keys.
 4.  **priority**: Assess the urgency and impact of the issue and choose a priority from this specific list: [${validPriorities}].
@@ -103,7 +108,9 @@ Do not add any explanations or text outside of the JSON object.`;
 
     } catch (error: any) {
         console.error("Error summarizing and categorizing chat:", error);
-        throw new Error(`Failed to process chat summary. ${error.message || 'Unknown Gemini Error'}`);
+        // The calling function will now show a generic, translated error message.
+        // We throw an error to signal failure, and the message is for developer logs.
+        throw new Error(`Failed to process chat summary. Original error: ${error.message || 'Unknown Gemini Error'}`);
     }
 }
 
@@ -117,10 +124,8 @@ export async function getFollowUpHelpResponse(
   additionalSystemContext?: string 
 ): Promise<{ text: string; escalationSuggested: boolean; }> {
   if (!ai) {
-    return { 
-        text: "AI Service Unavailable: API Key not configured or invalid. This should be managed by a backend server.",
-        escalationSuggested: true // Suggest escalation if AI is down
-    };
+    // Standardized error throwing
+    throw new Error(AI_UNAVAILABLE_ERROR);
   }
   
   const geminiFormattedHistory = formatChatHistoryForGemini(fullChatHistoryIncludingCurrentUserMessage);
@@ -198,8 +203,15 @@ ${roleInstructions}`;
 
   } catch (error: any) {
     console.error("Error getting follow-up AI response from Gemini:", error);
-    const defaultErrorText = `I'm sorry, I encountered an issue trying to process your follow-up request. Details: ${error.message || 'Unknown error'}. (Error in getFollowUpHelpResponse - Direct Client Call)`;
-    return { text: defaultErrorText, escalationSuggested: true };
+    
+    let userFriendlyError = "I'm sorry, but I am currently unable to connect to the AI service. This might be a temporary issue. Please try again in a moment.";
+    if (language === 'fr') {
+        userFriendlyError = "Je suis désolé, mais je ne parviens pas à me connecter au service d'intelligence artificielle pour le moment. C'est peut-être un problème temporaire. Veuillez réessayer dans un instant.";
+    } else if (language === 'ar') {
+        userFriendlyError = "عذراً، لا أستطيع الاتصال بخدمة الذكاء الاصطناعي حالياً. قد تكون هذه مشكلة مؤقتة. يرجى المحاولة مرة أخرى بعد لحظات.";
+    }
+
+    return { text: userFriendlyError, escalationSuggested: true };
   }
 }
 
@@ -207,7 +219,10 @@ export async function getTicketSummary(
     ticket: Ticket,
     language: Locale
 ): Promise<string> {
-    if (!ai) return "AI Service for summary unavailable: API Key not configured.";
+    if (!ai) {
+        // Standardized error throwing
+        throw new Error(AI_UNAVAILABLE_ERROR);
+    }
 
     const targetLanguage = getLanguageName(language);
     // Create a concise representation of the ticket for the summary prompt
@@ -255,8 +270,8 @@ IMPORTANT: Respond ONLY in ${targetLanguage}.`;
         return response.text;
     } catch (error: any) {
         console.error("Error getting ticket summary from Gemini:", error);
-        if (language === 'fr') return `Désolé, impossible de générer le résumé du ticket. Erreur: ${error.message || 'Inconnue'}`;
-        if (language === 'ar') return `عذراً، لم نتمكن من إنشاء ملخص للتذكرة. خطأ: ${error.message || 'غير معروف'}`;
-        return `Sorry, could not generate ticket summary. Error: ${error.message || 'Unknown'}`;
+        if (language === 'fr') return `Désolé, une erreur de service a empêché la génération du résumé.`;
+        if (language === 'ar') return `عذراً, حدث خطأ في الخدمة منع إنشاء الملخص.`;
+        return `Sorry, a service error prevented the summary from being generated.`;
     }
 }

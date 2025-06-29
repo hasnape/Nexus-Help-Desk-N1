@@ -1,4 +1,3 @@
-
 {
   "appName": "Nexus Support Hub",
   "login.title": "Nexus Support Hub",
@@ -105,7 +104,7 @@
   "newTicket.titleFinalize": "Finalisez votre ticket de support",
   "newTicket.subtitleFinalize": "Votre conversation a été résumée par notre IA. Veuillez vérifier et modifier les détails ci-dessous avant de soumettre.",
   "newTicket.loadingMessageSummary": "Analyse de la conversation et préparation de votre ticket...",
-  "newTicket.error.summaryFailed": "Échec du résumé par l'IA : {{error}}. Veuillez remplir le formulaire manuellement.",
+  "newTicket.error.summaryFailed": "Impossible d'obtenir un résumé par l'IA pour cette conversation en raison d'un problème de service temporaire. Veuillez vérifier les détails ci-dessous et remplir manuellement les informations manquantes.",
   "newTicket.form.returnToDashboardButton": "Retour au tableau de bord",
   "newTicket.form.submitButtonFinal": "Soumettre le ticket",
   "ticketDetail.backToDashboardButton": "Retour au tableau de bord",
@@ -442,6 +441,5 @@
   "contact.pageTitle": "Contactez-nous",
   "contact.subtitle": "Nous serions ravis de vous entendre. Pour toute question, partenariat ou demande d'entreprise, n'hésitez pas à nous contacter.",
   "contact.email.label": "Vous pouvez nous contacter directement à l'adresse :",
-  "contact.email.address": "harbi.a@laposte.net",
-  "contact.backToHome": "Retour à l'accueil"
+  "contact.email.address": "harbi.a@laposte.net"
 }

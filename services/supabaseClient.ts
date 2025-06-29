@@ -210,7 +210,7 @@ BEGIN
   DELETE FROM auth.users WHERE id = user_id_to_delete;
 END;
 $$;
-COMMENT ON FUNCTION public.delete_user_by_manager IS 'Allows a manager to securely delete a user within their own company.';
+COMMENT ON FUNCTION public.delete_user_by_manager IS 'Allows a manager to securely delete a user within their  own company..';
 
 */
 
