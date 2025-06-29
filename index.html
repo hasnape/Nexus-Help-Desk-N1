@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Help Desk Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                DEFAULT: '#2563EB', // blue-600
+                light: '#3B82F6', // blue-500
+                dark: '#1D4ED8', // blue-700
+              },
+              secondary: {
+                DEFAULT: '#475569', // slate-600
+                light: '#64748B', // slate-500
+                dark: '#334155', // slate-700
+              },
+              accent: {
+                DEFAULT: '#10B981', // emerald-500
+                light: '#34D399', // emerald-400
+              },
+              background: '#F1F5F9', // slate-100
+              surface: '#FFFFFF', // white
+              textPrimary: '#1E293B', // slate-800
+              textSecondary: '#475569', // slate-600
+            }
+          }
+        }
+      }
+    </script>
+    <!-- PayPal SDK -->
+    <script src="https://www.paypal.com/sdk/js?client-id=AZDxjDScFpQtjWTOUtWKbyN_bDt4OgqaF4eYXlewfBP4-8iPXYD218v7LGEbCoBkn1QqouVcr2S_Q5Xv&vault=true&intent=subscription"></script>
+  <script type="importmap">
+{
+  "imports": {
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@^2.44.4",
+    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.6.0",
+    "react/": "https://esm.sh/react@^19.1.0/",
+    "react": "https://esm.sh/react@^19.1.0",
+    "react-router-dom": "https://esm.sh/react-router-dom@^7.6.2"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-background">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>

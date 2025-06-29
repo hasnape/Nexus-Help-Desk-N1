@@ -1,0 +1,8 @@
+{
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "name": "Copy of Nexus Support Hub V26",
+  "description": "Nexus Support Hub – Presentation\n\nAn intelligent help desk featuring our AI assistant 'Nexus'. Get instant support, manage tickets efficiently with role-based dashboards, and use voice commands for a hands-free experience.\n\nKey Features:\n\n24/7 AI-powered chat assistant\n\nAutomatic ticket categorization and prioritization\n\nRole-based dashboards (User, Agent, Manager)\n\nVoice command and speech synthesis\n\nMultilingual support (English, French, Arabic)\n\nPayment Plan (via PayPal)\n\nFree Plan: Up to 1 agent, 100 tickets/month\n\nStandard Plan: €10 per agent/month (unlimited tickets, full AI features)\n\nPro Plan: €20 per agent/month (includes advanced analytics, voice command, multilingual support)\n\nPayments processed securely via PayPal. Monthly or annual billing options available.\n\nUser Manual (Quick Start)\n\nSign Up: Create your company account and configure roles (User, Agent, Manager).\n\nAI Assistant: Activate 'Nexus' in the settings and connect your Gemini API key (for AI responses).\n\nManage Tickets: Use your dashboard to view, assign, and resolve tickets. Tickets are auto-categorized by Nexus.\n\nVoice Commands: Enable microphone permissions to use voice input and receive spoken responses.\n\nBackup & Export: Use the settings menu to schedule database backups and export tickets as CSV.\n\nBilling: Go to Account > Billing to upgrade plans or view invoices. Payments handled via PayPal.\n\nFor further help, contact us at: harbi.a@laposte.net",
+  "prompt": ""
+}
