@@ -1,11 +1,13 @@
 
+
 import { GoogleGenAI, GenerateContentResponse, Content } from "@google/genai";
 import { ChatMessage, Ticket, TicketPriority } from '../types'; 
 import { Locale } from "../contexts/LanguageContext"; // Import Locale type
 import { TICKET_CATEGORY_KEYS } from "../constants";
 
-// The API key is assumed to be injected by the build process through process.env.
-const API_KEY = process.env.API_KEY;
+// For Vite applications, environment variables exposed to the client MUST start with VITE_.
+// This variable MUST be set in the deployment environment (e.g., Vercel).
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 let ai: GoogleGenAI | null = null;
 const AI_UNAVAILABLE_ERROR = "AI Service Unavailable: API Key not configured or invalid.";
@@ -13,9 +15,9 @@ const AI_UNAVAILABLE_ERROR = "AI Service Unavailable: API Key not configured or 
 if (API_KEY) {
   ai = new GoogleGenAI({ apiKey: API_KEY });
 } else {
-  // This warning will show in the browser's developer console if the API key is not available at build time.
+  // This warning will show in the browser's developer console if the API key is not available.
   console.warn(
-    "API_KEY environment variable not set. Gemini API calls will not work. Ensure API_KEY is defined in your environment settings."
+    "VITE_API_KEY environment variable not set. Gemini API calls will not work. Ensure VITE_API_KEY is defined in your deployment environment."
   );
 }
 
