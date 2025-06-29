@@ -163,9 +163,12 @@ DROP POLICY IF EXISTS "Allow managers to update user profiles in their company" 
 CREATE POLICY "Allow individual user to read their own profile" ON public.users
   FOR SELECT USING (auth.uid() = id);
 
--- 2. A user can see other users in the same company (e.g., for assigning tickets).
+-- 2. A user can see other users in the same company. This version uses a direct subquery instead of a
+--    helper function to avoid potential RLS evaluation loops that can cause token errors.
 CREATE POLICY "Allow users to see others in their own company" ON public.users
-  FOR SELECT USING (company_id = public.get_my_company_id());
+  FOR SELECT USING (
+    company_id = (SELECT u.company_id FROM public.users AS u WHERE u.id = auth.uid())
+  );
 
 -- UPDATE Policies:
 -- 1. A user can update their own profile. WITH CHECK prevents them from changing their ID.
