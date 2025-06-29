@@ -24,6 +24,7 @@ import { DEFAULT_AI_LEVEL, DEFAULT_USER_ROLE, TICKET_STATUS_KEYS } from './const
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext'; 
 import LoadingSpinner from './components/LoadingSpinner';
 import CookieConsentBanner from './components/CookieConsentBanner';
+import type { Session } from '@supabase/supabase-js';
 
 interface AppContextType {
   user: User | null;
@@ -88,10 +89,8 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     return storedAutoRead ? JSON.parse(storedAutoRead) : true;
   });
 
-  const authStateLoading = useRef(false);
-
   const { language, setLanguage: setAppLanguage, t: translateHook } = useLanguage();
-
+  
   useEffect(() => {
     const storedConsent = localStorage.getItem('cookieConsent');
     if (storedConsent === 'true') {
@@ -99,81 +98,52 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   }, []);
 
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        // The root of the problem: onAuthStateChange fires on TOKEN_REFRESHED when a tab is focused.
-        // This was causing the entire app state to reload, which looked like a restart and could get stuck.
-        // By ignoring this event, we keep the app state stable during tab changes.
-        // The Supabase client handles using the new token automatically for future API calls.
-        if (event === 'TOKEN_REFRESHED') {
-          return;
-        }
-        
-        if (authStateLoading.current) return;
-        
-        authStateLoading.current = true;
-        setIsLoading(true);
+  const loadUserData = useCallback(async (session: Session | null) => {
+    try {
+        if (session?.user) {
+            setIsLoading(true);
+            const { data: userProfile, error: profileError } = await supabase
+              .from('users').select('*').eq('id', session.user.id).single();
 
-        try {
-          const authUser = session?.user;
-
-          if (authUser) {
-            const fetchUserProfileWithRetry = async (userId: string, retries = 3, delay = 500) => {
-                for (let i = 0; i < retries; i++) {
-                    const { data, error } = await supabase
-                        .from('users')
-                        .select('*')
-                        .eq('id', userId)
-                        .single();
-
-                    if (!error && data) {
-                        return { userProfile: data, profileError: null };
-                    }
-                    
-                    if (error && error.code === 'PGRST116') {
-                         console.warn(`Profile not found for user ${userId}, attempt ${i + 1}. Retrying...`);
-                         await new Promise(res => setTimeout(res, delay * (i + 1)));
-                    } else {
-                         return { userProfile: null, profileError: error };
-                    }
-                }
-                return { userProfile: null, profileError: { message: 'User profile not found after multiple retries.', code: '404' } };
-            };
-
-            const { userProfile, profileError } = await fetchUserProfileWithRetry(authUser.id);
-            
             if (profileError || !userProfile) {
-              console.error('Error fetching user profile or profile not found:', JSON.stringify(profileError, null, 2));
-              // This will trigger a SIGNED_OUT event, which will clear the state correctly.
-              await supabase.auth.signOut();
-            } else {
-              setUser(userProfile);
-              const [usersResponse, ticketsResponse] = await Promise.all([
-                supabase.from('users').select('*'),
-                supabase.from('tickets').select('*')
-              ]);
-
-              if (usersResponse.error) console.error("Error fetching users:", JSON.stringify(usersResponse.error, null, 2));
-              else setAllUsers(usersResponse.data || []);
-              
-              if (ticketsResponse.error) console.error("Error fetching tickets:", JSON.stringify(ticketsResponse.error, null, 2));
-              else setTickets(ticketsResponse.data ? ticketsResponse.data.map(reviveTicketDates) : []);
+                throw profileError || new Error("User profile not found");
             }
-          } else {
-            // This handles INITIAL_SESSION with no user, and SIGNED_OUT events.
+            setUser(userProfile);
+
+            const [usersResponse, ticketsResponse] = await Promise.all([
+              supabase.from('users').select('*'),
+              supabase.from('tickets').select('*')
+            ]);
+            
+            setAllUsers(usersResponse.data || []);
+            setTickets(ticketsResponse.data ? ticketsResponse.data.map(reviveTicketDates) : []);
+        } else {
             setUser(null);
             setTickets([]);
             setAllUsers([]);
-          }
-        } catch (e: any) {
-          console.error("Critical error in onAuthStateChange listener:", JSON.stringify(e, null, 2));
-          setUser(null);
-          setTickets([]);
-          setAllUsers([]);
-        } finally {
-          setIsLoading(false);
-          authStateLoading.current = false;
+        }
+    } catch (error) {
+        console.error("Error loading user data:", error);
+        await supabase.auth.signOut();
+        setUser(null);
+        setTickets([]);
+        setAllUsers([]);
+    } finally {
+        setIsLoading(false);
+    }
+  }, []); // Setters from useState are stable and don't need to be in deps.
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+        loadUserData(session);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        // Only reload data if the user ID has actually changed (login/logout).
+        // This prevents reloads on token refreshes.
+        if (session?.user?.id !== user?.id) {
+            loadUserData(session);
         }
       }
     );
@@ -181,7 +151,8 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [loadUserData, user?.id]);
+
 
   useEffect(() => {
     if (user?.language_preference && user.language_preference !== language) {

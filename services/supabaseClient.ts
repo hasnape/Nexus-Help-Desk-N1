@@ -151,18 +151,34 @@ CREATE POLICY "Allow managers to update their own company" ON public.companies
 
 
 -- 10. RLS POLICIES FOR `users` TABLE
+-- Clean up old policies for idempotency
 DROP POLICY IF EXISTS "Allow users to see others in their own company" ON public.users;
-CREATE POLICY "Allow users to see others in their own company" ON public.users
-  FOR SELECT USING (company_id = public.get_my_company_id()); -- Compares text vs text
-
+DROP POLICY IF EXISTS "Allow individual user to read their own profile" ON public.users;
 DROP POLICY IF EXISTS "Allow individual user to update their own profile" ON public.users;
-CREATE POLICY "Allow individual user to update their own profile" ON public.users
-  FOR UPDATE USING (auth.uid() = id);
-
 DROP POLICY IF EXISTS "Allow managers to update user profiles in their company" ON public.users;
+
+-- SELECT Policies:
+-- 1. A user must be able to read their own profile. This is essential for the app to function after login.
+--    This is the key fix for "Invalid Refresh Token" errors caused by failing RLS on session validation.
+CREATE POLICY "Allow individual user to read their own profile" ON public.users
+  FOR SELECT USING (auth.uid() = id);
+
+-- 2. A user can see other users in the same company (e.g., for assigning tickets).
+CREATE POLICY "Allow users to see others in their own company" ON public.users
+  FOR SELECT USING (company_id = public.get_my_company_id());
+
+-- UPDATE Policies:
+-- 1. A user can update their own profile. WITH CHECK prevents them from changing their ID.
+CREATE POLICY "Allow individual user to update their own profile" ON public.users
+  FOR UPDATE USING (auth.uid() = id)
+  WITH CHECK (auth.uid() = id);
+
+-- 2. A manager can update profiles of users in their company. WITH CHECK prevents moving users to another company.
 CREATE POLICY "Allow managers to update user profiles in their company" ON public.users
   FOR UPDATE USING (
-    public.get_my_role() = 'manager' AND company_id = public.get_my_company_id() -- Compares text vs text
+    public.get_my_role() = 'manager' AND company_id = public.get_my_company_id()
+  ) WITH CHECK (
+    company_id = public.get_my_company_id()
   );
 
 -- 11. RLS POLICIES FOR `tickets` TABLE (This logic is still sound)
@@ -210,7 +226,7 @@ BEGIN
   DELETE FROM auth.users WHERE id = user_id_to_delete;
 END;
 $$;
-COMMENT ON FUNCTION public.delete_user_by_manager IS 'Allows a manager to securely delete a user within their  own company..';
+COMMENT ON FUNCTION public.delete_user_by_manager IS 'Allows a manager to securely delete a user within their own company.';
 
 */
 
