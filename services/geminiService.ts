@@ -1,23 +1,23 @@
-
-
 import { GoogleGenAI, GenerateContentResponse, Content } from "@google/genai";
 import { ChatMessage, Ticket, TicketPriority } from '../types'; 
-import { Locale } from "../contexts/LanguageContext"; // Import Locale type
+import { Locale } from "../contexts/LanguageContext";
 import { TICKET_CATEGORY_KEYS } from "../constants";
 
-const API_KEY = process.env.API_KEY;
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
 let ai: GoogleGenAI | null = null;
 if (API_KEY) {
   ai = new GoogleGenAI({ apiKey: API_KEY });
 } else {
   console.warn(
-    "API_KEY environment variable is not set. Gemini API calls will not work. Ensure `process.env.API_KEY` is available." +
-    " For production, this key should be on a backend server."
+    "VITE_API_KEY environment variable is not set. Gemini API calls will not work."
   );
 }
 
 const MODEL_NAME = 'gemini-2.5-flash-preview-04-17';
+
+console.log('API_KEY:', API_KEY);
+
 
 function formatChatHistoryForGemini(appChatHistory: ChatMessage[]): Content[] {
     // Filter out system summaries before sending to Gemini, unless it's for a summary request itself
