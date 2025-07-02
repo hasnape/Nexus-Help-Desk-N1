@@ -335,7 +335,7 @@
   "legal.sla.content": "<h2>التزام وقت التشغيل</h2><p>نحن نلتزم بوقت تشغيل بنسبة 99.9٪ لخدماتنا. [سيتم إضافة المحتوى العربي الكامل هنا].</p>",
   "legal.ip.title": "الملكية الفكرية",
   "legal.ip.lastUpdated": "آخر تحديث: 26 أكتوبر 2023",
-  "legal.ip.content": "<h2>الملكية</h2><p>تطبيق Nexus Support Hub هو ملكية فكرية لشركة REP&WEB.<br/>المنشئ والمطور الرئيسي: حربي أمين (REP&WEB).<br/>البريد الإلكتروني للاتصال بالدعم: harbi.a@laposte.net</p>",
+  "legal.ip.content": "<h2>الملكية</h2><p>تطبيق Nexus Support Hub هو ملكية فكرية لشركة REP&WEB.<br/>المنشئ والمطور الرئيسي: حربي أمين (REP&WEB).<br/>البريد الإلكتروني للاتصال بالدعم: hubnexusinfo@gmail.com</p>",
   "cookieConsent.message": "نحن نستخدم ملفات تعريف الارتباط والتخزين المحلي لضمان حسن سير عمل التطبيق ولتحسين تجربتك (مثل المصادقة وتفضيلات اللغة).",
   "cookieConsent.privacyPolicyLink": "اعرف المزيد.",
   "cookieConsent.acceptButton": "قبول",
@@ -441,5 +441,14 @@
   "contact.pageTitle": "اتصل بنا",
   "contact.subtitle": "نحن نحب أن نسمع منك. لأي أسئلة أو شراكات أو استفسارات خاصة بالشركات، يرجى التواصل معنا.",
   "contact.email.label": "يمكنك الاتصال بنا مباشرة على:",
-  "contact.email.address": "harbi.a@laposte.net"
-}
+  "contact.email.address": "hubnexusinfo@gmail.com",
+  "activationKeyLabel": "مفتاح التفعيل",
+  "activationKeyPlaceholder": "أدخل مفتاح التفعيل الخاص بك",
+  "activationKeyInfo": "سيتم إرسال مفتاح التفعيل عبر البريد الإلكتروني بعد تأكيد دفع خطتك.",
+  "activationKeySubmitButton": "تفعيل الحساب", 
+  "activationKeyRequired": "مفتاح التفعيل مطلوب لحساب المدير."
+      
+    
+  }
+
+

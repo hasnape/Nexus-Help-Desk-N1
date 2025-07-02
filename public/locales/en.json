@@ -335,7 +335,7 @@
   "legal.sla.content": "<h2>Uptime Commitment</h2><p>We commit to a 99.9% uptime for our services. [Full English content will be added here].</p>",
   "legal.ip.title": "Intellectual Property",
   "legal.ip.lastUpdated": "Last updated: October 26, 2023",
-  "legal.ip.content": "<h2>Ownership</h2><p>The Nexus Support Hub application is the intellectual property of the company REP&WEB.<br/>Creator and main developer: Harbi Amine (REP&WEB).<br/>Support contact email: harbi.a@laposte.net</p>",
+  "legal.ip.content": "<h2>Ownership</h2><p>The Nexus Support Hub application is the intellectual property of the company REP&WEB.<br/>Creator and main developer: Harbi Amine (REP&WEB).<br/>Support contact email: hubnexusinfo@gmail.com</p>",
   "cookieConsent.message": "We use cookies and local storage to ensure the proper functioning of the application and to enhance your experience (e.g., authentication, language preferences).",
   "cookieConsent.privacyPolicyLink": "Learn more.",
   "cookieConsent.acceptButton": "Accept",
@@ -441,5 +441,9 @@
   "contact.pageTitle": "Contact Us",
   "contact.subtitle": "We'd love to hear from you. For any questions, partnerships, or enterprise inquiries, please reach out to us.",
   "contact.email.label": "You can contact us directly at:",
-  "contact.email.address": "harbi.a@laposte.net"
+  "contact.email.address": "hubnexusinfo@gmail.com",
+  "activationKeyLabel": "Activation Key",
+  "activationKeyPlaceholder": "Enter your activation key",
+  "activationKeyInfo": "Your activation key is provided in the welcome email.",
+  "newCompanyNameLabel": "New Company Name"
 }
