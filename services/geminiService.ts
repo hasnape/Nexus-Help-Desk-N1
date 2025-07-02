@@ -16,7 +16,7 @@ if (API_KEY) {
 
 const MODEL_NAME = 'gemini-2.5-flash-preview-04-17';
 
-console.log('API_KEY:', API_KEY);
+console.log('API_KY:', API_KEY);
 
 
 function formatChatHistoryForGemini(appChatHistory: ChatMessage[]): Content[] {
@@ -24,7 +24,7 @@ function formatChatHistoryForGemini(appChatHistory: ChatMessage[]): Content[] {
     return appChatHistory
         .filter(msg => msg.sender !== 'system_summary') 
         .map(msg => ({
-            role: msg.sender === 'user' ? 'user' : 'model', // Treat 'agent' messages as 'model' for context
+            role: msg.sender === 'user' ? 'user' : 'model', // Treat 'agefnt' messages as 'model' for context
             parts: [{ text: msg.text }],
         }));
 }
