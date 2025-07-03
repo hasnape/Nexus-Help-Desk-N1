@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useApp } from "../App";
 import { Button, Input, Select } from "../components/FormElements";
@@ -12,7 +12,6 @@ import Layout from "../components/Layout";
 const ProModal = ({
   showProModal,
   setShowProModal,
-  handleProPurchase,
   t,
 }: {
   showProModal: boolean;
@@ -484,6 +483,15 @@ const SignUpPage: React.FC = () => {
     setShowPayPal(true);
   };
 
+  const offersRef = useRef<HTMLDivElement>(null);
+
+  // Scroll automatique vers les offres quand le rôle devient MANAGER
+  useEffect(() => {
+    if (role === UserRole.MANAGER && offersRef.current) {
+      offersRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [role]);
+
   // PlanCard est maintenant défini EN DEHORS de SignUpPage
 
   return (
@@ -502,20 +510,11 @@ const SignUpPage: React.FC = () => {
           <div className="bg-surface rounded-xl shadow-2xl overflow-hidden">
             <div className="p-8">
               <div className="text-center mb-8">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="w-16 h-16 mx-auto text-primary mb-2"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.5A5.625 5.625 0 0 1 15.75 21H8.25A5.625 5.625 0 0 1 2.25 15.375V8.625c0-1.062.31-2.073.856-2.922m1.025-.975A3.75 3.75 0 0 0 6 5.25v1.5c0 .621.504 1.125 1.125 1.125H9"
-                  />
-                </svg>
+                <img
+                  src="https://yt3.ggpht.com/vbfaZncvDLBv7B4Xo9mFggNozPaGAaGMkwciDaL-UtdLClEQmWB5blCibQacHzdrI1RL_5C9_g=s108-c-k-c0x00ffffff-no-rj"
+                  alt="Nexus Support Hub Logo"
+                  className="w-16 h-16 mx-auto mb-2 rounded-full object-cover"
+                />
                 <h1 className="text-3xl font-bold text-textPrimary">
                   {t("signup.title")}
                 </h1>
@@ -555,7 +554,7 @@ const SignUpPage: React.FC = () => {
 
               {/* Section plans pour les managers */}
               {role === UserRole.MANAGER && !success && (
-                <div className="mb-8">
+                <div className="mb-8" ref={offersRef}>
                   <div className="text-center mb-6">
                     <h2 className="text-2xl font-bold text-textPrimary mb-2">
                       {t("signupPlans.title", {
@@ -663,18 +662,36 @@ const SignUpPage: React.FC = () => {
 
                     {role === UserRole.MANAGER && (
                       <div>
-                        <Input
-                          label={t("activationKeyLabel")}
-                          id="activationKey"
-                          type="text"
-                          value={secretCode}
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                            setSecretCode(e.target.value)
-                          }
-                          placeholder={t("activationKeyPlaceholder")}
-                          required
-                          disabled={isLoading}
-                        />
+                        <div className="flex items-center gap-2">
+                          <Input
+                            label={t("activationKeyLabel")}
+                            id="activationKey"
+                            type="text"
+                            value={secretCode}
+                            onChange={(
+                              e: React.ChangeEvent<HTMLInputElement>
+                            ) => setSecretCode(e.target.value)}
+                            placeholder={t("activationKeyPlaceholder")}
+                            required
+                            disabled={isLoading}
+                          />
+                          {/* Info-bulle d'aide */}
+                          <div className="relative group">
+                            <button
+                              type="button"
+                              className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold"
+                              tabIndex={0}
+                            >
+                              ?
+                            </button>
+                            <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-64 p-3 bg-white border border-slate-200 rounded shadow-lg text-xs text-slate-700 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition pointer-events-none group-hover:pointer-events-auto z-20">
+                              {t("activationKey.help", {
+                                default:
+                                  "Pour obtenir le code d’activation, contactez le support Nexus ou consultez votre email de bienvenue après l’achat du plan.",
+                              })}
+                            </div>
+                          </div>
+                        </div>
                         <p
                           className={`mt-1 text-xs px-1 text-slate-500 ${
                             selectedLanguage === "ar" ? "text-right" : ""

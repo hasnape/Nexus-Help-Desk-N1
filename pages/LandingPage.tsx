@@ -153,8 +153,8 @@ const LandingPage: React.FC = () => {
           />
         </svg>
       ),
-      titleKey: "landing.advantages.speed.title", // Nouvelle clé de traduction
-      descKey: "landing.advantages.speed.desc", // Nouvelle clé de traduction
+      titleKey: "landing.advantages.speed.title",
+      descKey: "landing.advantages.speed.desc", //
     },
     {
       icon: (
@@ -245,11 +245,6 @@ const LandingPage: React.FC = () => {
     },
   ];
 
-  const testimonials = [
-    { name: "Sophie L.", text: "Un support client réactif !" },
-    { name: "Karim B.", text: "Gestion des tickets efficace." },
-  ];
-
   return (
     <Layout>
       <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-700">
@@ -258,9 +253,7 @@ const LandingPage: React.FC = () => {
           {/* Hero Section améliorée */}
           <section className="py-20 px-4 sm:px-6 lg:px-8 text-white text-center">
             <div className="max-w-7xl mx-auto">
-              {/* Vous pouvez ajouter une illustration ici */}
-              {/* <img src="/path/to/illustration.svg" alt="Illustration" className="mx-auto mb-8 w-64 h-auto" /> */}
-
+              {/* Illustration éventuelle */}
               <h1 className="text-4xl md:text-5xl font-bold mb-4">
                 {t("landing.hero.title")}
               </h1>
@@ -268,12 +261,31 @@ const LandingPage: React.FC = () => {
                 {t("landing.hero.subtitle")}
               </p>
 
+              {/* Section vidéo juste sous le slogan */}
+              <div className="mb-8 max-w-3xl mx-auto">
+                <div className="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden shadow-lg bg-black">
+                  <VideoPlayer videoUrl="https://www.youtube.com/embed/OnfUuaRlukQ" />
+                </div>
+                <div className="mt-4 text-center">
+                  <a
+                    href="https://youtu.be/OnfUuaRlukQ"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline font-semibold"
+                  >
+                    {t("landing.video.watchOnYouTube", {
+                      default: "Regarder sur YouTube",
+                    })}
+                  </a>
+                </div>
+              </div>
+
               {/* Boutons d'action */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
                 <Link to="/signup" className="block">
                   <Button
                     size="lg"
-                    className="px-8 py-4 text-lg w-full sm:w-auto" // Adapter la largeur sur mobile
+                    className="px-8 py-4 text-lg w-full sm:w-auto"
                   >
                     {t("landing.hero.ctaButton")}
                   </Button>
@@ -281,7 +293,7 @@ const LandingPage: React.FC = () => {
 
                 <button
                   onClick={() => setShowVideo(true)}
-                  className="inline-flex items-center bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-lg transition-colors font-medium text-lg w-full sm:w-auto justify-center" // Adapter la largeur et centrer le contenu
+                  className="inline-flex items-center bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-lg transition-colors font-medium text-lg w-full sm:w-auto justify-center"
                 >
                   <svg
                     className="w-6 h-6 mr-2"
@@ -326,7 +338,6 @@ const LandingPage: React.FC = () => {
                       </button>
                     </div>
                     <div className="aspect-w-16 aspect-h-9">
-                      {/* Utilisation du composant VideoPlayer */}
                       <VideoPlayer videoUrl="https://www.youtube.com/embed/OnfUuaRlukQ?autoplay=1" />
                     </div>
                     <div className="mt-4 text-center">
@@ -495,6 +506,39 @@ const LandingPage: React.FC = () => {
               </div>
             </div>
           </section>
+
+          {/* SUPPRIMER la section vidéo de présentation en bas de page */}
+          {/* <section id="presentation-video" className="py-20 bg-slate-100"> */}
+          {/*   <div className="container mx-auto px-4 max-w-3xl"> */}
+          {/*     <div className="text-center mb-8"> */}
+          {/*       <h2 className="text-3xl sm:text-4xl font-bold text-slate-800"> */}
+          {/*         {t("landing.video.title", { */}
+          {/*           default: "Découvrez Nexus Support Hub en vidéo", */}
+          {/*         })} */}
+          {/*       </h2> */}
+          {/*       <p className="mt-4 text-lg text-slate-600"> */}
+          {/*         {t("landing.video.subtitle", { */}
+          {/*           default: "Une présentation rapide de nos services et de notre valeur ajoutée.", */}
+          {/*         })} */}
+          {/*       </p> */}
+          {/*     </div> */}
+          {/*     <div className="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden shadow-lg bg-black"> */}
+          {/*       <VideoPlayer videoUrl="https://www.youtube.com/embed/OnfUuaRlukQ" /> */}
+          {/*     </div> */}
+          {/*     <div className="mt-4 text-center"> */}
+          {/*       <a */}
+          {/*         href="https://youtu.be/OnfUuaRlukQ" */}
+          {/*         target="_blank" */}
+          {/*         rel="noopener noreferrer" */}
+          {/*         className="text-primary hover:underline font-semibold" */}
+          {/*       > */}
+          {/*         {t("landing.video.watchOnYouTube", { */}
+          {/*           default: "Regarder sur YouTube", */}
+          {/*         })} */}
+          {/*       </a> */}
+          {/*     </div> */}
+          {/*   </div> */}
+          {/* </section> */}
         </main>
       </div>
     </Layout>
