@@ -302,6 +302,12 @@
   "footer.legalLink": "Légal & Documentation",
   "footer.userManualLink": "Manuel d'utilisation",
   "footer.promotionalLink": "Présentation",
+  "footer.helpCenter": "Centre d'aide",
+  "footer.emailSupport": "Support par email",
+  "footer.phone": "Téléphone",
+  "footer.cookies": "Cookies",
+  "footer.watchDemo": "🎥 Voir notre démonstration",
+  "footer.videoDemo": "Démonstration vidéo",
   "legal.pageTitle": "Légal & Infos",
   "legal.backToApp": "Retour à l'application",
   "legal.tabs.integration": "Guide d’intégration simple",
@@ -444,13 +450,11 @@
   "contact.email.address": "hubnexusinfo@gmail.com",
   "email.service.sendError": "Échec de l'envoi de l'email de bienvenue : {{error}}",
   "email.service.fallbackMode": "Basculement vers le mode simulation en raison d'une erreur du service email",
-
   "signupPlans.title": "Choisissez votre plan",
   "signupPlans.subtitle": "Sélectionnez le plan qui correspond le mieux aux besoins de votre équipe.",
   "signupPlans.freemium.select": "Sélectionner Freemium",
   "signupPlans.standard.select": "Sélectionner Standard",
   "signupPlans.pro.select": "Voir les détails Pro",
-
   "signupPlans.pro.modal.title": "Offre Pro - Détails Complets",
   "signupPlans.pro.modal.pricing": "/ agent / mois",
   "signupPlans.pro.modal.features.title": "Fonctionnalités Pro Incluses",
@@ -460,17 +464,33 @@
   "signupPlans.pro.modal.features.appointments": "Planification de rendez-vous",
   "signupPlans.pro.modal.features.priority": "Support prioritaire",
   "signupPlans.pro.modal.features.analytics": "Statistiques avancées",
-
   "signupPlans.pro.modal.trial.title": "Essai gratuit de 7 jours",
   "signupPlans.pro.modal.trial.description": "Commencez votre essai gratuit de 7 jours dès maintenant. Aucune carte de crédit requise pour commencer. Annulez à tout moment.",
-
   "signupPlans.pro.modal.billing.title": "Facturation et annulation",
   "signupPlans.pro.modal.billing.description": "Facturation mensuelle via PayPal. Annulation simple depuis votre compte PayPal à tout moment. Pas d'engagement à long terme.",
-
   "signupPlans.pro.modal.buttons.cancel": "Annuler",
   "signupPlans.pro.modal.buttons.subscribe": "S'abonner Pro",
-
   "signupPlans.pro.payment.title": "Finaliser l'abonnement Pro",
   "signupPlans.pro.payment.description": "Cliquez sur le bouton PayPal ci-dessous pour activer votre abonnement Pro. Vous recevrez votre clé d'activation par email après le paiement.",
-  "signupPlans.pro.payment.note": "Vous pouvez annuler votre abonnement à tout moment depuis votre compte PayPal."
-}
+  "signupPlans.pro.payment.note": "Vous pouvez annuler votre abonnement à tout moment depuis votre compte PayPal.",
+  "signupPlans.pro.payment.payButton": "Payer avec PayPal",
+  "signupPlans.pro.payment.success": "Abonnement Pro activé avec succès !",
+  "signupPlans.pro.payment.error": "Erreur lors de l'activation de l'abonnement Pro : {{error}}",
+  "signupPlans.freemium.modal.title": "Plan Freemium - Détails",
+  "signupPlans.freemium.modal.description": "Le plan Freemium est idéal pour les petites équipes ou pour tester la plateforme. Il inclut :",
+  "signupPlans.freemium.modal.features.title": "Fonctionnalités Incluses",
+  "signupPlans.freemium.modal.features.basicSupport": "Support IA de base",
+  "signupPlans.freemium.modal.features.ticketsLimit": "Jusqu'à 200 tickets par mois",
+  "signupPlans.freemium.modal.features.agentsLimit": "Jusqu'à 3 agents",
+    "signupPlans.freemium.modal.features.noCost": "Aucun coût, aucun engagement",
+  "signupPlans.freemium.modal.features.noBilling": "Pas de facturation, pas de carte de crédit requise",
+  "signupPlans.standard.modal.title": "Plan Standard - Détails",
+  "signupPlans.standard.modal.description": "Le plan Standard est parfait pour les équipes en croissance. Il inclut :",
+  "signupPlans.standard.modal.features.title": "Fonctionnalités Incluses",
+  "signupPlans.standard.modal.features.unlimitedTickets": "Tickets illimités",
+  "signupPlans.standard.modal.features.fullAI": "Assistance IA complète",
+  "signupPlans.standard.modal.features.autoCategorization": "Catégorisation automatique des tickets",
+  "signupPlans.standard.modal.features.slaStandard": "SLA standard",
+  "signupPlans.standard.modal.features.billing": "Facturation mensuelle via PayPal",
+  "signupPlans.standard.modal.features.cancelAnytime": "Annulation à tout moment depuis Pay"
+  }

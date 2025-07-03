@@ -45,6 +45,9 @@ import PromotionalPage from "./pages/PromotionalPage";
 import LandingPage from "./pages/LandingPage"; // Import LandingPage
 import SubscriptionPage from "./pages/SubscriptionPage"; // Import SubscriptionPage
 import ContactPage from "./pages/ContactPage"; // Import ContactPage
+import AboutPage from "./pages/AboutPage";
+import TestimonialsPage from "./pages/TestimonialsPage";
+import PartnersPage from "./pages/PartnersPage";
 import {
   DEFAULT_AI_LEVEL,
   DEFAULT_USER_ROLE,
@@ -1078,8 +1081,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
 
 export const useApp = (): AppContextType => {
   const context = useContext(AppContext);
-  if (context === undefined)
+  if (context === undefined) {
     throw new Error("useApp must be used within an AppProvider");
+  }
   return context;
 };
 
@@ -1139,6 +1143,9 @@ const MainAppContent: React.FC = () => {
       <Route path="/manual" element={<UserManualPage />} />
       <Route path="/presentation" element={<PromotionalPage />} />
       <Route path="/contact" element={<ContactPage />} />
+      <Route path="/about" element={<AboutPage />} />
+      <Route path="/testimonials" element={<TestimonialsPage />} />
+      <Route path="/partners" element={<PartnersPage />} />
 
       <Route
         path="/subscribe"

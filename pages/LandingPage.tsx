@@ -7,6 +7,8 @@ import Layout from "../components/Layout";
 import FreemiumPlanIcon from "../components/plan_images/FreemiumPlanIcon";
 import StandardPlanIcon from "../components/plan_images/StandardPlanIcon";
 import ProPlanIcon from "../components/plan_images/ProPlanIcon";
+// import TestimonialsSection from "../components/TestimonialsSection";
+import { useTranslation } from "react-i18next";
 
 // Feature Icons
 const FeatureIcon: React.FC<{
@@ -91,6 +93,25 @@ const CheckIcon = () => (
   </svg>
 );
 
+export interface VideoPlayerProps {
+  videoUrl: string;
+}
+
+const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoUrl }) => {
+  // Replace with your actual video player implementation
+  return (
+    <iframe
+      width="100%"
+      height="100%"
+      src={videoUrl}
+      title="Video Player"
+      style={{ border: 0 }}
+      allow="autoplay; encrypted-media"
+      allowFullScreen
+    />
+  );
+};
+
 const LandingPage: React.FC = () => {
   const { t } = useLanguage();
   const [showVideo, setShowVideo] = useState(false);
@@ -110,6 +131,70 @@ const LandingPage: React.FC = () => {
       icon: <VoiceIcon />,
       titleKey: "landing.features.voice.title",
       descKey: "landing.features.voice.desc",
+    },
+  ];
+
+  // Avantages suggérés dans la revue
+  const advantages = [
+    {
+      icon: (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={1.5}
+          stroke="currentColor"
+          className="w-8 h-8 text-accent"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+          />
+        </svg>
+      ),
+      titleKey: "landing.advantages.speed.title", // Nouvelle clé de traduction
+      descKey: "landing.advantages.speed.desc", // Nouvelle clé de traduction
+    },
+    {
+      icon: (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={1.5}
+          stroke="currentColor"
+          className="w-8 h-8 text-accent"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+          />
+        </svg>
+      ),
+      titleKey: "landing.advantages.security.title", // Nouvelle clé de traduction
+      descKey: "landing.advantages.security.desc", // Nouvelle clé de traduction
+    },
+    {
+      icon: (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={1.5}
+          stroke="currentColor"
+          className="w-8 h-8 text-accent"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M3 13.125l3 3m0 0l3-3m-3 3v6m7.5-6h3m0 0l3 3m0-3l-3-3m3 3V9m-9 12h.025a8.964 8.964 0 0 0 2.383-.568 9.002 9.002 0 0 0 6.087-5.916c.717-2.847.569-5.82-.568-8.772A9 9 0 0 0 9.75 3.125C7.507 3.125 5.27 3.936 3 5.414V12a2.25 2.25 0 0 0 2.25 2.25h5.375m-4.168-5.077A9.006 9.006 0 0 3 12 15.75a9.006 9.006 0 0 3 7.816-3.573m-9.816 3.573c0 1.06.129 2.11.364 3.138a9.005 9.005 0 0 0 10.004 1.39L21.75 17.25m-4.5-15.625H5.25c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125h13.5c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125Z"
+          />
+        </svg>
+      ),
+      titleKey: "landing.advantages.analytics.title", // Nouvelle clé de traduction
+      descKey: "landing.advantages.analytics.desc", // Nouvelle clé de traduction
     },
   ];
 
@@ -160,38 +245,35 @@ const LandingPage: React.FC = () => {
     },
   ];
 
+  const testimonials = [
+    { name: "Sophie L.", text: "Un support client réactif !" },
+    { name: "Karim B.", text: "Gestion des tickets efficace." },
+  ];
+
   return (
     <Layout>
       <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-700">
         <Navbar />
         <main className="pt-16">
-          {/* Hero Section avec vidéo */}
-          <section className="py-20 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-7xl mx-auto text-center">
-              <div className="flex justify-center items-center mb-8">
-                <img
-                  src="https://yt3.ggpht.com/vbfaZncvDLBv7B4Xo9mFggNozPaGAaGMkwciDaL-UtdLClEQmWB5blCibQacHzdrI1RL_5C9_g=s108-c-k-c0x00ffffff-no-rj"
-                  alt="Nexus Support Hub Logo"
-                  className="w-20 h-20 rounded-full object-cover mr-4"
-                />
-                <h1 className="text-5xl md:text-6xl font-bold text-white">
-                  {t("appName")}
-                </h1>
-              </div>
+          {/* Hero Section améliorée */}
+          <section className="py-20 px-4 sm:px-6 lg:px-8 text-white text-center">
+            <div className="max-w-7xl mx-auto">
+              {/* Vous pouvez ajouter une illustration ici */}
+              {/* <img src="/path/to/illustration.svg" alt="Illustration" className="mx-auto mb-8 w-64 h-auto" /> */}
 
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+              <h1 className="text-4xl md:text-5xl font-bold mb-4">
                 {t("landing.hero.title")}
-              </h2>
-              <p className="text-xl text-slate-300 mb-8 max-w-3xl mx-auto">
+              </h1>
+              <p className="text-lg md:text-xl text-slate-300 mb-8 max-w-3xl mx-auto">
                 {t("landing.hero.subtitle")}
               </p>
 
-              {/* Boutons d'action avec vidéo */}
+              {/* Boutons d'action */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
                 <Link to="/signup" className="block">
                   <Button
                     size="lg"
-                    className="px-8 py-4 text-lg w-full"
+                    className="px-8 py-4 text-lg w-full sm:w-auto" // Adapter la largeur sur mobile
                   >
                     {t("landing.hero.ctaButton")}
                   </Button>
@@ -199,7 +281,7 @@ const LandingPage: React.FC = () => {
 
                 <button
                   onClick={() => setShowVideo(true)}
-                  className="inline-flex items-center bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-lg transition-colors font-medium text-lg"
+                  className="inline-flex items-center bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-lg transition-colors font-medium text-lg w-full sm:w-auto justify-center" // Adapter la largeur et centrer le contenu
                 >
                   <svg
                     className="w-6 h-6 mr-2"
@@ -244,14 +326,8 @@ const LandingPage: React.FC = () => {
                       </button>
                     </div>
                     <div className="aspect-w-16 aspect-h-9">
-                      <iframe
-                        src="https://www.youtube.com/embed/OnfUuaRlukQ?autoplay=1"
-                        title="Nexus Support Hub Demo"
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        className="w-full h-96 rounded"
-                      ></iframe>
+                      {/* Utilisation du composant VideoPlayer */}
+                      <VideoPlayer videoUrl="https://www.youtube.com/embed/OnfUuaRlukQ?autoplay=1" />
                     </div>
                     <div className="mt-4 text-center">
                       <a
@@ -271,121 +347,154 @@ const LandingPage: React.FC = () => {
             </div>
           </section>
 
-          <main>
-            {/* Features Section */}
-            <section id="features" className="py-20 sm:py-24 bg-slate-50">
-              <div className="container mx-auto px-6">
-                <div className="text-center max-w-3xl mx-auto">
-                  <h2 className="text-3xl sm:text-4xl font-bold text-slate-800">
-                    {t("landing.features.title")}
-                  </h2>
-                  <p className="mt-4 text-lg text-slate-600">
-                    {t("landing.features.subtitle")}
-                  </p>
-                </div>
-                <div className="mt-16 grid md:grid-cols-3 gap-12">
-                  {features.map((feature, index) => (
-                    <div
-                      key={index}
-                      className="flex flex-col items-center text-center"
-                    >
-                      <FeatureIcon>{feature.icon}</FeatureIcon>
-                      <h3 className="mt-6 text-xl font-bold text-slate-800">
-                        {t(feature.titleKey)}
-                      </h3>
-                      <p className="mt-2 text-slate-600">
-                        {t(feature.descKey)}
-                      </p>
-                    </div>
-                  ))}
-                </div>
+          {/* Features Section */}
+          <section id="features" className="py-20 sm:py-24 bg-slate-50">
+            <div className="container mx-auto px-4 max-w-screen-lg">
+              <div className="text-center max-w-3xl mx-auto">
+                <h2 className="text-3xl sm:text-4xl font-bold text-slate-800">
+                  {t("landing.features.title")}
+                </h2>
+                <p className="mt-4 text-lg text-slate-600">
+                  {t("landing.features.subtitle")}
+                </p>
               </div>
-            </section>
+              <div className="mt-16 grid md:grid-cols-3 gap-12">
+                {features.map((feature, index) => (
+                  <div
+                    key={index}
+                    className="flex flex-col items-center text-center"
+                  >
+                    <FeatureIcon>{feature.icon}</FeatureIcon>
+                    <h3 className="mt-6 text-xl font-bold text-slate-800">
+                      {t(feature.titleKey)}
+                    </h3>
+                    <p className="mt-2 text-slate-600 text-sm md:text-base">
+                      {t(feature.descKey)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
 
-            {/* Pricing Section */}
-            <section id="pricing" className="py-20 sm:py-24 bg-white">
-              <div className="container mx-auto px-6">
-                <div className="text-center max-w-3xl mx-auto">
-                  <h2 className="text-3xl sm:text-4xl font-bold text-slate-800">
-                    {t("pricing.title")}
-                  </h2>
-                  <p className="mt-4 text-lg text-slate-600">
-                    {t("pricing.subtitle")}
-                  </p>
-                </div>
-                <div className="mt-16 grid lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
-                  {pricingTiers.map((tier) => (
-                    <div
-                      key={t(tier.nameKey)}
-                      className={`border rounded-xl p-8 flex flex-col text-center transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-2xl ${
-                        tier.isPopular
-                          ? "border-primary shadow-xl"
-                          : "border-slate-200 shadow-lg"
-                      }`}
-                    >
-                      {tier.isPopular && (
-                        <span className="bg-primary text-white text-xs font-semibold px-3 py-1 rounded-full self-center mb-4">
-                          {t("pricing.popular")}
-                        </span>
-                      )}
-                      <div className="mx-auto mb-4">{tier.icon}</div>
-                      <h3 className="text-xl font-bold text-slate-800">
-                        {t(tier.nameKey)}
-                      </h3>
-                      <p className="mt-2 text-slate-500 flex-grow">
-                        {t(tier.descKey)}
-                      </p>
-                      <div className="mt-6">
-                        <span className="text-4xl font-bold">
-                          {t(tier.priceKey)}
-                        </span>
-                        <span className="text-slate-500 ms-1">
-                          {t("pricing.perAgentPerMonth")}
-                        </span>
-                      </div>
-                      <ul className="mt-8 space-y-4 flex-grow">
-                        {tier.features.map((featureKey) => (
-                          <li
-                            key={featureKey}
-                            className="flex items-center justify-center"
-                          >
-                            <div className="flex-shrink-0 text-green-500">
-                              <CheckIcon />
-                            </div>
-                            <span className="ms-3 text-slate-600">
-                              {t(featureKey)}
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-                      <div className="mt-8">
-                        <Link to={tier.buttonLink} className="block w-full">
-                          <Button
-                            variant={tier.isPopular ? "primary" : "outline"}
-                            size="lg"
-                            className="w-full"
-                          >
-                            {t(tier.buttonKey)}
-                          </Button>
-                        </Link>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="text-center mt-12 text-slate-500">
-                  <p>
-                    {t("pricing.enterprise.text")}{" "}
-                    <Link
-                      to="/contact"
-                      className="text-primary hover:underline font-semibold"
-                    >
-                      {t("pricing.enterprise.link")}
-                    </Link>
-                  </p>
-                </div>
+          {/* Advantages Section (Social Proof) */}
+          <section id="advantages" className="py-20 sm:py-24 bg-white">
+            <div className="container mx-auto px-4 max-w-screen-lg">
+              <div className="text-center max-w-3xl mx-auto mb-12">
+                <h2 className="text-3xl sm:text-4xl font-bold text-slate-800">
+                  {t("landing.advantages.title", {
+                    default: "Pourquoi choisir Nexus Support Hub ?",
+                  })}
+                </h2>
+                <p className="mt-4 text-lg text-slate-600">
+                  {t("landing.advantages.subtitle", {
+                    default:
+                      "Découvrez les bénéfices concrets pour votre équipe et vos clients.",
+                  })}
+                </p>
               </div>
-            </section>
-          </main>
+              <div className="grid md:grid-cols-3 gap-8">
+                {advantages.map((advantage, index) => (
+                  <div
+                    key={index}
+                    className="flex flex-col items-center text-center p-6 bg-slate-50 rounded-lg shadow-sm"
+                  >
+                    <div className="mb-4">{advantage.icon}</div>
+                    <h3 className="text-xl font-bold text-slate-800 mb-2">
+                      {t(advantage.titleKey)}
+                    </h3>
+                    <p className="text-slate-600 text-sm md:text-base">
+                      {t(advantage.descKey)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* Pricing Section */}
+          <section id="pricing" className="py-20 sm:py-24 bg-slate-50">
+            <div className="container mx-auto px-4 max-w-screen-lg">
+              <div className="text-center max-w-3xl mx-auto">
+                <h2 className="text-3xl sm:text-4xl font-bold text-slate-800">
+                  {t("pricing.title")}
+                </h2>
+                <p className="mt-4 text-lg text-slate-600">
+                  {t("pricing.subtitle")}
+                </p>
+              </div>
+              <div className="mt-16 grid lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                {pricingTiers.map((tier) => (
+                  <div
+                    key={t(tier.nameKey)}
+                    className={`border rounded-xl p-8 flex flex-col text-center transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-2xl ${
+                      tier.isPopular
+                        ? "border-primary shadow-xl"
+                        : "border-slate-200 shadow-lg"
+                    }`}
+                  >
+                    {tier.isPopular && (
+                      <span className="bg-primary text-white text-xs font-semibold px-3 py-1 rounded-full self-center mb-4">
+                        {t("pricing.popular")}
+                      </span>
+                    )}
+                    <div className="mx-auto mb-4">{tier.icon}</div>
+                    <h3 className="text-xl font-bold text-slate-800">
+                      {t(tier.nameKey)}
+                    </h3>
+                    <p className="mt-2 text-slate-500 flex-grow text-sm md:text-base">
+                      {t(tier.descKey)}
+                    </p>
+                    <div className="mt-6">
+                      <span className="text-4xl font-bold">
+                        {t(tier.priceKey)}
+                      </span>
+                      <span className="text-slate-500 ms-1">
+                        {t("pricing.perAgentPerMonth")}
+                      </span>
+                    </div>
+                    <ul className="mt-8 space-y-4 flex-grow">
+                      {tier.features.map((featureKey) => (
+                        <li
+                          key={featureKey}
+                          className="flex items-center justify-center"
+                        >
+                          <div className="flex-shrink-0 text-green-500">
+                            <CheckIcon />
+                          </div>
+                          <span className="ms-3 text-slate-600 text-sm md:text-base">
+                            {t(featureKey)}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="mt-8">
+                      <Link to={tier.buttonLink} className="block w-full">
+                        <Button
+                          variant={tier.isPopular ? "primary" : "outline"}
+                          size="lg"
+                          className="w-full"
+                        >
+                          {t(tier.buttonKey)}
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="text-center mt-12 text-slate-500 text-sm md:text-base">
+                <p>
+                  {t("pricing.enterprise.text")}{" "}
+                  <Link
+                    to="/contact"
+                    className="text-primary hover:underline font-semibold"
+                  >
+                    {t("pricing.enterprise.link")}
+                  </Link>
+                </p>
+              </div>
+            </div>
+          </section>
         </main>
       </div>
     </Layout>
@@ -393,3 +502,18 @@ const LandingPage: React.FC = () => {
 };
 
 export default LandingPage;
+
+export function WhyChooseSection() {
+  const { t } = useTranslation();
+
+  return (
+    <div className="text-center max-w-3xl mx-auto mb-12">
+      <h2 className="text-3xl sm:text-4xl font-bold text-slate-800">
+        {t("landing.whyChooseNexus.title")}
+      </h2>
+      <p className="mt-4 text-lg text-slate-600">
+        {t("landing.whyChooseNexus.subtitle")}
+      </p>
+    </div>
+  );
+}
