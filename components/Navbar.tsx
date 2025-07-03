@@ -66,8 +66,14 @@ const Navbar: React.FC = () => {
       key: "community",
       title: t("navbar.group.community", { default: "Communauté" }),
       links: [
-        { to: "/testimonials", label: t("navbar.testimonials", { default: "Témoignages" }) },
-        { to: "/partners", label: t("navbar.partners", { default: "Partenaires" }) },
+        {
+          to: "/testimonials",
+          label: t("navbar.testimonials", { default: "Témoignages" }),
+        },
+        {
+          to: "/partners",
+          label: t("navbar.partners", { default: "Partenaires" }),
+        },
       ],
     },
     {
@@ -75,17 +81,40 @@ const Navbar: React.FC = () => {
       title: t("navbar.group.account", { default: "Compte" }),
       links: user
         ? [
-            { to: "/subscribe", label: t("navbar.subscriptionButton", { default: "Abonnement" }) },
+            {
+              to: "/subscribe",
+              label: t("navbar.subscriptionButton", { default: "Abonnement" }),
+            },
             ...(user.role === UserRole.AGENT
-              ? [{ to: "/agent/dashboard", label: t("navbar.agentPortalButton", { default: "Espace Agent" }) }]
+              ? [
+                  {
+                    to: "/agent/dashboard",
+                    label: t("navbar.agentPortalButton", {
+                      default: "Espace Agent",
+                    }),
+                  },
+                ]
               : []),
             ...(user.role === UserRole.MANAGER
-              ? [{ to: "/manager/dashboard", label: t("navbar.managerPortalButton", { default: "Espace Manager" }) }]
+              ? [
+                  {
+                    to: "/manager/dashboard",
+                    label: t("navbar.managerPortalButton", {
+                      default: "Espace Manager",
+                    }),
+                  },
+                ]
               : []),
           ]
         : [
-            { to: "/login", label: t("navbar.loginButton", { default: "Connexion" }) },
-            { to: "/signup", label: t("navbar.signUpButton", { default: "Créer un compte" }) },
+            {
+              to: "/login",
+              label: t("navbar.loginButton", { default: "Connexion" }),
+            },
+            {
+              to: "/signup",
+              label: t("navbar.signUpButton", { default: "Créer un compte" }),
+            },
           ],
     },
   ];
@@ -165,8 +194,18 @@ const Navbar: React.FC = () => {
             onClick={() => setMenuOpen(true)}
             aria-label="Ouvrir le menu"
           >
-            <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            <svg
+              className="w-7 h-7"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16"
+              />
             </svg>
           </button>
         </div>
@@ -180,8 +219,18 @@ const Navbar: React.FC = () => {
           onClick={() => setMenuOpen(true)}
           aria-label="Ouvrir le menu"
         >
-          <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          <svg
+            className="w-7 h-7"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 6h16M4 12h16M4 18h16"
+            />
           </svg>
         </button>
         {/* Logo centré */}
@@ -209,9 +258,9 @@ const Navbar: React.FC = () => {
               variant="outline"
               size="sm"
               className={`!py-1 !px-2 !text-xs ${
-              language === lang.code
-                ? "!bg-sky-500 !text-white !border-sky-500"
-                : "!text-slate-300 !border-slate-600 hover:!bg-slate-700 hover:!text-white"
+                language === lang.code
+                  ? "!bg-sky-500 !text-white !border-sky-500"
+                  : "!text-slate-300 !border-slate-600 hover:!bg-slate-700 hover:!text-white"
               }`}
             >
               {t(lang.nameKey, { default: lang.defaultName })}
@@ -246,11 +295,21 @@ const Navbar: React.FC = () => {
                 onClick={() => setMenuOpen(false)}
                 aria-label="Fermer le menu"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
-              
+
               {navGroups.map((group) => (
                 <div key={group.key} className="mb-2">
                   <button
@@ -268,7 +327,12 @@ const Navbar: React.FC = () => {
                       stroke="currentColor"
                       viewBox="0 0 24 24"
                     >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5l7 7-7 7"
+                      />
                     </svg>
                   </button>
                   <Transition
@@ -280,7 +344,10 @@ const Navbar: React.FC = () => {
                     leaveFrom="max-h-40 opacity-100"
                     leaveTo="max-h-0 opacity-0"
                   >
-                    <div className="flex flex-col pl-2" id={`group-${group.key}`}>
+                    <div
+                      className="flex flex-col pl-2"
+                      id={`group-${group.key}`}
+                    >
                       {group.links.map((link) => (
                         <Link
                           key={link.to}
@@ -365,49 +432,55 @@ const Navbar: React.FC = () => {
   );
 };
 
-const Footer: React.FC = () => (
-  <footer className="bg-slate-900 text-slate-300 py-8 mt-12">
-    <div className="container mx-auto flex flex-col md:flex-row justify-between items-center">
-      <div className="flex items-center mb-4 md:mb-0">
-        <img src="/logo.png" alt="Logo Nexus" className="w-8 h-8 mr-2" />
-        <span className="font-bold text-lg">Nexus Support Hub</span>
+const Footer: React.FC = () => {
+  const { t } = useLanguage();
+  return (
+    <footer className="bg-slate-900 text-slate-300 py-8 mt-12">
+      <div className="container mx-auto flex flex-col md:flex-row justify-between items-center">
+        <div className="flex items-center mb-4 md:mb-0">
+          <img src="/logo.png" alt="Logo Nexus" className="w-8 h-8 mr-2" />
+          <span className="font-bold text-lg">Nexus Support Hub</span>
+        </div>
+        <div className="flex space-x-4 mb-4 md:mb-0">
+          <Link to="/landing" className="hover:text-sky-400">
+            Accueil
+          </Link>
+          <Link to="/about" className="hover:text-sky-400">
+            À propos
+          </Link>
+          <Link to="/testimonials" className="hover:text-sky-400">
+            Témoignages
+          </Link>
+          <Link to="/partners" className="hover:text-sky-400">
+            Partenaires
+          </Link>
+          <Link to="/infographie" className="nav-link">
+            {t("navbar.infographie", { default: "Infographie" })}
+          </Link>
+        </div>
+        <div className="flex items-center space-x-4">
+          <Link to="/login">
+            <Button
+              variant="outline"
+              size="sm"
+              className="!text-slate-200 !border-slate-500 hover:!bg-slate-700"
+            >
+              Connexion
+            </Button>
+          </Link>
+          <Link to="/signup">
+            <Button
+              variant="primary"
+              size="sm"
+              className="!bg-sky-500 hover:!bg-sky-600"
+            >
+              Créer un compte
+            </Button>
+          </Link>
+        </div>
       </div>
-      <div className="flex space-x-4 mb-4 md:mb-0">
-        <Link to="/landing" className="hover:text-sky-400">
-          Accueil
-        </Link>
-        <Link to="/about" className="hover:text-sky-400">
-          À propos
-        </Link>
-        <Link to="/testimonials" className="hover:text-sky-400">
-          Témoignages
-        </Link>
-        <Link to="/partners" className="hover:text-sky-400">
-          Partenaires
-        </Link>
-      </div>
-      <div className="flex items-center space-x-4">
-        <Link to="/login">
-          <Button
-            variant="outline"
-            size="sm"
-            className="!text-slate-200 !border-slate-500 hover:!bg-slate-700"
-          >
-            Connexion
-          </Button>
-        </Link>
-        <Link to="/signup">
-          <Button
-            variant="primary"
-            size="sm"
-            className="!bg-sky-500 hover:!bg-sky-600"
-          >
-            Créer un compte
-          </Button>
-        </Link>
-      </div>
-    </div>
-  </footer>
-);
+    </footer>
+  );
+};
 
 export default Navbar;

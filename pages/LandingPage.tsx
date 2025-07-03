@@ -9,6 +9,7 @@ import StandardPlanIcon from "../components/plan_images/StandardPlanIcon";
 import ProPlanIcon from "../components/plan_images/ProPlanIcon";
 // import TestimonialsSection from "../components/TestimonialsSection";
 import { useTranslation } from "react-i18next";
+import InfographieNexus from "../InfographieNexus";
 
 // Feature Icons
 const FeatureIcon: React.FC<{
@@ -250,38 +251,18 @@ const LandingPage: React.FC = () => {
       <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-700">
         <Navbar />
         <main className="pt-16">
-          {/* Hero Section améliorée */}
-          <section className="py-20 px-4 sm:px-6 lg:px-8 text-white text-center">
+          {/* 1. Hero Section */}
+          <section className="py-8 px-4 sm:px-6 lg:px-8 text-white text-center">
+            {" "}
+            {/* padding vertical réduit */}
             <div className="max-w-7xl mx-auto">
-              {/* Illustration éventuelle */}
               <h1 className="text-4xl md:text-5xl font-bold mb-4">
                 {t("landing.hero.title")}
               </h1>
-              <p className="text-lg md:text-xl text-slate-300 mb-8 max-w-3xl mx-auto">
+              <p className="text-lg md:text-xl text-slate-300 mb-6 max-w-3xl mx-auto">
                 {t("landing.hero.subtitle")}
               </p>
-
-              {/* Section vidéo juste sous le slogan */}
-              <div className="mb-8 max-w-3xl mx-auto">
-                <div className="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden shadow-lg bg-black">
-                  <VideoPlayer videoUrl="https://www.youtube.com/embed/OnfUuaRlukQ" />
-                </div>
-                <div className="mt-4 text-center">
-                  <a
-                    href="https://youtu.be/OnfUuaRlukQ"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:underline font-semibold"
-                  >
-                    {t("landing.video.watchOnYouTube", {
-                      default: "Regarder sur YouTube",
-                    })}
-                  </a>
-                </div>
-              </div>
-
-              {/* Boutons d'action */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-6 sm:mb-8">
                 <Link to="/signup" className="block">
                   <Button
                     size="lg"
@@ -290,7 +271,6 @@ const LandingPage: React.FC = () => {
                     {t("landing.hero.ctaButton")}
                   </Button>
                 </Link>
-
                 <button
                   onClick={() => setShowVideo(true)}
                   className="inline-flex items-center bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-lg transition-colors font-medium text-lg w-full sm:w-auto justify-center"
@@ -306,8 +286,18 @@ const LandingPage: React.FC = () => {
                     default: "Voir la démonstration",
                   })}
                 </button>
+                <Link to="/infographie" className="block w-full sm:w-auto">
+                  <Button
+                    variant="secondary"
+                    size="lg"
+                    className="px-8 py-4 text-lg w-full sm:w-auto"
+                  >
+                    {t("infographie.seeMore", {
+                      default: "Voir l’infographie",
+                    })}
+                  </Button>
+                </Link>
               </div>
-
               {/* Modal vidéo */}
               {showVideo && (
                 <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
@@ -358,8 +348,42 @@ const LandingPage: React.FC = () => {
             </div>
           </section>
 
-          {/* Features Section */}
-          <section id="features" className="py-20 sm:py-24 bg-slate-50">
+          {/* 2. Section Vidéo de Présentation */}
+          <section id="presentation-video" className="py-8 bg-slate-100">
+            <div className="container mx-auto px-4 max-w-3xl">
+              <div className="text-center mb-8">
+                <h2 className="text-3xl sm:text-4xl font-bold text-slate-800">
+                  {t("landing.video.title", {
+                    default: "Découvrez Nexus Support Hub en vidéo",
+                  })}
+                </h2>
+                <p className="mt-4 text-lg text-slate-600">
+                  {t("landing.video.subtitle", {
+                    default:
+                      "Une présentation rapide de nos services et de notre valeur ajoutée.",
+                  })}
+                </p>
+              </div>
+              <div className="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden shadow-lg bg-black">
+                <VideoPlayer videoUrl="https://www.youtube.com/embed/OnfUuaRlukQ" />
+              </div>
+              <div className="mt-4 text-center">
+                <a
+                  href="https://youtu.be/OnfUuaRlukQ"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline font-semibold"
+                >
+                  {t("landing.video.watchOnYouTube", {
+                    default: "Regarder sur YouTube",
+                  })}
+                </a>
+              </div>
+            </div>
+          </section>
+
+          {/* 3. Fonctionnalités */}
+          <section id="features" className="py-8 bg-slate-50">
             <div className="container mx-auto px-4 max-w-screen-lg">
               <div className="text-center max-w-3xl mx-auto">
                 <h2 className="text-3xl sm:text-4xl font-bold text-slate-800">
@@ -388,8 +412,8 @@ const LandingPage: React.FC = () => {
             </div>
           </section>
 
-          {/* Advantages Section (Social Proof) */}
-          <section id="advantages" className="py-20 sm:py-24 bg-white">
+          {/* 4. Avantages */}
+          <section id="advantages" className="py-8 bg-white">
             <div className="container mx-auto px-4 max-w-screen-lg">
               <div className="text-center max-w-3xl mx-auto mb-12">
                 <h2 className="text-3xl sm:text-4xl font-bold text-slate-800">
@@ -423,8 +447,8 @@ const LandingPage: React.FC = () => {
             </div>
           </section>
 
-          {/* Pricing Section */}
-          <section id="pricing" className="py-20 sm:py-24 bg-slate-50">
+          {/* 5. Tarification */}
+          <section id="pricing" className="py-8 bg-slate-50">
             <div className="container mx-auto px-4 max-w-screen-lg">
               <div className="text-center max-w-3xl mx-auto">
                 <h2 className="text-3xl sm:text-4xl font-bold text-slate-800">
@@ -507,38 +531,35 @@ const LandingPage: React.FC = () => {
             </div>
           </section>
 
-          {/* SUPPRIMER la section vidéo de présentation en bas de page */}
-          {/* <section id="presentation-video" className="py-20 bg-slate-100"> */}
-          {/*   <div className="container mx-auto px-4 max-w-3xl"> */}
-          {/*     <div className="text-center mb-8"> */}
-          {/*       <h2 className="text-3xl sm:text-4xl font-bold text-slate-800"> */}
-          {/*         {t("landing.video.title", { */}
-          {/*           default: "Découvrez Nexus Support Hub en vidéo", */}
-          {/*         })} */}
-          {/*       </h2> */}
-          {/*       <p className="mt-4 text-lg text-slate-600"> */}
-          {/*         {t("landing.video.subtitle", { */}
-          {/*           default: "Une présentation rapide de nos services et de notre valeur ajoutée.", */}
-          {/*         })} */}
-          {/*       </p> */}
-          {/*     </div> */}
-          {/*     <div className="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden shadow-lg bg-black"> */}
-          {/*       <VideoPlayer videoUrl="https://www.youtube.com/embed/OnfUuaRlukQ" /> */}
-          {/*     </div> */}
-          {/*     <div className="mt-4 text-center"> */}
-          {/*       <a */}
-          {/*         href="https://youtu.be/OnfUuaRlukQ" */}
-          {/*         target="_blank" */}
-          {/*         rel="noopener noreferrer" */}
-          {/*         className="text-primary hover:underline font-semibold" */}
-          {/*       > */}
-          {/*         {t("landing.video.watchOnYouTube", { */}
-          {/*           default: "Regarder sur YouTube", */}
-          {/*         })} */}
-          {/*       </a> */}
-          {/*     </div> */}
-          {/*   </div> */}
-          {/* </section> */}
+          {/* 6. Infographie Technique */}
+          <section id="infographie" className="py-8 bg-white">
+            <div className="container mx-auto px-4 max-w-screen-lg">
+              <div className="text-center max-w-3xl mx-auto mb-12">
+                <h2 className="text-3xl sm:text-4xl font-bold text-slate-800">
+                  {t("infographie.title", { default: "Infographie technique" })}
+                </h2>
+                <p className="mt-4 text-lg text-slate-600">
+                  {t("infographie.subtitle", {
+                    default:
+                      "Découvrez l’architecture et les technologies clés de Nexus Support Hub.",
+                  })}
+                </p>
+                <Link
+                  to="/infographie"
+                  className="inline-block mt-6 px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition"
+                >
+                  {t("infographie.seeMore", {
+                    default: "Voir l’infographie complète",
+                  })}
+                </Link>
+              </div>
+              <div className="flex justify-center">
+                <div className="w-full max-w-3xl">
+                  <InfographieNexus />
+                </div>
+              </div>
+            </div>
+          </section>
         </main>
       </div>
     </Layout>

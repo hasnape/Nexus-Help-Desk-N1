@@ -48,6 +48,7 @@ import ContactPage from "./pages/ContactPage"; // Import ContactPage
 import AboutPage from "./pages/AboutPage";
 import TestimonialsPage from "./pages/TestimonialsPage";
 import PartnersPage from "./pages/PartnersPage";
+import InfographiePage from "./pages/InfographiePage"; // Import InfographiePage
 import {
   DEFAULT_AI_LEVEL,
   DEFAULT_USER_ROLE,
@@ -1146,7 +1147,8 @@ const MainAppContent: React.FC = () => {
       <Route path="/about" element={<AboutPage />} />
       <Route path="/testimonials" element={<TestimonialsPage />} />
       <Route path="/partners" element={<PartnersPage />} />
-
+      <Route path="/infographie" element={<InfographiePage />} />{" "}
+      {/* Nouvelle route pour InfographiePage */}
       <Route
         path="/subscribe"
         element={
@@ -1155,7 +1157,6 @@ const MainAppContent: React.FC = () => {
           </ProtectedRoute>
         }
       />
-
       <Route
         path="/dashboard"
         element={
@@ -1218,7 +1219,6 @@ const MainAppContent: React.FC = () => {
           </ProtectedRoute>
         }
       />
-
       <Route
         path="/"
         element={
