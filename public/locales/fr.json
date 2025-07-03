@@ -441,5 +441,36 @@
   "contact.pageTitle": "Contactez-nous",
   "contact.subtitle": "Nous serions ravis de vous entendre. Pour toute question, partenariat ou demande d'entreprise, n'hésitez pas à nous contacter.",
   "contact.email.label": "Vous pouvez nous contacter directement à l'adresse :",
-  "contact.email.address": "hubnexusinfo@gmail.com"
+  "contact.email.address": "hubnexusinfo@gmail.com",
+  "email.service.sendError": "Échec de l'envoi de l'email de bienvenue : {{error}}",
+  "email.service.fallbackMode": "Basculement vers le mode simulation en raison d'une erreur du service email",
+
+  "signupPlans.title": "Choisissez votre plan",
+  "signupPlans.subtitle": "Sélectionnez le plan qui correspond le mieux aux besoins de votre équipe.",
+  "signupPlans.freemium.select": "Sélectionner Freemium",
+  "signupPlans.standard.select": "Sélectionner Standard",
+  "signupPlans.pro.select": "Voir les détails Pro",
+
+  "signupPlans.pro.modal.title": "Offre Pro - Détails Complets",
+  "signupPlans.pro.modal.pricing": "/ agent / mois",
+  "signupPlans.pro.modal.features.title": "Fonctionnalités Pro Incluses",
+  "signupPlans.pro.modal.features.unlimited": "Tickets illimités",
+  "signupPlans.pro.modal.features.voice": "Commandes vocales avancées",
+  "signupPlans.pro.modal.features.multilingual": "Support multilingue (FR/EN/AR)",
+  "signupPlans.pro.modal.features.appointments": "Planification de rendez-vous",
+  "signupPlans.pro.modal.features.priority": "Support prioritaire",
+  "signupPlans.pro.modal.features.analytics": "Statistiques avancées",
+
+  "signupPlans.pro.modal.trial.title": "Essai gratuit de 7 jours",
+  "signupPlans.pro.modal.trial.description": "Commencez votre essai gratuit de 7 jours dès maintenant. Aucune carte de crédit requise pour commencer. Annulez à tout moment.",
+
+  "signupPlans.pro.modal.billing.title": "Facturation et annulation",
+  "signupPlans.pro.modal.billing.description": "Facturation mensuelle via PayPal. Annulation simple depuis votre compte PayPal à tout moment. Pas d'engagement à long terme.",
+
+  "signupPlans.pro.modal.buttons.cancel": "Annuler",
+  "signupPlans.pro.modal.buttons.subscribe": "S'abonner Pro",
+
+  "signupPlans.pro.payment.title": "Finaliser l'abonnement Pro",
+  "signupPlans.pro.payment.description": "Cliquez sur le bouton PayPal ci-dessous pour activer votre abonnement Pro. Vous recevrez votre clé d'activation par email après le paiement.",
+  "signupPlans.pro.payment.note": "Vous pouvez annuler votre abonnement à tout moment depuis votre compte PayPal."
 }

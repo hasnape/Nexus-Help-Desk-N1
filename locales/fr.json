@@ -458,5 +458,47 @@
   "footer.cookies": "Cookies",
   "footer.presentation": "Présentation",
   "footer.watchDemo": "🎥 Voir notre démonstration",
-  "footer.videoDemo": "Démonstration vidéo"
+  "footer.videoDemo": "Démonstration vidéo",
+  "signup.success.emailSent": "✅ Inscription réussie ! Email de confirmation envoyé à {{email}}",
+  "signup.success.emailSentManager": "🎉 Inscription réussie ! Un email récapitulatif a été envoyé à {{email}}",
+  "signup.warning.emailFailed": "✅ Inscription réussie ! (Email de confirmation non envoyé)",
+  "email.welcome.subject": "🎉 Bienvenue sur Nexus Support Hub - Entreprise \"{{companyName}}\" créée",
+  "email.welcome.manager.title": "Votre compte Manager est prêt !",
+  "email.welcome.manager.body": "<p>Félicitations, votre compte Manager sur Nexus Support Hub a été créé avec succès !</p><p>Voici un récapitulatif des informations de votre entreprise :</p><ul><li><strong>Nom de l'entreprise :</strong> {{companyName}}</li><li><strong>Votre rôle :</strong> Manager</li></ul><p>Pour commencer, nous vous recommandons de :</p><ol><li>Compléter votre profil.</li><li>Inviter des membres de votre équipe à rejoindre la plateforme.</li><li>Explorer les fonctionnalités du tableau de bord Manager.</li></ol><p>Si vous avez des questions, n'hésitez pas à consulter notre <a href='{{userManualLink}}' class='text-primary hover:underline'>manuel d'utilisation</a> ou à contacter notre support.</p>",
+  "email.welcome.user.body": "<p>Bienvenue sur Nexus Support Hub !</p><p>Votre compte a été créé avec succès. Vous pouvez maintenant vous connecter et commencer à utiliser notre plateforme d'assistance.</p><p>Pour toute question, consultez notre <a href='{{userManualLink}}' class='text-primary hover:underline'>manuel d'utilisation</a> ou contactez notre support.</p>",
+
+  "email.service.notConfigured": "Service d'email non configuré - utilisation du mode simulation",
+  "email.service.configured": "Service d'email configuré avec succès",
+  "email.service.sendSuccess": "Email de bienvenue envoyé avec succès à {{email}}",
+  "email.service.sendError": "Échec de l'envoi de l'email de bienvenue : {{error}}",
+  "email.service.fallbackMode": "Basculement vers le mode simulation en raison d'une erreur du service email",
+
+  "signupPlans.title": "Choisissez votre plan",
+  "signupPlans.subtitle": "Sélectionnez le plan qui correspond le mieux aux besoins de votre équipe.",
+  "signupPlans.freemium.select": "Sélectionner Freemium",
+  "signupPlans.standard.select": "Sélectionner Standard",
+  "signupPlans.pro.select": "Voir les détails Pro",
+
+  "signupPlans.pro.modal.title": "Offre Pro - Détails Complets",
+  "signupPlans.pro.modal.pricing": "/ agent / mois",
+  "signupPlans.pro.modal.features.title": "Fonctionnalités Pro Incluses",
+  "signupPlans.pro.modal.features.unlimited": "Tickets illimités",
+  "signupPlans.pro.modal.features.voice": "Commandes vocales avancées",
+  "signupPlans.pro.modal.features.multilingual": "Support multilingue (FR/EN/AR)",
+  "signupPlans.pro.modal.features.appointments": "Planification de rendez-vous",
+  "signupPlans.pro.modal.features.priority": "Support prioritaire",
+  "signupPlans.pro.modal.features.analytics": "Statistiques avancées",
+
+  "signupPlans.pro.modal.trial.title": "Essai gratuit de 7 jours",
+  "signupPlans.pro.modal.trial.description": "Commencez votre essai gratuit de 7 jours dès maintenant. Aucune carte de crédit requise pour commencer. Annulez à tout moment.",
+
+  "signupPlans.pro.modal.billing.title": "Facturation et annulation",
+  "signupPlans.pro.modal.billing.description": "Facturation mensuelle via PayPal. Annulation simple depuis votre compte PayPal à tout moment. Pas d'engagement à long terme.",
+
+  "signupPlans.pro.modal.buttons.cancel": "Annuler",
+  "signupPlans.pro.modal.buttons.subscribe": "S'abonner Pro",
+
+  "signupPlans.pro.payment.title": "Finaliser l'abonnement Pro",
+  "signupPlans.pro.payment.description": "Cliquez sur le bouton PayPal ci-dessous pour activer votre abonnement Pro. Vous recevrez votre clé d'activation par email après le paiement.",
+  "signupPlans.pro.payment.note": "Vous pouvez annuler votre abonnement à tout moment depuis votre compte PayPal."
 }

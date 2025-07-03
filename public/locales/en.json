@@ -442,8 +442,42 @@
   "contact.subtitle": "We'd love to hear from you. For any questions, partnerships, or enterprise inquiries, please reach out to us.",
   "contact.email.label": "You can contact us directly at:",
   "contact.email.address": "hubnexusinfo@gmail.com",
-  "activationKeyLabel": "Activation Key",
-  "activationKeyPlaceholder": "Enter your activation key",
-  "activationKeyInfo": "Your activation key is provided in the welcome email.",
-  "newCompanyNameLabel": "New Company Name"
+  "signup.success.emailSent": "✅ Registration successful! Confirmation email sent to {{email}}",
+  "signup.success.emailSentManager": "🎉 Registration successful! A summary email has been sent to {{email}} with all the information to set up your team.",
+  "signup.warning.emailFailed": "✅ Registration successful! (Confirmation email could not be sent)",
+  "email.welcome.subject": "🎉 Welcome to Nexus Support Hub - Company \"{{companyName}}\" created",
+  "email.welcome.manager.title": "Your Manager account is ready!",
+  "email.service.notConfigured": "Email service not configured - using simulation mode",
+  "email.service.sendSuccess": "Welcome email sent successfully to {{email}}",
+  "email.service.sendError": "Failed to send welcome email: {{error}}",
+  "email.service.fallbackMode": "Switching to simulation mode due to email service error",
+
+  "signupPlans.title": "Choose Your Plan",
+  "signupPlans.subtitle": "Select the plan that best fits your team's needs.",
+  "signupPlans.freemium.select": "Select Freemium",
+  "signupPlans.standard.select": "Select Standard",
+  "signupPlans.pro.select": "View Pro Details",
+
+  "signupPlans.pro.modal.title": "Pro Plan - Complete Details",
+  "signupPlans.pro.modal.pricing": "/ agent / month",
+  "signupPlans.pro.modal.features.title": "Pro Features Included",
+  "signupPlans.pro.modal.features.unlimited": "Unlimited tickets",
+  "signupPlans.pro.modal.features.voice": "Advanced voice commands",
+  "signupPlans.pro.modal.features.multilingual": "Multilingual support (FR/EN/AR)",
+  "signupPlans.pro.modal.features.appointments": "Appointment scheduling",
+  "signupPlans.pro.modal.features.priority": "Priority support",
+  "signupPlans.pro.modal.features.analytics": "Advanced analytics",
+
+  "signupPlans.pro.modal.trial.title": "7-day free trial",
+  "signupPlans.pro.modal.trial.description": "Start your 7-day free trial now. No credit card required to begin. Cancel anytime.",
+
+  "signupPlans.pro.modal.billing.title": "Billing and cancellation",
+  "signupPlans.pro.modal.billing.description": "Monthly billing via PayPal. Easy cancellation from your PayPal account anytime. No long-term commitment.",
+
+  "signupPlans.pro.modal.buttons.cancel": "Cancel",
+  "signupPlans.pro.modal.buttons.subscribe": "Subscribe Pro",
+
+  "signupPlans.pro.payment.title": "Finalize Pro Subscription",
+  "signupPlans.pro.payment.description": "Click the PayPal button below to activate your Pro subscription. You'll receive your activation key by email after payment.",
+  "signupPlans.pro.payment.note": "You can cancel your subscription anytime from your PayPal account."
 }
