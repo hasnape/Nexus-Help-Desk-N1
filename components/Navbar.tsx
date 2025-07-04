@@ -54,12 +54,41 @@ const Navbar: React.FC = () => {
 
   const navGroups = [
     {
-      key: "general",
-      title: t("navbar.group.general", { default: "Général" }),
+      key: "main",
+      title: t("navbar.group.main", { default: "Navigation" }),
       links: [
         { to: "/landing", label: t("navbar.home", { default: "Accueil" }) },
-        { to: "/about", label: t("navbar.about", { default: "À propos" }) },
+        {
+          to: "/presentation-video",
+          label: t("navbar.presentation", { default: "Présentation" }),
+        },
+        { to: "/pricing", label: t("navbar.pricing", { default: "Tarifs" }) },
+        {
+          to: "/infographie",
+          label: t("navbar.infographie", { default: "Infographie" }),
+        },
+        {
+          to: "/user-manual",
+          label: t("navbar.userManual", { default: "Manuel utilisateur" }),
+        },
+        {
+          to: "/help",
+          label: t("navbar.helpCenter", { default: "Centre d'aide" }),
+        },
+        { to: "/support", label: t("navbar.support", { default: "Support" }) },
         { to: "/contact", label: t("navbar.contact", { default: "Contact" }) },
+        {
+          to: "/legal",
+          label: t("navbar.legal", { default: "Légal & Documentation" }),
+        },
+        {
+          to: "/email-support",
+          label: t("navbar.emailSupport", { default: "Support par email" }),
+        },
+        {
+          to: "/presentation-video",
+          label: t("navbar.demoVideo", { default: "Démonstration vidéo" }),
+        },
       ],
     },
     {

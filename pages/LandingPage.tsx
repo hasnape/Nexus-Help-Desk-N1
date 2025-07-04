@@ -554,7 +554,9 @@ const LandingPage: React.FC = () => {
                 </Link>
               </div>
               <div className="flex justify-center">
-                <div className="w-full max-w-3xl">
+                <div className="w-full max-w-5xl">
+                  {" "}
+                  {/* Passez de max-w-3xl à max-w-5xl */}
                   <InfographieNexus />
                 </div>
               </div>
