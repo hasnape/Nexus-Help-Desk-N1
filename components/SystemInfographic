@@ -1,0 +1,121 @@
+<!-- filepath: c:\Users\HARBI Amine\Documents\Nexus-Help-Desk-N1-master\components\NexusInfographic.tsx -->
+import React from 'react';
+
+const NexusInfographic: React.FC = () => {
+  return (
+    <div className="bg-gradient-to-br from-slate-50 to-blue-50 py-16 px-4">
+      <div className="max-w-7xl mx-auto">
+        
+        {/* Header */}
+        <div className="text-center mb-16">
+          <div className="flex justify-center items-center mb-8">
+            <div className="flex flex-col items-center">
+              <span className="text-5xl font-bold text-blue-600">Nexus</span>
+              <span className="text-2xl text-slate-500 -mt-2">Support Hub</span>
+            </div>
+          </div>
+          <h1 className="text-4xl md:text-5xl font-black mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            Révolutionner la Gestion du Support Client avec l'IA
+          </h1>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            Une solution complète qui transforme l'expérience de support grâce à l'intelligence artificielle
+          </p>
+        </div>
+
+        {/* Section statistiques */}
+        <div className="mb-16">
+          <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+            <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">
+              Le défi : une expérience client exigeante
+            </h2>
+            <p className="text-lg text-gray-600 text-center mb-12 max-w-4xl mx-auto">
+              Dans un monde numérique, les clients attendent des réponses rapides, personnalisées et efficaces.
+            </p>
+            
+            <div className="grid md:grid-cols-3 gap-8">
+              <div className="text-center p-6 bg-blue-50 rounded-xl">
+                <div className="text-5xl font-black text-blue-600 mb-4">86%</div>
+                <p className="text-gray-700 font-medium">
+                  des clients sont prêts à payer plus pour une meilleure expérience.
+                </p>
+              </div>
+              <div className="text-center p-6 bg-purple-50 rounded-xl">
+                <div className="text-5xl font-black text-purple-600 mb-4">40%</div>
+                <p className="text-gray-700 font-medium">
+                  de productivité en plus attendus grâce à l'IA dans le support.
+                </p>
+              </div>
+              <div className="text-center p-6 bg-green-50 rounded-xl">
+                <div className="text-5xl font-black text-green-600 mb-4">7j/7</div>
+                <p className="text-gray-700 font-medium">
+                  est la nouvelle norme d'accessibilité attendue par les utilisateurs.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Section fonctionnalités */}
+        <div className="mb-16">
+          <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+            <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">
+              Une Solution Complète et Intelligente
+            </h2>
+            
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+              <div className="text-center p-6 border border-blue-100 rounded-xl hover:shadow-lg transition-shadow">
+                <div className="text-4xl mb-4">🎫</div>
+                <h3 className="font-bold text-gray-800 mb-2">Gestion de Tickets</h3>
+                <p className="text-sm text-gray-600">
+                  Création, suivi et résolution optimisés.
+                </p>
+              </div>
+              
+              <div className="text-center p-6 border border-blue-100 rounded-xl hover:shadow-lg transition-shadow">
+                <div className="text-4xl mb-4">🤖</div>
+                <h3 className="font-bold text-gray-800 mb-2">Assistant IA</h3>
+                <p className="text-sm text-gray-600">
+                  Réponses automatiques intelligentes.
+                </p>
+              </div>
+              
+              <div className="text-center p-6 border border-blue-100 rounded-xl hover:shadow-lg transition-shadow">
+                <div className="text-4xl mb-4">🌐</div>
+                <h3 className="font-bold text-gray-800 mb-2">Multilingue</h3>
+                <p className="text-sm text-gray-600">
+                  Support en français, anglais et arabe.
+                </p>
+              </div>
+              
+              <div className="text-center p-6 border border-blue-100 rounded-xl hover:shadow-lg transition-shadow">
+                <div className="text-4xl mb-4">📊</div>
+                <h3 className="font-bold text-gray-800 mb-2">Analytics</h3>
+                <p className="text-sm text-gray-600">
+                  Tableaux de bord en temps réel.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* CTA final */}
+        <div className="text-center">
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-12 text-white">
+            <h2 className="text-3xl font-bold mb-4">
+              Prêt à transformer votre support client ?
+            </h2>
+            <p className="text-xl mb-8 opacity-90">
+              Nexus Support Hub - Solution innovante et sécurisée
+            </p>
+            <p className="mt-4 opacity-75">
+              hubnexusinfo@gmail.com
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+};
+
+export default NexusInfographic;

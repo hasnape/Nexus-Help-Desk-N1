@@ -1,0 +1,27 @@
+{
+    "planLimits": {
+        "limitReached": "Limite du plan atteinte",
+        "upgradeNow": "Mettre à niveau",
+        "currentPlan": "Plan actuel",
+        "upgradeGeneral": "Passez à un plan supérieur pour débloquer cette fonctionnalité.",
+        "maxTicketsReached": "Limite de {{limit}} tickets par mois atteinte. Passez au plan Standard pour des tickets illimités.",
+        "maxAgentsReached": "Limite de {{limit}} agents atteinte. Passez au plan Standard pour ajouter plus d'agents.",
+        "upgradeForAgents": "Passez au plan Standard pour ajouter plus d'agents.",
+        "upgradeForTickets": "Passez au plan Standard pour des tickets illimités.",
+        "upgradeForAdvanced": "Passez au plan Standard pour la gestion avancée des tickets.",
+        "upgradeForVoice": "Passez au plan Pro pour les fonctionnalités vocales.",
+        "upgradeForAppointments": "Passez au plan Pro pour la planification de rendez-vous.",
+        "upgradeForReports": "Passez au plan Pro pour les rapports détaillés.",
+        "upgradeForSupport": "Passez au plan Standard pour le support prioritaire.",
+        "upgradeForUnlimited": "Passez au plan Standard pour des tickets illimités.",
+        "upgradeForNotes": "Passez au plan Standard pour les notes internes.",
+        "upgradeForAssignment": "Passez au plan Standard pour l'assignation de tickets.",
+        "upgradeForAI": "Passez au plan Standard pour une IA plus avancée.",
+        "featureNotAvailable": "Cette fonctionnalité n'est pas disponible dans votre plan actuel.",
+        "ticketCreationBlocked": "Vous avez atteint la limite de tickets pour ce mois.",
+        "agentAdditionBlocked": "Vous avez atteint la limite d'agents pour votre plan.",
+        "upgradePrompt": "Voulez-vous mettre à niveau votre plan pour accéder à cette fonctionnalité ?",
+        "upgradeButton": "Voir les plans",
+        "dismissButton": "Plus tard"
+    }
+}
