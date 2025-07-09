@@ -8,12 +8,12 @@ import React, {
 } from "react";
 
 export type Locale = "en" | "fr" | "ar";
-export type Translations = Record<string, string | Record<string, string>>; // Allow nested for plurals etc. later
+export type Translations = Record<string, string | Record<string, string>>;
 
 interface LanguageContextType {
   language: Locale;
   setLanguage: (language: Locale) => void;
-  changeLanguage: (language: Locale) => void; // Alias pour setLanguage
+  changeLanguage: (language: Locale) => void;
   t: (
     key: string,
     replacementsOrOptions?:
@@ -30,6 +30,69 @@ const LanguageContext = createContext<LanguageContextType | undefined>(
   undefined
 );
 
+// Cache des traductions
+const preloadedTranslations: Record<Locale, Translations | null> = {
+  en: null,
+  fr: null,
+  ar: null,
+};
+
+// Fonction de pré-chargement optimisée pour Vercel
+const preloadTranslations = async (
+  lang: Locale
+): Promise<Translations | null> => {
+  if (preloadedTranslations[lang]) return preloadedTranslations[lang];
+
+  try {
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error("Timeout de pré-chargement")), 3000); // Réduit à 3s pour Vercel
+    });
+
+    // Utiliser des chemins absolus pour Vercel
+    const vercelOptimizedPaths = [
+      `/locales/${lang}.json`,
+      `/public/locales/${lang}.json`,
+    ];
+
+    for (const path of vercelOptimizedPaths) {
+      try {
+        const response = (await Promise.race([
+          fetch(path, {
+            headers: {
+              "Cache-Control": "public, max-age=300", // Cache 5 minutes
+              Accept: "application/json",
+            },
+          }),
+          timeoutPromise,
+        ])) as Response;
+
+        if (response.ok) {
+          const data = (await Promise.race([
+            response.json(),
+            timeoutPromise,
+          ])) as Translations;
+
+          preloadedTranslations[lang] = data;
+          console.log(`Pré-chargement réussi pour ${lang} depuis ${path}`);
+          return data;
+        }
+      } catch (error) {
+        console.warn(`Tentative ${path} échouée:`, error);
+        continue; // Essayer le chemin suivant
+      }
+    }
+  } catch (error) {
+    console.error(`Erreur de pré-chargement pour ${lang}:`, error);
+  }
+  return null;
+};
+
+// Initialiser le pré-chargement
+if (typeof window !== "undefined") {
+  preloadTranslations("en");
+  preloadTranslations("fr");
+}
+
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
@@ -37,8 +100,8 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({
     const storedLang =
       typeof window !== "undefined"
         ? (localStorage.getItem("aiHelpDeskLang") as Locale)
-        : "en"; // Changé de "fr" à "en" pour que l'anglais soit la langue par défaut
-    return ["en", "fr", "ar"].includes(storedLang) ? storedLang : "en"; // Changé de "fr" à "en"
+        : "en";
+    return ["en", "fr", "ar"].includes(storedLang) ? storedLang : "en";
   });
 
   const [translations, setTranslations] =
@@ -46,98 +109,171 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({
   const [isLoadingLang, setIsLoadingLang] = useState<boolean>(true);
 
   useEffect(() => {
+    const abortController = new AbortController();
+
     const fetchTranslations = async (lang: Locale) => {
       setIsLoadingLang(true);
+
       try {
-        // Essayer plusieurs chemins possibles pour les fichiers de traduction
-        let response;
-        const possiblePaths = [
-          `/locales/${lang}.json`, // Chemin absolu depuis public
-          `./locales/${lang}.json`, // Chemin relatif depuis public
-          `/public/locales/${lang}.json`, // Si dans un sous-dossier
-          `./public/locales/${lang}.json`, // Chemin relatif avec public
+        // Vérifier cache en premier
+        const preloaded = preloadedTranslations[lang];
+        if (preloaded) {
+          setTranslations(preloaded);
+          console.log(`✅ Traductions ${lang} chargées depuis le cache`);
+          return;
+        }
+
+        // Chemins spécifiques pour Vercel (ORDRE IMPORTANT)
+        const vercelPaths = [
+          `/locales/${lang}.json`, // Chemin principal pour Vercel
+          `./locales/${lang}.json`, // Fallback relatif
         ];
 
+        let response;
         let loadSuccess = false;
-        for (const path of possiblePaths) {
+
+        for (const path of vercelPaths) {
           try {
-            response = await fetch(path);
+            console.log(`🔄 Tentative: ${path}`);
+
+            response = await fetch(path, {
+              signal: abortController.signal,
+              method: "GET",
+              headers: {
+                Accept: "application/json",
+                "Cache-Control": "no-cache, no-store, must-revalidate",
+                Pragma: "no-cache",
+                Expires: "0",
+              },
+            });
+
+            console.log(
+              `📡 Réponse ${path}: ${response.status} ${response.statusText}`
+            );
+
             if (response.ok) {
               loadSuccess = true;
-              console.log(`Traductions ${lang} chargées depuis: ${path}`);
+              console.log(`✅ Succès pour ${path}`);
               break;
+            } else {
+              console.warn(`❌ Échec ${path}: ${response.status}`);
+              // Continuer avec le chemin suivant
             }
           } catch (pathError) {
-            console.log(`Chemin ${path} non disponible`);
+            if (pathError.name === "AbortError") {
+              console.log("🛑 Requête annulée");
+              return;
+            }
+            console.warn(`💥 Erreur ${path}:`, pathError.message);
           }
         }
 
         if (!loadSuccess || !response) {
-          throw new Error(
-            `Impossible de charger ${lang}.json depuis tous les chemins testés`
-          );
+          throw new Error(`🚫 Aucun chemin valide trouvé pour ${lang}.json`);
         }
 
         const data: Translations = await response.json();
-        setTranslations(data);
-        console.log(`Traductions ${lang} chargées avec succès:`, Object.keys(data).length, 'clés');
+
+        if (!abortController.signal.aborted) {
+          setTranslations(data);
+          preloadedTranslations[lang] = data;
+          console.log(`✅ ${lang} chargé:`, Object.keys(data).length, "clés");
+        }
       } catch (error) {
-        console.error(
-          "Erreur lors du chargement du fichier de traduction:",
-          error
-        );
+        if (error.name === "AbortError") {
+          console.log("🛑 Chargement annulé");
+          return;
+        }
 
-        // Tentative de chargement de l'anglais comme fallback
+        console.error(`❌ Erreur chargement ${lang}:`, error);
+
+        // Fallback critique vers l'anglais
         if (lang !== "en") {
+          console.log("🔄 Tentative fallback vers anglais...");
           try {
-            const fallbackPaths = [
-              `/locales/en.json`,
-              `./locales/en.json`,
-              `/public/locales/en.json`,
-              `./public/locales/en.json`,
-            ];
+            const fallbackResponse = await fetch(`/locales/en.json`, {
+              signal: abortController.signal,
+              headers: {
+                Accept: "application/json",
+                "Cache-Control": "no-cache",
+              },
+            });
 
-            let fallbackSuccess = false;
-            for (const path of fallbackPaths) {
-              try {
-                const fallbackResponse = await fetch(path);
-                if (fallbackResponse.ok) {
-                  setTranslations(await fallbackResponse.json());
-                  fallbackSuccess = true;
-                  console.log("Fallback anglais chargé depuis:", path);
-                  break;
-                }
-              } catch (fallbackPathError) {
-                console.log(`Chemin fallback ${path} non disponible`);
-              }
-            }
-
-            if (!fallbackSuccess) {
-              setTranslations(emptyTranslations);
+            if (fallbackResponse.ok) {
+              const fallbackData = await fallbackResponse.json();
+              setTranslations(fallbackData);
+              preloadedTranslations["en"] = fallbackData;
+              console.log("✅ Fallback anglais réussi");
+            } else {
+              throw new Error(`Fallback échoué: ${fallbackResponse.status}`);
             }
           } catch (fallbackError) {
-            console.error(
-              "Erreur lors du chargement du fallback anglais:",
-              fallbackError
-            );
+            console.error("❌ Fallback anglais échoué:", fallbackError);
+            // Utiliser des traductions vides en dernier recours
             setTranslations(emptyTranslations);
           }
         } else {
+          // Si même l'anglais échoue, utiliser des traductions vides
+          console.warn("⚠️ Utilisation de traductions vides");
           setTranslations(emptyTranslations);
         }
       } finally {
-        setIsLoadingLang(false);
+        if (!abortController.signal.aborted) {
+          setIsLoadingLang(false);
+          console.log(`🏁 Chargement terminé pour ${lang}`);
+        }
       }
     };
 
     fetchTranslations(language);
 
+    // Configuration DOM
     if (typeof window !== "undefined") {
       localStorage.setItem("aiHelpDeskLang", language);
       document.documentElement.lang = language;
       document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
     }
+
+    return () => {
+      abortController.abort();
+    };
   }, [language]);
+
+  useEffect(() => {
+    let visibilityTimeout: NodeJS.Timeout;
+
+    const handleVisibilityChange = () => {
+      if (!document.hidden && isLoadingLang) {
+        console.log("Retour sur l'onglet - forcer la résolution du loading");
+
+        if (visibilityTimeout) {
+          clearTimeout(visibilityTimeout);
+        }
+
+        visibilityTimeout = setTimeout(() => {
+          console.log("Forcer la fin du loading après changement d'onglet");
+          setIsLoadingLang(false);
+        }, 2000);
+      }
+    };
+
+    const emergencyTimeout = setTimeout(() => {
+      if (isLoadingLang) {
+        console.warn("Timeout d'urgence - forcer la fin du loading");
+        setIsLoadingLang(false);
+      }
+    }, 15000);
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      if (visibilityTimeout) {
+        clearTimeout(visibilityTimeout);
+      }
+      clearTimeout(emergencyTimeout);
+    };
+  }, [isLoadingLang]);
 
   const setLanguage = (lang: Locale) => {
     console.log(`Changement de langue vers: ${lang}`);
@@ -146,7 +282,6 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({
     }
   };
 
-  // Alias pour la compatibilité
   const changeLanguage = setLanguage;
 
   const t = useCallback(
@@ -221,4 +356,3 @@ export const useLanguage = (): LanguageContextType => {
   }
   return context;
 };
-

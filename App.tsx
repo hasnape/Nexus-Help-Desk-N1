@@ -1232,10 +1232,30 @@ const MainAppContent: React.FC = () => {
   const { user, isLoading, consentGiven, giveConsent } = useApp();
   const { isLoadingLang, t } = useLanguage();
 
+  // Timeout d'urgence spécifique pour Vercel
+  useEffect(() => {
+    if (isLoadingLang) {
+      const vercelTimeout = setTimeout(() => {
+        console.warn("⚠️ Timeout Vercel - forcer la résolution du loading");
+        // Ici on pourrait dispatch une action pour forcer setIsLoadingLang(false)
+        window.location.reload(); // Solution drastique pour Vercel
+      }, 10000); // 10 secondes pour Vercel
+
+      return () => clearTimeout(vercelTimeout);
+    }
+  }, [isLoadingLang]);
+
   if (isLoading || isLoadingLang) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-slate-100">
         <LoadingSpinner size="lg" text={t("appName") + "..."} />
+        {/* Indicateur de debug pour Vercel */}
+        <div className="absolute bottom-4 right-4 text-xs text-gray-500">
+          {isLoading && "🔄 App Loading..."}
+          {isLoadingLang && "🌐 Lang Loading..."}
+          <br />
+          <span className="text-xs text-blue-500">Vercel Deploy</span>
+        </div>
       </div>
     );
   }
