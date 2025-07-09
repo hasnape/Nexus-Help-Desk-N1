@@ -19,13 +19,16 @@
             }
         ]
     }],
-    "rewrites": [{
-        "source": "/locales/:file",
-        "destination": "/public/locales/:file"
-    }],
     "trailingSlash": false,
     "cleanUrls": true,
     "rewrites": [
-        { "source": "/(.*)", "destination": "/index.html" }
+        {
+            "source": "/locales/:file",
+            "destination": "/locales/:file"
+        },
+        { 
+            "source": "/(.*)", 
+            "destination": "/index.html" 
+        }
     ]
 }
