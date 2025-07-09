@@ -220,33 +220,38 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
   }, []);
 
   useEffect(() => {
+    let mounted = true;
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!mounted) return;
+
       console.log(
         `🔑 Auth state change: ${event}`,
         session?.user?.id || "no user"
       );
 
-      // ✅ FIX: Lire l'utilisateur depuis la ref pour avoir la valeur à jour
-      const currentUser = userRef.current;
+      // Gérer les cas où l'utilisateur se déconnecte
+      if (event === "SIGNED_OUT" || !session?.user) {
+        console.log("🚪 User signed out, clearing data");
+        setUser(null);
+        setCompany(null);
+        setTickets([]);
+        setAllUsers([]);
+        setIsLoading(false);
+        return;
+      }
 
-      // ✅ AMÉLIORATION FINALE : Ignorer les rafraîchissements de token ou les sessions initiales pour un utilisateur déjà connecté
-      if (
-        (event === "SIGNED_IN" ||
-          event === "TOKEN_REFRESHED" ||
-          event === "INITIAL_SESSION") &&
-        session?.user?.id &&
-        session.user.id === currentUser?.id
-      ) {
-        console.log(
-          `🔄 User session event (${event}) for already loaded user.`,
-          `Current user: ${currentUser?.id}, Session user: ${session.user.id}`
-        );
-        // Si l'utilisateur est déjà chargé, on s'assure que l'écran de chargement est bien masqué.
-        if (isLoading) {
-          setIsLoading(false);
-        }
+      // Pour les autres événements, vérifier si on doit charger les données
+      const authUser = session.user;
+      const shouldLoadData =
+        event === "SIGNED_IN" ||
+        event === "INITIAL_SESSION" ||
+        (event === "TOKEN_REFRESHED" && !userRef.current);
+
+      if (!shouldLoadData) {
+        console.log(`🔄 Ignoring event: ${event} (user already loaded)`);
         return;
       }
 
@@ -268,76 +273,73 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
         authTimeout.current = null;
       }, 15000); // 15 secondes
 
-      let success = false;
-      const authUser = session?.user;
+      try {
+        console.log("🔍 Fetching user and company data...");
+        const { data: userProfile, error: profileError } = await supabase
+          .from("users")
+          .select("*")
+          .eq("id", authUser.id)
+          .single();
 
-      if (authUser) {
-        try {
-          console.log("🔍 Fetching user and company data...");
-          const { data: userProfile, error: profileError } = await supabase
+        if (profileError || !userProfile) {
+          throw new Error(
+            `Failed to fetch user profile: ${JSON.stringify(
+              profileError,
+              null,
+              2
+            )}`
+          );
+        }
+        console.log("✅ User profile loaded:", userProfile.id);
+
+        const { data: companyData, error: companyError } = await supabase
+          .from("companies")
+          .select("*")
+          .eq("name", userProfile.company_id)
+          .single();
+
+        if (companyError || !companyData) {
+          throw new Error(
+            `Failed to fetch company data: ${JSON.stringify(
+              companyError,
+              null,
+              2
+            )}`
+          );
+        }
+        console.log("✅ Company loaded:", companyData.name);
+
+        console.log("⏳ Fetching all users and tickets for the company...");
+        const [usersResponse, ticketsResponse] = await Promise.all([
+          supabase
             .from("users")
             .select("*")
-            .eq("id", authUser.id)
-            .single();
-
-          if (profileError || !userProfile) {
-            throw new Error(
-              `Failed to fetch user profile: ${JSON.stringify(
-                profileError,
-                null,
-                2
-              )}`
-            );
-          }
-          console.log("✅ User profile loaded:", userProfile.id);
-
-          const { data: companyData, error: companyError } = await supabase
-            .from("companies")
+            .eq("company_id", userProfile.company_id),
+          supabase
+            .from("tickets")
             .select("*")
-            .eq("name", userProfile.company_id)
-            .single();
+            .eq("company_id", userProfile.company_id),
+        ]);
 
-          if (companyError || !companyData) {
-            throw new Error(
-              `Failed to fetch company data: ${JSON.stringify(
-                companyError,
-                null,
-                2
-              )}`
-            );
-          }
-          console.log("✅ Company loaded:", companyData.name);
+        if (usersResponse.error)
+          throw new Error(
+            `Failed to fetch users: ${JSON.stringify(
+              usersResponse.error,
+              null,
+              2
+            )}`
+          );
+        if (ticketsResponse.error)
+          throw new Error(
+            `Failed to fetch tickets: ${JSON.stringify(
+              ticketsResponse.error,
+              null,
+              2
+            )}`
+          );
 
-          console.log("⏳ Fetching all users and tickets for the company...");
-          const [usersResponse, ticketsResponse] = await Promise.all([
-            supabase
-              .from("users")
-              .select("*")
-              .eq("company_id", userProfile.company_id),
-            supabase
-              .from("tickets")
-              .select("*")
-              .eq("company_id", userProfile.company_id),
-          ]);
-
-          if (usersResponse.error)
-            throw new Error(
-              `Failed to fetch users: ${JSON.stringify(
-                usersResponse.error,
-                null,
-                2
-              )}`
-            );
-          if (ticketsResponse.error)
-            throw new Error(
-              `Failed to fetch tickets: ${JSON.stringify(
-                ticketsResponse.error,
-                null,
-                2
-              )}`
-            );
-
-          // Toutes les données sont chargées, on met à jour l'état
+        // Toutes les données sont chargées, on met à jour l'état
+        if (mounted) {
           setUser(userProfile);
           setCompany(reviveCompanyDates(companyData));
           setAllUsers(usersResponse.data || []);
@@ -347,44 +349,41 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
               : []
           );
           console.log("✅ All data loaded successfully.");
-          success = true;
-        } catch (error) {
-          console.error("💥 Error during data fetch:", error);
-          // En cas d'erreur, `success` reste `false`
         }
-      }
-
-      // Si l'utilisateur n'est pas authentifié ou si le chargement a échoué
-      if (!authUser || !success) {
-        console.log("🚪 Clearing user data and signing out if necessary.");
-        setUser(null);
-        setCompany(null);
-        setTickets([]);
-        setAllUsers([]);
-        if (authUser) {
-          // Si l'utilisateur était connecté mais que les données ont échoué, on le déconnecte
+      } catch (error) {
+        console.error("💥 Error during data fetch:", error);
+        if (mounted) {
+          // En cas d'erreur, déconnecter l'utilisateur
+          console.log("🚪 Error occurred, signing out user");
+          setUser(null);
+          setCompany(null);
+          setTickets([]);
+          setAllUsers([]);
           await supabase.auth.signOut();
         }
+      } finally {
+        if (mounted) {
+          // Nettoyage final
+          if (authTimeout.current) {
+            clearTimeout(authTimeout.current);
+            authTimeout.current = null;
+          }
+          setIsLoading(false);
+          authStateLoading.current = false;
+          console.log("🏁 Auth state change complete.");
+        }
       }
-
-      // Nettoyage final
-      if (authTimeout.current) {
-        clearTimeout(authTimeout.current);
-        authTimeout.current = null;
-      }
-      setIsLoading(false);
-      authStateLoading.current = false;
-      console.log("🏁 Auth state change complete.");
     });
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
       if (authTimeout.current) {
         clearTimeout(authTimeout.current);
         authTimeout.current = null;
       }
     };
-  }, []); // ✅ CORRECTION CRUCIALE : Remplacer [user, isLoading] par []
+  }, []); // ✅ CORRECT: Dépendances vides pour éviter les re-souscriptions
 
   useEffect(() => {
     if (user?.language_preference && user.language_preference !== language) {
