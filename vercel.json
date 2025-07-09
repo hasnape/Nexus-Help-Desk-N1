@@ -1,9 +1,4 @@
 {
-    "functions": {
-        "pages/**/*.tsx": {
-            "maxDuration": 10
-        }
-    },
     "headers": [{
         "source": "/locales/(.*).json",
         "headers": [{
