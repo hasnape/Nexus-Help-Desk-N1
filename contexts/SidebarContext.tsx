@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState } from "react";
 
 interface SidebarContextType {
   isExpanded: boolean;
+  setIsExpanded: (expanded: boolean) => void; // ✅ AJOUTÉ
   toggleSidebar: () => void;
 }
 
@@ -17,7 +18,9 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   return (
-    <SidebarContext.Provider value={{ isExpanded, toggleSidebar }}>
+    <SidebarContext.Provider
+      value={{ isExpanded, setIsExpanded, toggleSidebar }}
+    >
       {children}
     </SidebarContext.Provider>
   );
@@ -38,13 +41,11 @@ export const useSidebarSafe = () => {
 
   // Si pas de provider, retourner des valeurs par défaut
   if (context === undefined) {
+    console.warn("useSidebarSafe: Utilisé en dehors de SidebarProvider");
     return {
       isExpanded: false,
-      toggleSidebar: () => {
-        console.warn(
-          "useSidebarSafe: toggleSidebar called outside of SidebarProvider"
-        );
-      },
+      setIsExpanded: () => {},
+      toggleSidebar: () => {},
     };
   }
 

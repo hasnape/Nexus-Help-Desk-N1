@@ -22,6 +22,7 @@ interface LanguageContextType {
   ) => string;
   getBCP47Locale: () => string;
   isLoadingLang: boolean;
+  forceResolveLoading: () => void;
 }
 
 const emptyTranslations: Translations = {};
@@ -123,7 +124,6 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({
           signal: abortController.signal,
           headers: {
             Accept: "application/json",
-            // Laisser le navigateur gérer le cache avec 304
             "Cache-Control": "public, max-age=86400",
           },
         });
@@ -194,41 +194,27 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({
     };
   }, [language]);
 
-  useEffect(() => {
-    let visibilityTimeout: NodeJS.Timeout;
+  const forceResolveLoading = useCallback(() => {
+    console.log("🔧 Forçage de la résolution du loading des traductions");
+    setIsLoadingLang(false);
+  }, []);
 
-    const handleVisibilityChange = () => {
-      if (!document.hidden && isLoadingLang) {
-        console.log("Retour sur l'onglet - forcer la résolution du loading");
+  // ✅ FIX: Désactiver complètement le timeout d'urgence
+  // Ce timeout cause le blocage après connexion
+  // useEffect(() => {
+  //   let emergencyTimeout: NodeJS.Timeout;
 
-        if (visibilityTimeout) {
-          clearTimeout(visibilityTimeout);
-        }
+  //   emergencyTimeout = setTimeout(() => {
+  //     if (isLoadingLang) {
+  //       console.warn("⚠️ Timeout d'urgence - forcer la résolution");
+  //       forceResolveLoading();
+  //     }
+  //   }, 3000);
 
-        visibilityTimeout = setTimeout(() => {
-          console.log("Forcer la fin du loading après changement d'onglet");
-          setIsLoadingLang(false);
-        }, 2000);
-      }
-    };
-
-    const emergencyTimeout = setTimeout(() => {
-      if (isLoadingLang) {
-        console.warn("⏰ Timeout d'urgence après 3s");
-        setIsLoadingLang(false);
-      }
-    }, 3000); // Réduit à 3s
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-
-    return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-      if (visibilityTimeout) {
-        clearTimeout(visibilityTimeout);
-      }
-      clearTimeout(emergencyTimeout);
-    };
-  }, [isLoadingLang]);
+  //   return () => {
+  //     if (emergencyTimeout) clearTimeout(emergencyTimeout);
+  //   };
+  // }, [isLoadingLang, forceResolveLoading]);
 
   const setLanguage = (lang: Locale) => {
     console.log(`Changement de langue vers: ${lang}`);
@@ -297,11 +283,29 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({
         t,
         getBCP47Locale,
         isLoadingLang,
+        forceResolveLoading,
       }}
     >
       {children}
     </LanguageContext.Provider>
   );
+};
+
+export const useLanguageSafe = () => {
+  const context = useContext(LanguageContext);
+  if (!context) {
+    console.warn("useLanguageSafe: Utilisé en dehors de LanguageProvider");
+    return {
+      language: "en" as Locale,
+      setLanguage: () => {},
+      changeLanguage: () => {},
+      t: (key: string, options?: any) => options?.default || key,
+      getBCP47Locale: () => "en-US",
+      isLoadingLang: false,
+      forceResolveLoading: () => {},
+    };
+  }
+  return context;
 };
 
 export const useLanguage = (): LanguageContextType => {

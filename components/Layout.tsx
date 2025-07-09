@@ -18,10 +18,10 @@ const Layout: React.FC<LayoutProps> = ({ children, showSidebar = true }) => {
       {/* Contenu principal avec marge adaptative */}
       <div
         className={`transition-all duration-300 ${
-          showSidebar ? (isExpanded ? "ml-64" : "ml-16") : ""
+          showSidebar ? (isExpanded ? "ml-64" : "ml-16") : "ml-0"
         }`}
       >
-        <Navbar />
+        <Navbar showSidebar={showSidebar} />
         <main className="pt-16">{children}</main>
       </div>
     </div>

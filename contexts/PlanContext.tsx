@@ -81,6 +81,25 @@ export const usePlan = () => {
   return context;
 };
 
+// ✅ NOUVEAU Hook sécurisé
+export const usePlanSafe = () => {
+  const context = useContext(PlanContext);
+  if (context === undefined) {
+    console.warn("usePlanSafe: Utilisé en dehors de PlanProvider");
+    return {
+      currentPlan: "freemium" as Plan,
+      planLimits: PLAN_LIMITS.freemium,
+      canCreateTicket: () => false,
+      canAddAgent: () => false,
+      getTicketsUsedThisMonth: () => 0,
+      getAgentsCount: () => 0,
+      isFeatureAvailable: () => false,
+      upgradeRequired: true,
+    };
+  }
+  return context;
+};
+
 interface PlanProviderProps {
   children: ReactNode;
 }
@@ -89,19 +108,19 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
   // Déplacer useApp ici, dans le composant, pas au niveau du module
   const { company, tickets, getAllUsers } = useApp();
   const { t } = useLanguage();
-  
-  const currentPlan: Plan = company?.plan || 'freemium';
+
+  const currentPlan: Plan = company?.plan || "freemium";
   const planLimits = PLAN_LIMITS[currentPlan];
 
   const getTicketsUsedThisMonth = (): number => {
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    return tickets.filter(ticket => ticket.created_at >= startOfMonth).length;
+    return tickets.filter((ticket) => ticket.created_at >= startOfMonth).length;
   };
 
   const getAgentsCount = (): number => {
-    return getAllUsers().filter(user => 
-      user.role === UserRole.AGENT || user.role === UserRole.MANAGER
+    return getAllUsers().filter(
+      (user) => user.role === UserRole.AGENT || user.role === UserRole.MANAGER
     ).length;
   };
 
@@ -117,16 +136,14 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
 
   const isFeatureAvailable = (feature: keyof PlanLimits): boolean => {
     const featureValue = planLimits[feature];
-    if (typeof featureValue === 'boolean') {
+    if (typeof featureValue === "boolean") {
       return featureValue;
     }
     return true; // Pour les valeurs numériques, on considère qu'elles sont disponibles
   };
 
-  const upgradeRequired = 
-    !canCreateTicket() || 
-    !canAddAgent() || 
-    currentPlan === 'freemium';
+  const upgradeRequired =
+    !canCreateTicket() || !canAddAgent() || currentPlan === "freemium";
 
   const contextValue: PlanContextType = {
     currentPlan,
@@ -140,9 +157,7 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
   };
 
   return (
-    <PlanContext.Provider value={contextValue}>
-      {children}
-    </PlanContext.Provider>
+    <PlanContext.Provider value={contextValue}>{children}</PlanContext.Provider>
   );
 };
 
@@ -150,13 +165,13 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
 export const usePlanName = () => {
   const { currentPlan } = usePlan();
   const { t } = useLanguage();
-  
+
   const planNames = {
     freemium: t("plans.freemium.name", { default: "Freemium" }),
     standard: t("plans.standard.name", { default: "Standard" }),
     pro: t("plans.pro.name", { default: "Pro" }),
   };
-  
+
   return planNames[currentPlan];
 };
 
@@ -164,18 +179,18 @@ export const usePlanName = () => {
 export const usePlanDescription = () => {
   const { currentPlan } = usePlan();
   const { t } = useLanguage();
-  
+
   const planDescriptions = {
-    freemium: t("plans.freemium.description", { 
-      default: "Plan gratuit avec fonctionnalités de base" 
+    freemium: t("plans.freemium.description", {
+      default: "Plan gratuit avec fonctionnalités de base",
     }),
-    standard: t("plans.standard.description", { 
-      default: "Plan standard avec fonctionnalités avancées" 
+    standard: t("plans.standard.description", {
+      default: "Plan standard avec fonctionnalités avancées",
     }),
-    pro: t("plans.pro.description", { 
-      default: "Plan professionnel avec toutes les fonctionnalités" 
+    pro: t("plans.pro.description", {
+      default: "Plan professionnel avec toutes les fonctionnalités",
     }),
   };
-  
+
   return planDescriptions[currentPlan];
 };

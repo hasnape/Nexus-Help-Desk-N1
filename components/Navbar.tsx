@@ -6,7 +6,11 @@ import { useLanguage, Locale } from "../contexts/LanguageContext";
 import { useSidebar } from "../contexts/SidebarContext";
 import Logo from "./Logo";
 
-const Navbar: React.FC = () => {
+interface NavbarProps {
+  showSidebar?: boolean;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ showSidebar = true }) => {
   const { user, logout } = useApp();
   const { language, setLanguage } = useLanguage();
   const { isExpanded } = useSidebar();
@@ -24,11 +28,13 @@ const Navbar: React.FC = () => {
     { code: "ar", nameKey: "language.arabic", defaultName: "العربية" },
   ];
 
+  const navClasses = showSidebar
+    ? `transition-all duration-300 ${isExpanded ? "left-64" : "left-16"}`
+    : "left-0";
+
   return (
     <nav
-      className={`bg-white shadow-sm border-b border-gray-200 fixed top-0 right-0 z-30 transition-all duration-300 ${
-        isExpanded ? "left-64" : "left-16"
-      }`}
+      className={`bg-white shadow-sm border-b border-gray-200 fixed top-0 right-0 z-30 ${navClasses}`}
     >
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">

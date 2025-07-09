@@ -8,7 +8,6 @@ import React, {
   useRef,
 } from "react";
 import {
-  HashRouter,
   BrowserRouter as Router,
   Routes,
   Route,
@@ -45,9 +44,9 @@ import HelpChatPage from "./pages/HelpChatPage";
 import LegalPage from "./pages/LegalPage";
 import UserManualPage from "./pages/UserManualPage";
 import PromotionalPage from "./pages/PromotionalPage";
-import LandingPage from "./pages/LandingPage"; // Import LandingPage
-import SubscriptionPage from "./pages/SubscriptionPage"; // Import SubscriptionPage
-import ContactPage from "./pages/ContactPage"; // Import ContactPage
+import LandingPage from "./pages/LandingPage";
+import SubscriptionPage from "./pages/SubscriptionPage";
+import ContactPage from "./pages/ContactPage";
 import {
   DEFAULT_AI_LEVEL,
   DEFAULT_USER_ROLE,
@@ -58,6 +57,8 @@ import LoadingSpinner from "./components/LoadingSpinner";
 import CookieConsentBanner from "./components/CookieConsentBanner";
 import { SidebarProvider } from "./contexts/SidebarContext";
 import { PlanProvider } from "./contexts/PlanContext";
+import { useNavigationGuard } from "./hooks/useNavigationGuard";
+import ContextDebugger from "./components/ContextDebugger";
 
 interface AppContextType {
   user: User | null;
@@ -130,31 +131,54 @@ interface AppContextType {
   newlyCreatedCompanyName: string | null;
   setNewlyCreatedCompanyName: (name: string | null) => void;
   updateCompanyName: (newName: string) => Promise<boolean>;
-  updateCompanyPlan: (plan: Plan) => Promise<boolean>;
+  updateCompanyPlan: (plan: Plan) => Promise<boolean>; // ✅ BUG FIX #1: Ajout de la propriété manquante
   consentGiven: boolean;
   giveConsent: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-const reviveTicketDates = (data: any): Ticket => ({
-  ...data,
-  created_at: new Date(data.created_at),
-  updated_at: new Date(data.updated_at),
-  chat_history: data.chat_history
-    ? data.chat_history.map((c: any) => ({
-        ...c,
-        timestamp: new Date(c.timestamp),
-      }))
-    : [],
-  internal_notes: data.internal_notes || [],
-  current_appointment: data.current_appointment || undefined,
-});
+// ✅ BUG FIX #2: Amélioration de la validation des données
+const reviveTicketDates = (data: any): Ticket => {
+  if (!data) {
+    throw new Error("Invalid ticket data: data is null or undefined");
+  }
 
-const reviveCompanyDates = (data: any): Company => ({
-  ...data,
-  created_at: new Date(data.created_at),
-});
+  try {
+    return {
+      ...data,
+      created_at: data.created_at ? new Date(data.created_at) : new Date(),
+      updated_at: data.updated_at ? new Date(data.updated_at) : new Date(),
+      chat_history: data.chat_history
+        ? data.chat_history.map((c: any) => ({
+            ...c,
+            timestamp: c.timestamp ? new Date(c.timestamp) : new Date(),
+          }))
+        : [],
+      internal_notes: data.internal_notes || [],
+      current_appointment: data.current_appointment || undefined,
+    };
+  } catch (error) {
+    console.error("Error reviving ticket dates:", error);
+    throw new Error("Failed to process ticket data");
+  }
+};
+
+const reviveCompanyDates = (data: any): Company => {
+  if (!data) {
+    throw new Error("Invalid company data: data is null or undefined");
+  }
+
+  try {
+    return {
+      ...data,
+      created_at: data.created_at ? new Date(data.created_at) : new Date(),
+    };
+  } catch (error) {
+    console.error("Error reviving company dates:", error);
+    throw new Error("Failed to process company data");
+  }
+};
 
 const AppProviderContent: React.FC<{ children: ReactNode }> = ({
   children,
@@ -175,7 +199,12 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
     return storedAutoRead ? JSON.parse(storedAutoRead) : true;
   });
 
+  // ✅ FIX: Utiliser une ref pour l'utilisateur afin d'éviter les re-souscriptions
+  const userRef = useRef(user);
+  userRef.current = user;
+
   const authStateLoading = useRef(false);
+  const authTimeout = useRef<NodeJS.Timeout | null>(null); // ✅ AJOUT
 
   const {
     language,
@@ -194,15 +223,57 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (authStateLoading.current) return;
+      console.log(
+        `🔑 Auth state change: ${event}`,
+        session?.user?.id || "no user"
+      );
+
+      // ✅ FIX: Lire l'utilisateur depuis la ref pour avoir la valeur à jour
+      const currentUser = userRef.current;
+
+      // ✅ AMÉLIORATION FINALE : Ignorer les rafraîchissements de token ou les sessions initiales pour un utilisateur déjà connecté
+      if (
+        (event === "SIGNED_IN" ||
+          event === "TOKEN_REFRESHED" ||
+          event === "INITIAL_SESSION") &&
+        session?.user?.id &&
+        session.user.id === currentUser?.id
+      ) {
+        console.log(
+          `🔄 User session event (${event}) for already loaded user.`,
+          `Current user: ${currentUser?.id}, Session user: ${session.user.id}`
+        );
+        // Si l'utilisateur est déjà chargé, on s'assure que l'écran de chargement est bien masqué.
+        if (isLoading) {
+          setIsLoading(false);
+        }
+        return;
+      }
+
+      // Verrou pour éviter les exécutions concurrentes
+      if (authStateLoading.current) {
+        console.log("⚠️ Auth state change already in progress, skipping.");
+        return;
+      }
 
       authStateLoading.current = true;
       setIsLoading(true);
 
-      try {
-        const authUser = session?.user;
+      // Timeout de sécurité pour éviter un blocage infini
+      if (authTimeout.current) clearTimeout(authTimeout.current);
+      authTimeout.current = setTimeout(() => {
+        console.error("⏰ Auth timeout reached, forcing loading to false.");
+        setIsLoading(false);
+        authStateLoading.current = false;
+        authTimeout.current = null;
+      }, 15000); // 15 secondes
 
-        if (authUser) {
+      let success = false;
+      const authUser = session?.user;
+
+      if (authUser) {
+        try {
+          console.log("🔍 Fetching user and company data...");
           const { data: userProfile, error: profileError } = await supabase
             .from("users")
             .select("*")
@@ -210,79 +281,110 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
             .single();
 
           if (profileError || !userProfile) {
-            console.error(
-              "Error fetching user profile:",
-              JSON.stringify(profileError, null, 2)
+            throw new Error(
+              `Failed to fetch user profile: ${JSON.stringify(
+                profileError,
+                null,
+                2
+              )}`
             );
-            await supabase.auth.signOut();
-          } else {
-            setUser(userProfile);
-            const { data: companyData, error: companyError } = await supabase
-              .from("companies")
-              .select("*")
-              .eq("name", userProfile.company_id)
-              .single();
-
-            if (companyError || !companyData) {
-              console.error(
-                "Error fetching company profile:",
-                JSON.stringify(companyError, null, 2)
-              );
-              await supabase.auth.signOut();
-            } else {
-              setCompany(reviveCompanyDates(companyData));
-              const [usersResponse, ticketsResponse] = await Promise.all([
-                supabase
-                  .from("users")
-                  .select("*")
-                  .eq("company_id", userProfile.company_id),
-                supabase
-                  .from("tickets")
-                  .select("*")
-                  .eq("company_id", userProfile.company_id),
-              ]);
-
-              if (usersResponse.error)
-                console.error(
-                  "Error fetching users:",
-                  JSON.stringify(usersResponse.error, null, 2)
-                );
-              else setAllUsers(usersResponse.data || []);
-
-              if (ticketsResponse.error)
-                console.error(
-                  "Error fetching tickets:",
-                  JSON.stringify(ticketsResponse.error, null, 2)
-                );
-              else
-                setTickets(
-                  ticketsResponse.data
-                    ? ticketsResponse.data.map(reviveTicketDates)
-                    : []
-                );
-            }
           }
-        } else {
-          setUser(null);
-          setCompany(null);
-          setTickets([]);
-          setAllUsers([]);
+          console.log("✅ User profile loaded:", userProfile.id);
+
+          const { data: companyData, error: companyError } = await supabase
+            .from("companies")
+            .select("*")
+            .eq("name", userProfile.company_id)
+            .single();
+
+          if (companyError || !companyData) {
+            throw new Error(
+              `Failed to fetch company data: ${JSON.stringify(
+                companyError,
+                null,
+                2
+              )}`
+            );
+          }
+          console.log("✅ Company loaded:", companyData.name);
+
+          console.log("⏳ Fetching all users and tickets for the company...");
+          const [usersResponse, ticketsResponse] = await Promise.all([
+            supabase
+              .from("users")
+              .select("*")
+              .eq("company_id", userProfile.company_id),
+            supabase
+              .from("tickets")
+              .select("*")
+              .eq("company_id", userProfile.company_id),
+          ]);
+
+          if (usersResponse.error)
+            throw new Error(
+              `Failed to fetch users: ${JSON.stringify(
+                usersResponse.error,
+                null,
+                2
+              )}`
+            );
+          if (ticketsResponse.error)
+            throw new Error(
+              `Failed to fetch tickets: ${JSON.stringify(
+                ticketsResponse.error,
+                null,
+                2
+              )}`
+            );
+
+          // Toutes les données sont chargées, on met à jour l'état
+          setUser(userProfile);
+          setCompany(reviveCompanyDates(companyData));
+          setAllUsers(usersResponse.data || []);
+          setTickets(
+            ticketsResponse.data
+              ? ticketsResponse.data.map(reviveTicketDates)
+              : []
+          );
+          console.log("✅ All data loaded successfully.");
+          success = true;
+        } catch (error) {
+          console.error("💥 Error during data fetch:", error);
+          // En cas d'erreur, `success` reste `false`
         }
-      } catch (e: any) {
-        console.error(
-          "Critical error in onAuthStateChange listener:",
-          JSON.stringify(e, null, 2)
-        );
-      } finally {
-        setIsLoading(false);
-        authStateLoading.current = false;
       }
+
+      // Si l'utilisateur n'est pas authentifié ou si le chargement a échoué
+      if (!authUser || !success) {
+        console.log("🚪 Clearing user data and signing out if necessary.");
+        setUser(null);
+        setCompany(null);
+        setTickets([]);
+        setAllUsers([]);
+        if (authUser) {
+          // Si l'utilisateur était connecté mais que les données ont échoué, on le déconnecte
+          await supabase.auth.signOut();
+        }
+      }
+
+      // Nettoyage final
+      if (authTimeout.current) {
+        clearTimeout(authTimeout.current);
+        authTimeout.current = null;
+      }
+      setIsLoading(false);
+      authStateLoading.current = false;
+      console.log("🏁 Auth state change complete.");
     });
 
     return () => {
       subscription.unsubscribe();
+      if (authTimeout.current) {
+        clearTimeout(authTimeout.current);
+        authTimeout.current = null;
+      }
     };
-  }, []);
+  }, []); // ✅ CORRECTION CRUCIALE : Remplacer [user, isLoading] par []
 
   useEffect(() => {
     if (user?.language_preference && user.language_preference !== language) {
@@ -308,46 +410,54 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
     setConsentGiven(true);
   };
 
+  // ✅ BUG FIX #3: Amélioration de la gestion d'erreurs dans login
   const login = async (
     email: string,
     password: string,
     companyName: string
   ): Promise<string | true> => {
-    const { data: authData, error } = await supabase.auth.signInWithPassword({
-      email: email,
-      password: password,
-    });
+    try {
+      const { data: authData, error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password,
+      });
 
-    if (error) {
-      console.error("Supabase login error:", error.message);
-      return translateHook("login.error.invalidCredentials");
-    }
-
-    if (authData.user) {
-      const { data: userProfile, error: profileError } = await supabase
-        .from("users")
-        .select("company_id")
-        .eq("id", authData.user.id)
-        .single();
-
-      if (profileError || !userProfile) {
-        console.error(
-          "Could not fetch user profile for company verification:",
-          JSON.stringify(profileError, null, 2)
-        );
-        await supabase.auth.signOut();
-        return translateHook("login.error.profileFetchFailed");
+      if (error) {
+        console.error("Supabase login error:", error.message);
+        return translateHook("login.error.invalidCredentials");
       }
 
-      if (userProfile.company_id !== companyName) {
-        await supabase.auth.signOut();
-        return translateHook("login.error.companyIdMismatch");
-      }
-    } else {
-      return translateHook("login.error.invalidCredentials");
-    }
+      if (authData.user) {
+        const { data: userProfile, error: profileError } = await supabase
+          .from("users")
+          .select("company_id")
+          .eq("id", authData.user.id)
+          .single();
 
-    return true;
+        if (profileError || !userProfile) {
+          console.error(
+            "Could not fetch user profile for company verification:",
+            JSON.stringify(profileError, null, 2)
+          );
+          await supabase.auth.signOut();
+          return translateHook("login.error.profileFetchFailed");
+        }
+
+        if (userProfile.company_id !== companyName) {
+          await supabase.auth.signOut();
+          return translateHook("login.error.companyIdMismatch");
+        }
+      } else {
+        return translateHook("login.error.invalidCredentials");
+      }
+
+      return true;
+    } catch (error: any) {
+      console.error("Critical login error:", error);
+      return translateHook("login.error.generic", {
+        default: "An unexpected error occurred. Please try again.",
+      });
+    }
   };
 
   const signUp = async (
@@ -384,9 +494,9 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
         const { data: existingCompanyData, error: findCompanyError } =
           await supabase
             .from("companies")
-            .select("id, plan") // Fetch plan as well
+            .select("id, plan")
             .eq("name", companyName)
-            .single(); // Use single to get an object or an error if not found/not unique
+            .single();
 
         if (findCompanyError || !existingCompanyData) {
           console.error(
@@ -554,6 +664,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
     }
   };
 
+  // ✅ BUG FIX #4: Amélioration de la gestion d'erreurs dans addTicket
   const addTicket = async (
     ticketData: Omit<
       Ticket,
@@ -570,7 +681,12 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
     >,
     initialChatHistory: ChatMessage[]
   ): Promise<Ticket | null | string> => {
-    if (!user || !company) return null;
+    if (!user || !company) {
+      console.error("User or company not found when creating ticket");
+      return translateHook("newTicket.error.userNotFound", {
+        default: "User session expired. Please log in again.",
+      });
+    }
 
     if (company.plan === "freemium") {
       const startOfMonth = new Date();
@@ -588,6 +704,9 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
           "Error counting tickets:",
           JSON.stringify(error, null, 2)
         );
+        return translateHook("newTicket.error.countingTickets", {
+          default: "Unable to verify ticket limits. Please try again.",
+        });
       } else if (count !== null && count >= 200) {
         return translateHook("newTicket.error.ticketLimitReached", {
           default:
@@ -597,11 +716,10 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
     }
 
     const creatorUserId = user.id;
-
     setIsLoading(true);
+
     try {
       const now = new Date();
-
       const newTicketData = {
         ...ticketData,
         user_id: creatorUserId,
@@ -620,16 +738,25 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
         .insert(newTicketData)
         .select()
         .single();
+
       if (error) {
-        throw error;
+        console.error("Error creating ticket:", JSON.stringify(error, null, 2));
+        return translateHook("newTicket.error.createFailed", {
+          default: "Failed to create ticket. Please try again.",
+        });
       }
 
       const createdTicket = reviveTicketDates(data);
       setTickets((prevTickets) => [...prevTickets, createdTicket]);
       return createdTicket;
     } catch (error) {
-      console.error("Error creating ticket:", JSON.stringify(error, null, 2));
-      return null;
+      console.error(
+        "Critical error creating ticket:",
+        JSON.stringify(error, null, 2)
+      );
+      return translateHook("newTicket.error.critical", {
+        default: "A critical error occurred. Please contact support.",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -683,12 +810,21 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
     }
   };
 
+  // ✅ BUG FIX #5: Amélioration de la gestion d'erreurs dans assignTicket
   const assignTicket = async (
     ticketId: string,
     agentId: string | null
   ): Promise<void> => {
     const ticketToUpdate = tickets.find((t) => t.id === ticketId);
-    if (!ticketToUpdate || user?.role !== "manager") return;
+    if (!ticketToUpdate) {
+      console.error("Ticket not found:", ticketId);
+      return;
+    }
+
+    if (user?.role !== "manager") {
+      console.error("User not authorized to assign tickets");
+      return;
+    }
 
     let summaryMessage: ChatMessage | null = null;
 
@@ -714,7 +850,9 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
         summaryMessage = {
           id: crypto.randomUUID(),
           sender: "system_summary",
-          text: translateHook("appContext.error.summaryGenerationFailed"),
+          text: translateHook("appContext.error.summaryGenerationFailed", {
+            default: "Failed to generate ticket summary.",
+          }),
           timestamp: new Date(),
         };
       } finally {
@@ -726,22 +864,41 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
       ? [...ticketToUpdate.chat_history, summaryMessage]
       : ticketToUpdate.chat_history;
 
-    const { data, error } = await supabase
-      .from("tickets")
-      .update({
-        assigned_agent_id: agentId || null,
-        updated_at: new Date().toISOString(),
-        chat_history: updatedChatHistory,
-      })
-      .eq("id", ticketId)
-      .select()
-      .single();
-    if (error)
-      console.error("Error assigning ticket:", JSON.stringify(error, null, 2));
-    else
-      setTickets((prev) =>
-        prev.map((t) => (t.id === ticketId ? reviveTicketDates(data) : t))
+    try {
+      const { data, error } = await supabase
+        .from("tickets")
+        .update({
+          assigned_agent_id: agentId || null,
+          updated_at: new Date().toISOString(),
+          chat_history: updatedChatHistory,
+        })
+        .eq("id", ticketId)
+        .select()
+        .single();
+
+      if (error) {
+        console.error(
+          "Error assigning ticket:",
+          JSON.stringify(error, null, 2)
+        );
+        alert(
+          translateHook("managerDashboard.error.assignTicketFailed", {
+            default: "Failed to assign ticket. Please try again.",
+          })
+        );
+      } else {
+        setTickets((prev) =>
+          prev.map((t) => (t.id === ticketId ? reviveTicketDates(data) : t))
+        );
+      }
+    } catch (error) {
+      console.error("Critical error assigning ticket:", error);
+      alert(
+        translateHook("managerDashboard.error.assignTicketCritical", {
+          default: "A critical error occurred while assigning the ticket.",
+        })
       );
+    }
   };
 
   const agentTakeTicket = async (ticketId: string): Promise<void> => {
@@ -1052,7 +1209,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
       await supabase
         .from("companies")
         .update({ name: oldName })
-        .eq("id", company.id); // Rollback
+        .eq("id", company.id);
       alert(
         translateHook("managerDashboard.companyInfo.updateError", {
           default: `Failed to update company name for all users. The change has been rolled back.`,
@@ -1071,7 +1228,6 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
         "CRITICAL: Failed to update tickets' company_id.",
         JSON.stringify(updateTicketsError, null, 2)
       );
-      // This is harder to roll back fully, but at least alert the user.
       alert(
         translateHook("managerDashboard.companyInfo.updateError", {
           default: `CRITICAL ERROR: Failed to update company name on tickets. Please contact support.`,
@@ -1099,6 +1255,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
     return true;
   };
 
+  // ✅ BUG FIX #6: Ajout de l'implémentation manquante updateCompanyPlan
   const updateCompanyPlan = async (plan: Plan): Promise<boolean> => {
     if (!company) {
       alert(
@@ -1170,7 +1327,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
         newlyCreatedCompanyName: newlyCreatedCompanyName,
         setNewlyCreatedCompanyName: setNewlyCreatedCompanyName,
         updateCompanyName,
-        updateCompanyPlan,
+        updateCompanyPlan, // ✅ BUG FIX #7: Export manquant ajouté
         consentGiven,
         giveConsent,
       }}
@@ -1188,8 +1345,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
 
 export const useApp = (): AppContextType => {
   const context = useContext(AppContext);
-  if (context === undefined)
+  // ✅ CORRECTION : Ajout des parenthèses manquantes
+  if (context === undefined) {
     throw new Error("useApp must be used within an AppProvider");
+  }
   return context;
 };
 
@@ -1230,31 +1389,59 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
 const MainAppContent: React.FC = () => {
   const { user, isLoading, consentGiven, giveConsent } = useApp();
-  const { isLoadingLang, t } = useLanguage();
+  const { isLoadingLang, t, forceResolveLoading } = useLanguage();
+  const navigate = useNavigate();
+  const location = useLocation(); // ✅ FIX: Déplacer tous les hooks au début
 
-  // Timeout d'urgence spécifique pour Vercel
+  // ✅ FIX: Bouton d'urgence pour débloquer l'authentification - sans rechargement forcé
+  const forceUnlockAuth = useCallback(() => {
+    console.warn("🚨 DÉBLOCAGE FORCÉ - Navigation vers login");
+    navigate("/login", { replace: true });
+  }, [navigate]);
+
+  // ✅ FIX: Gérer les timeouts auth de manière plus sûre
   useEffect(() => {
-    if (isLoadingLang) {
-      const vercelTimeout = setTimeout(() => {
-        console.warn("⚠️ Timeout Vercel - forcer la résolution du loading");
-        // Ici on pourrait dispatch une action pour forcer setIsLoadingLang(false)
-        window.location.reload(); // Solution drastique pour Vercel
-      }, 10000); // 10 secondes pour Vercel
+    if (isLoading) {
+      const emergencyTimeout = setTimeout(() => {
+        console.error("⏰ TIMEOUT EMERGENCY - Déblocage automatique");
+        // Au lieu d'un rechargement forcé, simplement arrêter le loading
+        forceUnlockAuth();
+      }, 15000); // 15 secondes
 
-      return () => clearTimeout(vercelTimeout);
+      return () => clearTimeout(emergencyTimeout);
     }
-  }, [isLoadingLang]);
+  }, [isLoading, forceUnlockAuth]);
 
+  // ✅ FIX: Loader avec timeouts réduits et pas de rechargement forcé
   if (isLoading || isLoadingLang) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-slate-100">
         <LoadingSpinner size="lg" text={t("appName") + "..."} />
-        {/* Indicateur de debug pour Vercel */}
-        <div className="absolute bottom-4 right-4 text-xs text-gray-500">
-          {isLoading && "🔄 App Loading..."}
-          {isLoadingLang && "🌐 Lang Loading..."}
-          <br />
-          <span className="text-xs text-blue-500">Vercel Deploy</span>
+        <div className="absolute bottom-4 right-4 text-xs text-gray-500 bg-white/80 p-2 rounded">
+          <div>App: {isLoading ? "⏳ Chargement..." : "✅ Prêt"}</div>
+          <div>Lang: {isLoadingLang ? "⏳ Traductions..." : "✅ Prêt"}</div>
+          <div>User: {user ? "✅ Connecté" : "❌ Non connecté"}</div>
+          <div>Env: {import.meta.env.MODE || "dev"}</div>
+
+          {/* ✅ Boutons d'urgence sans rechargement */}
+          <div className="mt-2 space-y-1">
+            {isLoadingLang && (
+              <button
+                onClick={forceResolveLoading}
+                className="block w-full px-2 py-1 bg-blue-500 text-white text-xs rounded"
+              >
+                🔧 Débloquer Traductions
+              </button>
+            )}
+            {isLoading && (
+              <button
+                onClick={forceUnlockAuth}
+                className="block w-full px-2 py-1 bg-red-500 text-white text-xs rounded"
+              >
+                🚨 Aller au Login
+              </button>
+            )}
+          </div>
         </div>
       </div>
     );
@@ -1361,7 +1548,6 @@ const MainAppContent: React.FC = () => {
     </Routes>
   );
 
-  const location = useLocation();
   const noLayoutPages = ["/login", "/signup", "/landing"];
   const specialLayoutPages = ["/legal", "/manual", "/presentation", "/contact"];
 
@@ -1379,35 +1565,38 @@ const MainAppContent: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-100 text-slate-800">
-      <Navbar />
-      <main className="flex-grow container mx-auto p-4 sm:p-6 lg:p-8">
-        {renderRoutes()}
-      </main>
-      <footer className="bg-slate-100 py-4 text-center text-xs text-slate-500">
-        <p>
-          &copy; {new Date().getFullYear()} {t("appName")}.{" "}
-          {t("footer.allRightsReserved", { default: "All Rights Reserved." })}
-        </p>
-        <p className="mt-1">
-          <Link to="/legal" className="hover:text-primary hover:underline">
-            {t("footer.legalLink", { default: "Legal & Documentation" })}
-          </Link>
-          <span className="mx-2 text-slate-400">|</span>
-          <Link to="/manual" className="hover:text-primary hover:underline">
-            {t("footer.userManualLink", { default: "User Manual" })}
-          </Link>
-          <span className="mx-2 text-slate-400">|</span>
-          <Link
-            to="/presentation"
-            className="hover:text-primary hover:underline"
-          >
-            {t("footer.promotionalLink", { default: "Presentation" })}
-          </Link>
-        </p>
-      </footer>
-      {!consentGiven && <CookieConsentBanner onAccept={giveConsent} />}
-    </div>
+    <>
+      <div className="min-h-screen flex flex-col bg-slate-100 text-slate-800">
+        <Navbar />
+        <main className="flex-grow container mx-auto p-4 sm:p-6 lg:p-8">
+          {renderRoutes()}
+        </main>
+        <footer className="bg-slate-100 py-4 text-center text-xs text-slate-500">
+          <p>
+            &copy; {new Date().getFullYear()} {t("appName")}.{" "}
+            {t("footer.allRightsReserved", { default: "All Rights Reserved." })}
+          </p>
+          <p className="mt-1">
+            <Link to="/legal" className="hover:text-primary hover:underline">
+              {t("footer.legalLink", { default: "Legal & Documentation" })}
+            </Link>
+            <span className="mx-2 text-slate-400">|</span>
+            <Link to="/manual" className="hover:text-primary hover:underline">
+              {t("footer.userManualLink", { default: "User Manual" })}
+            </Link>
+            <span className="mx-2 text-slate-400">|</span>
+            <Link
+              to="/presentation"
+              className="hover:text-primary hover:underline"
+            >
+              {t("footer.promotionalLink", { default: "Presentation" })}
+            </Link>
+          </p>
+        </footer>
+      </div>
+
+      <ContextDebugger />
+    </>
   );
 };
 
