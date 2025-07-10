@@ -22,7 +22,7 @@ const Layout: React.FC<LayoutProps> = ({ children, showSidebar = true }) => {
         }`}
       >
         <Navbar showSidebar={showSidebar} />
-        <main className="pt-16">{/* contenu de la page */}</main>
+        <main className="pt-16">{children}</main>
       </div>
     </div>
   );
