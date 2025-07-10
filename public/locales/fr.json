@@ -320,19 +320,13 @@
   "pricing.button.getStarted": "Commencer",
   "pricing.button.contactUs": "Nous contacter",
   "pricing.freemium.name": "Freemium",
-  "pricing.freemium.price": "Gratuit",
-  "pricing.freemium.desc": "Généreux pour les équipes qui testent - Jusqu'à 5 agents !",
   "pricing.freemium.feature1": "Jusqu'à 5 agents inclus",
   "pricing.freemium.feature2": "1000 tickets par mois",
   "pricing.freemium.feature3": "Gestion avancée des tickets INCLUSE",
   "pricing.standard.name": "Standard",
-  "pricing.standard.price": "5 €",
-  "pricing.standard.desc": "PRIX DE LANCEMENT : 50% de réduction ! Agents et tickets illimités.",
   "pricing.standard.feature3": "Support prioritaire",
   "pricing.standard.feature4": "Fonctions vocales",
   "pricing.pro.name": "Pro",
-  "pricing.pro.price": "12 €",
-  "pricing.pro.desc": "PRIX DE LANCEMENT : 40% de réduction ! IA avancée niveau 2.",
   "pricing.pro.feature1": "Toutes les fonctionnalités Standard",
   "pricing.pro.feature2": "🤖 IA NIVEAU 2 (Plus intelligente)",
   "pricing.pro.feature3": "Rapports détaillés avancés",
@@ -529,5 +523,11 @@
   "pricing.freemium.feature5": "Support par email",
   "helpChat.autoReadOff": "Lecture automatique désactivée",
   "pricing.freemium.ctaButton": "Commencer gratuitement",
-  "pricing.standard.feature5": "Planification RDV"
+  "pricing.standard.feature5": "Planification RDV",
+  "pricing.freemium.desc": "Jusqu'à 5 agents",
+  "pricing.standard.desc": "Agents illimités - 50% OFF",
+  "pricing.pro.desc": "IA avancée - 40% OFF"
+  "pricing.freemium.price": "0€",
+  "pricing.standard.price": "5€",
+  "pricing.pro.price": "12€" 
 }
