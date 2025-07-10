@@ -3,14 +3,12 @@ import { useLanguageSafe } from "../contexts/LanguageContext";
 import { useSidebarSafe } from "../contexts/SidebarContext";
 import { usePlanSafe } from "../contexts/PlanContext";
 import { useApp } from "../App";
-
-// ❌ TEMPORAIRE - Commenter ces imports qui causent l'erreur
-// import {
-//   clearNexusCache,
-//   clearNexusCacheAndReload,
-//   clearAuthCacheOnly,
-//   getCacheInfo,
-// } from "../utils/cacheManager";
+import {
+  clearNexusCache,
+  clearNexusCacheAndReload,
+  clearAuthCacheOnly,
+  getCacheInfo,
+} from "../utils/cacheManager";
 
 const ContextDebugger: React.FC = () => {
   const language = useLanguageSafe();
