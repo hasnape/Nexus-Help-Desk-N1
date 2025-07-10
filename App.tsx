@@ -247,11 +247,14 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
       const authUser = session.user;
       const shouldLoadData =
         event === "SIGNED_IN" ||
-        event === "INITIAL_SESSION" ||
-        (event === "TOKEN_REFRESHED" && !userRef.current);
+        (event === "INITIAL_SESSION" && !userRef.current); // ✅ CORRECTION: Retirer TOKEN_REFRESHED
 
       if (!shouldLoadData) {
         console.log(`🔄 Ignoring event: ${event} (user already loaded)`);
+        // ✅ AJOUT: S'assurer que le loading est désactivé pour TOKEN_REFRESHED
+        if (event === "TOKEN_REFRESHED" && userRef.current) {
+          setIsLoading(false);
+        }
         return;
       }
 
