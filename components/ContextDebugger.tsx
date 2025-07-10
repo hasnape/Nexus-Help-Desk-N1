@@ -3,12 +3,14 @@ import { useLanguageSafe } from "../contexts/LanguageContext";
 import { useSidebarSafe } from "../contexts/SidebarContext";
 import { usePlanSafe } from "../contexts/PlanContext";
 import { useApp } from "../App";
-import {
-  clearNexusCache,
-  clearNexusCacheAndReload,
-  clearAuthCacheOnly,
-  getCacheInfo,
-} from "../utils/cacheManager";
+
+// ❌ TEMPORAIRE - Commenter ces imports qui causent l'erreur
+// import {
+//   clearNexusCache,
+//   clearNexusCacheAndReload,
+//   clearAuthCacheOnly,
+//   getCacheInfo,
+// } from "../utils/cacheManager";
 
 const ContextDebugger: React.FC = () => {
   const language = useLanguageSafe();
@@ -19,11 +21,15 @@ const ContextDebugger: React.FC = () => {
   // ✅ Seulement en développement
   if (import.meta.env.PROD) return null;
 
+  // ❌ TEMPORAIRE - Fonctions simplifiées
   const handleClearCache = () => {
     if (
       confirm("🧹 Voulez-vous vider tout le cache ? La page va se recharger.")
     ) {
-      clearNexusCacheAndReload();
+      // Nettoyage simple sans import
+      localStorage.clear();
+      sessionStorage.clear();
+      window.location.reload();
     }
   };
 
@@ -31,12 +37,28 @@ const ContextDebugger: React.FC = () => {
     if (
       confirm("🔐 Voulez-vous vider uniquement le cache d'authentification ?")
     ) {
-      clearAuthCacheOnly();
+      // Nettoyage simple des données Supabase
+      Object.keys(localStorage).forEach((key) => {
+        if (key.includes("sb-") || key.includes("supabase")) {
+          localStorage.removeItem(key);
+        }
+      });
+      Object.keys(sessionStorage).forEach((key) => {
+        if (key.includes("sb-") || key.includes("supabase")) {
+          sessionStorage.removeItem(key);
+        }
+      });
     }
   };
 
   const handleShowCacheInfo = () => {
-    const info = getCacheInfo();
+    // Affichage simple des infos cache
+    const info = {
+      localStorage: Object.keys(localStorage).length,
+      sessionStorage: Object.keys(sessionStorage).length,
+      supabaseKeys: Object.keys(localStorage).filter((k) => k.includes("sb-"))
+        .length,
+    };
     console.log("📋 Informations du cache:", info);
     alert("📋 Informations du cache affichées dans la console (F12)");
   };
@@ -78,7 +100,7 @@ const ContextDebugger: React.FC = () => {
           </span>
         </div>
 
-        {/* ✅ NOUVEAUX BOUTONS DE CACHE */}
+        {/* ✅ BOUTONS DE CACHE SIMPLIFIÉS */}
         <div className="mt-3 border-t border-gray-600 pt-2">
           <div className="font-bold mb-1">🧹 Gestion Cache</div>
           <div className="space-y-1">
