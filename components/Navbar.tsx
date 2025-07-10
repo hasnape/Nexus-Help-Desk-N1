@@ -34,7 +34,7 @@ const Navbar: React.FC<NavbarProps> = ({ showSidebar = true }) => {
 
   return (
     <nav
-      className={`bg-white shadow-sm border-b border-gray-200 fixed top-0 right-0 z-30 ${navClasses}`}
+      className={`bg-white shadow-sm border-b border-gray-200 sticky top-0 right-0 z-30 ${navClasses}`}
     >
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
