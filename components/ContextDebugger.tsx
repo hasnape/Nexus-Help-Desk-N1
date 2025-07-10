@@ -51,6 +51,18 @@ const ContextDebugger: React.FC = () => {
     alert("📋 Informations du cache affichées dans la console (F12)");
   };
 
+  // ✅ NOUVEAU - Déconnexion d'urgence
+  const handleForceLogout = () => {
+    if (confirm("🚪 Forcer la déconnexion complète ?")) {
+      console.log("🚪 DÉCONNEXION FORCÉE");
+      // Nettoyer tout
+      localStorage.clear();
+      sessionStorage.clear();
+      // Aller directement à la page de login
+      window.location.href = "/login";
+    }
+  };
+
   return (
     <div className="fixed bottom-0 left-0 bg-black/90 text-white p-3 text-xs z-[9999] max-w-sm border-r border-t border-gray-600">
       <div className="font-bold mb-2">🔧 Debug Contextes</div>
@@ -101,6 +113,16 @@ const ContextDebugger: React.FC = () => {
             </button>
           </div>
         </div>
+
+        {/* ✅ NOUVEAU - Bouton de déconnexion d'urgence */}
+        {app.user && (
+          <button
+            onClick={handleForceLogout}
+            className="w-full mt-2 px-2 py-1 bg-red-800 hover:bg-red-900 text-white rounded text-xs font-bold"
+          >
+            🚪 DÉCONNEXION FORCÉE
+          </button>
+        )}
       </div>
     </div>
   );

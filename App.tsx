@@ -552,10 +552,41 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
   };
 
   const logout = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setCompany(null);
-    setNewlyCreatedCompanyName(null);
+    try {
+      console.log("🚪 Déconnexion en cours...");
+
+      // 1. Nettoyer l'état local d'abord
+      setUser(null);
+      setCompany(null);
+      setTickets([]);
+      setAllUsers([]);
+      setNewlyCreatedCompanyName(null);
+      setIsLoading(false);
+
+      // 2. Nettoyer les caches localStorage/sessionStorage
+      Object.keys(localStorage).forEach((key) => {
+        if (key.includes("sb-") || key.includes("supabase")) {
+          localStorage.removeItem(key);
+        }
+      });
+      Object.keys(sessionStorage).forEach((key) => {
+        if (key.includes("sb-") || key.includes("supabase")) {
+          sessionStorage.removeItem(key);
+        }
+      });
+
+      // 3. Déconnecter de Supabase
+      await supabase.auth.signOut();
+
+      // 4. Forcer la navigation vers login
+      window.location.href = "/login";
+
+      console.log("✅ Déconnexion terminée");
+    } catch (error) {
+      console.error("❌ Erreur lors de la déconnexion:", error);
+      // Forcer la déconnexion même en cas d'erreur
+      window.location.href = "/login";
+    }
   };
 
   const updateUserRole = async (
