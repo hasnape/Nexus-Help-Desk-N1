@@ -134,6 +134,7 @@ interface AppContextType {
   updateCompanyPlan: (plan: Plan) => Promise<boolean>; // ✅ BUG FIX #1: Ajout de la propriété manquante
   consentGiven: boolean;
   giveConsent: () => void;
+  forceStopAllLoading: () => void; // ✅ NOUVEAU
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -1304,6 +1305,27 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
     return true;
   };
 
+  // ✅ NOUVEAU: Fonction d'arrêt d'urgence globale
+  const forceStopAllLoading = useCallback(() => {
+    console.log("🚨 ARRÊT FORCÉ DE TOUS LES CHARGEMENTS");
+    setIsLoading(false);
+    setIsLoadingAi(false);
+    authStateLoading.current = false;
+
+    // Nettoyer tous les timeouts
+    if (authTimeout.current) {
+      clearTimeout(authTimeout.current);
+      authTimeout.current = null;
+    }
+
+    // Réinitialiser l'état si nécessaire
+    setUser(null);
+    setCompany(null);
+    setTickets([]);
+    setAllUsers([]);
+  }, []);
+
+  // ✅ Exposer la fonction dans le contexte
   return (
     <AppContext.Provider
       value={{
@@ -1336,6 +1358,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
         updateCompanyPlan, // ✅ BUG FIX #7: Export manquant ajouté
         consentGiven,
         giveConsent,
+        forceStopAllLoading, // ✅ NOUVEAU
       }}
     >
       {children}
