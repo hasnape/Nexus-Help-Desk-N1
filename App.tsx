@@ -55,7 +55,7 @@ import {
 import { LanguageProvider, useLanguage } from "./contexts/LanguageContext";
 import CookieConsentBanner from "./components/CookieConsentBanner";
 import { SidebarProvider } from "./contexts/SidebarContext";
-import { PlanProvider } from "./contexts/PlanContext";
+import { PlanProvider, PLAN_LIMITS } from "./contexts/PlanContext";
 import { useNavigationGuard } from "./hooks/useNavigationGuard";
 import ContextDebugger from "./components/ContextDebugger";
 
@@ -472,11 +472,14 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
             throw new Error(translateHook("signup.error.generic"));
           }
 
-          if (agentCount !== null && agentCount >= 3) {
+          // ✅ Utiliser PLAN_LIMITS au lieu de hardcoder "3"
+          const agentLimit =
+            PLAN_LIMITS[existingCompanyData.plan as Plan]?.maxAgents || 1;
+
+          if (agentCount !== null && agentCount >= agentLimit) {
             throw new Error(
               translateHook("signup.error.agentLimitReached", {
-                default:
-                  "Agent limit reached for Freemium plan. Please ask your manager to upgrade.",
+                default: `Agent limit reached for ${existingCompanyData.plan} plan. Please ask your manager to upgrade.`,
               })
             );
           }
@@ -576,14 +579,20 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
   ): Promise<boolean | string> => {
     if (user?.role !== UserRole.MANAGER || !company) return false;
 
-    if (newRole === UserRole.AGENT && company.plan === "freemium") {
+    if (newRole === UserRole.AGENT && company.plan) {
       const currentAgentCount = allUsers.filter(
         (u) => u.role === UserRole.AGENT
       ).length;
-      if (currentAgentCount >= 3) {
+
+      // ✅ Utiliser PLAN_LIMITS au lieu de hardcoder "3"
+      const agentLimit = PLAN_LIMITS[company.plan as Plan]?.maxAgents || 1;
+
+      if (
+        agentLimit !== Number.MAX_SAFE_INTEGER &&
+        currentAgentCount >= agentLimit
+      ) {
         return translateHook("managerDashboard.error.agentLimitReached", {
-          default:
-            "Agent limit reached for Freemium plan. Please upgrade to add more agents.",
+          default: `Agent limit reached for ${company.plan} plan. Please upgrade to add more agents.`,
         });
       }
     }

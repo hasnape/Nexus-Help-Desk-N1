@@ -55,14 +55,14 @@ const SignUpPage: React.FC = () => {
   }, [currentAppLang]);
 
   const handlePayPalPayment = () => {
-    // URL PayPal pour le plan Standard
+    // 🔥 URL PayPal pour Standard 5€
     const paypalUrl =
       "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-0E515487AE797135CNBTRYKA";
     window.open(paypalUrl, "_blank");
   };
 
   const handlePayPalProPayment = () => {
-    // URL PayPal pour le plan Pro
+    // 🔥 URL PayPal pour Pro 12€
     const paypalProUrl =
       "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-7HP75881LB3608938NBTBGUA";
     window.open(paypalProUrl, "_blank");
@@ -345,8 +345,9 @@ const SignUpPage: React.FC = () => {
                           {tier.planValue === "freemium"
                             ? "Gratuit"
                             : tier.planValue === "standard"
-                            ? "10€/agent/mois"
-                            : "20€/agent/mois"}
+                            ? "5€/agent/mois" // 🔥 Était "10€/agent/mois"
+                            : "12€/agent/mois"}{" "}
+                          // 🔥 Était "20€/agent/mois"
                         </span>
                       </div>
                       <ul className="mt-4 space-y-2 text-xs text-gray-700 text-left flex-grow">
@@ -386,9 +387,12 @@ const SignUpPage: React.FC = () => {
                           >
                             <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 0 0-.607-.541c-.013.076-.026.175-.041.254-.93 4.778-4.005 6.408-7.986 6.408h-2.19c-.524 0-.968.382-1.05.9l-1.120 7.106-.32 2.027a.641.641 0 0 0 .633.74h4.42c.445 0 .823-.324.896-.762l.038-.212.723-4.578.046-.25c.073-.438.45-.762.896-.762h.564c3.60 0 6.418-1.462 7.236-5.69.342-1.77.166-3.24-.676-4.32z" />
                           </svg>
-                          Payer 10€ avec PayPal pour obtenir le code
+                          🔥 Payer 5€ avec PayPal - Premier mois à prix réduit !
                         </button>
                         <p className="text-xs text-gray-700 text-center">
+                          <strong>💰 Offre spéciale :</strong> Premier mois à
+                          5€/agent au lieu de 10€
+                          <br />
                           Après paiement, vous recevrez votre code d'activation
                           par email sous 24h.
                         </p>
@@ -409,9 +413,13 @@ const SignUpPage: React.FC = () => {
                           >
                             <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 0 0-.607-.541c-.013.076-.026.175-.041.254-.93 4.778-4.005 6.408-7.986 6.408h-2.19c-.524 0-.968.382-1.05.9l-1.120 7.106-.32 2.027a.641.641 0 0 0 .633.74h4.42c.445 0 .823-.324.896-.762l.038-.212.723-4.578.046-.25c.073-.438.45-.762.896-.762h.564c3.60 0 6.418-1.462 7.236-5.69.342-1.77.166-3.24-.676-4.32z" />
                           </svg>
-                          Payer 20€ avec PayPal pour obtenir le code
+                          🔥 Payer 12€ avec PayPal - Première semaine à prix
+                          réduit !
                         </button>
                         <p className="text-xs text-gray-700 text-center">
+                          <strong>⚡ Offre flash :</strong> Première semaine à
+                          12€/agent au lieu de 20€
+                          <br />
                           Après paiement, vous recevrez votre code d'activation
                           par email sous 24h.
                         </p>

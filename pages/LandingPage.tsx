@@ -5,7 +5,7 @@ import NexusInfographic from "../components/NexusInfographic";
 import Layout from "../components/Layout";
 
 const LandingPage: React.FC = () => {
-          const { t } = useLanguage();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   const handleGetStarted = () => {
@@ -18,30 +18,42 @@ const LandingPage: React.FC = () => {
 
   const features = [
     {
-      title: t("landing.features.ai.title", { default: "Assistant IA conversationnel" }),
-      description: t("landing.features.ai.desc", { 
-        default: "Chat intelligent avec l'IA Nexus qui aide vos utilisateurs et crée automatiquement des tickets détaillés avec historique de conversation quand nécessaire." 
+      title: t("landing.features.ai.title", {
+        default: "Assistant IA conversationnel",
+      }),
+      description: t("landing.features.ai.desc", {
+        default:
+          "Chat intelligent avec l'IA Nexus qui aide vos utilisateurs et crée automatiquement des tickets détaillés avec historique de conversation quand nécessaire.",
       }),
       icon: "🤖",
     },
     {
-      title: t("landing.features.secure.title", { default: "Gestion multi-entreprises sécurisée" }),
-      description: t("landing.features.secure.desc", { 
-        default: "Architecture multi-tenant avec isolation complète des données par entreprise. Chaque organisation a ses propres utilisateurs, agents et tickets." 
+      title: t("landing.features.secure.title", {
+        default: "Gestion multi-entreprises sécurisée",
+      }),
+      description: t("landing.features.secure.desc", {
+        default:
+          "Architecture multi-tenant avec isolation complète des données par entreprise. Chaque organisation a ses propres utilisateurs, agents et tickets.",
       }),
       icon: "🏢",
     },
     {
-      title: t("landing.features.multilingual.title", { default: "Interface multilingue" }),
-      description: t("landing.features.multilingual.desc", { 
-        default: "Interface utilisateur disponible en français, anglais et arabe pour s'adapter aux équipes internationales." 
+      title: t("landing.features.multilingual.title", {
+        default: "Interface multilingue",
+      }),
+      description: t("landing.features.multilingual.desc", {
+        default:
+          "Interface utilisateur disponible en français, anglais et arabe pour s'adapter aux équipes internationales.",
       }),
       icon: "🌐",
     },
     {
-      title: t("landing.features.dashboards.title", { default: "Tableaux de bord par rôles" }),
-      description: t("landing.features.dashboards.desc", { 
-        default: "Vues dédiées pour utilisateurs, agents et managers avec gestion des tickets adaptée à chaque niveau de responsabilité." 
+      title: t("landing.features.dashboards.title", {
+        default: "Tableaux de bord par rôles",
+      }),
+      description: t("landing.features.dashboards.desc", {
+        default:
+          "Vues dédiées pour utilisateurs, agents et managers avec gestion des tickets adaptée à chaque niveau de responsabilité.",
       }),
       icon: "📊",
     },
@@ -53,46 +65,46 @@ const LandingPage: React.FC = () => {
       price: t("pricing.freemium.price"),
       description: t("pricing.freemium.desc"),
       features: [
-        t("pricing.freemium.feature1"),
-        t("pricing.freemium.feature2"),
-        t("pricing.freemium.feature3"),
-        t("landing.pricing.freemium.feature4", { default: "Tableaux de bord de base" }),
-        t("landing.pricing.freemium.feature5", { default: "Support par email" }),
+        "🎁 " + t("pricing.freemium.feature1"),
+        "🎁 " + t("pricing.freemium.feature2"),
+        "🎁 " + t("pricing.freemium.feature3"),
+        "🎁 " + t("pricing.freemium.feature4"),
+        "🎁 " + t("pricing.freemium.feature5"),
       ],
       popular: false,
       icon: "🆓",
+      badge: "GÉNÉREUX", // 🎁 NOUVEAU
     },
     {
       name: t("pricing.standard.name"),
-      price: t("pricing.standard.price") + t("pricing.perAgentPerMonth", { default: "/agent/mois" }),
+      price: "5€" + t("pricing.perAgentPerMonth"),
+      originalPrice: "10€", // 🎁 NOUVEAU: Prix barré
       description: t("pricing.standard.desc"),
       features: [
-        t("landing.pricing.standard.feature1", { default: "Agents illimités" }),
-        t("pricing.standard.feature1"),
-        t("pricing.standard.feature2"),
+        "🚀 " + t("pricing.standard.feature1"),
+        "🚀 " + t("pricing.standard.feature2"),
         t("pricing.standard.feature3"),
         t("pricing.standard.feature4"),
-        t("landing.pricing.standard.feature6", { default: "Assignation d'agents" }),
-        t("landing.pricing.standard.feature7", { default: "Notes internes" }),
+        t("pricing.standard.feature5"),
       ],
-      popular: true,
-      icon: "⭐",
+      popular: true, // 🎯 Le plus populaire
+      icon: "⚡",
+      badge: "50% OFF", // 🔥 NOUVEAU
     },
     {
       name: t("pricing.pro.name"),
-      price: t("pricing.pro.price") + t("pricing.perAgentPerMonth", { default: "/agent/mois" }),
+      price: "12€" + t("pricing.perAgentPerMonth"),
+      originalPrice: "20€", // 🎁 NOUVEAU: Prix barré
       description: t("pricing.pro.desc"),
       features: [
         t("pricing.pro.feature1"),
-        t("pricing.pro.feature2"),
+        "🤖 " + t("pricing.pro.feature2"),
         t("pricing.pro.feature3"),
         t("pricing.pro.feature4"),
-        t("landing.pricing.pro.feature5", { default: "Support prioritaire 24/7" }),
-        t("landing.pricing.pro.feature6", { default: "Intégrations personnalisées" }),
-        t("landing.pricing.pro.feature7", { default: "Gestion des postes de travail" }),
       ],
       popular: false,
       icon: "🚀",
+      badge: "40% OFF", // 🔥 NOUVEAU
     },
   ];
 
@@ -129,11 +141,14 @@ const LandingPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              {t("landing.ai.title", { default: "Assistant IA Nexus : Votre première ligne de support" })}
+              {t("landing.ai.title", {
+                default: "Assistant IA Nexus : Votre première ligne de support",
+              })}
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              {t("landing.ai.subtitle", { 
-                default: "L'IA Nexus aide vos utilisateurs en temps réel et transforme automatiquement les conversations en tickets organisés pour vos équipes." 
+              {t("landing.ai.subtitle", {
+                default:
+                  "L'IA Nexus aide vos utilisateurs en temps réel et transforme automatiquement les conversations en tickets organisés pour vos équipes.",
               })}
             </p>
           </div>
@@ -149,11 +164,14 @@ const LandingPage: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">
-                      {t("landing.ai.chatTitle", { default: "Chat intelligent 24/7" })}
+                      {t("landing.ai.chatTitle", {
+                        default: "Chat intelligent 24/7",
+                      })}
                     </h3>
                     <p className="text-gray-600">
-                      {t("landing.ai.chatDesc", { 
-                        default: "L'IA Nexus dialogue avec vos utilisateurs, comprend leurs problèmes et fournit une assistance immédiate basée sur sa base de connaissances." 
+                      {t("landing.ai.chatDesc", {
+                        default:
+                          "L'IA Nexus dialogue avec vos utilisateurs, comprend leurs problèmes et fournit une assistance immédiate basée sur sa base de connaissances.",
                       })}
                     </p>
                   </div>
@@ -167,11 +185,14 @@ const LandingPage: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">
-                      {t("landing.ai.ticketCreationTitle", { default: "Création automatique de tickets" })}
+                      {t("landing.ai.ticketCreationTitle", {
+                        default: "Création automatique de tickets",
+                      })}
                     </h3>
                     <p className="text-gray-600">
-                      {t("landing.ai.ticketCreationDesc", { 
-                        default: "Quand l'IA atteint ses limites, elle crée automatiquement un ticket avec tout l'historique de conversation, la catégorie et la priorité suggérées." 
+                      {t("landing.ai.ticketCreationDesc", {
+                        default:
+                          "Quand l'IA atteint ses limites, elle crée automatiquement un ticket avec tout l'historique de conversation, la catégorie et la priorité suggérées.",
                       })}
                     </p>
                   </div>
@@ -185,11 +206,14 @@ const LandingPage: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">
-                      {t("landing.ai.smartAssignmentTitle", { default: "Assignation intelligente" })}
+                      {t("landing.ai.smartAssignmentTitle", {
+                        default: "Assignation intelligente",
+                      })}
                     </h3>
                     <p className="text-gray-600">
-                      {t("landing.ai.smartAssignmentDesc", { 
-                        default: "Les tickets créés peuvent être automatiquement assignés aux agents appropriés selon la catégorie et la charge de travail." 
+                      {t("landing.ai.smartAssignmentDesc", {
+                        default:
+                          "Les tickets créés peuvent être automatiquement assignés aux agents appropriés selon la catégorie et la charge de travail.",
                       })}
                     </p>
                   </div>
@@ -199,7 +223,9 @@ const LandingPage: React.FC = () => {
 
             <div className="bg-white rounded-xl shadow-lg p-6">
               <h4 className="text-lg font-semibold text-gray-900 mb-4">
-                {t("landing.ai.exampleTicketTitle", { default: "Exemple de ticket créé automatiquement" })}
+                {t("landing.ai.exampleTicketTitle", {
+                  default: "Exemple de ticket créé automatiquement",
+                })}
               </h4>
               <div className="bg-gray-50 rounded-lg p-4 text-sm">
                 <div className="border-b border-gray-200 pb-2 mb-2">
@@ -207,50 +233,73 @@ const LandingPage: React.FC = () => {
                     {t("landing.ai.ticketNumber", { default: "Ticket #12345" })}
                   </span>
                   <span className="float-right text-gray-500">
-                    {t("landing.ai.createdByAI", { default: "Créé par IA Nexus" })}
+                    {t("landing.ai.createdByAI", {
+                      default: "Créé par IA Nexus",
+                    })}
                   </span>
                 </div>
                 <p className="mb-2">
-                  <span className="font-semibold">{t("landing.ai.userLabel", { default: "Utilisateur:" })}</span> Marie
-                  Dupont
-                </p>
-                <p className="mb-2">
-                  <span className="font-semibold">{t("landing.ai.titleLabel", { default: "Titre:" })}</span> Impossible de se
-                  connecter à l'application
-                </p>
-                <p className="mb-2">
-                  <span className="font-semibold">{t("landing.ai.categoryLabel", { default: "Catégorie:" })}</span> Technique
-                  (suggérée par IA)
-                </p>
-                <p className="mb-2">
-                  <span className="font-semibold">{t("landing.ai.priorityLabel", { default: "Priorité:" })}</span> Moyenne
-                  (suggérée par IA)
+                  <span className="font-semibold">
+                    {t("landing.ai.userLabel", { default: "Utilisateur:" })}
+                  </span>{" "}
+                  Marie Dupont
                 </p>
                 <p className="mb-2">
                   <span className="font-semibold">
-                    {t("landing.ai.conversationHistoryLabel", { default: "Historique conversation:" })}
+                    {t("landing.ai.titleLabel", { default: "Titre:" })}
+                  </span>{" "}
+                  Impossible de se connecter à l'application
+                </p>
+                <p className="mb-2">
+                  <span className="font-semibold">
+                    {t("landing.ai.categoryLabel", { default: "Catégorie:" })}
+                  </span>{" "}
+                  Technique (suggérée par IA)
+                </p>
+                <p className="mb-2">
+                  <span className="font-semibold">
+                    {t("landing.ai.priorityLabel", { default: "Priorité:" })}
+                  </span>{" "}
+                  Moyenne (suggérée par IA)
+                </p>
+                <p className="mb-2">
+                  <span className="font-semibold">
+                    {t("landing.ai.conversationHistoryLabel", {
+                      default: "Historique conversation:",
+                    })}
                   </span>
                 </p>
                 <div className="bg-white rounded p-2 mb-2 text-xs">
                   <p>
-                    <strong>{t("landing.ai.userLabel", { default: "Utilisateur:" })}</strong> Je n'arrive pas à me connecter
+                    <strong>
+                      {t("landing.ai.userLabel", { default: "Utilisateur:" })}
+                    </strong>{" "}
+                    Je n'arrive pas à me connecter
                   </p>
                   <p>
-                    <strong>{t("landing.ai.aiLabel", { default: "IA:" })}</strong> Avez-vous essayé de réinitialiser votre
-                    mot de passe ?
+                    <strong>
+                      {t("landing.ai.aiLabel", { default: "IA:" })}
+                    </strong>{" "}
+                    Avez-vous essayé de réinitialiser votre mot de passe ?
                   </p>
                   <p>
-                    <strong>{t("landing.ai.userLabel", { default: "Utilisateur:" })}</strong> Oui, mais ça ne fonctionne
-                    toujours pas
+                    <strong>
+                      {t("landing.ai.userLabel", { default: "Utilisateur:" })}
+                    </strong>{" "}
+                    Oui, mais ça ne fonctionne toujours pas
                   </p>
                   <p>
-                    <strong>{t("landing.ai.aiLabel", { default: "IA:" })}</strong> Je vais créer un ticket pour qu'un
-                    agent vous aide...
+                    <strong>
+                      {t("landing.ai.aiLabel", { default: "IA:" })}
+                    </strong>{" "}
+                    Je vais créer un ticket pour qu'un agent vous aide...
                   </p>
                 </div>
                 <p>
-                  <span className="font-semibold">{t("landing.ai.statusLabel", { default: "Status:" })}</span> Ouvert - En
-                  attente d'assignation
+                  <span className="font-semibold">
+                    {t("landing.ai.statusLabel", { default: "Status:" })}
+                  </span>{" "}
+                  Ouvert - En attente d'assignation
                 </p>
               </div>
             </div>
@@ -263,11 +312,14 @@ const LandingPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              {t("landing.demo.title", { default: "Découvrez Support Hub en vidéo" })}
+              {t("landing.demo.title", {
+                default: "Découvrez Support Hub en vidéo",
+              })}
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              {t("landing.demo.subtitle", { 
-                default: "Regardez une démonstration complète de la plateforme : chat IA, création de tickets, tableaux de bord et gestion multi-rôles." 
+              {t("landing.demo.subtitle", {
+                default:
+                  "Regardez une démonstration complète de la plateforme : chat IA, création de tickets, tableaux de bord et gestion multi-rôles.",
               })}
             </p>
           </div>
@@ -303,11 +355,14 @@ const LandingPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              {t("landing.features.title", { default: "Une plateforme complète et sécurisée" })}
+              {t("landing.features.title", {
+                default: "Une plateforme complète et sécurisée",
+              })}
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              {t("landing.features.subtitle", { 
-                default: "Toutes les fonctionnalités essentielles pour un support client moderne, avec une architecture pensée pour les entreprises." 
+              {t("landing.features.subtitle", {
+                default:
+                  "Toutes les fonctionnalités essentielles pour un support client moderne, avec une architecture pensée pour les entreprises.",
               })}
             </p>
           </div>
@@ -339,11 +394,14 @@ const LandingPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              {t("landing.pricing.title", { default: "Des tarifs transparents et abordables" })}
+              {t("landing.pricing.title", {
+                default: "Des tarifs transparents et abordables",
+              })}
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              {t("landing.pricing.subtitle", { 
-                default: "Commencez gratuitement pour tester la plateforme, puis évoluez selon vos besoins. Tarification simple par agent actif." 
+              {t("landing.pricing.subtitle", {
+                default:
+                  "Commencez gratuitement pour tester la plateforme, puis évoluez selon vos besoins. Tarification simple par agent actif.",
               })}
             </p>
           </div>
@@ -359,7 +417,9 @@ const LandingPage: React.FC = () => {
                 {plan.popular && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                     <span className="bg-blue-600 text-white px-4 py-1 rounded-full text-sm font-semibold">
-                      {t("pricing.popularLabel", { default: "Le plus populaire" })}
+                      {t("pricing.popularLabel", {
+                        default: "Le plus populaire",
+                      })}
                     </span>
                   </div>
                 )}
@@ -393,7 +453,9 @@ const LandingPage: React.FC = () => {
                   }`}
                 >
                   {plan.name === "Freemium"
-                    ? t("pricing.freemium.ctaButton", { default: "Commencer gratuitement" })
+                    ? t("pricing.freemium.ctaButton", {
+                        default: "Commencer gratuitement",
+                      })
                     : t("pricing.ctaButton", { default: "Choisir ce plan" })}
                 </button>
               </div>
@@ -402,13 +464,18 @@ const LandingPage: React.FC = () => {
 
           <div className="mt-12 text-center">
             <p className="text-gray-600 mb-4">
-              {t("landing.pricing.customSolutionPrompt", { default: "Besoin d'une solution sur mesure pour votre entreprise ?" })}
+              {t("landing.pricing.customSolutionPrompt", {
+                default:
+                  "Besoin d'une solution sur mesure pour votre entreprise ?",
+              })}
             </p>
             <Link
               to="/contact"
               className="text-blue-600 hover:text-blue-800 font-semibold"
             >
-              {t("landing.pricing.contactUs", { default: "Contactez-nous pour un devis personnalisé" })}
+              {t("landing.pricing.contactUs", {
+                default: "Contactez-nous pour un devis personnalisé",
+              })}
             </Link>
           </div>
         </div>
@@ -418,11 +485,14 @@ const LandingPage: React.FC = () => {
       <section id="contact" className="py-12 bg-white text-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            {t("landing.contact.title", { default: "Prêt à améliorer votre support client ?" })}
+            {t("landing.contact.title", {
+              default: "Prêt à améliorer votre support client ?",
+            })}
           </h2>
           <p className="text-xl mb-8 max-w-3xl mx-auto">
-            {t("landing.contact.subtitle", { 
-              default: "Rejoignez les entreprises qui utilisent Support Hub pour offrir un service client moderne avec l'aide de l'intelligence artificielle." 
+            {t("landing.contact.subtitle", {
+              default:
+                "Rejoignez les entreprises qui utilisent Support Hub pour offrir un service client moderne avec l'aide de l'intelligence artificielle.",
             })}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -430,13 +500,17 @@ const LandingPage: React.FC = () => {
               onClick={handleGetStarted}
               className="bg-blue-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-blue-700 transition-colors"
             >
-              {t("landing.contact.ctaButton", { default: "Commencer gratuitement" })}
+              {t("landing.contact.ctaButton", {
+                default: "Commencer gratuitement",
+              })}
             </button>
             <Link
               to="/contact"
               className="border-2 border-blue-600 text-blue-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-blue-600 hover:text-white transition-colors inline-block"
             >
-              {t("landing.contact.contactButton", { default: "Nous contacter" })}
+              {t("landing.contact.contactButton", {
+                default: "Nous contacter",
+              })}
             </Link>
           </div>
         </div>

@@ -20,27 +20,27 @@ export interface PlanLimits {
 
 export const PLAN_LIMITS: Record<Plan, PlanLimits> = {
   freemium: {
-    maxAgents: 1,
-    maxTicketsPerMonth: 10,
-    hasAdvancedTicketManagement: false,
+    maxAgents: 5, // 🎁 +67% (était 3)
+    maxTicketsPerMonth: 1000, // 🎁 +400% (était 200)
+    hasAdvancedTicketManagement: true, // 🎁 NOUVEAU: Feature premium gratuite
     hasVoiceFeatures: false,
     hasAppointmentScheduling: false,
     hasDetailedReports: false,
     hasPrioritySupport: false,
     hasUnlimitedTickets: false,
-    hasInternalNotes: false,
-    hasTicketAssignment: false,
+    hasInternalNotes: true, // 🎁 NOUVEAU: Essentiel gratuit
+    hasTicketAssignment: true, // 🎁 NOUVEAU: Essentiel gratuit
     aiLevel: 1,
   },
   standard: {
-    maxAgents: 5,
-    maxTicketsPerMonth: 100,
+    maxAgents: Number.MAX_SAFE_INTEGER, // 🚀 ILLIMITÉ (vs 10)
+    maxTicketsPerMonth: Number.MAX_SAFE_INTEGER, // 🚀 ILLIMITÉ (vs 1000)
     hasAdvancedTicketManagement: true,
     hasVoiceFeatures: true,
     hasAppointmentScheduling: true,
     hasDetailedReports: false,
-    hasPrioritySupport: false,
-    hasUnlimitedTickets: false,
+    hasPrioritySupport: true, // 🚀 NOUVEAU
+    hasUnlimitedTickets: true, // 🚀 NOUVEAU
     hasInternalNotes: true,
     hasTicketAssignment: true,
     aiLevel: 1,

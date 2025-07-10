@@ -407,32 +407,27 @@
   "landing.features.voice.title": "مفعّل صوتيًا",
   "landing.features.voice.desc": "عزز إمكانية الوصول باستخدام الأوامر الصوتية للدردشة والنص إلى كلام تلقائي لردود الذكاء الاصطناعي.",
   "pricing.title": "تسعير بسيط وشفاف",
-  "pricing.subtitle": "اختر الخطة التي تناسب احتياجات فريقك. لا توجد رسوم خفية.",
+  "pricing.subtitle": "🔥 عرض الإطلاق: أسعار مخفضة لأول 1000 عميل!",
   "pricing.popular": "الأكثر شيوعًا",
   "pricing.perAgentPerMonth": "/ وكيل / شهر",
   "pricing.button.signUp": "التسجيل",
   "pricing.button.getStarted": "البدء",
   "pricing.button.contactUs": "اتصل بنا",
   "pricing.freemium.name": "مجاني",
-  "pricing.freemium.price": "0 يورو",
-  "pricing.freemium.desc": "مثالي للفرق الصغيرة أو لتجربة المنصة.",
-  "pricing.freemium.feature1": "حتى 3 وكلاء",
-  "pricing.freemium.feature2": "200 تذكرة شهريًا",
-  "pricing.freemium.feature3": "مساعدة أساسية بالذكاء الاصطناعي",
+  "pricing.freemium.price": "مجاني",
+  "pricing.freemium.desc": "سخي للفرق التي تختبر - حتى 5 وكلاء!",
+  "pricing.freemium.feature1": "حتى 5 وكلاء مشمولون",
+  "pricing.freemium.feature2": "1000 تذكرة شهرياً",
+  "pricing.freemium.feature3": "إدارة التذاكر المتقدمة مشمولة",
   "pricing.standard.name": "قياسي",
-  "pricing.standard.price": "10 يورو",
-  "pricing.standard.desc": "للفرق المتنامية التي تحتاج إلى القوة الكاملة للذكاء الاصطناعي لدينا.",
-  "pricing.standard.feature1": "تذاكر غير محدودة",
-  "pricing.standard.feature2": "ميزات الذكاء الاصطناعي الكاملة",
-  "pricing.standard.feature3": "التصنيف التلقائي",
-  "pricing.standard.feature4": "اتفاقية مستوى الخدمة القياسية",
+  "pricing.standard.price": "5 يورو",
+  "pricing.standard.desc": "سعر الإطلاق: خصم 50%! وكلاء وتذاكر غير محدودة.",
+  "pricing.standard.feature1": "🚀 وكلاء غير محدودون",
+  "pricing.standard.feature2": "🚀 تذاكر غير محدودة",
   "pricing.pro.name": "احترافي",
-  "pricing.pro.price": "20 يورو",
-  "pricing.pro.desc": "للفرق التي تتطلب الأفضل، مع ميزات متقدمة.",
-  "pricing.pro.feature1": "جميع الميزات القياسية",
-  "pricing.pro.feature2": "أوامر صوتية",
-  "pricing.pro.feature3": "دعم متعدد اللغات",
-  "pricing.pro.feature4": "جدولة المواعيد",
+  "pricing.pro.price": "12 يورو",
+  "pricing.pro.desc": "سعر الإطلاق: خصم 40%! ذكاء اصطناعي متقدم مستوى 2.",
+  "pricing.pro.feature2": "🤖 ذكاء اصطناعي مستوى 2 (أذكى)",
   "pricing.enterprise.text": "هل تحتاج إلى تكاملات مخصصة أو دعم متميز؟",
   "pricing.enterprise.link": "اتصل بنا للحصول على أسعار الشركات.",
   "subscription.pageTitle": "إدارة اشتراكك",
@@ -488,51 +483,81 @@
   "landing.contact.subtitle": "انضم إلى الشركات التي تستخدم Support Hub لتقديم خدمة عملاء حديثة بمساعدة الذكاء الاصطناعي.",
   "landing.contact.ctaButton": "ابدأ مجانًا",
   "landing.contact.contactButton": "اتصل بنا",
-    "infographic.title": "كيف يعمل مركز دعم Nexus",
-    "infographic.subtitle": "حل دعم عملاء شامل في 3 خطوات بسيطة",
-    "infographic.steps.step1.title": "إنشاء تذكرة",
-    "infographic.steps.step1.description": "ينشئ المستخدمون بسهولة تذاكر الدعم مع جميع التفاصيل اللازمة",
-    "infographic.steps.step2.title": "التخصيص الذكي",
-    "infographic.steps.step2.description": "يقوم نظامنا بتخصيص التذاكر تلقائياً للوكلاء المتاحين والمهرة",
-    "infographic.steps.step3.title": "الحل السريع",
-    "infographic.steps.step3.description": "يحل الوكلاء المشاكل بمساعدة الذكاء الاصطناعي ويتواصلون مباشرة مع العملاء",
-    "infographic.workflow.title": "سير عمل مركز دعم Nexus",
-    "infographic.workflow.states.created.title": "تم إنشاء التذكرة",
-    "infographic.workflow.states.created.subtitle": "من قبل المستخدم",
-    "infographic.workflow.states.assigned.title": "مخصصة",
-    "infographic.workflow.states.assigned.subtitle": "لوكيل",
-    "infographic.workflow.states.inProgress.title": "قيد التنفيذ",
-    "infographic.workflow.states.inProgress.subtitle": "معالجة نشطة",
-    "infographic.workflow.states.resolved.title": "محلولة",
-    "infographic.workflow.states.resolved.subtitle": "تم إغلاق المشكلة",
-    "infographic.statistics.satisfaction.value": "98%",
-    "infographic.statistics.satisfaction.title": "رضا العملاء",
-    "infographic.statistics.satisfaction.subtitle": "بناءً على ملاحظات العملاء",
-    "infographic.statistics.availability.value": "24/7",
-    "infographic.statistics.availability.title": "الدعم متاح",
-    "infographic.statistics.availability.subtitle": "مساعدة مستمرة",
-    "infographic.statistics.responseTime.value": "<2ساعة",
-    "infographic.statistics.responseTime.title": "وقت الاستجابة",
-    "infographic.statistics.responseTime.subtitle": "متوسط الاستجابة",
-    "infographic.step1.title": "إنشاء تذكرة",
-    "infographic.step1.desc": "ينشئ المستخدمون بسهولة تذاكر الدعم من خلال واجهتنا البديهية",
-    "infographic.step2.title": "ذكاء اصطناعي ذكي",
-    "infographic.step2.desc": "يحلل الذكاء الاصطناعي لدينا التذاكر تلقائياً ويقترح حلولاً فورية",
-    "infographic.step3.title": "حل سريع",
-    "infographic.step3.desc": "يتلقى الوكلاء توصيات الذكاء الاصطناعي لحل التذاكر بكفاءة",
-    "infographic.roles.user": "مستخدم",
-    "infographic.roles.user.desc": "يقدم التذاكر",
-    "infographic.roles.ai": "الذكاء الاصطناعي Nexus",
-    "infographic.roles.ai.desc": "يحلل ويقترح الحلول",
-    "infographic.roles.agent": "وكيل الدعم",
-    "infographic.roles.agent.desc": "يحل التذاكر",
-    "infographic.stats.resolution": "الحل التلقائي",
-    "infographic.stats.availability": "التوفر",
-    "infographic.stats.response": "وقت الاستجابة",
-    "infographic.stats.satisfaction": "رضا العملاء",
-    "newTicket.error.userNotFound": "انتهت صلاحية جلسة المستخدم. يرجى تسجيل الدخول مرة أخرى.",
-    "newTicket.error.countingTickets": "غير قادر على التحقق من حدود التذاكر. يرجى المحاولة مرة أخرى.",
-    "newTicket.error.createFailed": "فشل في إنشاء التذكرة. يرجى المحاولة مرة أخرى.",
-    "newTicket.error.critical": "حدث خطأ خطير. يرجى الاتصال بالدعم.",
-    "infographic.dashboard.roleBasedViews": "عروض مخصصة للمستخدمين والوكلاء والمديرين مع إدارة التذاكر المكيفة لكل مستوى مسؤولية."
-  }
+  "infographic.title": "كيف يعمل مركز دعم Nexus",
+  "infographic.subtitle": "حل دعم عملاء شامل في 3 خطوات بسيطة",
+  "infographic.steps.step1.title": "إنشاء تذكرة",
+  "infographic.steps.step1.description": "ينشئ المستخدمون بسهولة تذاكر الدعم مع جميع التفاصيل اللازمة",
+  "infographic.steps.step2.title": "التخصيص الذكي",
+  "infographic.steps.step2.description": "يقوم نظامنا بتخصيص التذاكر تلقائياً للوكلاء المتاحين والمهرة",
+  "infographic.steps.step3.title": "الحل السريع",
+  "infographic.steps.step3.description": "يحل الوكلاء المشاكل بمساعدة الذكاء الاصطناعي ويتواصلون مباشرة مع العملاء",
+  "infographic.workflow.title": "سير عمل مركز دعم Nexus",
+  "infographic.workflow.states.created.title": "تم إنشاء التذكرة",
+  "infographic.workflow.states.created.subtitle": "من قبل المستخدم",
+  "infographic.workflow.states.assigned.title": "مخصصة",
+  "infographic.workflow.states.assigned.subtitle": "لوكيل",
+  "infographic.workflow.states.inProgress.title": "قيد التنفيذ",
+  "infographic.workflow.states.inProgress.subtitle": "معالجة نشطة",
+  "infographic.workflow.states.resolved.title": "محلولة",
+  "infographic.workflow.states.resolved.subtitle": "تم إغلاق المشكلة",
+  "infographic.statistics.satisfaction.value": "98%",
+  "infographic.statistics.satisfaction.title": "رضا العملاء",
+  "infographic.statistics.satisfaction.subtitle": "بناءً على ملاحظات العملاء",
+  "infographic.statistics.availability.value": "24/7",
+  "infographic.statistics.availability.title": "الدعم متاح",
+  "infographic.statistics.availability.subtitle": "مساعدة مستمرة",
+  "infographic.statistics.responseTime.value": "<2ساعة",
+  "infographic.statistics.responseTime.title": "وقت الاستجابة",
+  "infographic.statistics.responseTime.subtitle": "متوسط الاستجابة",
+  "infographic.step1.title": "إنشاء تذكرة",
+  "infographic.step1.desc": "ينشئ المستخدمون بسهولة تذاكر الدعم من خلال واجهتنا البديهية",
+  "infographic.step2.title": "ذكاء اصطناعي ذكي",
+  "infographic.step2.desc": "يحلل الذكاء الاصطناعي لدينا التذاكر تلقائياً ويقترح حلولاً فورية",
+  "infographic.step3.title": "حل سريع",
+  "infographic.step3.desc": "يتلقى الوكلاء توصيات الذكاء الاصطناعي لحل التذاكر بكفاءة",
+  "infographic.roles.user": "مستخدم",
+  "infographic.roles.user.desc": "يقدم التذاكر",
+  "infographic.roles.ai": "الذكاء الاصطناعي Nexus",
+  "infographic.roles.ai.desc": "يحلل ويقترح الحلول",
+  "infographic.roles.agent": "وكيل الدعم",
+  "infographic.roles.agent.desc": "يحل التذاكر",
+  "infographic.stats.resolution": "الحل التلقائي",
+  "infographic.stats.availability": "التوفر",
+  "infographic.stats.response": "وقت الاستجابة",
+  "infographic.stats.satisfaction": "رضا العملاء",
+  "infographic.dashboard.roleBasedViews": "عروض مخصصة للمستخدمين والوكلاء والمديرين مع إدارة التذاكر المكيفة لكل مستوى مسؤولية.",
+  "newTicket.error.userNotFound": "انتهت جلسة المستخدم. يرجى تسجيل الدخول مرة أخرى.",
+  "newTicket.error.countingTickets": "تعذر التحقق من حدود التذاكر. يرجى المحاولة مرة أخرى.",
+  "newTicket.error.createFailed": "فشل في إنشاء التذكرة. يرجى المحاولة مرة أخرى.",
+  "newTicket.error.critical": "حدث خطأ خطير. يرجى الاتصال بالدعم.",
+  "planLimits.limitReached": "تم الوصول إلى حد الخطة",
+  "planLimits.upgradeNow": "ترقية الآن",
+  "planLimits.currentPlan": "الخطة الحالية",
+  "planLimits.upgradeGeneral": "قم بالترقية إلى خطة أعلى لفتح هذه الميزة.",
+  "planLimits.maxTicketsReached": "تم الوصول إلى حد {{limit}} تذكرة شهرياً. قم بالترقية إلى الخطة القياسية للحصول على تذاكر غير محدودة.",
+  "planLimits.maxAgentsReached": "تم الوصول إلى حد {{limit}} وكيل. قم بالترقية إلى الخطة القياسية لإضافة المزيد من الوكلاء.",
+  "planLimits.upgradeForAgents": "قم بالترقية إلى الخطة القياسية لإضافة المزيد من الوكلاء.",
+  "planLimits.upgradeForTickets": "قم بالترقية إلى الخطة القياسية للحصول على تذاكر غير محدودة.",
+  "planLimits.upgradeForAdvanced": "قم بالترقية إلى الخطة القياسية للإدارة المتقدمة للتذاكر.",
+  "planLimits.upgradeForVoice": "قم بالترقية إلى الخطة الاحترافية للميزات الصوتية.",
+  "planLimits.upgradeForAppointments": "قم بالترقية إلى الخطة الاحترافية لجدولة المواعيد.",
+  "planLimits.upgradeForReports": "قم بالترقية إلى الخطة الاحترافية للتقارير المفصلة.",
+  "planLimits.upgradeForSupport": "قم بالترقية إلى الخطة القياسية للدعم الأولوي.",
+  "planLimits.upgradeForUnlimited": "قم بالترقية إلى الخطة القياسية للتذاكر غير المحدودة.",
+  "planLimits.upgradeForNotes": "قم بالترقية إلى الخطة القياسية للملاحظات الداخلية.",
+  "planLimits.upgradeForAssignment": "قم بالترقية إلى الخطة القياسية لتخصيص التذاكر.",
+  "planLimits.upgradeForAI": "قم بالترقية إلى الخطة القياسية للذكاء الاصطناعي المتقدم.",
+  "planLimits.featureNotAvailable": "هذه الميزة غير متوفرة في خطتك الحالية.",
+  "planLimits.ticketCreationBlocked": "لقد وصلت إلى حد التذاكر لهذا الشهر.",
+  "planLimits.agentAdditionBlocked": "لقد وصلت إلى حد الوكلاء لخطتك.",
+  "planLimits.upgradePrompt": "هل تريد ترقية خطتك للوصول إلى هذه الميزة؟",
+  "planLimits.upgradeButton": "عرض الخطط",
+  "planLimits.dismissButton": "لاحقاً",
+  "helpChat.send": "إرسال",
+  "helpChat.startListening": "بدء الاستماع",
+  "helpChat.stopListening": "إيقاف الاستماع",
+  "helpChat.disableAutoRead": "تعطيل القراءة التلقائية",
+  "helpChat.enableAutoRead": "تمكين القراءة التلقائية",
+  "helpChat.autoReadOn": "القراءة التلقائية مفعلة",
+  "helpChat.autoReadOff": "القراءة التلقائية معطلة"
+}
