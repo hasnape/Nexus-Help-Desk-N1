@@ -221,20 +221,18 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
 
   useEffect(() => {
     let mounted = true;
+    let authInProgress = false;
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (!mounted) return;
+      if (!mounted || authInProgress) return;
 
-      console.log(
-        `🔑 Auth state change: ${event}`,
-        session?.user?.id || "no user"
-      );
+      console.log(`🔑 Auth event: ${event}`, session?.user?.id || "no user");
 
-      // Gérer les cas où l'utilisateur se déconnecte
+      // Cas de déconnexion simple
       if (event === "SIGNED_OUT" || !session?.user) {
-        console.log("🚪 User signed out, clearing data");
+        console.log("🚪 User signed out");
         setUser(null);
         setCompany(null);
         setTickets([]);
@@ -243,45 +241,34 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
         return;
       }
 
-      // Pour les autres événements, vérifier si on doit charger les données
-      const authUser = session.user;
-      const shouldLoadData =
-        event === "SIGNED_IN" ||
-        (event === "INITIAL_SESSION" && !userRef.current); // ✅ CORRECTION: Retirer TOKEN_REFRESHED
-
-      if (!shouldLoadData) {
-        console.log(`🔄 Ignoring event: ${event} (user already loaded)`);
-        // ✅ AJOUT: S'assurer que le loading est désactivé pour TOKEN_REFRESHED
-        if (event === "TOKEN_REFRESHED" && userRef.current) {
-          setIsLoading(false);
-        }
+      // Éviter les rechargements sur TOKEN_REFRESHED si déjà connecté
+      if (event === "TOKEN_REFRESHED" && userRef.current) {
+        console.log("🔄 Token refreshed, user already loaded");
+        setIsLoading(false);
         return;
       }
 
-      // Verrou pour éviter les exécutions concurrentes
-      if (authStateLoading.current) {
-        console.log("⚠️ Auth state change already in progress, skipping.");
+      // Charger les données seulement pour SIGNED_IN ou INITIAL_SESSION
+      if (event !== "SIGNED_IN" && event !== "INITIAL_SESSION") {
         return;
       }
 
-      authStateLoading.current = true;
+      authInProgress = true;
       setIsLoading(true);
 
-      // Timeout de sécurité pour éviter un blocage infini
-      if (authTimeout.current) clearTimeout(authTimeout.current);
-      authTimeout.current = setTimeout(() => {
-        console.error("⏰ Auth timeout reached, forcing loading to false.");
+      // Timeout plus long et pas de timeout d'urgence concurrent
+      const authTimeout = setTimeout(() => {
+        console.error("⏰ Auth vraiment trop long, arrêt forcé");
         setIsLoading(false);
-        authStateLoading.current = false;
-        authTimeout.current = null;
-      }, 15000); // 15 secondes
+        authInProgress = false;
+      }, 120000); // 2 minutes
 
       try {
-        console.log("🔍 Fetching user and company data...");
+        console.log("🔍 Fetching user data...");
         const { data: userProfile, error: profileError } = await supabase
           .from("users")
           .select("*")
-          .eq("id", authUser.id)
+          .eq("id", session.user.id)
           .single();
 
         if (profileError || !userProfile) {
@@ -354,39 +341,25 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
           console.log("✅ All data loaded successfully.");
         }
       } catch (error) {
-        console.error("💥 Error during data fetch:", error);
-        if (mounted) {
-          // En cas d'erreur, déconnecter l'utilisateur
-          console.log("🚪 Error occurred, signing out user");
-          setUser(null);
-          setCompany(null);
-          setTickets([]);
-          setAllUsers([]);
-          await supabase.auth.signOut();
-        }
+        console.error("💥 Auth error:", error);
+        setUser(null);
+        setCompany(null);
+        setTickets([]);
+        setAllUsers([]);
+        await supabase.auth.signOut();
       } finally {
-        if (mounted) {
-          // Nettoyage final
-          if (authTimeout.current) {
-            clearTimeout(authTimeout.current);
-            authTimeout.current = null;
-          }
-          setIsLoading(false);
-          authStateLoading.current = false;
-          console.log("🏁 Auth state change complete.");
-        }
+        clearTimeout(authTimeout);
+        setIsLoading(false);
+        authInProgress = false;
+        console.log("🏁 Auth complete");
       }
     });
 
     return () => {
       mounted = false;
       subscription.unsubscribe();
-      if (authTimeout.current) {
-        clearTimeout(authTimeout.current);
-        authTimeout.current = null;
-      }
     };
-  }, []); // ✅ CORRECT: Dépendances vides pour éviter les re-souscriptions
+  }, []); // Pas de dépendances pour éviter les re-souscriptions
 
   useEffect(() => {
     if (user?.language_preference && user.language_preference !== language) {
@@ -1406,9 +1379,8 @@ const MainAppContent: React.FC = () => {
     if (isLoading) {
       const emergencyTimeout = setTimeout(() => {
         console.error("⏰ TIMEOUT EMERGENCY - Déblocage automatique");
-        // Au lieu d'un rechargement forcé, simplement arrêter le loading
         forceUnlockAuth();
-      }, 15000); // 15 secondes
+      }, 90000); // ✅ CHANGÉ: 90 secondes au lieu de 15
 
       return () => clearTimeout(emergencyTimeout);
     }

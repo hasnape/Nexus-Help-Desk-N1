@@ -3,6 +3,12 @@ import { useLanguageSafe } from "../contexts/LanguageContext";
 import { useSidebarSafe } from "../contexts/SidebarContext";
 import { usePlanSafe } from "../contexts/PlanContext";
 import { useApp } from "../App";
+import {
+  clearNexusCache,
+  clearNexusCacheAndReload,
+  clearAuthCacheOnly,
+  getCacheInfo,
+} from "../utils/cacheManager";
 
 const ContextDebugger: React.FC = () => {
   const language = useLanguageSafe();
@@ -12,6 +18,28 @@ const ContextDebugger: React.FC = () => {
 
   // ✅ Seulement en développement
   if (import.meta.env.PROD) return null;
+
+  const handleClearCache = () => {
+    if (
+      confirm("🧹 Voulez-vous vider tout le cache ? La page va se recharger.")
+    ) {
+      clearNexusCacheAndReload();
+    }
+  };
+
+  const handleClearAuthOnly = () => {
+    if (
+      confirm("🔐 Voulez-vous vider uniquement le cache d'authentification ?")
+    ) {
+      clearAuthCacheOnly();
+    }
+  };
+
+  const handleShowCacheInfo = () => {
+    const info = getCacheInfo();
+    console.log("📋 Informations du cache:", info);
+    alert("📋 Informations du cache affichées dans la console (F12)");
+  };
 
   return (
     <div className="fixed bottom-0 left-0 bg-black/90 text-white p-3 text-xs z-[9999] max-w-sm border-r border-t border-gray-600">
@@ -49,6 +77,32 @@ const ContextDebugger: React.FC = () => {
             {app.isLoading ? "Chargement" : "Prêt"}
           </span>
         </div>
+
+        {/* ✅ NOUVEAUX BOUTONS DE CACHE */}
+        <div className="mt-3 border-t border-gray-600 pt-2">
+          <div className="font-bold mb-1">🧹 Gestion Cache</div>
+          <div className="space-y-1">
+            <button
+              onClick={handleShowCacheInfo}
+              className="w-full px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs"
+            >
+              📋 Voir Cache
+            </button>
+            <button
+              onClick={handleClearAuthOnly}
+              className="w-full px-2 py-1 bg-orange-600 hover:bg-orange-700 text-white rounded text-xs"
+            >
+              🔐 Vider Auth
+            </button>
+            <button
+              onClick={handleClearCache}
+              className="w-full px-2 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs"
+            >
+              🧹 Tout Vider
+            </button>
+          </div>
+        </div>
+
         {language.isLoadingLang && (
           <button
             onClick={language.forceResolveLoading}
