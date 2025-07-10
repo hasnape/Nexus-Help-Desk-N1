@@ -524,5 +524,9 @@
     "infographic.statistics.availability.subtitle": "Continuous assistance",
     "infographic.statistics.responseTime.value": "<2h",
     "infographic.statistics.responseTime.title": "Response Time",
-    "infographic.statistics.responseTime.subtitle": "Average response"
+    "infographic.statistics.responseTime.subtitle": "Average response",
+    "newTicket.error.userNotFound": "User session expired. Please log in again.",
+    "newTicket.error.countingTickets": "Unable to verify ticket limits. Please try again.",
+    "newTicket.error.createFailed": "Failed to create ticket. Please try again.",
+    "newTicket.error.critical": "A critical error occurred. Please contact support."
   }

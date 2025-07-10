@@ -1,4 +1,3 @@
-
 {
   "appName": "محور دعم نيكسوس",
   "login.title": "محور دعم نيكسوس",
@@ -531,5 +530,9 @@
     "infographic.stats.availability": "التوفر",
     "infographic.stats.response": "وقت الاستجابة",
     "infographic.stats.satisfaction": "رضا العملاء",
+    "newTicket.error.userNotFound": "انتهت صلاحية جلسة المستخدم. يرجى تسجيل الدخول مرة أخرى.",
+    "newTicket.error.countingTickets": "غير قادر على التحقق من حدود التذاكر. يرجى المحاولة مرة أخرى.",
+    "newTicket.error.createFailed": "فشل في إنشاء التذكرة. يرجى المحاولة مرة أخرى.",
+    "newTicket.error.critical": "حدث خطأ خطير. يرجى الاتصال بالدعم.",
     "infographic.dashboard.roleBasedViews": "عروض مخصصة للمستخدمين والوكلاء والمديرين مع إدارة التذاكر المكيفة لكل مستوى مسؤولية."
   }

@@ -490,6 +490,11 @@
   "promotional.section.future.content": "<p>[Le contenu français complet sera ajouté ici].</p>",
   "promotional.section.conclusion.title": "7. Conclusion",
   "promotional.section.conclusion.content": "<p>[Le contenu français complet sera ajouté ici].</p>",
-  "pricing.title": "Tarification simple et transparente"
-
+  "pricing.title": "Tarification simple et transparente",
+  "newTicket.error.userNotFound": "Session utilisateur expirée. Veuillez vous reconnecter.",
+  "newTicket.error.countingTickets": "Impossible de vérifier les limites de tickets. Veuillez réessayer.",
+  "newTicket.error.createFailed": "Échec de la création du ticket. Veuillez réessayer.",
+  "newTicket.error.critical": "Une erreur critique s'est produite. Veuillez contacter le support.",
+  "appContext.error.summaryGenerationFailed": "Système: Échec de la génération du résumé de ticket pour l'agent.",
+  "appContext.error.aiFollowUpFailed": "Désolé, j'ai rencontré une erreur: {{error}}"
 }
