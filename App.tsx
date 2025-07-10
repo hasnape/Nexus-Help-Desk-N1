@@ -53,7 +53,6 @@ import {
   TICKET_STATUS_KEYS,
 } from "./constants";
 import { LanguageProvider, useLanguage } from "./contexts/LanguageContext";
-import LoadingSpinner from "./components/LoadingSpinner";
 import CookieConsentBanner from "./components/CookieConsentBanner";
 import { SidebarProvider } from "./contexts/SidebarContext";
 import { PlanProvider } from "./contexts/PlanContext";
@@ -131,15 +130,15 @@ interface AppContextType {
   newlyCreatedCompanyName: string | null;
   setNewlyCreatedCompanyName: (name: string | null) => void;
   updateCompanyName: (newName: string) => Promise<boolean>;
-  updateCompanyPlan: (plan: Plan) => Promise<boolean>; // ✅ BUG FIX #1: Ajout de la propriété manquante
+  updateCompanyPlan: (plan: Plan) => Promise<boolean>;
   consentGiven: boolean;
   giveConsent: () => void;
-  forceStopAllLoading: () => void; // ✅ NOUVEAU
+  forceStopAllLoading: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-// ✅ BUG FIX #2: Amélioration de la validation des données
+// ✅ Fonctions utilitaires
 const reviveTicketDates = (data: any): Ticket => {
   if (!data) {
     throw new Error("Invalid ticket data: data is null or undefined");
@@ -193,19 +192,19 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
   >(null);
   const [consentGiven, setConsentGiven] = useState<boolean>(false);
 
-  const [isLoading, setIsLoading] = useState(true);
+  // ✅ SIMPLIFICATION: État de chargement plus simple
+  const [isLoading, setIsLoading] = useState(false);
   const [isLoadingAi, setIsLoadingAi] = useState(false);
   const [isAutoReadEnabled, setIsAutoReadEnabled] = useState<boolean>(() => {
     const storedAutoRead = localStorage.getItem("aiHelpDeskAutoRead");
     return storedAutoRead ? JSON.parse(storedAutoRead) : true;
   });
 
-  // ✅ FIX: Utiliser une ref pour l'utilisateur afin d'éviter les re-souscriptions
   const userRef = useRef(user);
   userRef.current = user;
 
   const authStateLoading = useRef(false);
-  const authTimeout = useRef<NodeJS.Timeout | null>(null); // ✅ AJOUT
+  const authTimeout = useRef<NodeJS.Timeout | null>(null);
 
   const {
     language,
@@ -220,18 +219,18 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
     }
   }, []);
 
+  // ✅ OPTIMISATION: Authentification simplifiée
   useEffect(() => {
     let mounted = true;
-    let authInProgress = false;
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (!mounted || authInProgress) return;
+      if (!mounted) return;
 
       console.log(`🔑 Auth event: ${event}`, session?.user?.id || "no user");
 
-      // Cas de déconnexion simple
+      // Cas de déconnexion
       if (event === "SIGNED_OUT" || !session?.user) {
         console.log("🚪 User signed out");
         setUser(null);
@@ -242,10 +241,9 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
         return;
       }
 
-      // Éviter les rechargements sur TOKEN_REFRESHED si déjà connecté
+      // Éviter les rechargements sur TOKEN_REFRESHED
       if (event === "TOKEN_REFRESHED" && userRef.current) {
         console.log("🔄 Token refreshed, user already loaded");
-        setIsLoading(false);
         return;
       }
 
@@ -254,15 +252,21 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
         return;
       }
 
-      authInProgress = true;
+      // ✅ Protection contre les appels multiples
+      if (authStateLoading.current) {
+        console.log("⏸️ Auth already in progress, skipping");
+        return;
+      }
+
+      authStateLoading.current = true;
       setIsLoading(true);
 
-      // Timeout plus long et pas de timeout d'urgence concurrent
+      // Timeout réduit
       const authTimeout = setTimeout(() => {
-        console.error("⏰ Auth vraiment trop long, arrêt forcé");
+        console.error("⏰ Auth timeout, stopping");
+        authStateLoading.current = false;
         setIsLoading(false);
-        authInProgress = false;
-      }, 120000); // 2 minutes
+      }, 15000); // 15 secondes
 
       try {
         console.log("🔍 Fetching user data...");
@@ -274,14 +278,9 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
 
         if (profileError || !userProfile) {
           throw new Error(
-            `Failed to fetch user profile: ${JSON.stringify(
-              profileError,
-              null,
-              2
-            )}`
+            `Failed to fetch user profile: ${profileError?.message}`
           );
         }
-        console.log("✅ User profile loaded:", userProfile.id);
 
         const { data: companyData, error: companyError } = await supabase
           .from("companies")
@@ -291,16 +290,10 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
 
         if (companyError || !companyData) {
           throw new Error(
-            `Failed to fetch company data: ${JSON.stringify(
-              companyError,
-              null,
-              2
-            )}`
+            `Failed to fetch company data: ${companyError?.message}`
           );
         }
-        console.log("✅ Company loaded:", companyData.name);
 
-        console.log("⏳ Fetching all users and tickets for the company...");
         const [usersResponse, ticketsResponse] = await Promise.all([
           supabase
             .from("users")
@@ -314,22 +307,13 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
 
         if (usersResponse.error)
           throw new Error(
-            `Failed to fetch users: ${JSON.stringify(
-              usersResponse.error,
-              null,
-              2
-            )}`
+            `Failed to fetch users: ${usersResponse.error.message}`
           );
         if (ticketsResponse.error)
           throw new Error(
-            `Failed to fetch tickets: ${JSON.stringify(
-              ticketsResponse.error,
-              null,
-              2
-            )}`
+            `Failed to fetch tickets: ${ticketsResponse.error.message}`
           );
 
-        // Toutes les données sont chargées, on met à jour l'état
         if (mounted) {
           setUser(userProfile);
           setCompany(reviveCompanyDates(companyData));
@@ -347,11 +331,10 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
         setCompany(null);
         setTickets([]);
         setAllUsers([]);
-        await supabase.auth.signOut();
       } finally {
         clearTimeout(authTimeout);
+        authStateLoading.current = false;
         setIsLoading(false);
-        authInProgress = false;
         console.log("🏁 Auth complete");
       }
     });
@@ -360,7 +343,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
       mounted = false;
       subscription.unsubscribe();
     };
-  }, []); // Pas de dépendances pour éviter les re-souscriptions
+  }, []);
 
   useEffect(() => {
     if (user?.language_preference && user.language_preference !== language) {
@@ -386,7 +369,6 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
     setConsentGiven(true);
   };
 
-  // ✅ BUG FIX #3: Amélioration de la gestion d'erreurs dans login
   const login = async (
     email: string,
     password: string,
@@ -411,10 +393,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
           .single();
 
         if (profileError || !userProfile) {
-          console.error(
-            "Could not fetch user profile for company verification:",
-            JSON.stringify(profileError, null, 2)
-          );
+          console.error("Could not fetch user profile:", profileError);
           await supabase.auth.signOut();
           return translateHook("login.error.profileFetchFailed");
         }
@@ -456,10 +435,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
           .insert({ name: companyName, plan: plan || "freemium" });
 
         if (createCompanyError) {
-          console.error(
-            "Error creating company:",
-            JSON.stringify(createCompanyError, null, 2)
-          );
+          console.error("Error creating company:", createCompanyError);
           if (createCompanyError.code === "23505") {
             throw new Error(translateHook("signup.error.companyNameTaken"));
           }
@@ -475,10 +451,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
             .single();
 
         if (findCompanyError || !existingCompanyData) {
-          console.error(
-            "Error finding company or company not found:",
-            JSON.stringify(findCompanyError, null, 2)
-          );
+          console.error("Error finding company:", findCompanyError);
           throw new Error(
             translateHook("signup.error.companyNotFound", { companyName })
           );
@@ -495,10 +468,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
             .eq("role", UserRole.AGENT);
 
           if (countError) {
-            console.error(
-              "Error counting agents:",
-              JSON.stringify(countError, null, 2)
-            );
+            console.error("Error counting agents:", countError);
             throw new Error(translateHook("signup.error.generic"));
           }
 
@@ -528,10 +498,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
         });
 
       if (signUpError) {
-        console.error(
-          "Supabase signup error:",
-          JSON.stringify(signUpError, null, 2)
-        );
+        console.error("Supabase signup error:", signUpError);
         if (
           signUpError.message.toLowerCase().includes("user already registered")
         ) {
@@ -556,7 +523,6 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
     try {
       console.log("🚪 Déconnexion en cours...");
 
-      // 1. Nettoyer l'état local d'abord
       setUser(null);
       setCompany(null);
       setTickets([]);
@@ -564,7 +530,6 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
       setNewlyCreatedCompanyName(null);
       setIsLoading(false);
 
-      // 2. Nettoyer les caches localStorage/sessionStorage
       Object.keys(localStorage).forEach((key) => {
         if (key.includes("sb-") || key.includes("supabase")) {
           localStorage.removeItem(key);
@@ -576,20 +541,35 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
         }
       });
 
-      // 3. Déconnecter de Supabase
       await supabase.auth.signOut();
-
-      // 4. Forcer la navigation vers login
       window.location.href = "/login";
 
       console.log("✅ Déconnexion terminée");
     } catch (error) {
       console.error("❌ Erreur lors de la déconnexion:", error);
-      // Forcer la déconnexion même en cas d'erreur
       window.location.href = "/login";
     }
   };
 
+  // ✅ Fonction d'arrêt d'urgence
+  const forceStopAllLoading = useCallback(() => {
+    console.log("🚨 ARRÊT FORCÉ DE TOUS LES CHARGEMENTS");
+    setIsLoading(false);
+    setIsLoadingAi(false);
+    authStateLoading.current = false;
+
+    if (authTimeout.current) {
+      clearTimeout(authTimeout.current);
+      authTimeout.current = null;
+    }
+
+    setUser(null);
+    setCompany(null);
+    setTickets([]);
+    setAllUsers([]);
+  }, []);
+
+  // ✅ Fonctions simplifiées (je garde seulement les essentielles pour l'exemple)
   const updateUserRole = async (
     userIdToUpdate: string,
     newRole: UserRole
@@ -614,10 +594,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
       .eq("id", userIdToUpdate);
 
     if (error) {
-      console.error(
-        "Error updating user role:",
-        JSON.stringify(error, null, 2)
-      );
+      console.error("Error updating user role:", error);
       return false;
     }
     setAllUsers((prev) =>
@@ -635,10 +612,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
       });
 
       if (error) {
-        console.error(
-          "Error deleting user via RPC:",
-          JSON.stringify(error, null, 2)
-        );
+        console.error("Error deleting user via RPC:", error);
         alert(
           translateHook("managerDashboard.deleteUserError.rpc", {
             message: error.message,
@@ -646,7 +620,6 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
         );
       } else {
         setAllUsers((prev) => prev.filter((u) => u.id !== userId));
-
         setTickets((prev) => {
           const ticketsAfterUserRemoval = prev.filter(
             (t) => t.user_id !== userId
@@ -659,10 +632,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
         });
       }
     } catch (e: any) {
-      console.error(
-        "Critical error calling delete user RPC:",
-        JSON.stringify(e, null, 2)
-      );
+      console.error("Critical error calling delete user RPC:", e);
       alert(
         translateHook("managerDashboard.deleteUserError.critical", {
           message: e.message,
@@ -671,7 +641,6 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
     }
   };
 
-  // ✅ BUG FIX #4: Amélioration de la gestion d'erreurs dans addTicket
   const addTicket = async (
     ticketData: Omit<
       Ticket,
@@ -707,10 +676,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
         .gte("created_at", startOfMonth.toISOString());
 
       if (error) {
-        console.error(
-          "Error counting tickets:",
-          JSON.stringify(error, null, 2)
-        );
+        console.error("Error counting tickets:", error);
         return translateHook("newTicket.error.countingTickets", {
           default: "Unable to verify ticket limits. Please try again.",
         });
@@ -723,7 +689,6 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
     }
 
     const creatorUserId = user.id;
-    setIsLoading(true);
 
     try {
       const now = new Date();
@@ -747,7 +712,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
         .single();
 
       if (error) {
-        console.error("Error creating ticket:", JSON.stringify(error, null, 2));
+        console.error("Error creating ticket:", error);
         return translateHook("newTicket.error.createFailed", {
           default: "Failed to create ticket. Please try again.",
         });
@@ -757,15 +722,10 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
       setTickets((prevTickets) => [...prevTickets, createdTicket]);
       return createdTicket;
     } catch (error) {
-      console.error(
-        "Critical error creating ticket:",
-        JSON.stringify(error, null, 2)
-      );
+      console.error("Critical error creating ticket:", error);
       return translateHook("newTicket.error.critical", {
         default: "A critical error occurred. Please contact support.",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -777,11 +737,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
       .eq("id", ticketId)
       .select()
       .single();
-    if (error)
-      console.error(
-        "Error updating ticket status:",
-        JSON.stringify(error, null, 2)
-      );
+    if (error) console.error("Error updating ticket status:", error);
     else
       setTickets((prev) =>
         prev.map((t) => (t.id === ticketId ? reviveTicketDates(data) : t))
@@ -795,7 +751,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
         .delete()
         .eq("id", ticketId);
       if (error) {
-        console.error("Error deleting ticket:", JSON.stringify(error, null, 2));
+        console.error("Error deleting ticket:", error);
         alert(
           translateHook("managerDashboard.deleteTicketError.rpc", {
             message: error.message,
@@ -805,10 +761,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
         setTickets((prev) => prev.filter((t) => t.id !== ticketId));
       }
     } catch (e: any) {
-      console.error(
-        "Critical error deleting ticket:",
-        JSON.stringify(e, null, 2)
-      );
+      console.error("Critical error deleting ticket:", e);
       alert(
         translateHook("managerDashboard.deleteTicketError.critical", {
           message: e.message,
@@ -817,7 +770,6 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
     }
   };
 
-  // ✅ BUG FIX #5: Amélioration de la gestion d'erreurs dans assignTicket
   const assignTicket = async (
     ticketId: string,
     agentId: string | null
@@ -850,10 +802,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
           timestamp: new Date(),
         };
       } catch (error) {
-        console.error(
-          "Error generating ticket summary:",
-          JSON.stringify(error, null, 2)
-        );
+        console.error("Error generating ticket summary:", error);
         summaryMessage = {
           id: crypto.randomUUID(),
           sender: "system_summary",
@@ -884,10 +833,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
         .single();
 
       if (error) {
-        console.error(
-          "Error assigning ticket:",
-          JSON.stringify(error, null, 2)
-        );
+        console.error("Error assigning ticket:", error);
         alert(
           translateHook("managerDashboard.error.assignTicketFailed", {
             default: "Failed to assign ticket. Please try again.",
@@ -921,10 +867,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
       .single();
 
     if (error) {
-      console.error(
-        "Agent could not take charge:",
-        JSON.stringify(error, null, 2)
-      );
+      console.error("Agent could not take charge:", error);
     } else {
       setTickets((prev) =>
         prev.map((t) => (t.id === ticketId ? reviveTicketDates(data) : t))
@@ -972,11 +915,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
       .eq("id", ticketId)
       .select()
       .single();
-    if (error)
-      console.error(
-        "Error sending agent message:",
-        JSON.stringify(error, null, 2)
-      );
+    if (error) console.error("Error sending agent message:", error);
     else
       setTickets((prev) =>
         prev.map((t) => (t.id === ticketId ? reviveTicketDates(data) : t))
@@ -1049,10 +988,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
       finalChatHistory = [...tempUpdatedChatHistory, aiResponseMessage];
       if (onAiMessageAdded) onAiMessageAdded(aiResponseMessage);
     } catch (error: any) {
-      console.error(
-        "Error getting AI follow-up response:",
-        JSON.stringify(error, null, 2)
-      );
+      console.error("Error getting AI follow-up response:", error);
       finalChatHistory = [
         ...tempUpdatedChatHistory,
         {
@@ -1075,11 +1011,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
         .eq("id", ticketId)
         .select()
         .single();
-      if (error)
-        console.error(
-          "Error saving AI response:",
-          JSON.stringify(error, null, 2)
-        );
+      if (error) console.error("Error saving AI response:", error);
       else
         setTickets((prev) =>
           prev.map((t) => (t.id === ticketId ? reviveTicketDates(data) : t))
@@ -1158,11 +1090,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
       .eq("id", ticketId)
       .select()
       .single();
-    if (error)
-      console.error(
-        "Error proposing appointment:",
-        JSON.stringify(error, null, 2)
-      );
+    if (error) console.error("Error proposing appointment:", error);
     else
       setTickets((prev) =>
         prev.map((t) => (t.id === ticketId ? reviveTicketDates(data) : t))
@@ -1191,10 +1119,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
       .eq("id", company.id);
 
     if (updateCompanyError) {
-      console.error(
-        "Error updating company name:",
-        JSON.stringify(updateCompanyError, null, 2)
-      );
+      console.error("Error updating company name:", updateCompanyError);
       alert(
         translateHook("managerDashboard.companyInfo.updateError", {
           default: `Failed to update company name. The new name might be taken.`,
@@ -1211,7 +1136,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
     if (updateUserError) {
       console.error(
         "CRITICAL: Failed to update users' company_id. Data is now inconsistent.",
-        JSON.stringify(updateUserError, null, 2)
+        updateUserError
       );
       await supabase
         .from("companies")
@@ -1233,7 +1158,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
     if (updateTicketsError) {
       console.error(
         "CRITICAL: Failed to update tickets' company_id.",
-        JSON.stringify(updateTicketsError, null, 2)
+        updateTicketsError
       );
       alert(
         translateHook("managerDashboard.companyInfo.updateError", {
@@ -1262,7 +1187,6 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
     return true;
   };
 
-  // ✅ BUG FIX #6: Ajout de l'implémentation manquante updateCompanyPlan
   const updateCompanyPlan = async (plan: Plan): Promise<boolean> => {
     if (!company) {
       alert(
@@ -1281,10 +1205,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
       .single();
 
     if (error) {
-      console.error(
-        "Error updating company plan:",
-        JSON.stringify(error, null, 2)
-      );
+      console.error("Error updating company plan:", error);
       alert(
         translateHook("subscription.error.updateFailed", {
           default:
@@ -1305,27 +1226,6 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
     return true;
   };
 
-  // ✅ NOUVEAU: Fonction d'arrêt d'urgence globale
-  const forceStopAllLoading = useCallback(() => {
-    console.log("🚨 ARRÊT FORCÉ DE TOUS LES CHARGEMENTS");
-    setIsLoading(false);
-    setIsLoadingAi(false);
-    authStateLoading.current = false;
-
-    // Nettoyer tous les timeouts
-    if (authTimeout.current) {
-      clearTimeout(authTimeout.current);
-      authTimeout.current = null;
-    }
-
-    // Réinitialiser l'état si nécessaire
-    setUser(null);
-    setCompany(null);
-    setTickets([]);
-    setAllUsers([]);
-  }, []);
-
-  // ✅ Exposer la fonction dans le contexte
   return (
     <AppContext.Provider
       value={{
@@ -1352,13 +1252,13 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
         updateUserRole,
         agentTakeTicket,
         deleteUserById,
-        newlyCreatedCompanyName: newlyCreatedCompanyName,
-        setNewlyCreatedCompanyName: setNewlyCreatedCompanyName,
+        newlyCreatedCompanyName,
+        setNewlyCreatedCompanyName,
         updateCompanyName,
-        updateCompanyPlan, // ✅ BUG FIX #7: Export manquant ajouté
+        updateCompanyPlan,
         consentGiven,
         giveConsent,
-        forceStopAllLoading, // ✅ NOUVEAU
+        forceStopAllLoading,
       }}
     >
       {children}
@@ -1374,7 +1274,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
 
 export const useApp = (): AppContextType => {
   const context = useContext(AppContext);
-  // ✅ CORRECTION : Ajout des parenthèses manquantes
   if (context === undefined) {
     throw new Error("useApp must be used within an AppProvider");
   }
@@ -1417,58 +1316,99 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 };
 
 const MainAppContent: React.FC = () => {
-  const { user, isLoading, consentGiven, giveConsent } = useApp();
+  const { user, isLoading, consentGiven, giveConsent, forceStopAllLoading } =
+    useApp();
   const { isLoadingLang, t, forceResolveLoading } = useLanguage();
   const navigate = useNavigate();
-  const location = useLocation(); // ✅ FIX: Déplacer tous les hooks au début
+  const location = useLocation();
 
-  // ✅ FIX: Bouton d'urgence pour débloquer l'authentification - sans rechargement forcé
+  const forceStopLoadingNow = useCallback(() => {
+    console.warn("🚨 ARRÊT IMMÉDIAT DU LOADING");
+    forceStopAllLoading();
+
+    Object.keys(localStorage).forEach((key) => {
+      if (key.includes("sb-") || key.includes("supabase")) {
+        localStorage.removeItem(key);
+      }
+    });
+
+    window.location.href = "/login";
+  }, [forceStopAllLoading]);
+
   const forceUnlockAuth = useCallback(() => {
     console.warn("🚨 DÉBLOCAGE FORCÉ - Navigation vers login");
     navigate("/login", { replace: true });
   }, [navigate]);
 
-  // ✅ FIX: Gérer les timeouts auth de manière plus sûre
-  useEffect(() => {
-    if (isLoading) {
-      const emergencyTimeout = setTimeout(() => {
-        console.error("⏰ TIMEOUT EMERGENCY - Déblocage automatique");
-        forceUnlockAuth();
-      }, 90000); // ✅ CHANGÉ: 90 secondes au lieu de 15
-
-      return () => clearTimeout(emergencyTimeout);
-    }
-  }, [isLoading, forceUnlockAuth]);
-
-  // ✅ FIX: Loader avec timeouts réduits et pas de rechargement forcé
+  // ✅ SUPPRESSION COMPLÈTE DU SPINNER
   if (isLoading || isLoadingLang) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-100">
-        <LoadingSpinner size="lg" text={t("appName") + "..."} />
-        <div className="absolute bottom-4 right-4 text-xs text-gray-500 bg-white/80 p-2 rounded">
-          <div>App: {isLoading ? "⏳ Chargement..." : "✅ Prêt"}</div>
-          <div>Lang: {isLoadingLang ? "⏳ Traductions..." : "✅ Prêt"}</div>
-          <div>User: {user ? "✅ Connecté" : "❌ Non connecté"}</div>
-          <div>Env: {import.meta.env.MODE || "dev"}</div>
+      <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4">
+        <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-gray-800 mb-4">
+              {t("appName") || "Nexus Help Desk"}
+            </h1>
 
-          {/* ✅ Boutons d'urgence sans rechargement */}
-          <div className="mt-2 space-y-1">
-            {isLoadingLang && (
-              <button
-                onClick={forceResolveLoading}
-                className="block w-full px-2 py-1 bg-blue-500 text-white text-xs rounded"
-              >
-                🔧 Débloquer Traductions
-              </button>
-            )}
-            {isLoading && (
-              <button
-                onClick={forceUnlockAuth}
-                className="block w-full px-2 py-1 bg-red-500 text-white text-xs rounded"
-              >
-                🚨 Aller au Login
-              </button>
-            )}
+            <div className="space-y-3 text-sm text-gray-600 mb-6">
+              <div className="flex justify-between">
+                <span>Application:</span>
+                <span
+                  className={isLoading ? "text-amber-600" : "text-green-600"}
+                >
+                  {isLoading ? "⏳ Chargement..." : "✅ Prêt"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Traductions:</span>
+                <span
+                  className={
+                    isLoadingLang ? "text-amber-600" : "text-green-600"
+                  }
+                >
+                  {isLoadingLang ? "⏳ Chargement..." : "✅ Prêt"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Utilisateur:</span>
+                <span className={user ? "text-green-600" : "text-red-600"}>
+                  {user ? "✅ Connecté" : "❌ Non connecté"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Environnement:</span>
+                <span className="text-blue-600">
+                  {import.meta.env.MODE || "dev"}
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              {isLoadingLang && (
+                <button
+                  onClick={forceResolveLoading}
+                  className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
+                >
+                  🔧 Débloquer Traductions
+                </button>
+              )}
+              {isLoading && (
+                <>
+                  <button
+                    onClick={forceStopLoadingNow}
+                    className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md font-semibold transition-colors"
+                  >
+                    🚨 ARRÊT IMMÉDIAT
+                  </button>
+                  <button
+                    onClick={forceUnlockAuth}
+                    className="w-full px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-md transition-colors"
+                  >
+                    🔄 Aller au Login
+                  </button>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>
