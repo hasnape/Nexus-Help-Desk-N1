@@ -143,7 +143,8 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
       } catch (error) {
-        if (error.name === "AbortError") {
+        // Vérifier que error est bien une instance d'Error avant d'accéder à ses propriétés
+        if (error instanceof Error && error.name === "AbortError") {
           console.log("🛑 Requête annulée");
           return;
         }

@@ -1,7 +1,7 @@
 export const diagnoseVercelIssues = async () => {
   console.log('🔍 Diagnostic Vercel - Début');
   console.log('📍 URL actuelle:', window.location.href);
-  console.log('🌐 Environnement:', process.env.NODE_ENV);
+  console.log('🌐 Environnement:', import.meta.env.MODE || 'development');
   
   const locales = ['en', 'fr', 'ar'];
   const paths = [
@@ -17,7 +17,9 @@ export const diagnoseVercelIssues = async () => {
     const faviconTest = await fetch('/favicon.ico');
     console.log(`  favicon.ico: ${faviconTest.status} ✅`);
   } catch (error) {
-    console.log(`  favicon.ico: ❌ ${error.message}`);
+    // ✅ CORRECTION: Typage correct de l'erreur
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.log(`  favicon.ico: ❌ ${errorMessage}`);
   }
 
   console.log('\n📁 Test des chemins de traduction:');
@@ -64,7 +66,9 @@ export const diagnoseVercelIssues = async () => {
           }
         }
       } catch (error) {
-        console.log(`  💥 ${fullPath}: Erreur réseau - ${error.message}`);
+        // ✅ CORRECTION: Typage correct de l'erreur
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.log(`  💥 ${fullPath}: Erreur réseau - ${errorMessage}`);
       }
     }
   }
@@ -83,7 +87,9 @@ export const diagnoseVercelIssues = async () => {
       const response = await fetch(testPath);
       console.log(`  ${testPath}: ${response.status} ${response.statusText}`);
     } catch (error) {
-      console.log(`  ${testPath}: ❌ ${error.message}`);
+      // ✅ CORRECTION: Typage correct de l'erreur
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.log(`  ${testPath}: ❌ ${errorMessage}`);
     }
   }
 
@@ -103,7 +109,8 @@ export const testSpecificPath = async (path: string) => {
       console.log(`Contenu (${text.length} caractères):`, text.substring(0, 200) + '...');
     }
   } catch (error) {
-    console.error(`Erreur:`, error);
+    // ✅ CORRECTION: Typage correct de l'erreur
+    console.error(`Erreur:`, error instanceof Error ? error.message : String(error));
   }
 };
 

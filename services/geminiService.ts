@@ -76,7 +76,7 @@ Do not add any explanations or text outside of the JSON object.`;
             }
         });
 
-        let jsonStr = response.text.trim();
+        let jsonStr = response.text?.trim() || ''; // ✅ CORRECTION: Gestion de undefined
         const fenceRegex = /```(?:json)?\s*\n?(.*?)\n?\s*```/s;
         const match = jsonStr.match(fenceRegex);
         if (match && match[1]) {
@@ -178,7 +178,7 @@ ${roleInstructions}`;
         }
     });
 
-    let jsonStr = response.text.trim();
+    let jsonStr = response.text?.trim() || ''; // ✅ CORRECTION: Gestion de undefined
     const fenceRegex = /```(?:json)?\s*\n?(.*?)\n?\s*```/s;
     const match = jsonStr.match(fenceRegex);
     if (match && match[1]) {
@@ -251,7 +251,7 @@ IMPORTANT: Respond ONLY in ${targetLanguage}.`;
                 topK: 30,
             }
         });
-        return response.text;
+        return response.text || ''; // ✅ CORRECTION: Gestion de undefined
     } catch (error: any) {
         console.error("Error getting ticket summary from Gemini:", error);
         if (language === 'fr') return `Désolé, impossible de générer le résumé du ticket. Erreur: ${error.message || 'Inconnue'}`;

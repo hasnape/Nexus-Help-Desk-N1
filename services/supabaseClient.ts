@@ -1,5 +1,3 @@
-
-
 import { createClient } from '@supabase/supabase-js';
 
 /*
@@ -192,11 +190,12 @@ COMMENT ON FUNCTION public.delete_user_by_manager IS 'Allows a manager to secure
 
 */
 
-const supabaseUrl = 'https://qzglblfqemzsktlkohoj.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF6Z2xibGZxZW16c2t0bGtvaG9qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwNDA2NjQsImV4cCI6MjA2NjYxNjY2NH0.ePBpJaikUuq5MhrvoBtOEho9Mni4CBY5IeswfFY1DoU';
+// Utiliser les variables d'environnement Vite (disponibles sur Vercel)
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Supabase URL and Anon Key must be provided.');
+  throw new Error('Supabase URL and Anon Key must be defined in Vercel environment variables');
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
