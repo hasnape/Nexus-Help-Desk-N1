@@ -4,14 +4,6 @@ import { useSidebarSafe } from "../contexts/SidebarContext";
 import { usePlanSafe } from "../contexts/PlanContext";
 import { useApp } from "../App";
 
-// ❌ TEMPORAIRE - Commenter ces imports qui causent l'erreur
-// import {
-//   clearNexusCache,
-//   clearNexusCacheAndReload,
-//   clearAuthCacheOnly,
-//   getCacheInfo,
-// } from "../utils/cacheManager";
-
 const ContextDebugger: React.FC = () => {
   const language = useLanguageSafe();
   const sidebar = useSidebarSafe();
@@ -21,12 +13,10 @@ const ContextDebugger: React.FC = () => {
   // ✅ Seulement en développement
   if (import.meta.env.PROD) return null;
 
-  // ❌ TEMPORAIRE - Fonctions simplifiées
   const handleClearCache = () => {
     if (
       confirm("🧹 Voulez-vous vider tout le cache ? La page va se recharger.")
     ) {
-      // Nettoyage simple sans import
       localStorage.clear();
       sessionStorage.clear();
       window.location.reload();
@@ -37,7 +27,6 @@ const ContextDebugger: React.FC = () => {
     if (
       confirm("🔐 Voulez-vous vider uniquement le cache d'authentification ?")
     ) {
-      // Nettoyage simple des données Supabase
       Object.keys(localStorage).forEach((key) => {
         if (key.includes("sb-") || key.includes("supabase")) {
           localStorage.removeItem(key);
@@ -52,7 +41,6 @@ const ContextDebugger: React.FC = () => {
   };
 
   const handleShowCacheInfo = () => {
-    // Affichage simple des infos cache
     const info = {
       localStorage: Object.keys(localStorage).length,
       sessionStorage: Object.keys(sessionStorage).length,
@@ -69,13 +57,7 @@ const ContextDebugger: React.FC = () => {
       <div className="space-y-1">
         <div className="flex justify-between">
           <span>🌐 Langue:</span>
-          <span
-            className={
-              language.isLoadingLang ? "text-yellow-400" : "text-green-400"
-            }
-          >
-            {language.language} {language.isLoadingLang ? "⏳" : "✅"}
-          </span>
+          <span className="text-green-400">{language.language} ✅</span>
         </div>
         <div className="flex justify-between">
           <span>📱 Sidebar:</span>
@@ -92,15 +74,10 @@ const ContextDebugger: React.FC = () => {
           <span>{plan.currentPlan}</span>
         </div>
         <div className="flex justify-between">
-          <span>⏳ App:</span>
-          <span
-            className={app.isLoading ? "text-yellow-400" : "text-green-400"}
-          >
-            {app.isLoading ? "Chargement" : "Prêt"}
-          </span>
+          <span>⚡ App:</span>
+          <span className="text-green-400">Prêt ✅</span>
         </div>
 
-        {/* ✅ BOUTONS DE CACHE SIMPLIFIÉS */}
         <div className="mt-3 border-t border-gray-600 pt-2">
           <div className="font-bold mb-1">🧹 Gestion Cache</div>
           <div className="space-y-1">
@@ -124,15 +101,6 @@ const ContextDebugger: React.FC = () => {
             </button>
           </div>
         </div>
-
-        {language.isLoadingLang && (
-          <button
-            onClick={language.forceResolveLoading}
-            className="w-full mt-2 px-2 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs"
-          >
-            🚨 Forcer résolution
-          </button>
-        )}
       </div>
     </div>
   );
