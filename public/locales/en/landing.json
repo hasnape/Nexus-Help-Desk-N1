@@ -1,0 +1,81 @@
+{
+    "hero": {
+        "title": "Intelligent Customer Support Solution",
+        "subtitle": "Transform your customer support with Nexus AI. Smart chat, multi-company management and automatic ticket creation.",
+        "ctaButton": "Get Started Now",
+        "demoButton": "Watch Demo"
+    },
+    "features": {
+        "title": "A Complete and Secure Platform",
+        "subtitle": "All essential features for modern customer support, with an architecture designed for businesses.",
+        "ai": {
+            "title": "Conversational AI Assistant",
+            "desc": "Smart chat with Nexus AI that helps your users and automatically creates detailed tickets with conversation history when needed."
+        },
+        "secure": {
+            "title": "Secure Multi-Company Management",
+            "desc": "Multi-tenant architecture with complete data isolation per company. Each organization has its own users, agents and tickets."
+        },
+        "multilingual": {
+            "title": "Multilingual Interface",
+            "desc": "User interface available in French, English and Arabic to adapt to international teams."
+        },
+        "dashboards": {
+            "title": "Role-Based Dashboards",
+            "desc": "Dedicated views for users, agents and managers with ticket management adapted to each level of responsibility."
+        }
+    },
+    "ai": {
+        "title": "Nexus AI Assistant: Your First Line of Support",
+        "subtitle": "Nexus AI helps your users in real time and automatically transforms conversations into organized tickets for your teams.",
+        "chatTitle": "Smart 24/7 Chat",
+        "chatDesc": "Nexus AI chats with your users, understands their problems and provides immediate assistance based on its knowledge base.",
+        "ticketCreationTitle": "Automatic Ticket Creation",
+        "ticketCreationDesc": "When AI reaches its limits, it automatically creates a ticket with all conversation history, suggested category and priority.",
+        "smartAssignmentTitle": "Smart Assignment",
+        "smartAssignmentDesc": "Created tickets can be automatically assigned to appropriate agents based on category and workload.",
+        "exampleTicketTitle": "Example of automatically created ticket",
+        "ticketNumber": "Ticket #12345",
+        "createdByAI": "Created by Nexus AI",
+        "userLabel": "User:",
+        "titleLabel": "Title:",
+        "categoryLabel": "Category:",
+        "priorityLabel": "Priority:",
+        "conversationHistoryLabel": "Conversation history:",
+        "aiLabel": "AI:",
+        "statusLabel": "Status:"
+    },
+    "demo": {
+        "title": "Discover Support Hub in Video",
+        "subtitle": "Watch a complete demonstration of the platform: AI chat, ticket creation, dashboards and multi-role management.",
+        "ctaButton": "Try now"
+    },
+    "pricing": {
+        "title": "Transparent and Affordable Pricing",
+        "subtitle": "Start free to test the platform, then evolve according to your needs. Simple pricing per active agent.",
+        "customSolutionPrompt": "Need a custom solution for your business?",
+        "contactUs": "Contact us for a personalized quote"
+    },
+    "contact": {
+        "title": "Ready to improve your customer support?",
+        "subtitle": "Join companies that use Support Hub to provide modern customer service with the help of artificial intelligence.",
+        "ctaButton": "Start for free",
+        "contactButton": "Contact us"
+    },
+    "footer": {
+        "description": "Complete customer support platform with conversational AI assistant. Secure multi-company architecture for teams of all sizes.",
+        "product": "Product",
+        "features": "Features",
+        "pricing": "Pricing",
+        "integrations": "Integrations",
+        "security": "Security",
+        "support": "Support",
+        "userGuide": "User Guide",
+        "helpCenter": "Help Center",
+        "contactUs": "Contact us",
+        "presentation": "Presentation",
+        "copyright": "© 2024 Support Hub. All rights reserved.",
+        "legal": "Legal",
+        "userManual": "User Manual"
+    }
+}

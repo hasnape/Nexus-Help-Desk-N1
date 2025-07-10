@@ -1,0 +1,215 @@
+{
+    "fr": {
+        "title": "Tableau de Bord Manager - {{username}}",
+        "subtitle": "Gérez votre équipe et surveillez tous les tickets.",
+        "createTicketButton": "Créer un Ticket",
+        "companyInfo": {
+            "title": "Informations de l'Entreprise",
+            "companyName": "Nom de l'Entreprise",
+            "currentPlan": "Plan Actuel",
+            "updateName": "Mettre à Jour le Nom",
+            "upgradeSubscription": "Améliorer l'Abonnement",
+            "updateSuccess": "Nom de l'entreprise mis à jour avec succès !",
+            "updateError": "Échec de la mise à jour du nom de l'entreprise. Le nouveau nom pourrait déjà être pris."
+        },
+        "stats": {
+            "title": "Statistiques",
+            "totalTickets": "Total des Tickets",
+            "openTickets": "Tickets Ouverts",
+            "resolvedTickets": "Tickets Résolus",
+            "priorityTickets": "Tickets Prioritaires",
+            "unassignedTickets": "Tickets Non Assignés"
+        },
+        "ticketManagement": {
+            "title": "Gestion des Tickets",
+            "allTickets": "Tous les Tickets",
+            "filters": {
+                "all": "Tous",
+                "open": "Ouverts",
+                "inProgress": "En Cours",
+                "resolved": "Résolus",
+                "closed": "Fermés",
+                "unassigned": "Non Assignés"
+            },
+            "table": {
+                "title": "Titre",
+                "client": "Client",
+                "assignedTo": "Assigné à",
+                "created": "Créé",
+                "priority": "Priorité",
+                "status": "Statut",
+                "actions": "Actions"
+            },
+            "actions": {
+                "assign": "Assigner",
+                "view": "Voir",
+                "delete": "Supprimer",
+                "reassign": "Réassigner"
+            },
+            "assignModal": {
+                "title": "Assigner le Ticket",
+                "selectAgent": "Sélectionner un Agent",
+                "unassigned": "Non assigné",
+                "assign": "Assigner",
+                "cancel": "Annuler"
+            },
+            "confirmDelete": {
+                "title": "Confirmer la Suppression",
+                "message": "Êtes-vous sûr de vouloir supprimer ce ticket ? Cette action est irréversible.",
+                "confirm": "Supprimer",
+                "cancel": "Annuler"
+            }
+        },
+        "userManagement": {
+            "title": "Gestion des Utilisateurs",
+            "addUser": "Ajouter un Utilisateur",
+            "table": {
+                "name": "Nom",
+                "email": "Email",
+                "role": "Rôle",
+                "joined": "Rejoint",
+                "actions": "Actions"
+            },
+            "actions": {
+                "promoteToAgent": "Promouvoir en Agent",
+                "demoteToUser": "Rétrograder en Utilisateur",
+                "changeRole": "Changer le Rôle",
+                "deleteUser": "Supprimer l'Utilisateur"
+            },
+            "confirmDelete": {
+                "title": "Confirmer la Suppression",
+                "message": "Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible.",
+                "confirm": "Supprimer",
+                "cancel": "Annuler"
+            }
+        },
+        "notifications": {
+            "ticketAssigned": "Ticket assigné avec succès",
+            "ticketDeleted": "Ticket supprimé avec succès",
+            "userRoleUpdated": "Rôle utilisateur mis à jour avec succès",
+            "userDeleted": "Utilisateur supprimé avec succès"
+        },
+        "errors": {
+            "assignTicketFailed": "Échec de l'assignation du ticket. Veuillez réessayer.",
+            "assignTicketCritical": "Une erreur critique s'est produite lors de l'assignation du ticket.",
+            "deleteTicketFailed": "Échec de la suppression du ticket : {{message}}",
+            "deleteTicketCritical": "Erreur critique lors de la suppression du ticket : {{message}}",
+            "deleteUserFailed": "Échec de la suppression de l'utilisateur : {{message}}",
+            "deleteUserCritical": "Erreur critique lors de la suppression de l'utilisateur : {{message}}",
+            "agentLimitReached": "Limite d'agents atteinte pour le plan {{plan}}. Veuillez mettre à niveau pour ajouter plus d'agents.",
+            "loadingError": "Erreur lors du chargement des données"
+        },
+        "emptyStates": {
+            "noTickets": "Aucun ticket trouvé",
+            "noUsers": "Aucun utilisateur trouvé",
+            "noAgents": "Aucun agent disponible"
+        }
+    },
+    "en": {
+        "title": "Manager Dashboard - {{username}}",
+        "subtitle": "Manage your team and monitor all tickets.",
+        "createTicketButton": "Create Ticket",
+        "companyInfo": {
+            "title": "Company Information",
+            "companyName": "Company Name",
+            "currentPlan": "Current Plan",
+            "updateName": "Update Name",
+            "upgradeSubscription": "Upgrade Subscription",
+            "updateSuccess": "Company name updated successfully!",
+            "updateError": "Failed to update company name. The new name might already be taken."
+        },
+        "stats": {
+            "title": "Statistics",
+            "totalTickets": "Total Tickets",
+            "openTickets": "Open Tickets",
+            "resolvedTickets": "Resolved Tickets",
+            "priorityTickets": "Priority Tickets",
+            "unassignedTickets": "Unassigned Tickets"
+        },
+        "ticketManagement": {
+            "title": "Ticket Management",
+            "allTickets": "All Tickets",
+            "filters": {
+                "all": "All",
+                "open": "Open",
+                "inProgress": "In Progress",
+                "resolved": "Resolved",
+                "closed": "Closed",
+                "unassigned": "Unassigned"
+            },
+            "table": {
+                "title": "Title",
+                "client": "Client",
+                "assignedTo": "Assigned To",
+                "created": "Created",
+                "priority": "Priority",
+                "status": "Status",
+                "actions": "Actions"
+            },
+            "actions": {
+                "assign": "Assign",
+                "view": "View",
+                "delete": "Delete",
+                "reassign": "Reassign"
+            },
+            "assignModal": {
+                "title": "Assign Ticket",
+                "selectAgent": "Select Agent",
+                "unassigned": "Unassigned",
+                "assign": "Assign",
+                "cancel": "Cancel"
+            },
+            "confirmDelete": {
+                "title": "Confirm Deletion",
+                "message": "Are you sure you want to delete this ticket? This action cannot be undone.",
+                "confirm": "Delete",
+                "cancel": "Cancel"
+            }
+        },
+        "userManagement": {
+            "title": "User Management",
+            "addUser": "Add User",
+            "table": {
+                "name": "Name",
+                "email": "Email",
+                "role": "Role",
+                "joined": "Joined",
+                "actions": "Actions"
+            },
+            "actions": {
+                "promoteToAgent": "Promote to Agent",
+                "demoteToUser": "Demote to User",
+                "changeRole": "Change Role",
+                "deleteUser": "Delete User"
+            },
+            "confirmDelete": {
+                "title": "Confirm Deletion",
+                "message": "Are you sure you want to delete this user? This action cannot be undone.",
+                "confirm": "Delete",
+                "cancel": "Cancel"
+            }
+        },
+        "notifications": {
+            "ticketAssigned": "Ticket assigned successfully",
+            "ticketDeleted": "Ticket deleted successfully",
+            "userRoleUpdated": "User role updated successfully",
+            "userDeleted": "User deleted successfully"
+        },
+        "errors": {
+            "assignTicketFailed": "Failed to assign ticket. Please try again.",
+            "assignTicketCritical": "A critical error occurred while assigning the ticket.",
+            "deleteTicketFailed": "Failed to delete ticket: {{message}}",
+            "deleteTicketCritical": "Critical error while deleting ticket: {{message}}",
+            "deleteUserFailed": "Failed to delete user: {{message}}",
+            "deleteUserCritical": "Critical error while deleting user: {{message}}",
+            "agentLimitReached": "Agent limit reached for {{plan}} plan. Please upgrade to add more agents.",
+            "loadingError": "Error loading data"
+        },
+        "emptyStates": {
+            "noTickets": "No tickets found",
+            "noUsers": "No users found",
+            "noAgents": "No agents available"
+        }
+    }
+}
+  

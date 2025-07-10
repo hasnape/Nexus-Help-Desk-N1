@@ -1,0 +1,50 @@
+{
+    "ticketStatus": {
+        "Open": "Ouvert",
+        "InProgress": "En Cours",
+        "Resolved": "Résolu",
+        "Closed": "Fermé",
+        "Pending": "En Attente"
+    },
+    "ticketPriority": {
+        "Low": "Faible",
+        "Medium": "Moyen",
+        "High": "Élevé",
+        "Urgent": "Urgent"
+    },
+    "ticketCategory": {
+        "SoftwareIssue": "Problème Logiciel",
+        "HardwareProblem": "Problème Matériel",
+        "AccountAccess": "Accès au Compte",
+        "BillingInquiry": "Demande de Facturation",
+        "NetworkOutage": "Panne Réseau",
+        "MaterialReplacementRequest": "Demande de Remplacement de Matériel",
+        "LostMaterial": "Matériel Perdu",
+        "BrokenMaterial": "Matériel Cassé",
+        "MaterialInvestigation": "Enquête sur le Matériel",
+        "GeneralQuestion": "Question Générale"
+    },
+    "userRole": {
+        "user": "Utilisateur",
+        "agent": "Agent",
+        "manager": "Manager"
+    },
+    "language": {
+        "french": "Français",
+        "english": "Anglais",
+        "arabic": "Arabe"
+    },
+    "planType": {
+        "freemium": "Freemium",
+        "standard": "Standard",
+        "pro": "Pro"
+    },
+    "appointmentStatus": {
+        "pending": "En Attente",
+        "confirmed": "Confirmé",
+        "rejected": "Rejeté",
+        "rescheduled": "Reprogrammé",
+        "completed": "Terminé",
+        "cancelled": "Annulé"
+    }
+}

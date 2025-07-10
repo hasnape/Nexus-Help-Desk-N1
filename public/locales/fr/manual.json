@@ -1,0 +1,53 @@
+{
+    "pageTitle": "Manuel Utilisateur",
+    "backToApp": "Retour à l'Application",
+    "section": {
+        "gettingStarted": {
+            "title": "1. Démarrage : Création de Compte",
+            "intro": "Bienvenue sur Nexus Support Hub ! Votre rôle détermine comment vous vous inscrivez et interagissez avec le système.",
+            "manager": {
+                "title": "Pour les Managers : Créer une Entreprise",
+                "step1": "Naviguez vers la page d'Inscription.",
+                "step2": "Sélectionnez le rôle \"Manager\" dans le menu déroulant.",
+                "step3": "Choisissez un plan d'abonnement pour votre entreprise. Si vous sélectionnez un plan payant, vous serez redirigé vers PayPal pour compléter l'abonnement avant la création de votre compte.",
+                "step4": "Entrez le nom de votre nouvelle entreprise, unique. Ce nom est crucial car votre équipe l'utilisera pour se connecter.",
+                "step5": "Complétez le reste du formulaire et cliquez sur le bouton final pour créer votre compte d'entreprise."
+            },
+            "agentUser": {
+                "title": "Pour les Agents et Utilisateurs : Rejoindre une Entreprise",
+                "step1": "Naviguez vers la page d'Inscription.",
+                "step2": "Sélectionnez votre rôle (\"Agent\" ou \"Utilisateur\").",
+                "step3": "Dans le champ \"Nom d'Entreprise Existante\", entrez le nom exact de l'entreprise fourni par votre manager.",
+                "step4": "Complétez le formulaire et cliquez sur \"S'inscrire\". Vous ferez maintenant partie de l'équipe de votre entreprise."
+            }
+        },
+        "usingTheApp": {
+            "title": "2. Utilisation de l'Application",
+            "login": {
+                "title": "Connexion",
+                "desc": "Pour vous connecter, vous aurez toujours besoin de trois informations : votre email, votre mot de passe et le nom de votre entreprise."
+            },
+            "user": {
+                "title": "Tableau de Bord Utilisateur",
+                "desc": "En tant qu'utilisateur, votre objectif principal est d'obtenir de l'aide. Cliquez sur \"Obtenir de l'Aide IA\" pour commencer une conversation avec notre assistant IA, Nexus. Décrivez votre problème et Nexus vous guidera. S'il ne peut pas résoudre le problème, il suggérera de créer un ticket que vous pourrez finaliser et soumettre."
+            },
+            "agent": {
+                "title": "Tableau de Bord Agent",
+                "desc": "Les agents peuvent voir les tickets non assignés et en prendre possession. Vous pouvez aussi voir la liste des tickets actuellement assignés à vous. Ouvrez n'importe quel ticket pour communiquer avec l'utilisateur et résoudre son problème."
+            },
+            "manager": {
+                "title": "Tableau de Bord Manager",
+                "desc": "Le Tableau de Bord Manager fournit une vue d'ensemble complète. Vous pouvez :",
+                "feature1": "Voir tous les tickets du système, peu importe à qui ils sont assignés.",
+                "feature2": "Assigner ou réassigner des tickets aux agents disponibles.",
+                "feature3": "Filtrer les tickets pour analyser les tendances et performances.",
+                "feature4": "Gérer les utilisateurs : mettre à jour leurs rôles (ex: promouvoir un Utilisateur en Agent) ou supprimer des utilisateurs.",
+                "feature5": "Mettre à jour le nom de l'entreprise."
+            }
+        },
+        "voice": {
+            "title": "3. Fonctionnalités Vocales",
+            "desc": "L'application inclut des fonctionnalités vocales pour améliorer votre expérience. Vous pouvez utiliser votre microphone pour dicter des messages dans le chat, et les réponses de l'IA peuvent être lues à haute voix automatiquement. Utilisez les icônes de haut-parleur et microphone pour contrôler ces fonctionnalités."
+        }
+    }
+}

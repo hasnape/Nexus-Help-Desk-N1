@@ -1,46 +1,81 @@
-import React from 'react';
+import React, { Suspense } from "react";
+import { useTranslation } from "react-i18next";
 
 interface LogoProps {
-  className?: string;
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: "sm" | "md" | "lg" | "xl";
   showText?: boolean;
-  textOnly?: boolean;
+  className?: string;
 }
 
-const Logo: React.FC<LogoProps> = ({ 
-  className = '', 
-  size = 'md', 
+const Logo: React.FC<LogoProps> = ({
+  size = "md",
   showText = true,
-  textOnly = false 
+  className = "",
 }) => {
+  const { t } = useTranslation(["common", "components"]);
+
   const sizeClasses = {
-    sm: { img: 'w-8 h-8', text: 'text-xl' },
-    md: { img: 'w-12 h-12', text: 'text-2xl' },
-    lg: { img: 'w-16 h-16', text: 'text-3xl' },
-    xl: { img: 'w-20 h-20', text: 'text-4xl' }
+    sm: "w-6 h-6",
+    md: "w-8 h-8",
+    lg: "w-10 h-10",
+    xl: "w-12 h-12",
   };
 
-  if (textOnly) {
-    return (
-      <span className={`font-bold text-blue-600 ${sizeClasses[size].text} ${className}`}>
-        Nexus Support Hub
-      </span>
-    );
-  }
+  const textSizeClasses = {
+    sm: "text-sm",
+    md: "text-lg",
+    lg: "text-xl",
+    xl: "text-2xl",
+  };
 
   return (
-    <div className={`flex items-center gap-4 ${className}`}>
-      <img 
-        src="https://lh3.googleusercontent.com/a/ACg8ocLAm25UE8QHrZawg7e-s7IkDLECuEaCovfeTzwPrOcHOjGYLhQ=s288-c-no"
-        alt="Nexus Support Hub Logo"
-        className={`${sizeClasses[size].img} rounded-full object-cover shadow-lg`}
-      />
-      {showText && (
-        <span className={`font-bold text-blue-600 ${sizeClasses[size].text}`}>
-          Nexus Support Hub
-        </span>
-      )}
-    </div>
+    <Suspense
+      fallback={
+        <div className={`flex items-center ${className}`}>
+          <div
+            className={`bg-gray-300 rounded ${sizeClasses[size]} animate-pulse`}
+          />
+          {showText && (
+            <div className="ml-2 h-4 bg-gray-300 rounded w-24 animate-pulse" />
+          )}
+        </div>
+      }
+    >
+      <div className={`flex items-center ${className}`}>
+        {/* Logo Icon */}
+        <div
+          className={`bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold ${sizeClasses[size]}`}
+        >
+          <span
+            className={
+              size === "sm"
+                ? "text-xs"
+                : size === "lg" || size === "xl"
+                ? "text-lg"
+                : "text-sm"
+            }
+          >
+            N
+          </span>
+        </div>
+
+        {/* Logo Text */}
+        {showText && (
+          <div className="ml-2">
+            <span
+              className={`font-bold text-gray-800 ${textSizeClasses[size]}`}
+            >
+              {t("appName")}
+            </span>
+            {(size === "lg" || size === "xl") && (
+              <div className="text-xs text-gray-500">
+                {t("logo.tagline", { ns: "components" })}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </Suspense>
   );
 };
 

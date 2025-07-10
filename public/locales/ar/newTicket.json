@@ -1,0 +1,92 @@
+{
+    "title": "Nouveau Ticket",
+    "subtitle": "Créer un nouveau ticket de support",
+    "backToDashboard": "Retour au Tableau de Bord",
+    "form": {
+        "title": "Titre du Ticket",
+        "titlePlaceholder": "Résumé bref du problème",
+        "description": "Description Détaillée",
+        "descriptionPlaceholder": "Décrivez votre problème en détail...",
+        "category": "Catégorie",
+        "categoryPlaceholder": "Sélectionnez une catégorie",
+        "priority": "Niveau de Priorité",
+        "priorityPlaceholder": "Sélectionnez la priorité",
+        "workstationId": "ID du Poste de Travail",
+        "workstationIdPlaceholder": "Optionnel - Identifiant de votre poste",
+        "attachments": "Pièces Jointes",
+        "attachmentsHelper": "Ajoutez des captures d'écran ou fichiers pertinents"
+    },
+    "categories": {
+        "technical": "Technique",
+        "hardware": "Matériel",
+        "software": "Logiciel",
+        "network": "Réseau",
+        "security": "Sécurité",
+        "billing": "Facturation",
+        "general": "Général",
+        "feature": "Demande de Fonctionnalité",
+        "bug": "Rapport de Bug",
+        "other": "Autre"
+    },
+    "priorities": {
+        "low": "Faible - Non urgent",
+        "medium": "Moyen - Normal",
+        "high": "Élevé - Important",
+        "urgent": "Urgent - Critique"
+    },
+    "actions": {
+        "submit": "Créer le Ticket",
+        "cancel": "Annuler",
+        "saveDraft": "Sauvegarder le Brouillon",
+        "reset": "Réinitialiser"
+    },
+    "aiSummary": {
+        "title": "Résumé IA",
+        "generating": "Génération du résumé automatique...",
+        "generated": "Résumé généré automatiquement à partir de votre conversation",
+        "failed": "Échec de la génération automatique. Veuillez remplir manuellement."
+    },
+    "validation": {
+        "titleRequired": "Le titre est requis",
+        "titleMaxLength": "Le titre ne peut pas dépasser 100 caractères",
+        "descriptionRequired": "La description est requise",
+        "descriptionMinLength": "La description doit contenir au moins 10 caractères",
+        "categoryRequired": "La catégorie est requise",
+        "priorityRequired": "La priorité est requise",
+        "workstationIdMaxLength": "L'ID du poste ne peut pas dépasser 50 caractères"
+    },
+    "errors": {
+        "titleRequired": "Le titre est requis",
+        "titleMaxLength": "Le titre ne peut pas dépasser 100 caractères",
+        "descriptionRequired": "La description est requise",
+        "descriptionMinLength": "La description doit contenir au moins 10 caractères",
+        "categoryRequired": "La catégorie est requise",
+        "priorityRequired": "La priorité est requise",
+        "workstationIdMaxLength": "L'ID du poste ne peut pas dépasser 50 caractères",
+        "summaryFailed": "Échec du résumé IA : {{error}}. Veuillez remplir le formulaire manuellement.",
+        "createFailed": "Échec de la création du ticket. Veuillez réessayer.",
+        "networkError": "Erreur réseau. Vérifiez votre connexion.",
+        "unauthorized": "Session expirée. Veuillez vous reconnecter.",
+        "planLimitReached": "Limite de tickets atteinte pour votre plan.",
+        "critical": "Une erreur critique s'est produite. Veuillez contacter le support."
+    },
+    "success": {
+        "created": "Ticket créé avec succès !",
+        "createdWithId": "Ticket #{{id}} créé avec succès !",
+        "redirecting": "Redirection vers le détail du ticket...",
+        "draftSaved": "Brouillon sauvegardé"
+    },
+    "chatHistory": {
+        "title": "Historique de Conversation",
+        "subtitle": "Basé sur votre conversation avec l'assistant IA",
+        "noHistory": "Aucun historique de conversation disponible",
+        "messages": "{{count}} messages"
+    },
+    "tips": {
+        "title": "Conseils pour un Bon Ticket",
+        "tip1": "Soyez précis dans le titre",
+        "tip2": "Décrivez les étapes pour reproduire le problème",
+        "tip3": "Incluez des captures d'écran si possible",
+        "tip4": "Mentionnez votre environnement (OS, navigateur, etc.)"
+    }
+}

@@ -1,0 +1,26 @@
+{
+    "appName": "Nexus Support Hub",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "view": "Voir",
+    "back": "Retour",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "footer": {
+        "allRightsReserved": "Tous droits réservés.",
+        "legalLink": "Mentions légales",
+        "userManualLink": "Manuel d'utilisation",
+        "promotionalLink": "Présentation"
+    },
+    "navbar": {
+        "loginButton": "Connexion",
+        "signUpButton": "Inscription",
+        "logoutButton": "Déconnexion",
+        "welcome": "Bienvenue, {{username}}"
+    }
+}

@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, Suspense } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useApp } from "../App";
 import ChatMessageComponent from "../components/ChatMessage";
@@ -6,7 +7,6 @@ import { Button, Textarea } from "../components/FormElements";
 import { ChatMessage } from "../types";
 import LoadingSpinner from "../components/LoadingSpinner";
 import useSpeechRecognition from "../hooks/useSpeechRecognition";
-import { useLanguage } from "../contexts/LanguageContext";
 import { getFollowUpHelpResponse } from "../services/geminiService";
 import useTextToSpeech from "../hooks/useTextToSpeech";
 import { usePlanLimits } from "../hooks/usePlanLimits";
@@ -21,11 +21,7 @@ const MicrophoneIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     {...props}
   >
     <path d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4z" />
-    <path
-      fillRule="evenodd"
-      d="M5.5 8.5A.5.5 0 016 8h1v1.167a5.006 5.006 0 004 0V8h1a.5.5 0 01.5.5v.167A5.003 5.003 0 0013 12.5V14.5h.5a.5.5 0 010 1h-7a.5.5 0 010-1H7v-2a5.003 5.003 0 00.5-3.833V8.5z"
-      clipRule="evenodd"
-    />
+    <path d="M5.5 9.643a.75.75 0 00-1.5 0V10c0 3.06 2.29 5.585 5.25 5.954V17.5h-.75a.75.75 0 000 1.5h2.5a.75.75 0 000-1.5H10v-1.546A6.001 6.001 0 0016 10v-.357a.75.75 0 00-1.5 0V10a4.5 4.5 0 01-9 0v-.357z" />
   </svg>
 );
 
@@ -36,7 +32,7 @@ const SpeakerLoudIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     fill="currentColor"
     {...props}
   >
-    <path d="M10 3a.75.75 0 01.75.75v12.5a.75.75 0 01-1.5 0V3.75A.75.75 0 0110 3zM6.5 5.05A.75.75 0 005 5.801v8.397a.75.75 0 001.5.652V5.802a.75.75 0 00-.75-.752zM13.5 5.05a.75.75 0 00-.75.752v8.397a.75.75 0 001.5.652V5.802a.75.75 0 00-.75-.752zM2.75 7.5a.75.75 0 00-1.5 0v5a.75.75 0 001.5 0v-5zM17.25 7.5a.75.75 0 00-1.5 0v5a.75.75 0 001.5 0v-5z" />
+    <path d="M10 3.75a.75.75 0 00-1.264-.546L5.203 6H2.667a.75.75 0 00-.75.75v6.5c0 .414.336.75.75.75h2.536l3.533 2.796A.75.75 0 0010 16.25V3.75zM15.95 5.05a.75.75 0 00-1.06 1.061 5.5 5.5 0 010 7.778.75.75 0 001.06 1.06 7 7 0 000-9.899zM13.536 7.464a.75.75 0 00-1.061 1.061 2 2 0 010 2.828.75.75 0 001.06 1.061 3.5 3.5 0 000-4.95z" />
   </svg>
 );
 
@@ -47,22 +43,16 @@ const SpeakerOffIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     fill="currentColor"
     {...props}
   >
-    <path d="M13.28 6.72a.75.75 0 00-1.06-1.06L10 7.94 7.78 5.66a.75.75 0 00-1.06 1.06L8.94 9l-2.22 2.22a.75.75 0 101.06 1.06L10 10.06l2.22 2.22a.75.75 0 101.06-1.06L11.06 9l2.22-2.28z" />
-    <path
-      fillRule="evenodd"
-      d="M10 1a9 9 0 100 18 9 9 0 000-18zM2.5 10a7.5 7.5 0 1115 0 7.5 7.5 0 01-15 0z"
-      clipRule="evenodd"
-    />
+    <path d="M9.25 16.25a.75.75 0 001.5 0V3.75a.75.75 0 00-1.264-.546L5.203 6H2.667a.75.75 0 00-.75.75v6.5c0 .414.336.75.75.75h2.536l3.533 2.796c.246.195.514.204.75.046zM12.22 5.22a.75.75 0 011.06 0l1.5 1.5 1.5-1.5a.75.75 0 111.06 1.06l-1.5 1.5 1.5 1.5a.75.75 0 11-1.06 1.06l-1.5-1.5-1.5 1.5a.75.75 0 01-1.06-1.06l1.5-1.5-1.5-1.5a.75.75 0 010-1.06z" />
   </svg>
 );
 
 const HelpChatPage: React.FC = () => {
   const { user, isAutoReadEnabled, toggleAutoRead } = useApp();
-  const { t } = useLanguage();
+  const { t, i18n } = useTranslation(["helpChat", "common"]);
   const navigate = useNavigate();
   const location = useLocation();
-  const { checkTicketCreation, checkFeatureAccess, isFeatureAvailable } =
-    usePlanLimits();
+  const { checkTicketCreation, checkFeatureAccess } = usePlanLimits();
 
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
@@ -77,20 +67,28 @@ const HelpChatPage: React.FC = () => {
   const [showPlanModal, setShowPlanModal] = useState(false);
   const [planModalFeature, setPlanModalFeature] = useState<string>("");
 
-  // Vérifier si le navigateur supporte la synthèse vocale
   const browserSupportsTextToSpeech =
     typeof window !== "undefined" && "speechSynthesis" in window;
 
-  // Vérifier les limitations de plan
   const ticketCreationCheck = checkTicketCreation();
   const voiceFeatureCheck = checkFeatureAccess("hasVoiceFeatures");
 
-  // Effect for initializing chat and handling pre-filled messages
+  const {
+    isListening,
+    transcript,
+    startListening,
+    stopListening,
+    resetTranscript,
+    browserSupportsSpeechRecognition,
+  } = useSpeechRecognition();
+
+  const { speak, cancel, speaking } = useTextToSpeech();
+
   useEffect(() => {
     const initialAiMessage: ChatMessage = {
       id: crypto.randomUUID(),
       sender: "ai",
-      text: t("helpChat.initialMessage"),
+      text: t("initialMessage"),
       timestamp: new Date(),
     };
 
@@ -98,24 +96,32 @@ const HelpChatPage: React.FC = () => {
     const prefilledMessage = locationState?.initialMessage;
 
     if (prefilledMessage) {
-      // If there's a pre-filled message, send it immediately
       setChatHistory([initialAiMessage]);
-      handleSendMessage(null, prefilledMessage);
-      // Clear the state from location to prevent re-sending on refresh
-      navigate(location.pathname, { replace: true, state: {} });
+      setNewMessage(prefilledMessage);
     } else {
-      // Otherwise, just show the welcome message
       setChatHistory([initialAiMessage]);
-    }
-  }, [t, location.state]);
 
-  // Ajout de l'importation des valeurs du hook useSpeechRecognition
-  const { transcript, isListening, startListening, stopListening } =
-    useSpeechRecognition();
+      if (
+        isAutoReadEnabled &&
+        browserSupportsTextToSpeech &&
+        !initialMessageSpoken
+      ) {
+        speak(t("initialMessage"));
+        setInitialMessageSpoken(true);
+      }
+    }
+  }, [
+    t,
+    location.state,
+    isAutoReadEnabled,
+    browserSupportsTextToSpeech,
+    initialMessageSpoken,
+    speak,
+  ]);
 
   useEffect(() => {
     if (transcript) {
-      setNewMessage((prev) => prev + (prev ? " " : "") + transcript);
+      setNewMessage(transcript);
     }
   }, [transcript]);
 
@@ -123,277 +129,254 @@ const HelpChatPage: React.FC = () => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatHistory]);
 
-  // Hook for text-to-speech
-  const { speak, isSpeaking } = useTextToSpeech();
-
-  // Auto-read the initial welcome message from the AI if enabled.
-  useEffect(() => {
-    if (
-      !initialMessageSpoken &&
-      chatHistory.length === 1 &&
-      chatHistory[0].sender === "ai" &&
-      isAutoReadEnabled &&
-      browserSupportsTextToSpeech
-    ) {
-      const initialMessage = chatHistory[0];
-      setInitialMessageSpoken(true);
-      speak(initialMessage.text, () => setSpeakingMessageId(null));
-      setSpeakingMessageId(initialMessage.id);
-    }
-  }, [
-    chatHistory,
-    isAutoReadEnabled,
-    browserSupportsTextToSpeech,
-    speak,
-    initialMessageSpoken,
-  ]);
-
-  const handleSendMessage = async (
-    e: React.FormEvent | null,
-    messageTextOverride?: string
-  ) => {
-    if (e) e.preventDefault();
-    if (isListening) stopListening();
-
-    const textToSend = (messageTextOverride || newMessage).trim();
-    if (textToSend === "" || isLoadingAi || !user) return;
+  const handleSendMessage = async () => {
+    if (!newMessage.trim()) return;
 
     const userMessage: ChatMessage = {
       id: crypto.randomUUID(),
       sender: "user",
-      text: textToSend,
+      text: newMessage,
       timestamp: new Date(),
     };
-    const currentChat = [...chatHistory, userMessage];
-    setChatHistory(currentChat);
-    setNewMessage("");
-    setIsLoadingAi(true);
 
+    const updatedHistory = [...chatHistory, userMessage];
+    setChatHistory(updatedHistory);
+    setNewMessage("");
+    resetTranscript();
+
+    setIsLoadingAi(true);
     try {
-      const aiResponse = await getFollowUpHelpResponse(
-        "General Support Request", // Generic title for pre-ticket chat
-        "ticketCategory.GeneralQuestion", // Generic category
-        currentChat,
+      const response = await getFollowUpHelpResponse(
+        t("ai.name"),
+        "general",
+        updatedHistory,
         1,
-        user.language_preference
+        i18n.language as any
       );
-      const aiResponseMessage: ChatMessage = {
+
+      const aiMessage: ChatMessage = {
         id: crypto.randomUUID(),
         sender: "ai",
-        text: aiResponse.text,
+        text: response.text,
         timestamp: new Date(),
       };
-      setChatHistory((prev) => [...prev, aiResponseMessage]);
 
-      if (isAutoReadEnabled && browserSupportsTextToSpeech) {
-        speak(aiResponse.text, () => setSpeakingMessageId(null));
-        setSpeakingMessageId(aiResponseMessage.id);
-      }
+      const finalHistory = [...updatedHistory, aiMessage];
+      setChatHistory(finalHistory);
 
-      if (aiResponse.escalationSuggested) {
+      if (response.shouldCreateTicket) {
         setShowCreateTicketButton(true);
       }
+
+      if (isAutoReadEnabled && browserSupportsTextToSpeech) {
+        speak(response.text);
+        setSpeakingMessageId(aiMessage.id);
+      }
     } catch (error: any) {
-      console.error(
-        "Error getting AI follow-up response:",
-        JSON.stringify(error, null, 2)
-      );
-      const errorMsg: ChatMessage = {
+      console.error("Error getting AI response:", error);
+      const errorMessage: ChatMessage = {
         id: crypto.randomUUID(),
         sender: "ai",
-        text: t("appContext.error.aiFollowUpFailed", {
-          error: error.message || "Unknown",
-        }),
+        text: t("ai.error"),
         timestamp: new Date(),
       };
-      setChatHistory((prev) => [...prev, errorMsg]);
-      setShowCreateTicketButton(true); // Show button on error as well
+      setChatHistory([...updatedHistory, errorMessage]);
     } finally {
       setIsLoadingAi(false);
     }
   };
 
-  const handleSpeakMessage = (text: string, messageId: string) => {
-    // If your useTextToSpeech hook provides a stop or cancel method, use it here.
-    // Otherwise, just handle speaking logic.
-    if (isSpeaking && speakingMessageId === messageId) {
+  const handleCreateTicket = () => {
+    if (!ticketCreationCheck.allowed) {
+      setShowPlanModal(true);
+      setPlanModalFeature(t("createTicket.title"));
+      return;
+    }
+
+    navigate("/ticket/new", { state: { chatHistory } });
+  };
+
+  const handleVoiceFeatureClick = (feature: string) => {
+    if (!voiceFeatureCheck.allowed) {
+      setShowPlanModal(true);
+      setPlanModalFeature(feature);
+      return;
+    }
+
+    if (feature === "microphone") {
+      if (isListening) {
+        stopListening();
+      } else {
+        startListening();
+      }
+    } else if (feature === "speaker") {
+      toggleAutoRead();
+    }
+  };
+
+  const handleSpeakMessage = (messageId: string, text: string) => {
+    if (!voiceFeatureCheck.allowed) {
+      setShowPlanModal(true);
+      setPlanModalFeature(t("voice.speakResponse"));
+      return;
+    }
+
+    if (speakingMessageId === messageId) {
+      cancel();
       setSpeakingMessageId(null);
-      // Optionally, add a stop/cancel method if available from the hook
     } else {
-      speak(text, () => setSpeakingMessageId(null));
+      speak(text);
       setSpeakingMessageId(messageId);
     }
   };
 
-  const handleCreateTicket = () => {
-    if (!ticketCreationCheck.allowed) {
-      setPlanModalFeature("Création de ticket");
-      setShowPlanModal(true);
-      return;
-    }
-
-    // Logic existante pour créer un ticket
-    navigate("/new-ticket", {
-      state: {
-        chatHistory: chatHistory,
-        from: location,
-      },
-    });
-  };
-
-  const handleVoiceToggle = () => {
-    if (!voiceFeatureCheck.allowed) {
-      setPlanModalFeature("Fonctionnalités vocales");
-      setShowPlanModal(true);
-      return;
-    }
-
-    toggleAutoRead();
-  };
-
-  // Handle Enter key to send message
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage(null);
-    }
-  };
-
   return (
-    <div className="flex flex-col h-full">
-      {/* Alert de limitation si nécessaire */}
-      {!ticketCreationCheck.allowed && (
-        <PlanLimitAlert
-          customMessage={ticketCreationCheck.warningMessage}
-          className="mb-4"
-        />
-      )}
-
-      {/* Chat interface existante */}
-      <div className="flex-1 overflow-hidden flex flex-col">
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {chatHistory.map((message) => (
-            <ChatMessageComponent
-              key={message.id}
-              message={message}
-            />
-          ))}
-          <div ref={chatEndRef} />
+    <Suspense fallback={<LoadingSpinner />}>
+      <div className="max-w-4xl mx-auto h-[calc(100vh-200px)] flex flex-col">
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-textPrimary mb-2">
+            {t("title")}
+          </h1>
+          <p className="text-slate-600">{t("subtitle")}</p>
         </div>
 
-        {/* Input area avec vérifications de plan */}
-        <div className="border-t border-slate-300 p-4 bg-surface">
-          <div className="flex items-end space-x-2">
-            <div className="flex-1">
-              <Textarea
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                placeholder={t("helpChat.placeholder")}
-                rows={2}
-                onKeyDown={handleKeyDown}
-                disabled={isLoadingAi}
-              />
+        {!ticketCreationCheck.allowed && (
+          <PlanLimitAlert
+            message={ticketCreationCheck.warningMessage}
+            type="warning"
+          />
+        )}
+
+        <div className="flex-1 bg-surface rounded-lg shadow-lg flex flex-col">
+          <div className="flex-1 p-4 overflow-y-auto">
+            <div className="space-y-4">
+              {chatHistory.map((message) => (
+                <ChatMessageComponent
+                  key={message.id}
+                  message={message}
+                  onSpeak={
+                    browserSupportsTextToSpeech
+                      ? (text) => handleSpeakMessage(message.id, text)
+                      : undefined
+                  }
+                  isSpeaking={speakingMessageId === message.id}
+                  showSpeakButton={
+                    voiceFeatureCheck.allowed && browserSupportsTextToSpeech
+                  }
+                />
+              ))}
+              {isLoadingAi && (
+                <div className="flex justify-start">
+                  <div className="bg-slate-100 rounded-lg p-3 max-w-xs">
+                    <div className="flex items-center space-x-2">
+                      <LoadingSpinner size="sm" />
+                      <span className="text-sm text-slate-600">
+                        {t("ai.thinking")}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div ref={chatEndRef} />
             </div>
-
-            {/* Bouton vocal avec limitation */}
-            <Button
-              onClick={
-                isFeatureAvailable("hasVoiceFeatures")
-                  ? startListening
-                  : handleVoiceToggle
-              }
-              variant={isListening ? "primary" : "secondary"}
-              size="md"
-              disabled={isLoadingAi}
-              title={
-                isFeatureAvailable("hasVoiceFeatures")
-                  ? isListening
-                    ? t("helpChat.stopListening")
-                    : t("helpChat.startListening")
-                  : t("planLimits.upgradeForVoice")
-              }
-            >
-              <MicrophoneIcon className="w-5 h-5" />
-            </Button>
-
-            <Button
-              onClick={handleSendMessage}
-              variant="primary"
-              size="md"
-              disabled={isLoadingAi || !newMessage.trim()}
-            >
-              {isLoadingAi ? <LoadingSpinner /> : t("helpChat.send")}
-            </Button>
           </div>
 
-          {/* Controls avec limitations */}
-          <div className="flex justify-between items-center mt-3">
-            <div className="flex items-center space-x-2">
-              <Button
-                onClick={
-                  isFeatureAvailable("hasVoiceFeatures")
-                    ? handleVoiceToggle
-                    : () => {
-                        setPlanModalFeature("Fonctionnalités vocales");
-                        setShowPlanModal(true);
-                      }
-                }
-                variant="secondary"
-                size="sm"
-                title={
-                  isFeatureAvailable("hasVoiceFeatures")
-                    ? isAutoReadEnabled
-                      ? t("helpChat.disableAutoRead")
-                      : t("helpChat.enableAutoRead")
-                    : t("planLimits.upgradeForVoice")
-                }
-              >
-                {isFeatureAvailable("hasVoiceFeatures") && isAutoReadEnabled ? (
-                  <SpeakerLoudIcon className="w-4 h-4" />
-                ) : (
-                  <SpeakerOffIcon className="w-4 h-4" />
+          <div className="p-4 border-t border-slate-200">
+            <div className="flex items-end space-x-2">
+              <div className="flex-1">
+                <Textarea
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  placeholder={t("placeholder")}
+                  rows={3}
+                  onKeyPress={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSendMessage();
+                    }
+                  }}
+                />
+              </div>
+              <div className="flex flex-col space-y-2">
+                {browserSupportsSpeechRecognition && (
+                  <Button
+                    variant={isListening ? "primary" : "outline"}
+                    size="sm"
+                    onClick={() => handleVoiceFeatureClick("microphone")}
+                    disabled={!voiceFeatureCheck.allowed}
+                    title={
+                      !voiceFeatureCheck.allowed
+                        ? t("planLimits.voiceNotAvailable")
+                        : isListening
+                        ? t("voice.stopListening")
+                        : t("voice.startListening")
+                    }
+                  >
+                    <MicrophoneIcon className="w-4 h-4" />
+                  </Button>
                 )}
-                <span className="ml-1">
-                  {isFeatureAvailable("hasVoiceFeatures")
-                    ? isAutoReadEnabled
-                      ? t("helpChat.autoReadOn")
-                      : t("helpChat.autoReadOff")
-                    : t("helpChat.voiceDisabled")}
-                </span>
-              </Button>
+                {browserSupportsTextToSpeech && (
+                  <Button
+                    variant={isAutoReadEnabled ? "primary" : "outline"}
+                    size="sm"
+                    onClick={() => handleVoiceFeatureClick("speaker")}
+                    disabled={!voiceFeatureCheck.allowed}
+                    title={
+                      !voiceFeatureCheck.allowed
+                        ? t("planLimits.voiceNotAvailable")
+                        : isAutoReadEnabled
+                        ? t("voice.muteResponse")
+                        : t("voice.speakResponse")
+                    }
+                  >
+                    {isAutoReadEnabled ? (
+                      <SpeakerLoudIcon className="w-4 h-4" />
+                    ) : (
+                      <SpeakerOffIcon className="w-4 h-4" />
+                    )}
+                  </Button>
+                )}
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={handleSendMessage}
+                  disabled={!newMessage.trim() || isLoadingAi}
+                >
+                  {t("sendButton")}
+                </Button>
+              </div>
             </div>
 
-            {showCreateTicketButton && (
-              <Button
-                onClick={handleCreateTicket}
-                variant="primary"
-                size="sm"
-                disabled={!ticketCreationCheck.allowed}
-                title={
-                  !ticketCreationCheck.allowed
-                    ? ticketCreationCheck.warningMessage
-                    : undefined
-                }
-              >
-                {t("helpChat.createTicketButton")}
-              </Button>
+            {isListening && (
+              <div className="mt-2 text-sm text-primary">
+                {t("voice.listening")}
+              </div>
             )}
           </div>
         </div>
-      </div>
 
-      {/* Modal de limitation de plan */}
-      <PlanLimitModal
-        isOpen={showPlanModal}
-        onClose={() => setShowPlanModal(false)}
-        title={t("planLimits.featureNotAvailable")}
-        message={
-          planModalFeature
-            ? t("planLimits.upgradePrompt", { feature: planModalFeature })
-            : ""
-        }
-      />
-    </div>
+        {showCreateTicketButton && (
+          <div className="mt-4 text-center">
+            <Button
+              variant="primary"
+              onClick={handleCreateTicket}
+              disabled={!ticketCreationCheck.allowed}
+            >
+              {t("ai.createTicket")}
+            </Button>
+          </div>
+        )}
+
+        {showPlanModal && (
+          <PlanLimitModal
+            isOpen={showPlanModal}
+            onClose={() => setShowPlanModal(false)}
+            feature={planModalFeature}
+            currentPlan={user?.company_id ? "freemium" : "freemium"}
+          />
+        )}
+      </div>
+    </Suspense>
   );
 };
 

@@ -1,0 +1,177 @@
+{
+    "navbar": {
+        "title": "Nexus Support Hub",
+        "search": {
+            "placeholder": "Rechercher..."
+        },
+        "language": {
+            "selector": "Langue",
+            "french": "Français",
+            "english": "English",
+            "arabic": "العربية"
+        },
+        "user": {
+            "profile": "Profil",
+            "settings": "Paramètres",
+            "logout": "Déconnexion"
+        },
+        "guest": {
+            "login": "Se connecter",
+            "signup": "S'inscrire"
+        }
+    },
+    "sidebar": {
+        "title": "Menu",
+        "collapse": "Réduire la sidebar",
+        "expand": "Agrandir la sidebar",
+        "categories": {
+            "main": "Principal",
+            "information": "Informations",
+            "authentication": "Authentification",
+            "mySpace": "Mon Espace",
+            "administration": "Administration"
+        },
+        "items": {
+            "home": "Accueil",
+            "contact": "Contact",
+            "promotions": "Promotions",
+            "subscription": "Abonnements",
+            "userManual": "Manuel utilisateur",
+            "legal": "Mentions légales",
+            "login": "Connexion",
+            "signup": "Inscription",
+            "dashboard": "Tableau de bord",
+            "newTicket": "Nouveau ticket",
+            "helpChat": "Chat d'aide",
+            "myTickets": "Mes tickets",
+            "agentDashboard": "Dashboard Agent",
+            "managerDashboard": "Dashboard Manager",
+            "newUser": "Nouvel utilisateur",
+            "ticketDetail": "Détails ticket"
+        },
+        "quickLinks": {
+            "title": "Navigation",
+            "features": "Fonctionnalités",
+            "pricing": "Tarifs",
+            "contact": "Contact"
+        },
+        "footer": "© 2024 Support Hub"
+    },
+    "systemInfographic": {
+        "title": "Comment Fonctionne Nexus Support Hub",
+        "subtitle": "Une solution complète pour gérer vos tickets de support avec l'intelligence artificielle",
+        "step1": {
+            "title": "Créer un Ticket",
+            "desc": "Les utilisateurs créent facilement des tickets de support via notre interface intuitive"
+        },
+        "step2": {
+            "title": "IA Intelligente",
+            "desc": "Notre IA analyse automatiquement les tickets et propose des solutions instantanées"
+        },
+        "step3": {
+            "title": "Résolution Rapide",
+            "desc": "Les agents reçoivent des recommandations IA pour résoudre les tickets efficacement"
+        },
+        "workflow": {
+            "title": "Flux de Travail"
+        },
+        "roles": {
+            "user": {
+                "title": "Utilisateur",
+                "desc": "Soumet des tickets"
+            },
+            "ai": {
+                "title": "IA Nexus",
+                "desc": "Analyse et propose des solutions"
+            },
+            "agent": {
+                "title": "Agent Support",
+                "desc": "Résout les tickets"
+            }
+        },
+        "stats": {
+            "resolution": "Résolution Automatique",
+            "availability": "Disponibilité",
+            "response": "Temps de Réponse",
+            "satisfaction": "Satisfaction Client"
+        }
+    },
+    "loadingSpinner": {
+        "loading": "Chargement...",
+        "pleaseWait": "Veuillez patienter"
+    },
+    "ticketCard": {
+        "status": {
+            "open": "Ouvert",
+            "inProgress": "En cours",
+            "resolved": "Résolu",
+            "closed": "Fermé"
+        },
+        "priority": {
+            "low": "Faible",
+            "medium": "Moyen",
+            "high": "Élevé",
+            "urgent": "Urgent"
+        },
+        "createdAt": "Créé le",
+        "updatedAt": "Mis à jour le",
+        "assignedTo": "Assigné à",
+        "unassigned": "Non assigné",
+        "viewDetails": "Voir les détails"
+    },
+    "chatMessage": {
+        "user": "Utilisateur",
+        "ai": "Assistant IA",
+        "agent": "Agent",
+        "timestamp": "Horodatage",
+        "typing": "En train d'écrire...",
+        "failed": "Échec de l'envoi",
+        "retry": "Réessayer"
+    },
+    "planLimitModal": {
+        "defaultTitle": "Limite de plan atteinte",
+        "defaultMessage": "Vous avez atteint la limite de votre plan actuel. Veuillez mettre à niveau pour continuer.",
+        "currentPlan": "Plan actuel :",
+        "upgradeButton": "Mettre à niveau",
+        "features": {
+            "tickets": {
+                "title": "Limite de tickets atteinte",
+                "message": "Vous avez atteint le nombre maximum de tickets pour votre plan actuel. Mettez à niveau pour créer plus de tickets."
+            },
+            "agents": {
+                "title": "Limite d'agents atteinte",
+                "message": "Vous avez atteint le nombre maximum d'agents pour votre plan actuel. Mettez à niveau pour ajouter plus d'agents."
+            },
+            "storage": {
+                "title": "Limite de stockage atteinte",
+                "message": "Vous avez atteint la limite de stockage de votre plan actuel. Mettez à niveau pour plus d'espace."
+            }
+        }
+    },
+    "planUsageWidget": {
+        "title": "Utilisation du plan",
+        "tickets": "Tickets ce mois",
+        "agents": "Agents actifs",
+        "storage": "Stockage",
+        "of": "sur",
+        "unlimited": "∞",
+        "upgradeNow": "Mettre à niveau maintenant",
+        "features": "Fonctionnalités",
+        "reports": "Rapports détaillés",
+        "voice": "Fonctions vocales",
+        "appointments": "Rendez-vous",
+        "notes": "Notes internes"
+    },
+    "cookieConsent": {
+        "title": "Nous utilisons des cookies",
+        "message": "Ce site utilise des cookies pour améliorer votre expérience. En continuant, vous acceptez notre utilisation des cookies.",
+        "accept": "Accepter",
+        "decline": "Refuser",
+        "learnMore": "En savoir plus"
+    },
+    "floatingActionButton": {
+        "newTicket": "Nouveau ticket",
+        "help": "Aide",
+        "chat": "Chat"
+    }
+}

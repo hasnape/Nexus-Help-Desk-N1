@@ -1,11 +1,12 @@
-import React from "react";
-import { useLanguage } from "../contexts/LanguageContext";
+import React, { Suspense } from "react";
+import { useTranslation } from "react-i18next";
 import { usePlan } from "../contexts/PlanContext";
 import { Link } from "react-router-dom";
 
 interface PlanLimitAlertProps {
   feature?: keyof import("../contexts/PlanContext").PlanLimits;
-  customMessage?: string;
+  message?: string;
+  type?: "warning" | "error" | "info";
   showUpgradeButton?: boolean;
   className?: string;
 }
@@ -29,77 +30,85 @@ const ExclamationTriangleIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
 
 const PlanLimitAlert: React.FC<PlanLimitAlertProps> = ({
   feature,
-  customMessage,
+  message,
+  type = "warning",
   showUpgradeButton = true,
   className = "",
 }) => {
-  const { t } = useLanguage();
+  const { t } = useTranslation(["common", "components"]);
   const { currentPlan } = usePlan();
 
-  // Fonction pour obtenir le message d'upgrade basé sur la feature
-  const getUpgradeMessage = (feature?: keyof import("../contexts/PlanContext").PlanLimits): string => {
-    if (!feature) return t("upgradeGeneral", { default: "Upgrade to a higher plan to unlock this feature." });
-    
-    switch (feature) {
-      case "maxAgents":
-        return t("upgradeForAgents", { default: "Upgrade to Standard plan to add more agents." });
-      case "maxTicketsPerMonth":
-      case "hasUnlimitedTickets":
-        return t("upgradeForTickets", { default: "Upgrade to Standard plan for unlimited tickets." });
-      case "hasAdvancedTicketManagement":
-        return t("upgradeForAdvanced", { default: "Upgrade to Standard plan for advanced ticket management." });
-      case "hasVoiceFeatures":
-        return t("upgradeForVoice", { default: "Upgrade to Pro plan for voice features." });
-      case "hasAppointmentScheduling":
-        return t("upgradeForAppointments", { default: "Upgrade to Pro plan for appointment scheduling." });
-      case "hasDetailedReports":
-        return t("upgradeForReports", { default: "Upgrade to Pro plan for detailed reports." });
-      case "hasPrioritySupport":
-        return t("upgradeForSupport", { default: "Upgrade to Standard plan for priority support." });
-      case "hasInternalNotes":
-        return t("upgradeForNotes", { default: "Upgrade to Standard plan for internal notes." });
-      case "hasTicketAssignment":
-        return t("upgradeForAssignment", { default: "Upgrade to Standard plan for ticket assignment." });
-      case "aiLevel":
-        return t("upgradeForAI", { default: "Upgrade to Standard plan for advanced AI." });
+  const getUpgradeMessage = (
+    feature?: keyof import("../contexts/PlanContext").PlanLimits
+  ): string => {
+    if (message) return message;
+    if (!feature) return t("planLimitAlert.messages.upgradeGeneral");
+
+    return t(
+      `planLimitAlert.messages.upgradeFor${
+        feature.charAt(0).toUpperCase() + feature.slice(1)
+      }`,
+      {
+        defaultValue: t("planLimitAlert.messages.upgradeGeneral"),
+      }
+    );
+  };
+
+  const getAlertStyle = () => {
+    switch (type) {
+      case "error":
+        return "bg-red-50 border-red-200 text-red-800";
+      case "info":
+        return "bg-blue-50 border-blue-200 text-blue-800";
       default:
-        return t("upgradeGeneral", { default: "Upgrade to a higher plan to unlock this feature." });
+        return "bg-amber-50 border-amber-200 text-amber-800";
     }
   };
 
-  const message = customMessage || (feature ? getUpgradeMessage(feature) : "");
-
-  if (!message) return null;
+  const getIconColor = () => {
+    switch (type) {
+      case "error":
+        return "text-red-500";
+      case "info":
+        return "text-blue-500";
+      default:
+        return "text-amber-500";
+    }
+  };
 
   return (
-    <div
-      className={`bg-amber-50 border border-amber-200 rounded-lg p-4 ${className}`}
-    >
-      <div className="flex items-start">
-        <ExclamationTriangleIcon className="w-5 h-5 text-amber-600 mt-0.5 mr-3 flex-shrink-0" />
-        <div className="flex-1">
-          <h3 className="text-sm font-medium text-amber-800 mb-1">
-            {t("limitReached", { default: "Plan limit reached" })}
-          </h3>
-          <p className="text-sm text-amber-700 mb-3">{message}</p>
-
-          {showUpgradeButton && (
-            <div className="flex items-center space-x-3">
-              <Link
-                to="/subscription"
-                className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-amber-700 bg-amber-100 hover:bg-amber-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors"
-              >
-                {t("upgradeNow", { default: "Upgrade Now" })}
-              </Link>
-              <span className="text-xs text-amber-600">
-                {t("currentPlan", { default: "Current plan" })}:{" "}
-                {currentPlan}
-              </span>
+    <Suspense fallback={null}>
+      <div className={`rounded-md border p-4 ${getAlertStyle()} ${className}`}>
+        <div className="flex">
+          <div className="flex-shrink-0">
+            <ExclamationTriangleIcon className={`h-5 w-5 ${getIconColor()}`} />
+          </div>
+          <div className="ml-3 flex-1">
+            <h3 className="text-sm font-medium">{t("planLimitAlert.title")}</h3>
+            <div className="mt-2 text-sm">
+              <p>{getUpgradeMessage(feature)}</p>
+              {currentPlan && (
+                <p className="mt-1">
+                  {t("planLimitAlert.currentPlan", { plan: currentPlan })}
+                </p>
+              )}
             </div>
-          )}
+            {showUpgradeButton && (
+              <div className="mt-4">
+                <div className="-mx-2 -my-1.5 flex">
+                  <Link
+                    to="/subscribe"
+                    className="rounded-md px-2 py-1.5 text-sm font-medium hover:bg-opacity-75 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-amber-100 text-amber-800 hover:bg-amber-200 focus:ring-amber-600"
+                  >
+                    {t("planLimitAlert.upgradeButton")}
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </Suspense>
   );
 };
 

@@ -1,0 +1,68 @@
+{
+    "title": "Chat d'Aide IA",
+    "subtitle": "Décrivez votre problème et Nexus vous aidera à le résoudre",
+    "initialMessage": "Bonjour ! Je suis Nexus, votre assistant IA. Comment puis-je vous aider aujourd'hui ?",
+    "placeholder": "Tapez votre message ici...",
+    "sendButton": "Envoyer",
+    "suggestions": {
+        "title": "Suggestions Rapides",
+        "items": [
+            "Comment créer un nouveau ticket ?",
+            "Comment modifier mon mot de passe ?",
+            "Comment contacter un agent ?",
+            "Comment voir mes tickets précédents ?",
+            "Comment changer ma langue ?",
+            "J'ai un problème avec mon équipement",
+            "Mon système ne fonctionne pas",
+            "J'ai besoin d'aide technique"
+        ]
+    },
+    "prefilled": {
+        "materialInvestigation": "J'aimerais commencer une enquête sur un équipement."
+    },
+    "ai": {
+        "name": "Nexus",
+        "greeting": "Bonjour ! Comment puis-je vous aider ?",
+        "thinking": "Je réfléchis...",
+        "processing": "Traitement en cours...",
+        "error": "Désolé, j'ai rencontré une erreur. Veuillez réessayer.",
+        "createTicket": "Créer un Ticket",
+        "cannotHelp": "Je ne peux pas résoudre ce problème complètement. Voulez-vous créer un ticket pour qu'un agent puisse vous aider ?",
+        "ticketSuggestion": "Basé sur notre conversation, je recommande de créer un ticket pour un agent humain."
+    },
+    "voice": {
+        "startListening": "Commencer l'écoute vocale",
+        "stopListening": "Arrêter l'écoute",
+        "speakResponse": "Prononcer la réponse",
+        "muteResponse": "Couper le son",
+        "listening": "Écoute en cours...",
+        "processing": "Traitement vocal...",
+        "error": "Erreur de reconnaissance vocale",
+        "notSupported": "Votre navigateur ne supporte pas la reconnaissance vocale"
+    },
+    "actions": {
+        "clear": "Effacer la conversation",
+        "export": "Exporter la conversation",
+        "newChat": "Nouvelle conversation",
+        "createTicket": "Créer un Ticket",
+        "backToDashboard": "Retour au Tableau de Bord"
+    },
+    "createTicket": {
+        "title": "Créer un Ticket",
+        "subtitle": "Créer un ticket basé sur cette conversation",
+        "button": "Créer le Ticket",
+        "processing": "Création du ticket...",
+        "success": "Ticket créé avec succès !",
+        "error": "Erreur lors de la création du ticket"
+    },
+    "errors": {
+        "messageEmpty": "Le message ne peut pas être vide",
+        "aiError": "Erreur de l'IA : {{error}}",
+        "networkError": "Erreur réseau. Vérifiez votre connexion.",
+        "unknownError": "Une erreur inconnue s'est produite"
+    },
+    "planLimits": {
+        "voiceNotAvailable": "Les fonctionnalités vocales ne sont pas disponibles avec votre plan actuel.",
+        "upgradeForVoice": "Mettre à niveau pour accéder aux fonctionnalités vocales"
+    }
+}

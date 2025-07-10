@@ -1,0 +1,46 @@
+{
+    "generic": {
+        "operationSuccessful": "Opération réussie",
+        "changesSaved": "Modifications sauvegardées",
+        "actionCompleted": "Action terminée avec succès",
+        "dataUpdated": "Données mises à jour",
+        "settingsUpdated": "Paramètres mis à jour"
+    },
+    "auth": {
+        "loginSuccessful": "Connexion réussie",
+        "logoutSuccessful": "Déconnexion réussie",
+        "accountCreated": "Compte créé avec succès",
+        "passwordResetSent": "Email de réinitialisation envoyé",
+        "passwordChanged": "Mot de passe modifié avec succès",
+        "emailVerified": "Email vérifié avec succès"
+    },
+    "tickets": {
+        "ticketCreated": "Ticket créé avec succès",
+        "ticketUpdated": "Ticket mis à jour",
+        "ticketClosed": "Ticket fermé",
+        "ticketReopened": "Ticket rouvert",
+        "messageAdded": "Message ajouté",
+        "statusChanged": "Statut modifié",
+        "assignmentChanged": "Assignation modifiée"
+    },
+    "users": {
+        "userCreated": "Utilisateur créé",
+        "userUpdated": "Utilisateur mis à jour",
+        "userDeleted": "Utilisateur supprimé",
+        "roleChanged": "Rôle modifié",
+        "permissionsUpdated": "Permissions mises à jour"
+    },
+    "company": {
+        "companyCreated": "Entreprise créée",
+        "companyUpdated": "Entreprise mise à jour",
+        "planUpgraded": "Plan mis à niveau",
+        "planDowngraded": "Plan rétrogradé",
+        "settingsUpdated": "Paramètres d'entreprise mis à jour"
+    },
+    "file": {
+        "fileUploaded": "Fichier téléchargé",
+        "fileDeleted": "Fichier supprimé",
+        "fileSaved": "Fichier sauvegardé",
+        "exportCompleted": "Export terminé"
+    }
+}

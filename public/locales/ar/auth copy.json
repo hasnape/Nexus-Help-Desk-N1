@@ -1,0 +1,109 @@
+{
+    "login": {
+        "title": "Connexion",
+        "subtitle": "Connectez-vous à votre compte Nexus",
+        "form": {
+            "email": "Adresse Email",
+            "emailPlaceholder": "votre.email@exemple.com",
+            "password": "Mot de Passe",
+            "passwordPlaceholder": "Votre mot de passe",
+            "companyName": "Nom de l'Entreprise",
+            "companyNamePlaceholder": "Nom de votre entreprise",
+            "rememberMe": "Se souvenir de moi",
+            "forgotPassword": "Mot de passe oublié ?",
+            "loginButton": "Se Connecter"
+        },
+        "language": {
+            "label": "Langue",
+            "french": "Français",
+            "english": "English",
+            "arabic": "العربية"
+        },
+        "actions": {
+            "noAccount": "Pas encore de compte ?",
+            "signUp": "S'inscrire",
+            "createAccount": "Créer un compte",
+            "backToLanding": "Retour à l'accueil"
+        },
+        "validation": {
+            "allFieldsRequired": "Tous les champs sont requis",
+            "emailRequired": "L'adresse email est requise",
+            "emailInvalid": "Adresse email invalide",
+            "passwordRequired": "Le mot de passe est requis",
+            "companyRequired": "Le nom de l'entreprise est requis"
+        },
+        "errors": {
+            "invalidCredentials": "Email ou mot de passe incorrect",
+            "companyNotFound": "Entreprise non trouvée",
+            "companyIdMismatch": "Vous n'appartenez pas à cette entreprise",
+            "accountLocked": "Compte verrouillé. Contactez votre administrateur.",
+            "tooManyAttempts": "Trop de tentatives. Réessayez dans {{minutes}} minutes.",
+            "sessionExpired": "Session expirée. Veuillez vous reconnecter.",
+            "profileFetchFailed": "Impossible de récupérer le profil utilisateur",
+            "networkError": "Erreur réseau. Vérifiez votre connexion.",
+            "serverError": "Erreur serveur. Veuillez réessayer plus tard.",
+            "generic": "Une erreur inattendue s'est produite. Veuillez réessayer."
+        },
+        "success": {
+            "loginSuccessful": "Connexion réussie !",
+            "redirecting": "Redirection en cours...",
+            "welcomeBack": "Bon retour, {{name}} !"
+        },
+        "tips": {
+            "title": "Conseils de Connexion",
+            "tip1": "Le nom de l'entreprise est sensible à la casse",
+            "tip2": "Utilisez l'email exact fourni lors de l'inscription",
+            "tip3": "Contactez votre manager si vous avez oublié le nom de l'entreprise"
+        },
+        "security": {
+            "title": "Sécurité",
+            "secureConnection": "Connexion sécurisée",
+            "dataProtected": "Vos données sont protégées",
+            "privacy": "Nous respectons votre vie privée"
+        }
+    },
+    "signup": {
+        "title": "Inscription",
+        "subtitle": "Créez votre compte",
+        "form": {
+            "firstName": "Prénom",
+            "lastName": "Nom",
+            "email": "Adresse email",
+            "password": "Mot de passe",
+            "confirmPassword": "Confirmer le mot de passe",
+            "role": "Rôle",
+            "companyName": "Nom de l'entreprise",
+            "existingCompany": "Entreprise existante",
+            "newCompany": "Nouvelle entreprise",
+            "signUpButton": "S'inscrire",
+            "alreadyHaveAccount": "Déjà un compte ?",
+            "loginLink": "Se connecter"
+        },
+        "roles": {
+            "user": "Utilisateur",
+            "agent": "Agent",
+            "manager": "Manager"
+        },
+        "error": {
+            "passwordMismatch": "Les mots de passe ne correspondent pas",
+            "emailExists": "Cette adresse email existe déjà",
+            "companyExists": "Cette entreprise existe déjà",
+            "weakPassword": "Mot de passe trop faible",
+            "invalidEmail": "Adresse email invalide"
+        }
+    },
+    "forgotPassword": {
+        "title": "Mot de passe oublié",
+        "subtitle": "Réinitialisez votre mot de passe",
+        "form": {
+            "email": "Adresse email",
+            "resetButton": "Réinitialiser le mot de passe",
+            "backToLogin": "Retour à la connexion"
+        },
+        "success": "Instructions envoyées par email",
+        "error": {
+            "emailNotFound": "Email non trouvé",
+            "resetFailed": "Échec de la réinitialisation"
+        }
+    }
+}

@@ -1,0 +1,153 @@
+{
+    "title": "Subscription Management",
+    "backToDashboard": "Back to Dashboard",
+    "pageTitle": "Manage Your Subscription",
+    "pageSubtitle": "View your current subscription plan. For upgrades or changes, please contact our support team.",
+    "currentPlan": {
+        "title": "Your Current Plan",
+        "plan": "{{planName}} Plan",
+        "since": "Since {{date}}",
+        "nextBilling": "Next billing: {{date}}",
+        "status": "Status: {{status}}",
+        "featuresIncluded": "Features included:"
+    },
+    "plans": {
+        "freemium": {
+            "name": "Freemium",
+            "price": "Free",
+            "description": "Perfect for getting started",
+            "features": [
+                "Up to 3 agents",
+                "200 tickets per month",
+                "Basic AI chat",
+                "Email support"
+            ]
+        },
+        "standard": {
+            "name": "Standard",
+            "price": "€5/month",
+            "description": "For growing teams",
+            "features": [
+                "Unlimited agents",
+                "Unlimited tickets",
+                "Advanced AI chat",
+                "Complete ticket management",
+                "Priority support"
+            ]
+        },
+        "pro": {
+            "name": "Pro",
+            "price": "€12/month",
+            "description": "Complete solution",
+            "features": [
+                "All Standard features",
+                "Voice features",
+                "Appointment management",
+                "Advanced analytics",
+                "API and integrations",
+                "24/7 dedicated support"
+            ]
+        }
+    },
+    "comparison": {
+        "title": "Plan Comparison",
+        "feature": "Feature",
+        "freemium": "Freemium",
+        "standard": "Standard",
+        "pro": "Pro",
+        "features": {
+            "agents": "Number of agents",
+            "tickets": "Tickets per month",
+            "aiChat": "AI Chat",
+            "voiceFeatures": "Voice features",
+            "appointments": "Appointment management",
+            "analytics": "Analytics",
+            "api": "API access",
+            "support": "Support"
+        },
+        "values": {
+            "unlimited": "Unlimited",
+            "basic": "Basic",
+            "advanced": "Advanced",
+            "included": "Included",
+            "notIncluded": "Not included",
+            "email": "Email",
+            "priority": "Priority",
+            "dedicated": "Dedicated 24/7"
+        }
+    },
+    "actions": {
+        "upgrade": "Upgrade",
+        "downgrade": "Downgrade",
+        "manageBilling": "Manage Billing",
+        "cancelSubscription": "Cancel Subscription",
+        "renewSubscription": "Renew",
+        "updatePayment": "Update Payment"
+    },
+    "billing": {
+        "title": "Billing Information",
+        "nextCharge": "Next charge",
+        "paymentMethod": "Payment method",
+        "billingHistory": "Billing history",
+        "invoice": "Invoice",
+        "download": "Download",
+        "amount": "Amount",
+        "date": "Date",
+        "status": "Status"
+    },
+    "paymentMethods": {
+        "title": "Payment Methods",
+        "addNew": "Add New Method",
+        "default": "Default",
+        "expires": "Expires",
+        "remove": "Remove",
+        "update": "Update"
+    },
+    "upgrade": {
+        "title": "Upgrade Your Plan",
+        "benefits": "Benefits of upgrading",
+        "currentLimitations": "Current limitations",
+        "newFeatures": "New features",
+        "processPayment": "Process Payment",
+        "payWithPayPal": "Pay with PayPal",
+        "needMoreFeatures": "Need more features?",
+        "contactForUpgrade": "To upgrade or modify your plan, please contact us."
+    },
+    "cancellation": {
+        "title": "Cancel Subscription",
+        "warning": "Are you sure you want to cancel your subscription?",
+        "consequences": "Consequences of cancellation",
+        "consequence1": "Loss of access to premium features",
+        "consequence2": "Return to Freemium plan limitations",
+        "consequence3": "Data retention for 30 days",
+        "confirm": "Yes, Cancel",
+        "keepSubscription": "Keep Subscription"
+    },
+    "viewPromotionalOffers": "📋 View all promotional offers",
+    "notifications": {
+        "upgradeSuccess": "Plan upgraded successfully!",
+        "downgradeSuccess": "Plan downgraded successfully",
+        "paymentUpdated": "Payment method updated",
+        "subscriptionCancelled": "Subscription cancelled",
+        "invoiceDownloaded": "Invoice downloaded"
+    },
+    "errors": {
+        "upgradeFailure": "Upgrade failed. Please try again.",
+        "paymentFailure": "Payment failed. Please check your information.",
+        "noCompany": "Unable to find company information to update.",
+        "updateFailed": "Failed to update your subscription. Please contact support.",
+        "billingError": "Billing error. Contact support.",
+        "networkError": "Network error. Check your connection."
+    },
+    "success": {
+        "updateComplete": "Your subscription has been updated successfully!",
+        "paymentProcessed": "Payment processed successfully",
+        "planChanged": "Plan changed successfully"
+    },
+    "paypal": {
+        "redirecting": "Redirecting to PayPal...",
+        "processing": "Processing PayPal payment...",
+        "completed": "PayPal payment completed",
+        "failed": "PayPal payment failed"
+    }
+}

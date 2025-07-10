@@ -1,0 +1,106 @@
+{
+    "title": "Tableau de Bord Manager - {{username}}",
+    "subtitle": "Gérez votre équipe et surveillez tous les tickets.",
+    "createTicketButton": "Créer un Ticket",
+    "companyInfo": {
+        "title": "Informations de l'Entreprise",
+        "companyName": "Nom de l'Entreprise",
+        "currentPlan": "Plan Actuel",
+        "updateName": "Mettre à Jour le Nom",
+        "upgradeSubscription": "Améliorer l'Abonnement",
+        "updateSuccess": "Nom de l'entreprise mis à jour avec succès !",
+        "updateError": "Échec de la mise à jour du nom de l'entreprise. Le nouveau nom pourrait déjà être pris."
+    },
+    "stats": {
+        "title": "Statistiques",
+        "totalTickets": "Total des Tickets",
+        "openTickets": "Tickets Ouverts",
+        "resolvedTickets": "Tickets Résolus",
+        "priorityTickets": "Tickets Prioritaires",
+        "unassignedTickets": "Tickets Non Assignés"
+    },
+    "ticketManagement": {
+        "title": "Gestion des Tickets",
+        "allTickets": "Tous les Tickets",
+        "filters": {
+            "all": "Tous",
+            "open": "Ouverts",
+            "inProgress": "En Cours",
+            "resolved": "Résolus",
+            "closed": "Fermés",
+            "unassigned": "Non Assignés"
+        },
+        "table": {
+            "title": "Titre",
+            "client": "Client",
+            "assignedTo": "Assigné à",
+            "created": "Créé",
+            "priority": "Priorité",
+            "status": "Statut",
+            "actions": "Actions"
+        },
+        "actions": {
+            "assign": "Assigner",
+            "view": "Voir",
+            "delete": "Supprimer",
+            "reassign": "Réassigner"
+        },
+        "assignModal": {
+            "title": "Assigner le Ticket",
+            "selectAgent": "Sélectionner un Agent",
+            "unassigned": "Non assigné",
+            "assign": "Assigner",
+            "cancel": "Annuler"
+        },
+        "confirmDelete": {
+            "title": "Confirmer la Suppression",
+            "message": "Êtes-vous sûr de vouloir supprimer ce ticket ? Cette action est irréversible.",
+            "confirm": "Supprimer",
+            "cancel": "Annuler"
+        }
+    },
+    "userManagement": {
+        "title": "Gestion des Utilisateurs",
+        "addUser": "Ajouter un Utilisateur",
+        "table": {
+            "name": "Nom",
+            "email": "Email",
+            "role": "Rôle",
+            "joined": "Rejoint",
+            "actions": "Actions"
+        },
+        "actions": {
+            "promoteToAgent": "Promouvoir en Agent",
+            "demoteToUser": "Rétrograder en Utilisateur",
+            "changeRole": "Changer le Rôle",
+            "deleteUser": "Supprimer l'Utilisateur"
+        },
+        "confirmDelete": {
+            "title": "Confirmer la Suppression",
+            "message": "Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible.",
+            "confirm": "Supprimer",
+            "cancel": "Annuler"
+        }
+    },
+    "notifications": {
+        "ticketAssigned": "Ticket assigné avec succès",
+        "ticketDeleted": "Ticket supprimé avec succès",
+        "userRoleUpdated": "Rôle utilisateur mis à jour avec succès",
+        "userDeleted": "Utilisateur supprimé avec succès"
+    },
+    "errors": {
+        "assignTicketFailed": "Échec de l'assignation du ticket. Veuillez réessayer.",
+        "assignTicketCritical": "Une erreur critique s'est produite lors de l'assignation du ticket.",
+        "deleteTicketFailed": "Échec de la suppression du ticket : {{message}}",
+        "deleteTicketCritical": "Erreur critique lors de la suppression du ticket : {{message}}",
+        "deleteUserFailed": "Échec de la suppression de l'utilisateur : {{message}}",
+        "deleteUserCritical": "Erreur critique lors de la suppression de l'utilisateur : {{message}}",
+        "agentLimitReached": "Limite d'agents atteinte pour le plan {{plan}}. Veuillez mettre à niveau pour ajouter plus d'agents.",
+        "loadingError": "Erreur lors du chargement des données"
+    },
+    "emptyStates": {
+        "noTickets": "Aucun ticket trouvé",
+        "noUsers": "Aucun utilisateur trouvé",
+        "noAgents": "Aucun agent disponible"
+    }
+}

@@ -1,54 +1,77 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useApp } from "../App";
-import { useSidebarSafe } from "../contexts/SidebarContext"; // Hook sécurisé
+import { useSidebarSafe } from "../contexts/SidebarContext";
+import LoadingSpinner from "./LoadingSpinner";
 
-const Sidebar: React.FC = () => {
+const SidebarContent: React.FC = () => {
+  const { t } = useTranslation(["components", "common"]);
   const { user } = useApp();
   const location = useLocation();
-  const { isExpanded, toggleSidebar } = useSidebarSafe(); // Hook sécurisé
+  const { isExpanded, toggleSidebar } = useSidebarSafe();
 
   // Toutes les pages organisées par catégories
   const menuItems = [
     {
-      category: "Principal",
+      category: t("components.sidebar.categories.main"),
       items: [
-        { path: "/", label: "Accueil", icon: "🏠", public: true },
-        { path: "/contact", label: "Contact", icon: "📞", public: true },
-        { path: "/promotional", label: "Promotions", icon: "🎉", public: true },
+        {
+          path: "/",
+          label: t("components.sidebar.items.home"),
+          icon: "🏠",
+          public: true,
+        },
+        {
+          path: "/contact",
+          label: t("components.sidebar.items.contact"),
+          icon: "📞",
+          public: true,
+        },
+        {
+          path: "/promotional",
+          label: t("components.sidebar.items.promotions"),
+          icon: "🎉",
+          public: true,
+        },
         {
           path: "/subscription",
-          label: "Abonnements",
+          label: t("components.sidebar.items.subscription"),
           icon: "💎",
           public: true,
         },
       ],
     },
     {
-      category: "Informations",
+      category: t("components.sidebar.categories.information"),
       items: [
         {
           path: "/user-manual",
-          label: "Manuel utilisateur",
+          label: t("components.sidebar.items.userManual"),
           icon: "📖",
           public: true,
         },
-        { path: "/legal", label: "Mentions légales", icon: "⚖️", public: true },
+        {
+          path: "/legal",
+          label: t("components.sidebar.items.legal"),
+          icon: "⚖️",
+          public: true,
+        },
       ],
     },
     {
-      category: "Authentification",
+      category: t("components.sidebar.categories.authentication"),
       items: [
         {
           path: "/login",
-          label: "Connexion",
+          label: t("components.sidebar.items.login"),
           icon: "🔑",
           public: true,
           authOnly: true,
         },
         {
           path: "/signup",
-          label: "Inscription",
+          label: t("components.sidebar.items.signup"),
           icon: "✨",
           public: true,
           authOnly: true,
@@ -56,58 +79,58 @@ const Sidebar: React.FC = () => {
       ],
     },
     {
-      category: "Mon Espace",
+      category: t("components.sidebar.categories.mySpace"),
       items: [
         {
           path: "/dashboard",
-          label: "Tableau de bord",
+          label: t("components.sidebar.items.dashboard"),
           icon: "📊",
           requireAuth: true,
         },
         {
           path: "/new-ticket",
-          label: "Nouveau ticket",
+          label: t("components.sidebar.items.newTicket"),
           icon: "🎫",
           requireAuth: true,
         },
         {
           path: "/help-chat",
-          label: "Chat d'aide",
+          label: t("components.sidebar.items.helpChat"),
           icon: "💬",
           requireAuth: true,
         },
         {
           path: "/tickets",
-          label: "Mes tickets",
+          label: t("components.sidebar.items.myTickets"),
           icon: "📋",
           requireAuth: true,
         },
       ],
     },
     {
-      category: "Administration",
+      category: t("components.sidebar.categories.administration"),
       items: [
         {
           path: "/agent-dashboard",
-          label: "Dashboard Agent",
+          label: t("components.sidebar.items.agentDashboard"),
           icon: "👤",
           requireRole: ["agent", "manager"],
         },
         {
           path: "/manager-dashboard",
-          label: "Dashboard Manager",
+          label: t("components.sidebar.items.managerDashboard"),
           icon: "👨‍💼",
           requireRole: ["manager"],
         },
         {
           path: "/new-user",
-          label: "Nouvel utilisateur",
+          label: t("components.sidebar.items.newUser"),
           icon: "👥",
           requireRole: ["manager"],
         },
         {
           path: "/ticket-detail",
-          label: "Détails ticket",
+          label: t("components.sidebar.items.ticketDetail"),
           icon: "🔍",
           requireRole: ["agent", "manager"],
         },
@@ -138,7 +161,11 @@ const Sidebar: React.FC = () => {
           <button
             onClick={toggleSidebar}
             className="w-full p-2 rounded-md hover:bg-gray-700 transition-colors flex items-center justify-center"
-            title={isExpanded ? "Réduire la sidebar" : "Agrandir la sidebar"}
+            title={
+              isExpanded
+                ? t("components.sidebar.collapse")
+                : t("components.sidebar.expand")
+            }
           >
             {isExpanded ? "◀️" : "▶️"}
           </button>
@@ -195,7 +222,7 @@ const Sidebar: React.FC = () => {
             <div className="mb-4">
               <div className="px-4 mb-2">
                 <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
-                  Navigation
+                  {t("components.sidebar.quickLinks.title")}
                 </h3>
               </div>
               <nav className="space-y-1">
@@ -204,21 +231,27 @@ const Sidebar: React.FC = () => {
                   className="flex items-center px-3 py-2 text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700 transition-colors"
                 >
                   <span className="text-lg">⚡</span>
-                  <span className="ml-3">Fonctionnalités</span>
+                  <span className="ml-3">
+                    {t("components.sidebar.quickLinks.features")}
+                  </span>
                 </a>
                 <a
                   href="#pricing"
                   className="flex items-center px-3 py-2 text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700 transition-colors"
                 >
                   <span className="text-lg">💰</span>
-                  <span className="ml-3">Tarifs</span>
+                  <span className="ml-3">
+                    {t("components.sidebar.quickLinks.pricing")}
+                  </span>
                 </a>
                 <a
                   href="#contact"
                   className="flex items-center px-3 py-2 text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700 transition-colors"
                 >
                   <span className="text-lg">📞</span>
-                  <span className="ml-3">Contact</span>
+                  <span className="ml-3">
+                    {t("components.sidebar.quickLinks.contact")}
+                  </span>
                 </a>
               </nav>
             </div>
@@ -229,7 +262,7 @@ const Sidebar: React.FC = () => {
         {isExpanded && (
           <div className="p-4 border-t border-gray-700">
             <div className="text-xs text-gray-400 text-center">
-              © 2024 Support Hub
+              {t("components.sidebar.footer")}
             </div>
           </div>
         )}
@@ -243,6 +276,14 @@ const Sidebar: React.FC = () => {
         />
       )}
     </>
+  );
+};
+
+const Sidebar: React.FC = () => {
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      <SidebarContent />
+    </Suspense>
   );
 };
 

@@ -1,0 +1,148 @@
+{
+    "title": "Gestion de l'Abonnement",
+    "subtitle": "Gérez votre plan et votre facturation",
+    "backToDashboard": "Retour au Tableau de Bord",
+    "currentPlan": {
+        "title": "Plan Actuel",
+        "plan": "Plan {{planName}}",
+        "since": "Depuis le {{date}}",
+        "nextBilling": "Prochaine facturation: {{date}}",
+        "status": "Statut: {{status}}"
+    },
+    "plans": {
+        "freemium": {
+            "name": "Freemium",
+            "price": "Gratuit",
+            "description": "Parfait pour débuter",
+            "features": [
+                "Jusqu'à 3 agents",
+                "200 tickets par mois",
+                "Chat IA basique",
+                "Support par email"
+            ]
+        },
+        "standard": {
+            "name": "Standard",
+            "price": "5€/mois",
+            "description": "Pour les équipes en croissance",
+            "features": [
+                "Agents illimités",
+                "Tickets illimités",
+                "Chat IA avancé",
+                "Gestion complète des tickets",
+                "Support prioritaire"
+            ]
+        },
+        "pro": {
+            "name": "Pro",
+            "price": "12€/mois",
+            "description": "Solution complète",
+            "features": [
+                "Toutes les fonctionnalités Standard",
+                "Fonctionnalités vocales",
+                "Gestion des rendez-vous",
+                "Analyses avancées",
+                "API et intégrations",
+                "Support dédié 24/7"
+            ]
+        }
+    },
+    "comparison": {
+        "title": "Comparaison des Plans",
+        "feature": "Fonctionnalité",
+        "freemium": "Freemium",
+        "standard": "Standard",
+        "pro": "Pro",
+        "features": {
+            "agents": "Nombre d'agents",
+            "tickets": "Tickets par mois",
+            "aiChat": "Chat IA",
+            "voiceFeatures": "Fonctionnalités vocales",
+            "appointments": "Gestion des rendez-vous",
+            "analytics": "Analyses",
+            "api": "Accès API",
+            "support": "Support"
+        },
+        "values": {
+            "unlimited": "Illimité",
+            "basic": "Basique",
+            "advanced": "Avancé",
+            "included": "Inclus",
+            "notIncluded": "Non inclus",
+            "email": "Email",
+            "priority": "Prioritaire",
+            "dedicated": "Dédié 24/7"
+        }
+    },
+    "actions": {
+        "upgrade": "Mettre à Niveau",
+        "downgrade": "Rétrograder",
+        "manageBilling": "Gérer la Facturation",
+        "cancelSubscription": "Annuler l'Abonnement",
+        "renewSubscription": "Renouveler",
+        "updatePayment": "Mettre à Jour le Paiement"
+    },
+    "billing": {
+        "title": "Informations de Facturation",
+        "nextCharge": "Prochaine facture",
+        "paymentMethod": "Méthode de paiement",
+        "billingHistory": "Historique de facturation",
+        "invoice": "Facture",
+        "download": "Télécharger",
+        "amount": "Montant",
+        "date": "Date",
+        "status": "Statut"
+    },
+    "paymentMethods": {
+        "title": "Méthodes de Paiement",
+        "addNew": "Ajouter une Nouvelle Méthode",
+        "default": "Par défaut",
+        "expires": "Expire",
+        "remove": "Supprimer",
+        "update": "Mettre à Jour"
+    },
+    "upgrade": {
+        "title": "Mettre à Niveau Votre Plan",
+        "benefits": "Avantages de la mise à niveau",
+        "currentLimitations": "Limitations actuelles",
+        "newFeatures": "Nouvelles fonctionnalités",
+        "processPayment": "Traiter le Paiement",
+        "payWithPayPal": "Payer avec PayPal"
+    },
+    "cancellation": {
+        "title": "Annuler l'Abonnement",
+        "warning": "Êtes-vous sûr de vouloir annuler votre abonnement ?",
+        "consequences": "Conséquences de l'annulation",
+        "consequence1": "Perte d'accès aux fonctionnalités premium",
+        "consequence2": "Retour aux limitations du plan Freemium",
+        "consequence3": "Conservation des données pendant 30 jours",
+        "confirm": "Oui, Annuler",
+        "keepSubscription": "Garder l'Abonnement"
+    },
+    "notifications": {
+        "upgradeSuccess": "Plan mis à niveau avec succès !",
+        "downgradeSuccess": "Plan rétrogradé avec succès",
+        "paymentUpdated": "Méthode de paiement mise à jour",
+        "subscriptionCancelled": "Abonnement annulé",
+        "invoiceDownloaded": "Facture téléchargée"
+    },
+    "errors": {
+        "upgradeFailure": "Échec de la mise à niveau. Veuillez réessayer.",
+        "paymentFailure": "Échec du paiement. Vérifiez vos informations.",
+        "noCompany": "Impossible de trouver les informations de l'entreprise à mettre à jour.",
+        "updateFailed": "Échec de la mise à jour de votre abonnement. Veuillez contacter le support.",
+        "billingError": "Erreur de facturation. Contactez le support.",
+        "networkError": "Erreur réseau. Vérifiez votre connexion."
+    },
+    "success": {
+        "updateComplete": "Votre abonnement a été mis à jour avec succès !",
+        "paymentProcessed": "Paiement traité avec succès",
+        "planChanged": "Plan changé avec succès"
+    },
+    "paypal": {
+        "redirecting": "Redirection vers PayPal...",
+        "processing": "Traitement du paiement PayPal...",
+        "completed": "Paiement PayPal complété",
+        "failed": "Échec du paiement PayPal"
+    }
+}

@@ -58,6 +58,7 @@ import { SidebarProvider } from "./contexts/SidebarContext";
 import { PlanProvider, PLAN_LIMITS } from "./contexts/PlanContext";
 import { useNavigationGuard } from "./hooks/useNavigationGuard";
 import ContextDebugger from "./components/ContextDebugger";
+import "./src/i18n/config"; // Ajoutez cette ligne au début
 
 interface AppContextType {
   user: User | null;

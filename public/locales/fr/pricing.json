@@ -1,0 +1,47 @@
+{
+    "title": "Tarification",
+    "subtitle": "Choisissez le plan qui convient à votre entreprise",
+    "perAgentPerMonth": "/agent/mois",
+    "popularLabel": "Le plus populaire",
+    "promotionalBadge": "Offre promotionnelle",
+    "firstMonth": "Premier mois",
+    "firstWeek": "Première semaine",
+    "thenRegularPrice": "puis tarif normal",
+    "ctaButton": "Choisir ce plan",
+    "wasPrice": "était",
+    "freemium": {
+        "name": "Freemium",
+        "price": "Gratuit",
+        "desc": "Parfait pour débuter",
+        "feature1": "Jusqu'à 3 agents",
+        "feature2": "Chat IA avec création de tickets",
+        "feature3": "Gestion basique des tickets",
+        "feature4": "Support communautaire",
+        "feature5": "Tableaux de bord basiques",
+        "ctaButton": "Commencer gratuitement",
+        "badge": "GÉNÉREUX"
+    },
+    "standard": {
+        "name": "Standard",
+        "price": "5€",
+        "originalPrice": "10€",
+        "desc": "Idéal pour les équipes",
+        "feature1": "Agents illimités",
+        "feature2": "Tickets illimités",
+        "feature3": "Chat IA avec création de tickets",
+        "feature4": "Gestion avancée des tickets",
+        "feature5": "Tableaux de bord personnalisés",
+        "badge": "50% OFF"
+    },
+    "pro": {
+        "name": "Pro",
+        "price": "12€",
+        "originalPrice": "20€",
+        "desc": "Pour les grandes équipes",
+        "feature1": "Toutes les fonctionnalités Standard",
+        "feature2": "Intégrations CRM",
+        "feature3": "Rapports avancés",
+        "feature4": "Support téléphonique 24/7",
+        "badge": "40% OFF"
+    }
+}

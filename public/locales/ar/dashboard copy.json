@@ -1,0 +1,100 @@
+{
+    "user": {
+        "title": "Tableau de Bord",
+        "welcomeMessage": "Bienvenue, {{username}}",
+        "createNewTicketButton": "Créer un Nouveau Ticket",
+        "getAiHelpButton": "Obtenir de l'Aide IA",
+        "investigateEquipmentButton": "Enquêter sur l'Équipement",
+        "myTicketsTitle": "Mes Tickets",
+        "noTicketsMessage": "Vous n'avez aucun ticket pour le moment.",
+        "noTicketsSubtitle": "Cliquez sur 'Obtenir de l'Aide IA' pour commencer.",
+        "stats": {
+            "totalTickets": "Total des Tickets",
+            "openTickets": "Tickets Ouverts",
+            "resolvedTickets": "Tickets Résolus",
+            "inProgressTickets": "Tickets En Cours"
+        },
+        "actions": {
+            "viewTicket": "Voir le Ticket",
+            "createTicket": "Créer un Ticket",
+            "getHelp": "Obtenir de l'Aide"
+        }
+    },
+    "agent": {
+        "title": "Tableau de Bord Agent - {{username}}",
+        "subtitle": "Gérez vos tickets assignés et prenez en charge les nouveaux tickets.",
+        "createTicketButton": "Créer un Ticket",
+        "unassignedTicketsTitle": "Tickets Non Assignés",
+        "myTicketsTitle": "Mes Tickets",
+        "takeChargeButton": "Prendre en Charge",
+        "viewTicketButton": "Voir",
+        "notApplicableShort": "N/A",
+        "loadingTickets": "Chargement des tickets...",
+        "stats": {
+            "totalAssigned": "Total Assignés",
+            "pendingResponse": "En Attente de Réponse",
+            "resolvedToday": "Résolus Aujourd'hui"
+        },
+        "table": {
+            "title": "Titre",
+            "client": "Client",
+            "workstation": "Poste de Travail",
+            "created": "Créé",
+            "status": "Statut",
+            "actions": "Actions"
+        },
+        "noTickets": {
+            "unassigned": "Aucun ticket non assigné disponible.",
+            "assigned": "Aucun ticket assigné pour le moment."
+        }
+    },
+    "manager": {
+        "title": "Tableau de Bord Manager - {{username}}",
+        "subtitle": "Vue d'ensemble complète de tous les tickets et utilisateurs.",
+        "allTicketsTitle": "Tous les Tickets",
+        "userManagementTitle": "Gestion des Utilisateurs",
+        "companySettings": "Paramètres de l'Entreprise",
+        "analytics": "Analyses",
+        "stats": {
+            "totalUsers": "Total des Utilisateurs",
+            "activeAgents": "Agents Actifs",
+            "avgResponseTime": "Temps de Réponse Moyen",
+            "satisfaction": "Satisfaction Client",
+            "totalTickets": "Total des Tickets",
+            "openTickets": "Tickets Ouverts",
+            "resolvedTickets": "Tickets Résolus"
+        },
+        "actions": {
+            "assignTicket": "Assigner le Ticket",
+            "viewUser": "Voir l'Utilisateur",
+            "editUser": "Modifier l'Utilisateur",
+            "deleteUser": "Supprimer l'Utilisateur",
+            "upgradeRole": "Promouvoir en Agent",
+            "downgradeRole": "Rétrograder en Utilisateur"
+        }
+    },
+    "common": {
+        "loading": "Chargement...",
+        "error": "Une erreur s'est produite",
+        "refresh": "Actualiser",
+        "search": "Rechercher",
+        "filter": "Filtrer",
+        "sort": "Trier",
+        "export": "Exporter",
+        
+        "filters": {
+            "all": "Tous",
+            "open": "Ouvert",
+            "inProgress": "En Cours",
+            "resolved": "Résolu",
+            "closed": "Fermé",
+            "pending": "En Attente"
+        },
+        "sort": {
+            "newest": "Plus Récent",
+            "oldest": "Plus Ancien",
+            "priority": "Priorité",
+            "status": "Statut"
+        }
+    }
+}
