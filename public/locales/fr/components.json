@@ -29,7 +29,12 @@
             "information": "Informations",
             "authentication": "Authentification",
             "mySpace": "Mon Espace",
-            "administration": "Administration"
+            "administration": "Administration",
+            "home": "Accueil",
+            "tickets": "Tickets",
+            "dashboard": "Tableau de bord",
+            "settings": "Paramètres",
+            "logout": "Déconnexion"
         },
         "items": {
             "home": "Accueil",
@@ -47,7 +52,10 @@
             "agentDashboard": "Dashboard Agent",
             "managerDashboard": "Dashboard Manager",
             "newUser": "Nouvel utilisateur",
-            "ticketDetail": "Détails ticket"
+            "ticketDetail": "Détails ticket",
+             "tickets": "Tickets",
+             "settings": "Paramètres",
+             "logout": "Déconnexion"
         },
         "quickLinks": {
             "title": "Navigation",

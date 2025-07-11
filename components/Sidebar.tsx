@@ -6,7 +6,7 @@ import { useSidebarSafe } from "../contexts/SidebarContext";
 import LoadingSpinner from "./LoadingSpinner";
 
 const SidebarContent: React.FC = () => {
-  const { t } = useTranslation(["components", "common"]);
+  const { t } = useTranslation("components");
   const { user } = useApp();
   const location = useLocation();
   const { isExpanded, toggleSidebar } = useSidebarSafe();
@@ -14,64 +14,64 @@ const SidebarContent: React.FC = () => {
   // Toutes les pages organisées par catégories
   const menuItems = [
     {
-      category: t("components.sidebar.categories.main"),
+      category: t("sidebar.categories.main"),
       items: [
         {
           path: "/",
-          label: t("components.sidebar.items.home"),
+          label: t("sidebar.home"),
           icon: "🏠",
           public: true,
         },
         {
           path: "/contact",
-          label: t("components.sidebar.items.contact"),
+          label: t("sidebar.contact"),
           icon: "📞",
           public: true,
         },
         {
           path: "/promotional",
-          label: t("components.sidebar.items.promotions"),
+          label: t("sidebar.promotions"),
           icon: "🎉",
           public: true,
         },
         {
           path: "/subscription",
-          label: t("components.sidebar.items.subscription"),
+          label: t("sidebar.subscription"),
           icon: "💎",
           public: true,
         },
       ],
     },
     {
-      category: t("components.sidebar.categories.information"),
+      category: t("sidebar.categories.information"),
       items: [
         {
           path: "/user-manual",
-          label: t("components.sidebar.items.userManual"),
+          label: t("sidebar.userManual"),
           icon: "📖",
           public: true,
         },
         {
           path: "/legal",
-          label: t("components.sidebar.items.legal"),
+          label: t("sidebar.legal"),
           icon: "⚖️",
           public: true,
         },
       ],
     },
     {
-      category: t("components.sidebar.categories.authentication"),
+      category: t("sidebar.categories.authentication"),
       items: [
         {
           path: "/login",
-          label: t("components.sidebar.items.login"),
+          label: t("sidebar.login"),
           icon: "🔑",
           public: true,
           authOnly: true,
         },
         {
           path: "/signup",
-          label: t("components.sidebar.items.signup"),
+          label: t("sidebar.signup"),
           icon: "✨",
           public: true,
           authOnly: true,
@@ -79,58 +79,58 @@ const SidebarContent: React.FC = () => {
       ],
     },
     {
-      category: t("components.sidebar.categories.mySpace"),
+      category: t("sidebar.categories.mySpace"),
       items: [
         {
           path: "/dashboard",
-          label: t("components.sidebar.items.dashboard"),
+          label: t("sidebar.dashboard"),
           icon: "📊",
           requireAuth: true,
         },
         {
           path: "/new-ticket",
-          label: t("components.sidebar.items.newTicket"),
+          label: t("sidebar.newTicket"),
           icon: "🎫",
           requireAuth: true,
         },
         {
           path: "/help-chat",
-          label: t("components.sidebar.items.helpChat"),
+          label: t("sidebar.helpChat"),
           icon: "💬",
           requireAuth: true,
         },
         {
           path: "/tickets",
-          label: t("components.sidebar.items.myTickets"),
+          label: t("sidebar.myTickets"),
           icon: "📋",
           requireAuth: true,
         },
       ],
     },
     {
-      category: t("components.sidebar.categories.administration"),
+      category: t("sidebar.categories.administration"),
       items: [
         {
           path: "/agent-dashboard",
-          label: t("components.sidebar.items.agentDashboard"),
+          label: t("sidebar.agentDashboard"),
           icon: "👤",
           requireRole: ["agent", "manager"],
         },
         {
           path: "/manager-dashboard",
-          label: t("components.sidebar.items.managerDashboard"),
+          label: t("sidebar.managerDashboard"),
           icon: "👨‍💼",
           requireRole: ["manager"],
         },
         {
           path: "/new-user",
-          label: t("components.sidebar.items.newUser"),
+          label: t("sidebar.newUser"),
           icon: "👥",
           requireRole: ["manager"],
         },
         {
           path: "/ticket-detail",
-          label: t("components.sidebar.items.ticketDetail"),
+          label: t("sidebar.ticketDetail"),
           icon: "🔍",
           requireRole: ["agent", "manager"],
         },
@@ -161,11 +161,7 @@ const SidebarContent: React.FC = () => {
           <button
             onClick={toggleSidebar}
             className="w-full p-2 rounded-md hover:bg-gray-700 transition-colors flex items-center justify-center"
-            title={
-              isExpanded
-                ? t("components.sidebar.collapse")
-                : t("components.sidebar.expand")
-            }
+            title={isExpanded ? t("sidebar.collapse") : t("sidebar.expand")}
           >
             {isExpanded ? "◀️" : "▶️"}
           </button>
@@ -222,7 +218,7 @@ const SidebarContent: React.FC = () => {
             <div className="mb-4">
               <div className="px-4 mb-2">
                 <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
-                  {t("components.sidebar.quickLinks.title")}
+                  {t("sidebar.quickLinks.title")}
                 </h3>
               </div>
               <nav className="space-y-1">
@@ -232,7 +228,7 @@ const SidebarContent: React.FC = () => {
                 >
                   <span className="text-lg">⚡</span>
                   <span className="ml-3">
-                    {t("components.sidebar.quickLinks.features")}
+                    {t("sidebar.quickLinks.features")}
                   </span>
                 </a>
                 <a
@@ -241,7 +237,7 @@ const SidebarContent: React.FC = () => {
                 >
                   <span className="text-lg">💰</span>
                   <span className="ml-3">
-                    {t("components.sidebar.quickLinks.pricing")}
+                    {t("sidebar.quickLinks.pricing")}
                   </span>
                 </a>
                 <a
@@ -250,7 +246,7 @@ const SidebarContent: React.FC = () => {
                 >
                   <span className="text-lg">📞</span>
                   <span className="ml-3">
-                    {t("components.sidebar.quickLinks.contact")}
+                    {t("sidebar.quickLinks.contact")}
                   </span>
                 </a>
               </nav>
@@ -262,7 +258,7 @@ const SidebarContent: React.FC = () => {
         {isExpanded && (
           <div className="p-4 border-t border-gray-700">
             <div className="text-xs text-gray-400 text-center">
-              {t("components.sidebar.footer")}
+              {t("sidebar.footer")}
             </div>
           </div>
         )}
