@@ -11,7 +11,7 @@
     "wasPrice": "était",
     "freemium": {
         "name": "Freemium",
-        "price": "1€",
+        "price": "Gratuit",
         "desc": "Accès limité aux fonctionnalités principales.",
         "feature1": "Jusqu'à 3 agents",
         "feature2": "Chat IA avec création de tickets",
@@ -19,7 +19,7 @@
         "feature4": "Support communautaire",
         "feature5": "Tableaux de bord basiques",
         "ctaButton": "Commencer gratuitement",
-        "badge": "GÉNÉREUX"
+        "badge": "GRATUIT"
     },
     "standard": {
         "name": "Standard",

@@ -81,9 +81,8 @@ const useSpeechRecognition = (): SpeechRecognitionHook => {
         if (permissionStatusRef?.state === 'denied') {
             setError(t('speechRecognition.permissionDeniedProactive'));
         } else if (permissionStatusRef?.state === 'granted') {
-            setError(prevError => {
+            setError((prevError: string | null) => {
                 const proactiveDenialError = t('speechRecognition.permissionDeniedProactive');
-                // Correction : on retourne toujours une valeur
                 if (prevError === proactiveDenialError) {
                     return null;
                 }

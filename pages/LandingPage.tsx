@@ -404,12 +404,11 @@ const LandingPage: React.FC = () => {
                   ))}
                 </ul>
                 <div className="mt-8">
-                  <a className="block w-full" href="/signup">
-                    <button
-                      onClick={handleGetStarted}
-                      className="font-semibold rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 flex items-center justify-center px-6 py-3 text-base bg-primary hover:bg-primary-dark text-white focus:ring-primary w-full"
-                    >
-                      Commencer
+                  <a className="block w-full" href="/signup?plan=freemium">
+                    <button className="font-semibold rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 flex items-center justify-center px-6 py-3 text-base bg-primary hover:bg-primary-dark text-white focus:ring-primary w-full">
+                      {t("pricing:freemium.ctaButton", {
+                        default: "Commencer gratuitement",
+                      })}
                     </button>
                   </a>
                 </div>
@@ -474,12 +473,11 @@ const LandingPage: React.FC = () => {
                   ))}
                 </ul>
                 <div className="mt-8">
-                  <a className="block w-full" href="/signup">
-                    <button
-                      onClick={handleGetStarted}
-                      className="font-semibold rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 flex items-center justify-center px-6 py-3 text-base bg-primary hover:bg-primary-dark text-white focus:ring-primary w-full"
-                    >
-                      Commencer
+                  <a className="block w-full" href="/signup?plan=standard">
+                    <button className="font-semibold rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 flex items-center justify-center px-6 py-3 text-base bg-primary hover:bg-primary-dark text-white focus:ring-primary w-full">
+                      {t("pricing:standard.ctaButton", {
+                        default: "Choisir ce plan",
+                      })}
                     </button>
                   </a>
                 </div>
@@ -541,12 +539,11 @@ const LandingPage: React.FC = () => {
                   ))}
                 </ul>
                 <div className="mt-8">
-                  <a className="block w-full" href="/signup">
-                    <button
-                      onClick={handleGetStarted}
-                      className="font-semibold rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 flex items-center justify-center px-6 py-3 text-base bg-primary hover:bg-primary-dark text-white focus:ring-primary w-full"
-                    >
-                      Commencer
+                  <a className="block w-full" href="/signup?plan=pro">
+                    <button className="font-semibold rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 flex items-center justify-center px-6 py-3 text-base bg-primary hover:bg-primary-dark text-white focus:ring-primary w-full">
+                      {t("pricing:pro.ctaButton", {
+                        default: "Choisir ce plan",
+                      })}
                     </button>
                   </a>
                 </div>

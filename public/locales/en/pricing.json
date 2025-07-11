@@ -11,7 +11,7 @@
     "wasPrice": "was",
     "freemium": {
         "name": "Freemium",
-        "price": "1€",
+        "price": "Free",
         "desc": "Limited access to main features.",
         "feature1": "Up to 3 agents",
         "feature2": "AI chat with ticket creation",
@@ -19,7 +19,7 @@
         "feature4": "Community support",
         "feature5": "Basic dashboards",
         "ctaButton": "Start for free",
-        "badge": "GENEROUS"
+        "badge": "FREE"
     },
     "standard": {
         "name": "Standard",

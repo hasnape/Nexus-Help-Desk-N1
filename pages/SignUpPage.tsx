@@ -7,6 +7,8 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import FreemiumPlanIcon from "../components/plan_images/FreemiumPlanIcon";
 import StandardPlanIcon from "../components/plan_images/StandardPlanIcon";
 import ProPlanIcon from "../components/plan_images/ProPlanIcon";
+import { useTranslation } from "react-i18next";
+
 const CheckIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -25,25 +27,13 @@ const CheckIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 const SignUpPage: React.FC = () => {
   type Locale = "en" | "fr";
 
-  function useLanguage() {
-    // Dummy implementation for missing hook
-    return {
-      t: (key: string, options?: any) => options?.default || key,
-      language: "en" as Locale,
-    };
-  }
-
-  const Footer: React.FC = () => (
-    <footer className="mt-8 text-center text-xs text-slate-400">
-      &copy; {new Date().getFullYear()} Nexus Help Desk
-    </footer>
-  );
+  const { t, i18n } = useTranslation(["signup", "pricing"]);
+  const selectedLanguage = i18n.language as Locale;
 
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [selectedLanguage, setSelectedLanguage] = useState<Locale>("en");
   const [role, setRole] = useState<UserRole>(UserRole.USER);
   const [companyName, setCompanyName] = useState("");
   const [plan, setPlan] = useState<Plan>("freemium");
@@ -53,8 +43,8 @@ const SignUpPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const { signUp, user, newlyCreatedCompanyName } = useApp();
-  const { t, language: currentAppLang } = useLanguage();
   const navigate = useNavigate();
+
   useEffect(() => {
     if (user) {
       if (newlyCreatedCompanyName) {
@@ -67,14 +57,10 @@ const SignUpPage: React.FC = () => {
     }
   }, [user, navigate, newlyCreatedCompanyName]);
 
-  useEffect(() => {
-    setSelectedLanguage(currentAppLang);
-  }, [currentAppLang]);
-
   const roleOptions = [
-    { value: UserRole.USER, label: t("userRole.user") },
-    { value: UserRole.AGENT, label: t("userRole.agent") },
-    { value: UserRole.MANAGER, label: t("userRole.manager") },
+    { value: UserRole.USER, label: t("roles.user") },
+    { value: UserRole.AGENT, label: t("roles.agent") },
+    { value: UserRole.MANAGER, label: t("roles.manager") },
   ];
 
   const pricingTiers = [
@@ -123,15 +109,15 @@ const SignUpPage: React.FC = () => {
       !confirmPassword ||
       !companyName.trim()
     ) {
-      setError(t("signup.error.allFieldsRequired"));
+      setError(t("error.allFieldsRequired"));
       return false;
     }
     if (password !== confirmPassword) {
-      setError(t("signup.error.passwordsDoNotMatch"));
+      setError(t("error.passwordsDoNotMatch"));
       return false;
     }
     if (password.length < 6) {
-      setError(t("signup.error.minCharsPassword"));
+      setError(t("error.minCharsPassword"));
       return false;
     }
     if (
@@ -139,11 +125,7 @@ const SignUpPage: React.FC = () => {
       (plan === "standard" || plan === "pro") &&
       !activationCode.trim()
     ) {
-      setError(
-        t("signup.error.activationCodeRequired", {
-          default: "Activation code is required for paid plans.",
-        })
-      );
+      setError(t("error.activationCodeRequired"));
       return false;
     }
     setError("");
@@ -156,19 +138,11 @@ const SignUpPage: React.FC = () => {
 
     if (role === UserRole.MANAGER) {
       if (plan === "standard" && activationCode.trim() !== "12345") {
-        setError(
-          t("signup.error.invalidActivationCodeStandard", {
-            default: "The activation code for the Standard plan is incorrect.",
-          })
-        );
+        setError(t("error.invalidActivationCodeStandard"));
         return;
       }
       if (plan === "pro" && activationCode.trim() !== "123456") {
-        setError(
-          t("signup.error.invalidActivationCodePro", {
-            default: "The activation code for the Pro plan is incorrect.",
-          })
-        );
+        setError(t("error.invalidActivationCodePro"));
         return;
       }
     }
@@ -194,17 +168,8 @@ const SignUpPage: React.FC = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-700 p-4">
         <div className="bg-surface p-8 rounded-xl shadow-2xl w-full max-w-md text-center">
-          <LoadingSpinner
-            size="lg"
-            text={t("signup.finalizing", {
-              default: "Finalizing your account...",
-            })}
-          />
-          <p className="mt-4 text-slate-500">
-            {t("signup.finalizingSubtitle", {
-              default: "Please wait, you will be redirected shortly.",
-            })}
-          </p>
+          <LoadingSpinner size="lg" text={t("finalizing")} />
+          <p className="mt-4 text-slate-500">{t("finalizingSubtitle")}</p>
         </div>
       </div>
     );
@@ -212,7 +177,7 @@ const SignUpPage: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-700 py-8 px-4">
-      <div className="bg-surface p-8 rounded-xl shadow-2xl w-full max-w-3xl">
+      <div className="bg-white p-8 rounded-xl shadow-2xl w-full max-w-3xl">
         <>
           <div className="text-center mb-6">
             <svg
@@ -230,9 +195,9 @@ const SignUpPage: React.FC = () => {
               />
             </svg>
             <h1 className="text-3xl font-bold text-textPrimary">
-              {t("signup.title")}
+              {t("title")}
             </h1>
-            <p className="text-textSecondary mt-1">{t("signup.subtitle")}</p>
+            <p className="text-textSecondary mt-1">{t("subtitle")}</p>
           </div>
 
           {error && (
@@ -244,7 +209,7 @@ const SignUpPage: React.FC = () => {
           <form onSubmit={handleSignUp} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
-                label={t("signup.emailLabel")}
+                label={t("emailLabel")}
                 id="email"
                 type="email"
                 value={email}
@@ -252,7 +217,7 @@ const SignUpPage: React.FC = () => {
                 required
               />
               <Input
-                label={t("signup.fullNameLabel")}
+                label={t("fullNameLabel")}
                 id="fullName"
                 type="text"
                 value={fullName}
@@ -260,7 +225,7 @@ const SignUpPage: React.FC = () => {
                 required
               />
               <Input
-                label={t("signup.passwordLabel")}
+                label={t("passwordLabel")}
                 id="password"
                 type="password"
                 value={password}
@@ -268,7 +233,7 @@ const SignUpPage: React.FC = () => {
                 required
               />
               <Input
-                label={t("signup.confirmPasswordLabel")}
+                label={t("confirmPasswordLabel")}
                 id="confirmPassword"
                 type="password"
                 value={confirmPassword}
@@ -278,7 +243,7 @@ const SignUpPage: React.FC = () => {
             </div>
 
             <Select
-              label={t("signup.roleLabel")}
+              label={t("roleLabel")}
               id="role"
               value={role}
               onChange={(e) => setRole(e.target.value as UserRole)}
@@ -290,8 +255,8 @@ const SignUpPage: React.FC = () => {
               <Input
                 label={
                   role === UserRole.MANAGER
-                    ? t("signup.companyNameLabel")
-                    : t("signup.existingCompanyNameLabel")
+                    ? t("companyNameLabel")
+                    : t("existingCompanyNameLabel")
                 }
                 id="companyName"
                 type="text"
@@ -299,29 +264,29 @@ const SignUpPage: React.FC = () => {
                 onChange={(e) => setCompanyName(e.target.value)}
                 placeholder={
                   role === UserRole.MANAGER
-                    ? t("signup.companyNamePlaceholder")
-                    : t("signup.existingCompanyNamePlaceholder")
+                    ? t("companyNamePlaceholder")
+                    : t("existingCompanyNamePlaceholder")
                 }
                 required
               />
               <p className="mt-1 text-xs text-slate-500 px-1">
                 {role === UserRole.MANAGER
-                  ? t("signup.companyNameHelp.manager")
-                  : t("signup.companyNameHelp.employee")}
+                  ? t("companyNameHelp.manager")
+                  : t("companyNameHelp.employee")}
               </p>
             </div>
 
             {role === UserRole.MANAGER && (
               <div className="space-y-4 pt-4">
                 <label className="block text-sm font-medium text-slate-700 mb-2">
-                  {t("signup.planLabel", { default: "Subscription Plan" })}
+                  {t("planLabel")}
                 </label>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {pricingTiers.map((tier) => (
                     <div
                       key={tier.nameKey}
                       onClick={() => setPlan(tier.planValue)}
-                      className={`cursor-pointer border rounded-xl p-4 flex flex-col text-center transition-all duration-200 ${
+                      className={`cursor-pointer border rounded-xl p-4 flex flex-col text-center transition-all duration-200 bg-white ${
                         plan === tier.planValue
                           ? "border-primary ring-2 ring-primary ring-offset-2 shadow-lg"
                           : "border-slate-200 hover:border-primary/70 hover:shadow-md"
@@ -356,18 +321,14 @@ const SignUpPage: React.FC = () => {
                       >
                         {t("signup.selectButton", { default: "Commencer" })}
                       </button>
-                      {/* Bouton PayPal et info activation pour tous les plans payants */}
-                      {["freemium", "standard", "pro"].includes(
-                        tier.planValue
-                      ) && (
+                      {/* PayPal et info activation uniquement pour les plans payants */}
+                      {["standard", "pro"].includes(tier.planValue) && (
                         <>
                           <a
                             href={
-                              tier.planValue === "freemium"
-                                ? "https://www.paypal.com/paypalme/votreLienFreemium"
-                                : tier.planValue === "standard"
-                                ? "https://www.paypal.com/paypalme/votreLienStandard"
-                                : "https://www.paypal.com/paypalme/votreLienPro"
+                              tier.planValue === "standard"
+                                ? "https://www.paypal.com/biz/fund?id=nexushelpdeskpro"
+                                : "https://www.paypal.com/biz/fund?id=nexushelpdeskpremium"
                             }
                             target="_blank"
                             rel="noopener noreferrer"
@@ -379,7 +340,7 @@ const SignUpPage: React.FC = () => {
                               })}
                             </button>
                           </a>
-                          <p className="mt-2 text-xs text-slate-500">
+                          <p className="mt-2 text-xs text-slate-600">
                             {t(
                               "signup.activationInfo",
                               "Une fois le paiement confirmé, vous recevrez votre clé d’activation par email."
@@ -390,8 +351,8 @@ const SignUpPage: React.FC = () => {
                     </div>
                   ))}
                 </div>
-
-                {(plan === "standard" || plan === "pro") && (
+                {/* Activation code: une seule fois après sélection du plan */}
+                {["standard", "pro"].includes(plan) && (
                   <div className="mt-4 space-y-2 bg-slate-50 p-4 rounded-lg border border-slate-200">
                     <Input
                       label={t("signup.activationCodeLabel", {
@@ -428,74 +389,29 @@ const SignUpPage: React.FC = () => {
                 )}
               </div>
             )}
-
-            {role === UserRole.MANAGER &&
-              ["freemium", "standard", "pro"].includes(plan) && (
-                <div className="mt-4 space-y-2 bg-slate-50 p-4 rounded-lg border border-slate-200">
-                  <Input
-                    label={t("signup.activationCodeLabel", {
-                      default: "Activation Code",
-                    })}
-                    id="activationCode"
-                    value={activationCode}
-                    onChange={(e) => setActivationCode(e.target.value)}
-                    placeholder={t("signup.activationCodePlaceholder", {
-                      default: "Enter code from support",
-                    })}
-                    required
-                  />
-                  <p className="text-xs text-slate-600">
-                    {t("signup.activationCodeHelp.prefix", {
-                      default: "You need a code to sign up for a paid plan.",
-                    })}
-                    <a
-                      href={`mailto:hubnexusinfo@gmail.com?subject=${encodeURIComponent(
-                        `Request for Activation Code - ${
-                          plan.charAt(0).toUpperCase() + plan.slice(1)
-                        } Plan`
-                      )}&body=${encodeURIComponent(
-                        `Hello,\n\nOur company, [YOUR COMPANY NAME HERE], would like to sign up for the ${plan} plan. Please provide us with an activation code.\n\nThank you.`
-                      )}`}
-                      className="ms-1 text-primary hover:underline font-semibold"
-                    >
-                      {t("signup.activationCodeHelp.link", {
-                        default: "Request one via email.",
-                      })}
-                    </a>
-                  </p>
-                </div>
-              )}
-
-            <Button
-              type="submit"
-              className="w-full !mt-6"
-              size="lg"
-              isLoading={isLoading}
-              disabled={isLoading}
-            >
-              {t("signup.signUpButton")}
-            </Button>
+            <div className="mt-6">
+              <Button
+                type="submit"
+                className="w-full py-3 rounded-md text-lg font-semibold bg-primary text-white transition-all duration-200 hover:bg-primary/90"
+              >
+                {t("signup.submitButton", { default: "Créer mon compte" })}
+              </Button>
+            </div>
           </form>
+
           <div className="mt-6 text-center">
             <p className="text-sm text-slate-500">
-              {t("signup.alreadyHaveAccount")}{" "}
+              {t("signup.alreadyHaveAccount", {
+                default: "Already have an account?",
+              })}{" "}
               <Link
                 to="/login"
-                className="font-medium text-primary hover:text-primary-dark"
+                className="text-primary font-semibold hover:underline"
               >
-                {t("signup.signInLink")}
+                {t("signup.loginLink", { default: "Log in" })}
               </Link>
             </p>
-            <div className="mt-4 text-center">
-              <Link
-                to="/landing"
-                className="font-bold text-slate-600 hover:text-primary transition-colors text-sm"
-              >
-                &larr; {t("signup.backToHome", { default: "Back to Home" })}
-              </Link>
-            </div>
           </div>
-          <Footer />
         </>
       </div>
     </div>

@@ -1,128 +1,164 @@
 {
-    "title": "Créer un Compte",
-    "subtitle": "Rejoignez Nexus Support Hub",
+    "title": "Sign up",
+    "subtitle": "Register to access the platform",
     "form": {
-        "fullName": "Nom Complet",
-        "fullNamePlaceholder": "Votre nom complet",
-        "email": "Adresse Email",
-        "emailPlaceholder": "votre.email@exemple.com",
-        "password": "Mot de Passe",
-        "passwordPlaceholder": "Minimum 6 caractères",
-        "confirmPassword": "Confirmer le Mot de Passe",
-        "confirmPasswordPlaceholder": "Retapez votre mot de passe",
-        "language": "Langue Préférée",
-        "role": "Votre Rôle",
-        "companyName": "Nom de l'Entreprise",
-        "companyNamePlaceholder": "Nom de votre entreprise",
-        "existingCompany": "Entreprise Existante",
-        "existingCompanyPlaceholder": "Nom exact fourni par votre manager",
-        "activationCode": "Code d'Activation",
-        "activationCodePlaceholder": "Code fourni par votre manager"
+        "fullName": "Full Name",
+        "fullNamePlaceholder": "Your full name",
+        "email": "Email Address",
+        "emailPlaceholder": "your.email@example.com",
+        "password": "Password",
+        "passwordPlaceholder": "Minimum 6 characters",
+        "confirmPassword": "Confirm Password",
+        "confirmPasswordPlaceholder": "Retype your password",
+        "language": "Preferred Language",
+        "role": "Your Role",
+        "companyName": "Company Name",
+        "companyNamePlaceholder": "Your company name",
+        "existingCompany": "Existing Company",
+        "existingCompanyPlaceholder": "Exact name provided by your manager",
+        "activationCode": "Activation Code",
+        "activationCodePlaceholder": "Code provided by your manager"
     },
+    "error": {
+        "allFieldsRequired": "All fields are required",
+        "passwordsDoNotMatch": "Passwords do not match",
+        "minCharsPassword": "Password must be at least 6 characters",
+        "activationCodeRequired": "Activation code is required for paid plans.",
+        "invalidActivationCodeStandard": "The activation code for the Standard plan is incorrect.",
+        "invalidActivationCodePro": "The activation code for the Pro plan is incorrect."
+    },
+    "finalizing": "Finalizing your account...",
+    "finalizingSubtitle": "Please wait, you will be redirected shortly.",
+    "emailLabel": "Email",
+    "fullNameLabel": "Full name",
+    "passwordLabel": "Password",
+    "confirmPasswordLabel": "Confirm password",
+    "roleLabel": "Role",
+    "companyNameLabel": "Company name",
+    "existingCompanyNameLabel": "Existing company name",
+    "companyNamePlaceholder": "Your company name",
+    "existingCompanyNamePlaceholder": "Exact name provided by your manager",
+    "companyNameHelp": {
+        "manager": "As a manager, you create a new company. Your team will use the company name you choose to log in.",
+        "employee": "Enter the exact company name provided by your manager. This name is case and space sensitive."
+    },
+    "planLabel": "Subscription Plan",
+    "selectButton": "Start",
+    "payButton": "Pay with PayPal",
+    "activationInfo": "Once payment is confirmed, you will receive your activation key by email.",
+    "activationCodeLabel": "Activation Code",
+    "activationCodePlaceholder": "Enter code from support",
+    "activationCodeHelp": {
+        "prefix": "You need a code to sign up for a paid plan.",
+        "link": "Request one via email."
+    },
+    "alreadyHaveAccount": "Already have an account?",
+    "loginLink": "Log in",
     "roles": {
-        "user": "Utilisateur",
-        "agent": "Agent Support",
+        "user": "User",
+        "agent": "Support Agent",
         "manager": "Manager"
     },
     "planSelection": {
-        "title": "Choisissez Votre Plan",
-        "subtitle": "Sélectionnez le plan qui convient à votre entreprise",
-        "monthly": "par mois",
-        "mostPopular": "Plus Populaire",
-        "recommended": "Recommandé",
-        "selectPlan": "Sélectionner ce Plan",
-        "payWithPayPal": "Payer avec PayPal",
-        "features": "Fonctionnalités incluses"
+        "title": "Choose Your Plan",
+        "subtitle": "Select the plan that suits your business",
+        "monthly": "per month",
+        "mostPopular": "Most Popular",
+        "recommended": "Recommended",
+        "selectPlan": "Select this Plan",
+        "payWithPayPal": "Pay with PayPal",
+        "features": "Included features"
     },
     "plans": {
         "freemium": {
             "name": "Freemium",
-            "price": "Gratuit",
+            "price": "Free",
             "features": [
-                "Jusqu'à 3 agents",
-                "200 tickets par mois",
-                "Chat IA avec création de tickets",
-                "Tableaux de bord de base",
-                "Support par email"
+                "Up to 3 agents",
+                "200 tickets per month",
+                "AI chat with ticket creation",
+                "Basic dashboards",
+                "Email support"
             ]
         },
         "standard": {
             "name": "Standard",
             "price": "5€",
             "features": [
-                "Agents illimités",
-                "Tickets illimités",
-                "Chat IA avec historique complet",
-                "Gestion avancée des tickets",
-                "Support prioritaire"
+                "Unlimited agents",
+                "Unlimited tickets",
+                "AI chat with full history",
+                "Advanced ticket management",
+                "Priority support"
             ]
         },
         "pro": {
             "name": "Pro",
             "price": "12€",
             "features": [
-                "Tout du plan Standard",
-                "Fonctionnalités vocales (TTS/STT)",
-                "Gestion des rendez-vous",
-                "Analyses avancées",
-                "Support dédié 24/7",
-                "Intégrations API"
+                "Everything in Standard",
+                "Voice features (TTS/STT)",
+                "Appointment management",
+                "Advanced analytics",
+                "Dedicated 24/7 support",
+                "API integrations"
             ]
         }
     },
+    "submitButton": "Create my account",
     "actions": {
-        "signUp": "Créer le Compte",
-        "signUpWithPayment": "S'inscrire et Payer",
-        "alreadyHaveAccount": "Déjà un compte ?",
-        "signIn": "Se connecter",
-        "backToLogin": "Retour à la connexion"
+        "signUp": "Create Account",
+        "signUpWithPayment": "Sign up and Pay",
+        "alreadyHaveAccount": "Already have an account?",
+        "signIn": "Sign in",
+        "backToLogin": "Back to login"
     },
     "paymentFlow": {
-        "title": "Finaliser l'Inscription",
-        "step1": "Étape 1: Choisir le plan",
-        "step2": "Étape 2: Paiement PayPal",
-        "step3": "Étape 3: Création du compte",
-        "processing": "Traitement du paiement...",
-        "redirecting": "Redirection vers PayPal...",
-        "paymentCompleted": "Paiement complété",
-        "creatingAccount": "Création de votre compte..."
+        "title": "Finalize Registration",
+        "step1": "Step 1: Choose plan",
+        "step2": "Step 2: PayPal payment",
+        "step3": "Step 3: Account creation",
+        "processing": "Processing payment...",
+        "redirecting": "Redirecting to PayPal...",
+        "paymentCompleted": "Payment completed",
+        "creatingAccount": "Creating your account..."
     },
     "instructions": {
         "manager": {
-            "title": "Instructions pour les Managers",
-            "content": "En tant que manager, vous créez une nouvelle entreprise. Votre équipe utilisera le nom de l'entreprise que vous choisissez pour se connecter."
+            "title": "Instructions for Managers",
+            "content": "As a manager, you create a new company. Your team will use the company name you choose to log in."
         },
         "agentUser": {
-            "title": "Instructions pour les Agents/Utilisateurs",
-            "content": "Entrez le nom exact de l'entreprise fourni par votre manager. Ce nom est sensible à la casse et aux espaces."
+            "title": "Instructions for Agents/Users",
+            "content": "Enter the exact company name provided by your manager. This name is case and space sensitive."
         }
     },
     "validation": {
-        "fullNameRequired": "Le nom complet est requis",
-        "emailRequired": "L'adresse email est requise",
-        "emailInvalid": "Adresse email invalide",
-        "passwordRequired": "Le mot de passe est requis",
-        "passwordMinLength": "Le mot de passe doit contenir au moins 6 caractères",
-        "passwordMismatch": "Les mots de passe ne correspondent pas",
-        "companyNameRequired": "Le nom de l'entreprise est requis",
-        "roleRequired": "Le rôle est requis"
+        "fullNameRequired": "Full name is required",
+        "emailRequired": "Email address is required",
+        "emailInvalid": "Invalid email address",
+        "passwordRequired": "Password is required",
+        "passwordMinLength": "Password must be at least 6 characters",
+        "passwordMismatch": "Passwords do not match",
+        "companyNameRequired": "Company name is required",
+        "roleRequired": "Role is required"
     },
     "errors": {
-        "emailInUse": "Cette adresse email est déjà utilisée",
-        "companyNameTaken": "Ce nom d'entreprise est déjà pris",
-        "companyNotFound": "Entreprise '{{companyName}}' non trouvée. Vérifiez le nom avec votre manager.",
-        "companyCreateFailed": "Échec de la création de l'entreprise",
-        "agentLimitReached": "Limite d'agents atteinte pour le plan Freemium. Demandez à votre manager de mettre à niveau.",
-        "weakPassword": "Mot de passe trop faible",
-        "networkError": "Erreur réseau. Vérifiez votre connexion.",
-        "paymentRequired": "Paiement requis pour ce plan",
-        "paymentFailed": "Échec du paiement. Veuillez réessayer.",
-        "generic": "Une erreur s'est produite. Veuillez réessayer."
+        "emailInUse": "This email address is already in use",
+        "companyNameTaken": "This company name is already taken",
+        "companyNotFound": "Company '{{companyName}}' not found. Check the name with your manager.",
+        "companyCreateFailed": "Failed to create company",
+        "agentLimitReached": "Agent limit reached for Freemium plan. Ask your manager to upgrade.",
+        "weakPassword": "Password too weak",
+        "networkError": "Network error. Check your connection.",
+        "paymentRequired": "Payment required for this plan",
+        "paymentFailed": "Payment failed. Please try again.",
+        "generic": "An error occurred. Please try again."
     },
     "success": {
-        "accountCreated": "Compte créé avec succès !",
-        "companyCreated": "Entreprise créée avec succès !",
-        "paymentProcessed": "Paiement traité avec succès",
-        "redirectingToDashboard": "Redirection vers votre tableau de bord..."
+        "accountCreated": "Account created successfully!",
+        "companyCreated": "Company created successfully!",
+        "paymentProcessed": "Payment processed successfully",
+        "redirectingToDashboard": "Redirecting to your dashboard..."
     }
 }
