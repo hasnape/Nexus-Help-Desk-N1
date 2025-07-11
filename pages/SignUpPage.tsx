@@ -1,8 +1,7 @@
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useApp } from "../App";
 import { Button, Input, Select } from "../components/FormElements";
-import { useTranslation } from "react-i18next";
 import { UserRole, Plan } from "../types";
 import LoadingSpinner from "../components/LoadingSpinner";
 import FreemiumPlanIcon from "../components/plan_images/FreemiumPlanIcon";
@@ -24,6 +23,22 @@ const CheckIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 );
 
 const SignUpPage: React.FC = () => {
+  type Locale = "en" | "fr";
+
+  function useLanguage() {
+    // Dummy implementation for missing hook
+    return {
+      t: (key: string, options?: any) => options?.default || key,
+      language: "en" as Locale,
+    };
+  }
+
+  const Footer: React.FC = () => (
+    <footer className="mt-8 text-center text-xs text-slate-400">
+      &copy; {new Date().getFullYear()} Nexus Help Desk
+    </footer>
+  );
+
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("");
@@ -37,11 +52,9 @@ const SignUpPage: React.FC = () => {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const { signUp, user, newlyCreatedCompanyName, setNewlyCreatedCompanyName } =
-    useApp();
+  const { signUp, user, newlyCreatedCompanyName } = useApp();
   const { t, language: currentAppLang } = useLanguage();
   const navigate = useNavigate();
-
   useEffect(() => {
     if (user) {
       if (newlyCreatedCompanyName) {
@@ -322,11 +335,11 @@ const SignUpPage: React.FC = () => {
                         <span className="text-3xl font-bold">
                           {t(tier.priceKey)}
                         </span>
-                        {tier.planValue !== "freemium" && (
-                          <span className="text-slate-500 ms-1 text-sm">
-                            {t("pricing.perAgentPerMonth")}
-                          </span>
-                        )}
+                        <span className="text-slate-500 ms-1 text-sm">
+                          {tier.planValue !== "freemium"
+                            ? t("pricing.perAgentPerMonth")
+                            : ""}
+                        </span>
                       </div>
                       <ul className="mt-4 space-y-2 text-xs text-slate-600 text-left flex-grow">
                         {tier.features.map((featureKey) => (
@@ -336,6 +349,44 @@ const SignUpPage: React.FC = () => {
                           </li>
                         ))}
                       </ul>
+                      <button
+                        type="button"
+                        onClick={() => setPlan(tier.planValue)}
+                        className="mt-4 font-semibold rounded-md px-6 py-2 text-base bg-primary text-white w-full"
+                      >
+                        {t("signup.selectButton", { default: "Commencer" })}
+                      </button>
+                      {/* Bouton PayPal et info activation pour tous les plans payants */}
+                      {["freemium", "standard", "pro"].includes(
+                        tier.planValue
+                      ) && (
+                        <>
+                          <a
+                            href={
+                              tier.planValue === "freemium"
+                                ? "https://www.paypal.com/paypalme/votreLienFreemium"
+                                : tier.planValue === "standard"
+                                ? "https://www.paypal.com/paypalme/votreLienStandard"
+                                : "https://www.paypal.com/paypalme/votreLienPro"
+                            }
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-2 block"
+                          >
+                            <button className="w-full py-2 px-4 rounded-lg font-semibold text-base bg-yellow-400 text-white">
+                              {t("signup.payButton", {
+                                default: "Payer avec PayPal",
+                              })}
+                            </button>
+                          </a>
+                          <p className="mt-2 text-xs text-slate-500">
+                            {t(
+                              "signup.activationInfo",
+                              "Une fois le paiement confirmé, vous recevrez votre clé d’activation par email."
+                            )}
+                          </p>
+                        </>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -377,6 +428,43 @@ const SignUpPage: React.FC = () => {
                 )}
               </div>
             )}
+
+            {role === UserRole.MANAGER &&
+              ["freemium", "standard", "pro"].includes(plan) && (
+                <div className="mt-4 space-y-2 bg-slate-50 p-4 rounded-lg border border-slate-200">
+                  <Input
+                    label={t("signup.activationCodeLabel", {
+                      default: "Activation Code",
+                    })}
+                    id="activationCode"
+                    value={activationCode}
+                    onChange={(e) => setActivationCode(e.target.value)}
+                    placeholder={t("signup.activationCodePlaceholder", {
+                      default: "Enter code from support",
+                    })}
+                    required
+                  />
+                  <p className="text-xs text-slate-600">
+                    {t("signup.activationCodeHelp.prefix", {
+                      default: "You need a code to sign up for a paid plan.",
+                    })}
+                    <a
+                      href={`mailto:hubnexusinfo@gmail.com?subject=${encodeURIComponent(
+                        `Request for Activation Code - ${
+                          plan.charAt(0).toUpperCase() + plan.slice(1)
+                        } Plan`
+                      )}&body=${encodeURIComponent(
+                        `Hello,\n\nOur company, [YOUR COMPANY NAME HERE], would like to sign up for the ${plan} plan. Please provide us with an activation code.\n\nThank you.`
+                      )}`}
+                      className="ms-1 text-primary hover:underline font-semibold"
+                    >
+                      {t("signup.activationCodeHelp.link", {
+                        default: "Request one via email.",
+                      })}
+                    </a>
+                  </p>
+                </div>
+              )}
 
             <Button
               type="submit"

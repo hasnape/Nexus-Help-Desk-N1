@@ -380,64 +380,28 @@ const LandingPage: React.FC = () => {
                   </span>
                 </div>
                 <ul className="mt-8 space-y-4 flex-grow">
-                  <li className="flex items-center justify-center">
-                    <div className="flex-shrink-0 text-green-500">
-                      {/* Check SVG */}
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        className="w-5 h-5"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.052-.143z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </div>
-                    <span className="ms-3 text-slate-600">
-                      {t("pricing:freemium.feature1")}
-                    </span>
-                  </li>
-                  <li className="flex items-center justify-center">
-                    <div className="flex-shrink-0 text-green-500">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        className="w-5 h-5"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.052-.143z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </div>
-                    <span className="ms-3 text-slate-600">
-                      {t("pricing:freemium.feature2")}
-                    </span>
-                  </li>
-                  <li className="flex items-center justify-center">
-                    <div className="flex-shrink-0 text-green-500">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        className="w-5 h-5"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.052-.143z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </div>
-                    <span className="ms-3 text-slate-600">
-                      {t("pricing:freemium.feature3")}
-                    </span>
-                  </li>
+                  {/* Freemium */}
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <li key={i} className="flex items-center justify-center">
+                      <div className="flex-shrink-0 text-green-500">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                          className="w-5 h-5"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.052-.143z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </div>
+                      <span className="ms-3 text-slate-600">
+                        {t(`pricing:freemium.feature${i}`)}
+                      </span>
+                    </li>
+                  ))}
                 </ul>
                 <div className="mt-8">
                   <a className="block w-full" href="/signup">
@@ -445,7 +409,7 @@ const LandingPage: React.FC = () => {
                       onClick={handleGetStarted}
                       className="font-semibold rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 flex items-center justify-center px-6 py-3 text-base bg-primary hover:bg-primary-dark text-white focus:ring-primary w-full"
                     >
-                      {t("pricing:ctaButton")}
+                      Commencer
                     </button>
                   </a>
                 </div>
@@ -486,82 +450,28 @@ const LandingPage: React.FC = () => {
                   </span>
                 </div>
                 <ul className="mt-8 space-y-4 flex-grow">
-                  <li className="flex items-center justify-center">
-                    <div className="flex-shrink-0 text-green-500">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        className="w-5 h-5"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.052-.143z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </div>
-                    <span className="ms-3 text-slate-600">
-                      {t("pricing:standard.feature1")}
-                    </span>
-                  </li>
-                  <li className="flex items-center justify-center">
-                    <div className="flex-shrink-0 text-green-500">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        className="w-5 h-5"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.052-.143z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </div>
-                    <span className="ms-3 text-slate-600">
-                      {t("pricing:standard.feature2")}
-                    </span>
-                  </li>
-                  <li className="flex items-center justify-center">
-                    <div className="flex-shrink-0 text-green-500">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        className="w-5 h-5"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.052-.143z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </div>
-                    <span className="ms-3 text-slate-600">
-                      {t("pricing:standard.feature3")}
-                    </span>
-                  </li>
-                  <li className="flex items-center justify-center">
-                    <div className="flex-shrink-0 text-green-500">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        className="w-5 h-5"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.052-.143z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </div>
-                    <span className="ms-3 text-slate-600">
-                      {t("pricing:standard.feature4")}
-                    </span>
-                  </li>
+                  {/* Standard */}
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <li key={i} className="flex items-center justify-center">
+                      <div className="flex-shrink-0 text-green-500">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                          className="w-5 h-5"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.052-.143z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </div>
+                      <span className="ms-3 text-slate-600">
+                        {t(`pricing:standard.feature${i}`)}
+                      </span>
+                    </li>
+                  ))}
                 </ul>
                 <div className="mt-8">
                   <a className="block w-full" href="/signup">
@@ -569,7 +479,7 @@ const LandingPage: React.FC = () => {
                       onClick={handleGetStarted}
                       className="font-semibold rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 flex items-center justify-center px-6 py-3 text-base bg-primary hover:bg-primary-dark text-white focus:ring-primary w-full"
                     >
-                      {t("pricing:ctaButton")}
+                      Commencer
                     </button>
                   </a>
                 </div>
@@ -607,71 +517,36 @@ const LandingPage: React.FC = () => {
                   </span>
                 </div>
                 <ul className="mt-8 space-y-4 flex-grow">
-                  <li className="flex items-center justify-center">
-                    <div className="flex-shrink-0 text-green-500">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        className="w-5 h-5"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.052-.143z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </div>
-                    <span className="ms-3 text-slate-600">
-                      {t("pricing:pro.feature1")}
-                    </span>
-                  </li>
-                  <li className="flex items-center justify-center">
-                    <div className="flex-shrink-0 text-green-500">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        className="w-5 h-5"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.052-.143z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </div>
-                    <span className="ms-3 text-slate-600">
-                      {t("pricing:pro.feature2")}
-                    </span>
-                  </li>
-                  <li className="flex items-center justify-center">
-                    <div className="flex-shrink-0 text-green-500">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        className="w-5 h-5"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.052-.143z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </div>
-                    <span className="ms-3 text-slate-600">
-                      {t("pricing:pro.feature3")}
-                    </span>
-                  </li>
+                  {/* Pro */}
+                  {[1, 2, 3, 4].map((i) => (
+                    <li key={i} className="flex items-center justify-center">
+                      <div className="flex-shrink-0 text-green-500">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                          className="w-5 h-5"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.052-.143z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </div>
+                      <span className="ms-3 text-slate-600">
+                        {t(`pricing:pro.feature${i}`)}
+                      </span>
+                    </li>
+                  ))}
                 </ul>
                 <div className="mt-8">
                   <a className="block w-full" href="/signup">
                     <button
                       onClick={handleGetStarted}
-                      className="font-semibold rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 flex items-center justify-center px-6 py-3 text-base bg-transparent hover:bg-primary-light/10 border border-primary text-primary focus:ring-primary w-full"
+                      className="font-semibold rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 flex items-center justify-center px-6 py-3 text-base bg-primary hover:bg-primary-dark text-white focus:ring-primary w-full"
                     >
-                      {t("pricing:ctaButton")}
+                      Commencer
                     </button>
                   </a>
                 </div>
