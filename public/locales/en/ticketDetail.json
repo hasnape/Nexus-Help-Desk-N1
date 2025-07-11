@@ -1,101 +1,116 @@
 {
-    "title": "Ticket Details",
+    "loading": {
+        "ticket": "Loading ticket..."
+    },
+    "navigation": {
+        "backToTickets": "Back to tickets"
+    },
+    "info": {
+        "ticketId": "Ticket ID",
+        "status": "Status",
+        "priority": "Priority",
+        "workstationId": "Workstation ID"
+    },
+    "sections": {
+        "description": "Problem Description",
+        "statusManagement": "Status Management",
+        "appointment": "Appointment",
+        "conversation": "Conversation"
+    },
+    "voiceSettings": {
+        "autoRead": {
+            "title": "Auto-read AI responses",
+            "description": "AI responses will be read automatically"
+        }
+    },
+    "appointmentSection": {
+        "proposeNew": "Propose appointment",
+        "existing": "Scheduled appointment",
+        "date": "Date",
+        "location": "Location/Method",
+        "form": {
+            "date": "Date",
+            "time": "Time",
+            "location": "Location or method",
+            "locationPlaceholder": "e.g. Office 123, Teams, Phone...",
+            "submit": "Propose appointment"
+        }
+    },
+    "conversation": {
+        "noMessages": "No messages in this conversation.",
+        "messageInput": "Your message",
+        "messagePlaceholder": "Type your message here...",
+        "startListening": "Start voice recording",
+        "stopListening": "Stop voice recording",
+        "enterToSend": "Press Enter to send"
+    },
+    "title": "Ticket Detail",
     "backToTickets": "Back to Tickets",
-    "ticketId": "Ticket ID",
-    "status": "Status",
-    "priority": "Priority",
-    "assignedTo": "Assigned To",
-    "createdBy": "Created By",
-    "createdAt": "Created At",
-    "updatedAt": "Updated At",
-    "description": "Description",
-    "attachments": "Attachments",
-    "comments": "Comments",
-    "actions": {
-        "editTicket": "Edit Ticket",
-        "deleteTicket": "Delete Ticket",
-        "assignTicket": "Assign Ticket",
-        "updateStatus": "Update Status",
-        "addComment": "Add Comment",
-        "uploadAttachment": "Upload Attachment",
-        "closeTicket": "Close Ticket",
-        "reopenTicket": "Reopen Ticket",
-        "markAsResolved": "Mark as Resolved",
-        "markAsInProgress": "Mark as In Progress"
-    },
-    "statusOptions": {
-        "open": "Open",
-        "inProgress": "In Progress",
-        "resolved": "Resolved",
-        "closed": "Closed"
-    },
-    "priorityOptions": {
-        "low": "Low",
-        "medium": "Medium",
-        "high": "High",
-        "urgent": "Urgent"
-    },
-    "assignModal": {
-        "title": "Assign Ticket",
-        "selectAgent": "Select Agent",
+    "backToDashboard": "Back to Dashboard",
+    "ticketNotFound": "Ticket not found",
+    "ticketInfo": {
+        "mainTitle": "Ticket Information",
+        "ticketId": "Ticket ID",
+        "title": "Title",
+        "description": "Description",
+        "status": "Status",
+        "priority": "Priority",
+        "category": "Category",
+        "workstation": "Workstation",
+        "createdBy": "Created by",
+        "assignedTo": "Assigned to",
+        "createdAt": "Created on",
+        "updatedAt": "Updated on",
         "unassigned": "Unassigned",
-        "assign": "Assign",
+        "notApplicable": "Not applicable"
+    },
+    "actions": {
+        "title": "Actions",
+        "updateStatus": "Update Status",
+        "assignToMe": "Assign to me",
+        "reassign": "Reassign",
+        "resolve": "Resolve",
+        "close": "Close",
+        "reopen": "Reopen",
+        "delete": "Delete",
+        "proposeAppointment": "Propose Appointment"
+    },
+    "statusUpdate": {
+        "title": "Update Status",
+        "currentStatus": "Current Status",
+        "newStatus": "New Status",
+        "update": "Update",
         "cancel": "Cancel"
     },
-    "commentForm": {
-        "placeholder": "Add a comment...",
-        "submit": "Submit",
-        "cancel": "Cancel",
-        "attachFiles": "Attach Files",
-        "maxFileSize": "Max file size: 10MB",
-        "allowedTypes": "Allowed types: PDF, DOC, DOCX, TXT, JPG, PNG"
+    "assignment": {
+        "title": "Assignment",
+        "assignTo": "Assign to",
+        "selectAgent": "Select an agent",
+        "assign": "Assign",
+        "unassign": "Unassign"
     },
-    "commentsList": {
-        "noComments": "No comments yet",
-        "addFirstComment": "Be the first to comment on this ticket",
-        "loadMore": "Load More Comments",
-        "showLess": "Show Less"
+    "appointment": {
+        "title": "Appointment",
+        "propose": "Propose Appointment",
+        "scheduled": "Scheduled Appointment",
+        "date": "Date",
+        "time": "Time",
+        "location": "Location",
+        "update": "Update",
+        "cancel": "Cancel Appointment"
     },
-    "attachmentsList": {
-        "noAttachments": "No attachments",
-        "download": "Download",
-        "preview": "Preview",
-        "delete": "Delete",
-        "uploadedBy": "Uploaded by",
-        "uploadedAt": "Uploaded at",
-        "fileSize": "File size"
-    },
-    "editForm": {
-        "title": "Edit Ticket",
-        "titleLabel": "Title",
-        "descriptionLabel": "Description",
-        "priorityLabel": "Priority",
-        "statusLabel": "Status",
-        "save": "Save Changes",
-        "cancel": "Cancel",
-        "titlePlaceholder": "Enter ticket title...",
-        "descriptionPlaceholder": "Enter ticket description..."
+    "voiceFeatures": {
+        "title": "Voice Features",
+        "startRecording": "Start Recording",
+        "stopRecording": "Stop Recording",
+        "playMessage": "Play Message",
+        "autoRead": "Auto Read"
     },
     "notifications": {
-        "ticketUpdated": "Ticket updated successfully",
-        "ticketDeleted": "Ticket deleted successfully",
-        "ticketAssigned": "Ticket assigned successfully",
-        "commentAdded": "Comment added successfully",
-        "attachmentUploaded": "Attachment uploaded successfully",
-        "attachmentDeleted": "Attachment deleted successfully",
-        "statusUpdated": "Status updated successfully"
-    },
-    "errors": {
-        "loadingFailed": "Failed to load ticket details",
-        "updateFailed": "Failed to update ticket",
-        "deleteFailed": "Failed to delete ticket",
-        "unauthorized": "You are not authorized to perform this action",
-        "networkError": "Network error. Please check your connection."
-    },
-    "confirmDelete": {
-        "title": "Confirm Deletion",
-        "message": "Are you sure you want to delete this ticket? This action cannot be undone.",
-        "confirm": "Delete",
-        "cancel": "Cancel"
+        "statusUpdated": "Status updated successfully",
+        "assignmentUpdated": "Assignment updated",
+        "appointmentScheduled": "Appointment scheduled",
+        "messageSent": "Message sent",
+        "error": "An error occurred"
     }
 }

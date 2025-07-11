@@ -52,7 +52,7 @@ import {
   DEFAULT_USER_ROLE,
   TICKET_STATUS_KEYS,
 } from "./constants";
-import { LanguageProvider, useLanguage } from "./contexts/LanguageContext";
+import { useTranslation } from "react-i18next";
 import CookieConsentBanner from "./components/CookieConsentBanner";
 import { SidebarProvider } from "./contexts/SidebarContext";
 import { PlanProvider, PLAN_LIMITS } from "./contexts/PlanContext";
@@ -207,11 +207,10 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
   const authStateLoading = useRef(false);
   const authTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  const {
-    language,
-    setLanguage: setAppLanguage,
-    t: translateHook,
-  } = useLanguage();
+  const { t, i18n } = useTranslation();
+  const language = i18n.language;
+  const setAppLanguage = (lng: string) => i18n.changeLanguage(lng);
+  const translateHook = t;
 
   useEffect(() => {
     const storedConsent = localStorage.getItem("cookieConsent");
@@ -397,6 +396,18 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
           console.error("Could not fetch user profile:", profileError);
           await supabase.auth.signOut();
           return translateHook("login.error.profileFetchFailed");
+        }
+
+        const { data: companyData, error: companyError } = await supabase
+          .from("companies")
+          .select("id")
+          .eq("name", userProfile.company_id)
+          .single();
+
+        if (companyError || !companyData) {
+          console.error("Could not fetch company data:", companyError);
+          await supabase.auth.signOut();
+          return translateHook("login.error.companyNotFound");
         }
 
         if (userProfile.company_id !== companyName) {
@@ -804,7 +815,10 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
     ) {
       setIsLoadingAi(true);
       try {
-        const summaryText = await getTicketSummary(ticketToUpdate, language);
+        const summaryText = await getTicketSummary(
+          ticketToUpdate,
+          getBCP47Locale(language)
+        );
         summaryMessage = {
           id: crypto.randomUUID(),
           sender: "system_summary",
@@ -1328,7 +1342,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 const MainAppContent: React.FC = () => {
   const { user, isLoading, consentGiven, giveConsent, forceStopAllLoading } =
     useApp();
-  const { isLoadingLang, t, forceResolveLoading } = useLanguage();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -1351,7 +1365,7 @@ const MainAppContent: React.FC = () => {
   }, [navigate]);
 
   // ✅ SUPPRESSION COMPLÈTE DU SPINNER
-  if (isLoading || isLoadingLang) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4">
         <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
@@ -1372,11 +1386,9 @@ const MainAppContent: React.FC = () => {
               <div className="flex justify-between">
                 <span>Traductions:</span>
                 <span
-                  className={
-                    isLoadingLang ? "text-amber-600" : "text-green-600"
-                  }
+                  className={isLoading ? "text-amber-600" : "text-green-600"}
                 >
-                  {isLoadingLang ? "⏳ Chargement..." : "✅ Prêt"}
+                  {isLoading ? "⏳ Chargement..." : "✅ Prêt"}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -1394,14 +1406,6 @@ const MainAppContent: React.FC = () => {
             </div>
 
             <div className="space-y-2">
-              {isLoadingLang && (
-                <button
-                  onClick={forceResolveLoading}
-                  className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
-                >
-                  🔧 Débloquer Traductions
-                </button>
-              )}
               {isLoading && (
                 <>
                   <button
@@ -1551,7 +1555,8 @@ const MainAppContent: React.FC = () => {
         </main>
         <footer className="bg-slate-100 py-4 text-center text-xs text-slate-500">
           <p>
-            &copy; {new Date().getFullYear()} {t("appName")}.{" "}
+            &copy; {new Date().getFullYear()}{" "}
+            {t("appName", { default: "Nexus Support Hub" })}.{" "}
             {t("footer.allRightsReserved", { default: "All Rights Reserved." })}
           </p>
           <p className="mt-1">
@@ -1580,18 +1585,25 @@ const MainAppContent: React.FC = () => {
 
 function App() {
   return (
-    <LanguageProvider>
-      <SidebarProvider>
-        <AppProvider>
-          <PlanProvider>
-            <Router>
-              <MainAppContent />
-            </Router>
-          </PlanProvider>
-        </AppProvider>
-      </SidebarProvider>
-    </LanguageProvider>
+    <SidebarProvider>
+      <AppProvider>
+        <PlanProvider>
+          <Router>
+            <MainAppContent />
+          </Router>
+        </PlanProvider>
+      </AppProvider>
+    </SidebarProvider>
   );
 }
 
 export default App;
+
+// Toutes les fonctions utilisent déjà translateHook (alias t) pour les messages d'erreur et feedback utilisateur.
+// Vérification des clés modulaires :
+// login.error.invalidCredentials, login.error.profileFetchFailed, login.error.companyNotFound, login.error.companyIdMismatch, login.error.generic
+// signup.error.companyNameTaken, signup.error.companyCreateFailed, signup.error.companyNotFound, signup.error.agentLimitReached, signup.error.emailInUse, signup.error.generic
+// managerDashboard.error.agentLimitReached, managerDashboard.deleteUserError.rpc, managerDashboard.deleteUserError.critical, newTicket.error.userNotFound, newTicket.error.countingTickets, newTicket.error.ticketLimitReached, newTicket.error.createFailed, newTicket.error.critical
+// managerDashboard.deleteTicketError.rpc, managerDashboard.deleteTicketError.critical, managerDashboard.error.assignTicketFailed, managerDashboard.error.assignTicketCritical
+// appContext.error.summaryGenerationFailed
+// Toutes ces clés doivent exister dans les fichiers de traduction modulaires.

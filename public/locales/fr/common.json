@@ -188,7 +188,6 @@
         "searchTips": "Conseils de recherche",
         "clearSearch": "Effacer la recherche",
         "placeholder": "Rechercher...",
-        "noResults": "Aucun résultat",
         "results": "{{count}} résultat",
         "results_plural": "{{count}} résultats"
     },

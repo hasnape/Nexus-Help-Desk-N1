@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext'; // Import useLanguage
 
@@ -80,12 +79,15 @@ const useSpeechRecognition = (): SpeechRecognitionHook => {
 
     const handlePermissionChange = () => {
         if (permissionStatusRef?.state === 'denied') {
-            setError(t('speechRecognition.permissionDeniedProactive', { default: 'Microphone access is currently denied. Please go to your browser\'s site settings, allow microphone access for this page, and then refresh to use voice input.' }));
+            setError(t('speechRecognition.permissionDeniedProactive'));
         } else if (permissionStatusRef?.state === 'granted') {
             setError(prevError => {
-                const proactiveDenialError = t('speechRecognition.permissionDeniedProactive', { default: 'Microphone access is currently denied. Please go to your browser\'s site settings, allow microphone access for this page, and then refresh to use voice input.' });
-                // Clear error only if it was the proactive denial error
-                return prevError === proactiveDenialError ? null : prevError;
+                const proactiveDenialError = t('speechRecognition.permissionDeniedProactive');
+                // Correction : on retourne toujours une valeur
+                if (prevError === proactiveDenialError) {
+                    return null;
+                }
+                return prevError;
             });
         }
     };

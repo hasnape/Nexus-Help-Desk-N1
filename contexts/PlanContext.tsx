@@ -1,7 +1,7 @@
 import React, { createContext, useContext, ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import { Plan, UserRole } from "../types";
 import { useApp } from "../App";
-import { useLanguage } from "./LanguageContext";
 
 // Définition des limites pour chaque plan
 export interface PlanLimits {
@@ -63,39 +63,48 @@ export const PLAN_LIMITS: Record<Plan, PlanLimits> = {
 interface PlanContextType {
   currentPlan: Plan;
   planLimits: PlanLimits;
-  canCreateTicket: () => boolean;
-  canAddAgent: () => boolean;
   getTicketsUsedThisMonth: () => number;
   getAgentsCount: () => number;
-  isFeatureAvailable: (feature: keyof PlanLimits) => boolean;
-  upgradeRequired: boolean;
+  checkFeatureAccess: (feature: keyof PlanLimits) => boolean;
+  isOverTicketLimit: () => boolean;
+  isOverAgentLimit: () => number;
+  isNearTicketLimit: (threshold?: number) => boolean;
+  isNearAgentLimit: (threshold?: number) => boolean;
+  getPlanDescription: () => string;
+  canCreateTicket: () => boolean;
+  canAddAgent: () => boolean;
+  getUsagePercentage: (type: "tickets" | "agents") => number;
 }
 
 const PlanContext = createContext<PlanContextType | undefined>(undefined);
 
-export const usePlan = () => {
-  const context = useContext(PlanContext);
-  if (context === undefined) {
-    throw new Error("usePlan must be used within a PlanProvider");
-  }
-  return context;
-};
-
-// ✅ NOUVEAU Hook sécurisé
 export const usePlanSafe = () => {
   const context = useContext(PlanContext);
-  if (context === undefined) {
+  if (!context) {
     console.warn("usePlanSafe: Utilisé en dehors de PlanProvider");
     return {
       currentPlan: "freemium" as Plan,
       planLimits: PLAN_LIMITS.freemium,
-      canCreateTicket: () => false,
-      canAddAgent: () => false,
       getTicketsUsedThisMonth: () => 0,
       getAgentsCount: () => 0,
-      isFeatureAvailable: () => false,
-      upgradeRequired: true,
+      checkFeatureAccess: () => false,
+      isOverTicketLimit: () => false,
+      isOverAgentLimit: () => 0,
+      isNearTicketLimit: () => false,
+      isNearAgentLimit: () => false,
+      getPlanDescription: () => "Plan Freemium",
+      canCreateTicket: () => true,
+      canAddAgent: () => false,
+      getUsagePercentage: () => 0,
     };
+  }
+  return context;
+};
+
+export const usePlan = (): PlanContextType => {
+  const context = useContext(PlanContext);
+  if (!context) {
+    throw new Error("usePlan must be used within a PlanProvider");
   }
   return context;
 };
@@ -105,9 +114,8 @@ interface PlanProviderProps {
 }
 
 export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
-  // Déplacer useApp ici, dans le composant, pas au niveau du module
   const { company, tickets, getAllUsers } = useApp();
-  const { t } = useLanguage();
+  const { t } = useTranslation(["pricing", "common"]);
 
   const currentPlan: Plan = company?.plan || "freemium";
   const planLimits = PLAN_LIMITS[currentPlan];
@@ -124,73 +132,73 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
     ).length;
   };
 
+  const checkFeatureAccess = (feature: keyof PlanLimits): boolean => {
+    return planLimits[feature] as boolean;
+  };
+
+  const isOverTicketLimit = (): boolean => {
+    if (planLimits.hasUnlimitedTickets) return false;
+    return getTicketsUsedThisMonth() >= planLimits.maxTicketsPerMonth;
+  };
+
+  const isOverAgentLimit = (): number => {
+    const currentAgents = getAgentsCount();
+    if (planLimits.maxAgents === Number.MAX_SAFE_INTEGER) return 0;
+    return Math.max(0, currentAgents - planLimits.maxAgents);
+  };
+
+  const isNearTicketLimit = (threshold: number = 0.8): boolean => {
+    if (planLimits.hasUnlimitedTickets) return false;
+    const used = getTicketsUsedThisMonth();
+    return used / planLimits.maxTicketsPerMonth >= threshold;
+  };
+
+  const isNearAgentLimit = (threshold: number = 0.8): boolean => {
+    if (planLimits.maxAgents === Number.MAX_SAFE_INTEGER) return false;
+    const used = getAgentsCount();
+    return used / planLimits.maxAgents >= threshold;
+  };
+
+  const getPlanDescription = (): string => {
+    return t(`pricing.${currentPlan}.description`);
+  };
+
   const canCreateTicket = (): boolean => {
-    if (planLimits.hasUnlimitedTickets) return true;
-    return getTicketsUsedThisMonth() < planLimits.maxTicketsPerMonth;
+    return !isOverTicketLimit();
   };
 
   const canAddAgent = (): boolean => {
-    if (planLimits.maxAgents === Number.MAX_SAFE_INTEGER) return true;
-    return getAgentsCount() < planLimits.maxAgents;
+    return isOverAgentLimit() === 0;
   };
 
-  const isFeatureAvailable = (feature: keyof PlanLimits): boolean => {
-    const featureValue = planLimits[feature];
-    if (typeof featureValue === "boolean") {
-      return featureValue;
+  const getUsagePercentage = (type: "tickets" | "agents"): number => {
+    if (type === "tickets") {
+      if (planLimits.hasUnlimitedTickets) return 0;
+      return Math.min(
+        100,
+        (getTicketsUsedThisMonth() / planLimits.maxTicketsPerMonth) * 100
+      );
+    } else {
+      if (planLimits.maxAgents === Number.MAX_SAFE_INTEGER) return 0;
+      return Math.min(100, (getAgentsCount() / planLimits.maxAgents) * 100);
     }
-    return true; // Pour les valeurs numériques, on considère qu'elles sont disponibles
   };
 
-  const upgradeRequired =
-    !canCreateTicket() || !canAddAgent() || currentPlan === "freemium";
-
-  const contextValue: PlanContextType = {
+  const value: PlanContextType = {
     currentPlan,
     planLimits,
-    canCreateTicket,
-    canAddAgent,
     getTicketsUsedThisMonth,
     getAgentsCount,
-    isFeatureAvailable,
-    upgradeRequired,
+    checkFeatureAccess,
+    isOverTicketLimit,
+    isOverAgentLimit,
+    isNearTicketLimit,
+    isNearAgentLimit,
+    getPlanDescription,
+    canCreateTicket,
+    canAddAgent,
+    getUsagePercentage,
   };
 
-  return (
-    <PlanContext.Provider value={contextValue}>{children}</PlanContext.Provider>
-  );
-};
-
-// Hook pour obtenir le nom du plan traduit
-export const usePlanName = () => {
-  const { currentPlan } = usePlan();
-  const { t } = useLanguage();
-
-  const planNames = {
-    freemium: t("plans.freemium.name", { default: "Freemium" }),
-    standard: t("plans.standard.name", { default: "Standard" }),
-    pro: t("plans.pro.name", { default: "Pro" }),
-  };
-
-  return planNames[currentPlan];
-};
-
-// Hook pour obtenir la description du plan traduite
-export const usePlanDescription = () => {
-  const { currentPlan } = usePlan();
-  const { t } = useLanguage();
-
-  const planDescriptions = {
-    freemium: t("plans.freemium.description", {
-      default: "Plan gratuit avec fonctionnalités de base",
-    }),
-    standard: t("plans.standard.description", {
-      default: "Plan standard avec fonctionnalités avancées",
-    }),
-    pro: t("plans.pro.description", {
-      default: "Plan professionnel avec toutes les fonctionnalités",
-    }),
-  };
-
-  return planDescriptions[currentPlan];
+  return <PlanContext.Provider value={value}>{children}</PlanContext.Provider>;
 };

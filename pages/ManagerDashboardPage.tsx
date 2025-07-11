@@ -396,14 +396,14 @@ const ManagerDashboardPage: React.FC = () => {
                         <td className="p-3 text-sm">
                           <div className="flex space-x-2">
                             <Button
-                              variant="outline"
+                              variant="secondary" // au lieu de "outline"
                               size="sm"
                               onClick={() => setShowAssignModal(ticket.id)}
                             >
                               {t("ticketManagement.actions.assign")}
                             </Button>
                             <Button
-                              variant="outline"
+                              variant="danger"
                               size="sm"
                               onClick={() =>
                                 setShowDeleteConfirm({

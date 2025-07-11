@@ -8,7 +8,7 @@ import { ChatMessage } from "../types";
 import LoadingSpinner from "../components/LoadingSpinner";
 import useSpeechRecognition from "../hooks/useSpeechRecognition";
 import { getFollowUpHelpResponse } from "../services/geminiService";
-import useTextToSpeech from "../hooks/useTextToSpeech";
+import { useTextToSpeech } from "../hooks/useTextToSpeech";
 import { usePlanLimits } from "../hooks/usePlanLimits";
 import PlanLimitAlert from "../components/PlanLimitAlert";
 import PlanLimitModal from "../components/PlanLimitModal";

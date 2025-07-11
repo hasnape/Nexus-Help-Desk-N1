@@ -1,0 +1,55 @@
+[
+    {
+        "notSupported": "La reconnaissance vocale n'est pas supportée par votre navigateur.",
+        "permissionDeniedProactive": "L'accès au microphone a été refusé. Veuillez l'activer dans les paramètres de votre navigateur.",
+        "error": {
+            "noSpeech": "Aucune parole détectée. Veuillez réessayer.",
+            "audioCapture": "Erreur de capture audio. Vérifiez que votre microphone est connecté et sélectionné.",
+            "notAllowed": "L'accès au microphone a été refusé. Pour utiliser la saisie vocale, autorisez le micro dans les paramètres du navigateur puis actualisez la page.",
+            "network": "Erreur réseau avec la reconnaissance vocale. Vérifiez votre connexion internet.",
+            "generic": "Une erreur est survenue : {{error}}",
+            "notAllowedSite": "L'accès au microphone a été refusé. Pour utiliser la saisie vocale, veuillez autoriser le microphone dans les paramètres du site de votre navigateur pour cette page, puis actualisez."
+        },
+        "listening": "Écoute en cours...",
+        "startListening": "Démarrer l'enregistrement vocal",
+        "stopListening": "Arrêter l'enregistrement vocal"
+    },
+    {
+        "notSupported": "La reconnaissance vocale n'est pas supportée par votre navigateur.",
+        "permissionDeniedProactive": "L'accès au microphone a été refusé. Veuillez l'activer dans les paramètres de votre navigateur.",
+        "error": {
+            "noSpeech": "Aucune parole détectée. Veuillez réessayer.",
+            "audioCapture": "Erreur de capture audio. Vérifiez que votre microphone est connecté et sélectionné.",
+            "notAllowed": "L'accès au microphone a été refusé. Pour utiliser la saisie vocale, autorisez le micro dans les paramètres du navigateur puis actualisez la page.",
+            "network": "Erreur réseau avec la reconnaissance vocale. Vérifiez votre connexion internet.",
+            "generic": "Une erreur est survenue : {{error}}"
+        },
+        "listening": "Écoute en cours...",
+        "startListening": "Démarrer l'enregistrement vocal",
+        "stopListening": "Arrêter l'enregistrement vocal"
+    },
+    {
+        "error": {
+            "notAllowed": "L'accès au microphone a été refusé. Pour utiliser la saisie vocale, veuillez autoriser le microphone dans les paramètres du site de votre navigateur pour cette page, puis actualisez."
+        }
+    },
+    {
+        "notSupported": "La reconnaissance vocale n'est pas supportée par votre navigateur.",
+        "permissionDeniedProactive": "L'accès au microphone a été refusé. Veuillez l'activer dans les paramètres de votre navigateur.",
+        "error": {
+            "noSpeech": "Aucune parole détectée. Veuillez réessayer.",
+            "audioCapture": "Erreur de capture audio. Vérifiez que votre microphone est connecté et sélectionné.",
+            "notAllowed": "L'accès au microphone a été refusé. Pour utiliser la saisie vocale, autorisez le micro dans les paramètres du navigateur puis actualisez la page.",
+            "network": "Erreur réseau avec la reconnaissance vocale. Vérifiez votre connexion internet.",
+            "generic": "Une erreur est survenue : {{error}}"
+        },
+        "listening": "Écoute en cours...",
+        "startListening": "Démarrer l'enregistrement vocal",
+        "stopListening": "Arrêter l'enregistrement vocal"
+    },
+    {
+        "error": {
+            "notAllowed": "L'accès au microphone a été refusé. Pour utiliser la saisie vocale, veuillez autoriser le microphone dans les paramètres du site de votre navigateur pour cette page, puis actualisez."
+        }
+    }
+]

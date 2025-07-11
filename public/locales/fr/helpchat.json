@@ -26,7 +26,7 @@
         "thinking": "Je réfléchis...",
         "processing": "Traitement en cours...",
         "error": "Désolé, j'ai rencontré une erreur. Veuillez réessayer.",
-        "createTicket": "Créer un Ticket",
+        "createTicket": "Créer un ticket",
         "cannotHelp": "Je ne peux pas résoudre ce problème complètement. Voulez-vous créer un ticket pour qu'un agent puisse vous aider ?",
         "ticketSuggestion": "Basé sur notre conversation, je recommande de créer un ticket pour un agent humain."
     },

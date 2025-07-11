@@ -1,5 +1,4 @@
 import React from "react";
-import { Link } from "react-router-dom";
 
 const PlusIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg
@@ -17,23 +16,23 @@ const PlusIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 );
 
 interface FloatingActionButtonProps {
-  to: string;
-  title: string;
+  onClick?: () => void;
+  tooltip: string;
   disabled?: boolean;
 }
 
 const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
-  to,
-  title,
+  onClick,
+  tooltip,
   disabled = false,
 }) => {
   if (disabled) {
     return (
       <button
-        title={title}
+        title={tooltip}
         disabled
         className="fixed bottom-6 end-6 bg-gray-400 text-white rounded-full p-4 shadow-lg cursor-not-allowed opacity-50 z-50"
-        aria-label={title}
+        aria-label={tooltip}
       >
         <PlusIcon className="w-8 h-8" />
       </button>
@@ -41,15 +40,22 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
   }
 
   return (
-    <Link
-      to={to}
-      title={title}
+    <button
+      onClick={onClick}
+      title={tooltip}
       className="fixed bottom-6 end-6 bg-primary hover:bg-primary-dark text-white rounded-full p-4 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-light transition-all duration-200 ease-in-out z-50"
-      aria-label={title}
+      aria-label={tooltip}
     >
       <PlusIcon className="w-8 h-8" />
-    </Link>
+    </button>
   );
 };
 
 export default FloatingActionButton;
+
+// Usage example
+// Usage example
+<FloatingActionButton
+  onClick={() => { window.location.href = "/help"; }}
+  tooltip="Create Ticket"
+/>

@@ -33,7 +33,8 @@ i18n
       'errors',
       'success',
       'notifications',
-      'labels'
+      'labels',
+      'speechRecognition'
     ],
     
     interpolation: {

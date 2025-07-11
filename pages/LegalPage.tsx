@@ -2,7 +2,7 @@ import React, { useState, Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router-dom";
 import { useApp } from "../App";
-import { LoadingSpinner } from "../components/LoadingSpinner";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const ArrowLeftIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg
@@ -64,7 +64,10 @@ const LegalPage: React.FC = () => {
               className="inline-flex items-center text-primary hover:text-primary-dark font-semibold text-sm"
             >
               <ArrowLeftIcon className="w-5 h-5 me-2" />
-              {t("backToApp")}
+              {t("backToApp", {
+                ns: "legal",
+                default: "Retour à l'application",
+              })}
             </Link>
           </div>
 
@@ -72,7 +75,10 @@ const LegalPage: React.FC = () => {
             <aside className="md:w-1/4 lg:w-1/5">
               <nav className="sticky top-24">
                 <h2 className="text-lg font-bold text-slate-800 mb-4 px-2">
-                  {t("pageTitle")}
+                  {t("pageTitle", {
+                    ns: "legal",
+                    default: "Mentions légales & CGU",
+                  })}
                 </h2>
                 <ul className="space-y-1">
                   {tabs.map((tab) => (
@@ -85,7 +91,7 @@ const LegalPage: React.FC = () => {
                             : "text-slate-600 hover:bg-slate-200/60 hover:text-slate-900"
                         }`}
                       >
-                        {t(tab.labelKey)}
+                        {t(tab.labelKey, { ns: "legal", default: tab.id })}
                       </button>
                     </li>
                   ))}
@@ -100,23 +106,36 @@ const LegalPage: React.FC = () => {
 
           <footer className="py-8 mt-8 border-t border-slate-200 text-center text-xs text-slate-500">
             <p>
-              &copy; {new Date().getFullYear()} {t("appName", { ns: "common" })}
-              . {t("footer.allRightsReserved", { ns: "common" })}
+              &copy; {new Date().getFullYear()}{" "}
+              {t("appName", { ns: "common", default: "Nexus Support Hub" })}.{" "}
+              {t("footer.allRightsReserved", {
+                ns: "common",
+                default: "Tous droits réservés",
+              })}
             </p>
             <p className="mt-1">
               <Link to="/legal" className="hover:text-primary hover:underline">
-                {t("footer.legalLink", { ns: "common" })}
+                {t("footer.legalLink", {
+                  ns: "common",
+                  default: "Mentions Légales",
+                })}
               </Link>
               <span className="mx-2 text-slate-400">|</span>
               <Link to="/manual" className="hover:text-primary hover:underline">
-                {t("footer.userManualLink", { ns: "common" })}
+                {t("footer.userManualLink", {
+                  ns: "common",
+                  default: "Manuel Utilisateur",
+                })}
               </Link>
               <span className="mx-2 text-slate-400">|</span>
               <Link
                 to="/presentation"
                 className="hover:text-primary hover:underline"
               >
-                {t("footer.promotionalLink", { ns: "common" })}
+                {t("footer.promotionalLink", {
+                  ns: "common",
+                  default: "Présentation",
+                })}
               </Link>
             </p>
           </footer>

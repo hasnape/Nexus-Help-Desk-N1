@@ -1,5 +1,5 @@
 // filepath: c:\Users\HARBI Amine\Documents\Nexus-Help-Desk-N1-master\postcss.config.js
-export default {
+module.exports = {
   plugins: {
     tailwindcss: {},
     autoprefixer: {},

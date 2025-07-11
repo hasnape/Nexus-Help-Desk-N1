@@ -1,4 +1,49 @@
 {
+    "loading": {
+        "ticket": "Chargement du ticket..."
+    },
+    "navigation": {
+        "backToTickets": "Retour aux tickets"
+    },
+    "info": {
+        "ticketId": "ID du ticket",
+        "status": "Statut",
+        "priority": "Priorité",
+        "workstationId": "ID de poste"
+    },
+    "sections": {
+        "description": "Description du problème",
+        "statusManagement": "Gestion du statut",
+        "appointment": "Rendez-vous",
+        "conversation": "Conversation"
+    },
+    "voiceSettings": {
+        "autoRead": {
+            "title": "Lecture automatique des réponses IA",
+            "description": "Les réponses de l'IA seront lues automatiquement"
+        }
+    },
+    "appointment": {
+        "proposeNew": "Proposer un rendez-vous",
+        "existing": "Rendez-vous programmé",
+        "date": "Date",
+        "location": "Lieu/Méthode",
+        "form": {
+            "date": "Date",
+            "time": "Heure",
+            "location": "Lieu ou méthode",
+            "locationPlaceholder": "Ex: Bureau 123, Teams, Téléphone...",
+            "submit": "Proposer le rendez-vous"
+        }
+    },
+    "conversation": {
+        "noMessages": "Aucun message dans cette conversation.",
+        "messageInput": "Votre message",
+        "messagePlaceholder": "Tapez votre message ici...",
+        "startListening": "Commencer l'enregistrement vocal",
+        "stopListening": "Arrêter l'enregistrement vocal",
+        "enterToSend": "Appuyez sur Entrée pour envoyer"
+    },
     "title": "Détail du Ticket",
     "backToTickets": "Retour aux Tickets",
     "backToDashboard": "Retour au Tableau de Bord",
@@ -19,18 +64,6 @@
         "unassigned": "Non assigné",
         "notApplicable": "Non applicable"
     },
-    "conversation": {
-        "title": "Conversation",
-        "placeholder": "Tapez votre message...",
-        "send": "Envoyer",
-        "noMessages": "Aucun message dans cette conversation.",
-        "messageTime": "{{time}}",
-        "you": "Vous",
-        "user": "Utilisateur",
-        "agent": "Agent",
-        "ai": "IA",
-        "system": "Système"
-    },
     "actions": {
         "title": "Actions",
         "updateStatus": "Mettre à Jour le Statut",
@@ -49,62 +82,35 @@
         "update": "Mettre à Jour",
         "cancel": "Annuler"
     },
+    "assignment": {
+        "title": "Attribution",
+        "assignTo": "Assigner à",
+        "selectAgent": "Sélectionner un agent",
+        "assign": "Assigner",
+        "unassign": "Désassigner"
+    },
     "appointment": {
-        "title": "Gestion des Rendez-vous",
+        "title": "Rendez-vous",
         "propose": "Proposer un Rendez-vous",
-        "current": "Rendez-vous Actuel",
-        "history": "Historique des Rendez-vous",
-        "form": {
-            "date": "Date",
-            "time": "Heure",
-            "location": "Lieu/Méthode",
-            "locationPlaceholder": "Lieu physique ou méthode (ex: Zoom, Teams...)",
-            "propose": "Proposer",
-            "update": "Mettre à Jour",
-            "cancel": "Annuler"
-        },
-        "status": {
-            "pending": "En Attente",
-            "confirmed": "Confirmé",
-            "rejected": "Rejeté",
-            "rescheduled": "Reprogrammé"
-        },
-        "chat": {
-            "agentProposed": "Agent a proposé un rendez-vous le {{date}} à {{time}} ({{location}})",
-            "userConfirmed": "Utilisateur a confirmé le rendez-vous du {{date}} à {{time}} ({{location}})",
-            "userRequestsReschedule": "Utilisateur demande de reprogrammer pour le {{date}} à {{time}} ({{location}})"
-        }
+        "scheduled": "Rendez-vous Programmé",
+        "date": "Date",
+        "time": "Heure",
+        "location": "Lieu",
+        "update": "Mettre à Jour",
+        "cancel": "Annuler le Rendez-vous"
     },
-    "voice": {
-        "startListening": "Commencer l'écoute vocale",
-        "stopListening": "Arrêter l'écoute",
-        "speakMessage": "Prononcer le message",
-        "muteMessage": "Couper le son",
-        "listening": "Écoute en cours...",
-        "speechError": "Erreur de reconnaissance vocale",
-        "autoRead": "Lecture automatique",
-        "toggleAutoRead": "Activer/Désactiver la lecture automatique"
+    "voiceFeatures": {
+        "title": "Fonctionnalités Vocales",
+        "startRecording": "Commencer l'Enregistrement",
+        "stopRecording": "Arrêter l'Enregistrement",
+        "playMessage": "Lire le Message",
+        "autoRead": "Lecture Automatique"
     },
-    "messages": {
-        "statusUpdated": "Statut du ticket mis à jour avec succès",
-        "messageAdded": "Message ajouté avec succès",
-        "assignmentUpdated": "Assignation mise à jour avec succès",
-        "appointmentProposed": "Rendez-vous proposé avec succès",
-        "ticketDeleted": "Ticket supprimé avec succès"
-    },
-    "errors": {
-        "messageEmpty": "Le message ne peut pas être vide",
-        "statusUpdateFailed": "Échec de la mise à jour du statut",
-        "assignmentFailed": "Échec de l'assignation",
-        "appointmentFailed": "Échec de la proposition de rendez-vous",
-        "deleteFailed": "Échec de la suppression du ticket",
-        "unauthorized": "Vous n'êtes pas autorisé à effectuer cette action",
-        "networkError": "Erreur réseau. Vérifiez votre connexion."
-    },
-    "confirmDelete": {
-        "title": "Confirmer la Suppression",
-        "message": "Êtes-vous sûr de vouloir supprimer ce ticket ? Cette action est irréversible.",
-        "confirm": "Supprimer",
-        "cancel": "Annuler"
+    "notifications": {
+        "statusUpdated": "Statut mis à jour avec succès",
+        "assignmentUpdated": "Attribution mise à jour",
+        "appointmentScheduled": "Rendez-vous programmé",
+        "messageSent": "Message envoyé",
+        "error": "Une erreur s'est produite"
     }
 }
