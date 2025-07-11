@@ -1,15 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useApp } from "../contexts/AppContext";
+import { useApp } from "../App";
 import { Button, Input, Select } from "../components/FormElements";
-import { useLanguage, Locale } from "../contexts/LanguageContext";
+import { useTranslation } from "react-i18next";
 import { UserRole, Plan } from "../types";
 import LoadingSpinner from "../components/LoadingSpinner";
 import FreemiumPlanIcon from "../components/plan_images/FreemiumPlanIcon";
 import StandardPlanIcon from "../components/plan_images/StandardPlanIcon";
 import ProPlanIcon from "../components/plan_images/ProPlanIcon";
-import Footer from "../components/Footer";
-
 const CheckIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"

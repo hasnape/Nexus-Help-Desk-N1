@@ -340,152 +340,341 @@ const LandingPage: React.FC = () => {
                 {t("pricing.subtitle")}
               </p>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+            <div className="mt-16 grid lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
               {/* Freemium */}
-              <div className="relative bg-white rounded-xl shadow-lg p-6 sm:p-8">
-                <div className="text-center mb-4 sm:mb-6">
-                  <div className="text-3xl sm:text-4xl mb-2">🆓</div>
-                  <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-                    {t("pricing:freemium.name")}
-                  </h3>
-                  <div className="mb-2">
-                    <div className="text-2xl sm:text-3xl font-bold text-blue-600">
-                      {t("pricing:freemium.price")}
-                    </div>
-                  </div>
-                  <span className="inline-block bg-orange-100 text-orange-800 text-xs font-semibold px-2 py-1 rounded-full mb-2">
-                    {t("pricing:freemium.badge")}
-                  </span>
-                  <p className="text-sm sm:text-base text-gray-600">
-                    {t("pricing:freemium.desc")}
-                  </p>
+              <div className="border rounded-xl p-8 flex flex-col text-center transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-2xl border-slate-200 shadow-lg">
+                <div className="mx-auto mb-4">
+                  {/* Icône SVG Freemium */}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-10 h-10 text-slate-400"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M9 9.563C9 9.252 9.252 9 9.563 9h4.874c.311 0 .563.252.563.563v4.874c0 .311-.252.563-.563.563H9.563A.562.562 0 0 1 9 14.437V9.564Z"
+                    />
+                  </svg>
                 </div>
-                <ul className="space-y-2 sm:space-y-3 mb-6 sm:mb-8">
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <li key={i} className="flex items-center">
-                      <span className="text-green-600 mr-2">✓</span>
-                      <span className="text-sm sm:text-base text-gray-700">
-                        {t(`pricing:freemium.feature${i}`)}
-                      </span>
-                    </li>
-                  ))}
+                <h3 className="text-xl font-bold text-slate-800">
+                  {t("pricing:freemium.name")}
+                </h3>
+                <p className="mt-2 text-slate-500 flex-grow">
+                  {t("pricing:freemium.desc")}
+                </p>
+                <div className="mt-6">
+                  <span className="text-4xl font-bold">
+                    {t("pricing:freemium.price")}
+                  </span>
+                  <span className="text-slate-500 ms-1">
+                    {t("pricing:perAgentPerMonth")}
+                  </span>
+                </div>
+                <ul className="mt-8 space-y-4 flex-grow">
+                  <li className="flex items-center justify-center">
+                    <div className="flex-shrink-0 text-green-500">
+                      {/* Check SVG */}
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        className="w-5 h-5"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.052-.143z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                    <span className="ms-3 text-slate-600">
+                      {t("pricing:freemium.feature1")}
+                    </span>
+                  </li>
+                  <li className="flex items-center justify-center">
+                    <div className="flex-shrink-0 text-green-500">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        className="w-5 h-5"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.052-.143z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                    <span className="ms-3 text-slate-600">
+                      {t("pricing:freemium.feature2")}
+                    </span>
+                  </li>
+                  <li className="flex items-center justify-center">
+                    <div className="flex-shrink-0 text-green-500">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        className="w-5 h-5"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.052-.143z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                    <span className="ms-3 text-slate-600">
+                      {t("pricing:freemium.feature3")}
+                    </span>
+                  </li>
                 </ul>
-                <a
-                  href="https://www.paypal.com/paypalme/votreLienFreemium"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full py-2 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base transition-colors bg-gray-100 text-gray-900 hover:bg-gray-200 block text-center"
-                >
-                  {t("pricing:freemium.payButton")}
-                </a>
+                <div className="mt-8">
+                  <a className="block w-full" href="/signup">
+                    <button
+                      onClick={handleGetStarted}
+                      className="font-semibold rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 flex items-center justify-center px-6 py-3 text-base bg-primary hover:bg-primary-dark text-white focus:ring-primary w-full"
+                    >
+                      {t("pricing:ctaButton")}
+                    </button>
+                  </a>
+                </div>
               </div>
 
               {/* Standard */}
-              <div className="relative bg-white rounded-xl shadow-lg p-6 sm:p-8 ring-2 ring-blue-600 transform scale-105">
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-blue-600 text-white px-3 sm:px-4 py-1 rounded-full text-xs sm:text-sm font-semibold">
-                    {t("pricing:popularLabel")}
+              <div className="border rounded-xl p-8 flex flex-col text-center transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-2xl border-primary shadow-xl">
+                <span className="bg-primary text-white text-xs font-semibold px-3 py-1 rounded-full self-center mb-4">
+                  {t("pricing:popularLabel")}
+                </span>
+                <div className="mx-auto mb-4">
+                  {/* Icône SVG Standard */}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="w-10 h-10 text-primary"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm14.024-.983a1.125 1.125 0 0 1 0 1.966l-5.603 3.113A1.125 1.125 0 0 1 9 15.113V8.887c0-.857.921-1.4 1.671-.983l5.603 3.113Z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-slate-800">
+                  {t("pricing:standard.name")}
+                </h3>
+                <p className="mt-2 text-slate-500 flex-grow">
+                  {t("pricing:standard.desc")}
+                </p>
+                <div className="mt-6">
+                  <span className="text-4xl font-bold">
+                    {t("pricing:standard.price")}
+                  </span>
+                  <span className="text-slate-500 ms-1">
+                    {t("pricing:perAgentPerMonth")}
                   </span>
                 </div>
-                <div className="text-center mb-4 sm:mb-6">
-                  <div className="text-3xl sm:text-4xl mb-2">⚡</div>
-                  <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-                    {t("pricing:standard.name")}
-                  </h3>
-                  <div className="mb-2">
-                    <div className="text-2xl sm:text-3xl font-bold text-blue-600">
-                      {t("pricing:standard.price")}
+                <ul className="mt-8 space-y-4 flex-grow">
+                  <li className="flex items-center justify-center">
+                    <div className="flex-shrink-0 text-green-500">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        className="w-5 h-5"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.052-.143z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
                     </div>
-                    {t("pricing:standard.originalPrice") && (
-                      <div className="text-base sm:text-lg text-gray-500 line-through">
-                        {t("pricing:wasPrice")}{" "}
-                        {t("pricing:standard.originalPrice")}
-                        {t("pricing:perAgentPerMonth")}
-                      </div>
-                    )}
-                  </div>
-                  <span className="inline-block bg-orange-100 text-orange-800 text-xs font-semibold px-2 py-1 rounded-full mb-2">
-                    {t("pricing:standard.badge")}
-                  </span>
-                  <p className="text-sm sm:text-base text-gray-600">
-                    {t("pricing:standard.desc")}
-                  </p>
-                </div>
-
-                <ul className="space-y-2 sm:space-y-3 mb-6 sm:mb-8">
-                  {[
-                    "🚀 " + t("pricing:standard.feature1"),
-                    "🚀 " + t("pricing:standard.feature2"),
-                    t("pricing:standard.feature3"),
-                    t("pricing:standard.feature4"),
-                    t("pricing:standard.feature5"),
-                  ].map((feature, featureIndex) => (
-                    <li key={featureIndex} className="flex items-center">
-                      <span className="text-green-600 mr-2">✓</span>
-                      <span className="text-sm sm:text-base text-gray-700">
-                        {feature}
-                      </span>
-                    </li>
-                  ))}
+                    <span className="ms-3 text-slate-600">
+                      {t("pricing:standard.feature1")}
+                    </span>
+                  </li>
+                  <li className="flex items-center justify-center">
+                    <div className="flex-shrink-0 text-green-500">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        className="w-5 h-5"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.052-.143z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                    <span className="ms-3 text-slate-600">
+                      {t("pricing:standard.feature2")}
+                    </span>
+                  </li>
+                  <li className="flex items-center justify-center">
+                    <div className="flex-shrink-0 text-green-500">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        className="w-5 h-5"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.052-.143z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                    <span className="ms-3 text-slate-600">
+                      {t("pricing:standard.feature3")}
+                    </span>
+                  </li>
+                  <li className="flex items-center justify-center">
+                    <div className="flex-shrink-0 text-green-500">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        className="w-5 h-5"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.052-.143z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                    <span className="ms-3 text-slate-600">
+                      {t("pricing:standard.feature4")}
+                    </span>
+                  </li>
                 </ul>
-
-                <button
-                  onClick={handleGetStarted}
-                  className="w-full py-2 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base transition-colors bg-blue-600 text-white hover:bg-blue-700"
-                >
-                  {t("pricing:ctaButton")}
-                </button>
+                <div className="mt-8">
+                  <a className="block w-full" href="/signup">
+                    <button
+                      onClick={handleGetStarted}
+                      className="font-semibold rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 flex items-center justify-center px-6 py-3 text-base bg-primary hover:bg-primary-dark text-white focus:ring-primary w-full"
+                    >
+                      {t("pricing:ctaButton")}
+                    </button>
+                  </a>
+                </div>
               </div>
 
               {/* Pro */}
-              <div className="relative bg-white rounded-xl shadow-lg p-6 sm:p-8">
-                <div className="text-center mb-4 sm:mb-6">
-                  <div className="text-3xl sm:text-4xl mb-2">🚀</div>
-                  <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-                    {t("pricing:pro.name")}
-                  </h3>
-                  <div className="mb-2">
-                    <div className="text-2xl sm:text-3xl font-bold text-blue-600">
-                      {t("pricing:pro.price")}
-                    </div>
-                    {t("pricing:pro.originalPrice") && (
-                      <div className="text-base sm:text-lg text-gray-500 line-through">
-                        {t("pricing:wasPrice")} {t("pricing:pro.originalPrice")}
-                        {t("pricing:perAgentPerMonth")}
-                      </div>
-                    )}
-                  </div>
-                  <span className="inline-block bg-orange-100 text-orange-800 text-xs font-semibold px-2 py-1 rounded-full mb-2">
-                    {t("pricing:pro.badge")}
-                  </span>
-                  <p className="text-sm sm:text-base text-gray-600">
-                    {t("pricing:pro.desc")}
-                  </p>
+              <div className="border rounded-xl p-8 flex flex-col text-center transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-2xl border-slate-200 shadow-lg">
+                <div className="mx-auto mb-4">
+                  {/* Icône SVG Pro */}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="w-10 h-10 text-amber-500"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
                 </div>
-
-                <ul className="space-y-2 sm:space-y-3 mb-6 sm:mb-8">
-                  {[
-                    t("pricing:pro.feature1"),
-                    "🤖 " + t("pricing:pro.feature2"),
-                    t("pricing:pro.feature3"),
-                    t("pricing:pro.feature4"),
-                  ].map((feature, featureIndex) => (
-                    <li key={featureIndex} className="flex items-center">
-                      <span className="text-green-600 mr-2">✓</span>
-                      <span className="text-sm sm:text-base text-gray-700">
-                        {feature}
-                      </span>
-                    </li>
-                  ))}
+                <h3 className="text-xl font-bold text-slate-800">
+                  {t("pricing:pro.name")}
+                </h3>
+                <p className="mt-2 text-slate-500 flex-grow">
+                  {t("pricing:pro.desc")}
+                </p>
+                <div className="mt-6">
+                  <span className="text-4xl font-bold">
+                    {t("pricing:pro.price")}
+                  </span>
+                  <span className="text-slate-500 ms-1">
+                    {t("pricing:perAgentPerMonth")}
+                  </span>
+                </div>
+                <ul className="mt-8 space-y-4 flex-grow">
+                  <li className="flex items-center justify-center">
+                    <div className="flex-shrink-0 text-green-500">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        className="w-5 h-5"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.052-.143z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                    <span className="ms-3 text-slate-600">
+                      {t("pricing:pro.feature1")}
+                    </span>
+                  </li>
+                  <li className="flex items-center justify-center">
+                    <div className="flex-shrink-0 text-green-500">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        className="w-5 h-5"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.052-.143z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                    <span className="ms-3 text-slate-600">
+                      {t("pricing:pro.feature2")}
+                    </span>
+                  </li>
+                  <li className="flex items-center justify-center">
+                    <div className="flex-shrink-0 text-green-500">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        className="w-5 h-5"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.052-.143z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                    <span className="ms-3 text-slate-600">
+                      {t("pricing:pro.feature3")}
+                    </span>
+                  </li>
                 </ul>
-
-                <button
-                  onClick={handleGetStarted}
-                  className="w-full py-2 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base transition-colors bg-gray-100 text-gray-900 hover:bg-gray-200"
-                >
-                  {t("pricing:ctaButton")}
-                </button>
+                <div className="mt-8">
+                  <a className="block w-full" href="/signup">
+                    <button
+                      onClick={handleGetStarted}
+                      className="font-semibold rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 flex items-center justify-center px-6 py-3 text-base bg-transparent hover:bg-primary-light/10 border border-primary text-primary focus:ring-primary w-full"
+                    >
+                      {t("pricing:ctaButton")}
+                    </button>
+                  </a>
+                </div>
               </div>
             </div>
           </div>
