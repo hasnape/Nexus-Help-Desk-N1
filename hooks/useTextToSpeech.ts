@@ -1,5 +1,3 @@
-
-
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext'; // Import useLanguage
 

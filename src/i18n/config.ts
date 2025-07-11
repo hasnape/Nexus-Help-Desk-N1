@@ -72,12 +72,6 @@ i18n
     interpolation: {
       escapeValue: false,
       formatSeparator: ',',
-      format: function(value, format, lng) {
-        if (format === 'uppercase') return value.toUpperCase();
-        if (format === 'lowercase') return value.toLowerCase();
-        if (format === 'capitalize') return value.charAt(0).toUpperCase() + value.slice(1);
-        return value;
-      }
     },
   });
 
