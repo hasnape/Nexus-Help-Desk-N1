@@ -1,13 +1,14 @@
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useApp } from "../App";
+import { useApp } from "../contexts/AppContext";
 import { Button, Input, Select } from "../components/FormElements";
-import { useTranslation } from "react-i18next";
+import { useLanguage, Locale } from "../contexts/LanguageContext";
 import { UserRole, Plan } from "../types";
 import LoadingSpinner from "../components/LoadingSpinner";
 import FreemiumPlanIcon from "../components/plan_images/FreemiumPlanIcon";
 import StandardPlanIcon from "../components/plan_images/StandardPlanIcon";
 import ProPlanIcon from "../components/plan_images/ProPlanIcon";
+import Footer from "../components/Footer";
 
 const CheckIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg
@@ -25,90 +26,80 @@ const CheckIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 );
 
 const SignUpPage: React.FC = () => {
-  // Form State
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [selectedLanguage, setSelectedLanguage] = useState("fr");
+  const [selectedLanguage, setSelectedLanguage] = useState<Locale>("en");
   const [role, setRole] = useState<UserRole>(UserRole.USER);
   const [companyName, setCompanyName] = useState("");
   const [plan, setPlan] = useState<Plan>("freemium");
   const [activationCode, setActivationCode] = useState("");
 
-  // Logic State
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const { signUp, user } = useApp();
-  const { t, i18n } = useTranslation(["signup", "pricing", "common", "enums"]);
+  const { signUp, user, newlyCreatedCompanyName, setNewlyCreatedCompanyName } =
+    useApp();
+  const { t, language: currentAppLang } = useLanguage();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (user) {
-      navigate("/dashboard", { replace: true });
+      if (newlyCreatedCompanyName) {
+        // This is a new manager, show welcome modal/info
+        // For now, just navigate
+        navigate("/manager/dashboard", { replace: true });
+      } else {
+        navigate("/dashboard", { replace: true });
+      }
     }
-  }, [user, navigate]);
+  }, [user, navigate, newlyCreatedCompanyName]);
 
   useEffect(() => {
-    setSelectedLanguage(i18n.language);
-  }, [i18n.language]);
-
-  const handlePayPalPayment = () => {
-    const paypalUrl =
-      "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-0E515487AE797135CNBTRYKA";
-    window.open(paypalUrl, "_blank");
-  };
-
-  const handlePayPalProPayment = () => {
-    const paypalProUrl =
-      "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-7HP75881LB3608938NBTBGUA";
-    window.open(paypalProUrl, "_blank");
-  };
+    setSelectedLanguage(currentAppLang);
+  }, [currentAppLang]);
 
   const roleOptions = [
-    { value: UserRole.USER, label: t("enums:userRole.user") },
-    { value: UserRole.AGENT, label: t("enums:userRole.agent") },
-    { value: UserRole.MANAGER, label: t("enums:userRole.manager") },
+    { value: UserRole.USER, label: t("userRole.user") },
+    { value: UserRole.AGENT, label: t("userRole.agent") },
+    { value: UserRole.MANAGER, label: t("userRole.manager") },
   ];
 
   const pricingTiers = [
     {
-      nameKey: "pricing:freemium.name",
+      nameKey: "pricing.freemium.name",
       planValue: "freemium" as Plan,
       icon: <FreemiumPlanIcon className="w-8 h-8 text-slate-400" />,
-      priceKey: "pricing:freemium.price",
+      priceKey: "pricing.freemium.price",
       features: [
-        t("pricing:freemium.feature1"),
-        t("pricing:freemium.feature2"),
-        t("pricing:freemium.feature3"),
-        t("pricing:freemium.feature4"),
-        t("pricing:freemium.feature5"),
+        "pricing.freemium.feature1",
+        "pricing.freemium.feature2",
+        "pricing.freemium.feature3",
       ],
     },
     {
-      nameKey: "pricing:standard.name",
+      nameKey: "pricing.standard.name",
       planValue: "standard" as Plan,
       icon: <StandardPlanIcon className="w-8 h-8 text-primary" />,
-      priceKey: "pricing:standard.price",
+      priceKey: "pricing.standard.price",
       features: [
-        t("pricing:standard.feature1"),
-        t("pricing:standard.feature2"),
-        t("pricing:standard.feature3"),
-        t("pricing:standard.feature4"),
-        t("pricing:standard.feature5"),
+        "pricing.standard.feature1",
+        "pricing.standard.feature2",
+        "pricing.standard.feature3",
+        "pricing.standard.feature4",
       ],
     },
     {
-      nameKey: "pricing:pro.name",
+      nameKey: "pricing.pro.name",
       planValue: "pro" as Plan,
       icon: <ProPlanIcon className="w-8 h-8 text-amber-500" />,
-      priceKey: "pricing:pro.price",
+      priceKey: "pricing.pro.price",
       features: [
-        t("pricing:pro.feature1"),
-        t("pricing:pro.feature2"),
-        t("pricing:pro.feature3"),
-        t("pricing:pro.feature4"),
+        "pricing.pro.feature1",
+        "pricing.pro.feature2",
+        "pricing.pro.feature3",
+        "pricing.pro.feature4",
       ],
     },
   ];
@@ -121,23 +112,27 @@ const SignUpPage: React.FC = () => {
       !confirmPassword ||
       !companyName.trim()
     ) {
-      setError(t("error.allFieldsRequired"));
+      setError(t("signup.error.allFieldsRequired"));
       return false;
     }
     if (password !== confirmPassword) {
-      setError(t("error.passwordsDoNotMatch"));
+      setError(t("signup.error.passwordsDoNotMatch"));
       return false;
     }
     if (password.length < 6) {
-      setError(t("error.minCharsPassword"));
+      setError(t("signup.error.minCharsPassword"));
       return false;
     }
     if (
       role === UserRole.MANAGER &&
-      plan !== "freemium" &&
+      (plan === "standard" || plan === "pro") &&
       !activationCode.trim()
     ) {
-      setError(t("error.activationCodeRequired"));
+      setError(
+        t("signup.error.activationCodeRequired", {
+          default: "Activation code is required for paid plans.",
+        })
+      );
       return false;
     }
     setError("");
@@ -148,17 +143,21 @@ const SignUpPage: React.FC = () => {
     e.preventDefault();
     if (!validateDetails()) return;
 
-    // Client-side activation code check for demo purposes
     if (role === UserRole.MANAGER) {
-      if (
-        plan === "standard" &&
-        activationCode.trim() !== "STANDARD_SECRET_CODE"
-      ) {
-        setError(t("error.invalidActivationCode"));
+      if (plan === "standard" && activationCode.trim() !== "12345") {
+        setError(
+          t("signup.error.invalidActivationCodeStandard", {
+            default: "The activation code for the Standard plan is incorrect.",
+          })
+        );
         return;
       }
-      if (plan === "pro" && activationCode.trim() !== "PRO_SECRET_CODE") {
-        setError(t("error.invalidActivationCode"));
+      if (plan === "pro" && activationCode.trim() !== "123456") {
+        setError(
+          t("signup.error.invalidActivationCodePro", {
+            default: "The activation code for the Pro plan is incorrect.",
+          })
+        );
         return;
       }
     }
@@ -167,7 +166,7 @@ const SignUpPage: React.FC = () => {
     setError("");
 
     const result = await signUp(email.trim(), fullName.trim(), password, {
-      lang: selectedLanguage as any,
+      lang: selectedLanguage,
       role: role,
       companyName: companyName.trim(),
       plan: role === UserRole.MANAGER ? plan : undefined,
@@ -182,19 +181,28 @@ const SignUpPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white p-4">
-        <div className="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md text-center border border-gray-200">
-          <LoadingSpinner size="lg" text={t("finalizing")} />
-          <p className="mt-4 text-gray-600">{t("finalizingSubtitle")}</p>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-700 p-4">
+        <div className="bg-surface p-8 rounded-xl shadow-2xl w-full max-w-md text-center">
+          <LoadingSpinner
+            size="lg"
+            text={t("signup.finalizing", {
+              default: "Finalizing your account...",
+            })}
+          />
+          <p className="mt-4 text-slate-500">
+            {t("signup.finalizingSubtitle", {
+              default: "Please wait, you will be redirected shortly.",
+            })}
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <Suspense fallback={<LoadingSpinner size="lg" />}>
-      <div className="min-h-screen flex items-center justify-center bg-white py-8 px-4">
-        <div className="bg-white p-8 rounded-xl shadow-2xl w-full max-w-3xl border border-gray-200">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-700 py-8 px-4">
+      <div className="bg-surface p-8 rounded-xl shadow-2xl w-full max-w-3xl">
+        <>
           <div className="text-center mb-6">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -202,7 +210,7 @@ const SignUpPage: React.FC = () => {
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="currentColor"
-              className="w-16 h-16 mx-auto text-blue-600 mb-2"
+              className="w-16 h-16 mx-auto text-primary mb-2"
             >
               <path
                 strokeLinecap="round"
@@ -210,8 +218,10 @@ const SignUpPage: React.FC = () => {
                 d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.5A5.625 5.625 0 0 1 15.75 21H8.25A5.625 5.625 0 0 1 2.25 15.375V8.625c0-1.062.31-2.073.856-2.922m1.025-.975A3.75 3.75 0 0 0 6 5.25v1.5c0 .621.504 1.125 1.125 1.125H9"
               />
             </svg>
-            <h1 className="text-3xl font-bold text-black">{t("title")}</h1>
-            <p className="text-gray-700 mt-1">{t("subtitle")}</p>
+            <h1 className="text-3xl font-bold text-textPrimary">
+              {t("signup.title")}
+            </h1>
+            <p className="text-textSecondary mt-1">{t("signup.subtitle")}</p>
           </div>
 
           {error && (
@@ -223,7 +233,7 @@ const SignUpPage: React.FC = () => {
           <form onSubmit={handleSignUp} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
-                label={t("emailLabel")}
+                label={t("signup.emailLabel")}
                 id="email"
                 type="email"
                 value={email}
@@ -231,7 +241,7 @@ const SignUpPage: React.FC = () => {
                 required
               />
               <Input
-                label={t("fullNameLabel")}
+                label={t("signup.fullNameLabel")}
                 id="fullName"
                 type="text"
                 value={fullName}
@@ -239,7 +249,7 @@ const SignUpPage: React.FC = () => {
                 required
               />
               <Input
-                label={t("passwordLabel")}
+                label={t("signup.passwordLabel")}
                 id="password"
                 type="password"
                 value={password}
@@ -247,7 +257,7 @@ const SignUpPage: React.FC = () => {
                 required
               />
               <Input
-                label={t("confirmPasswordLabel")}
+                label={t("signup.confirmPasswordLabel")}
                 id="confirmPassword"
                 type="password"
                 value={confirmPassword}
@@ -257,7 +267,7 @@ const SignUpPage: React.FC = () => {
             </div>
 
             <Select
-              label={t("roleLabel")}
+              label={t("signup.roleLabel")}
               id="role"
               value={role}
               onChange={(e) => setRole(e.target.value as UserRole)}
@@ -269,148 +279,140 @@ const SignUpPage: React.FC = () => {
               <Input
                 label={
                   role === UserRole.MANAGER
-                    ? t("companyNameLabel")
-                    : t("existingCompanyNameLabel")
+                    ? t("signup.companyNameLabel")
+                    : t("signup.existingCompanyNameLabel")
                 }
                 id="companyName"
                 type="text"
                 value={companyName}
                 onChange={(e) => setCompanyName(e.target.value)}
+                placeholder={
+                  role === UserRole.MANAGER
+                    ? t("signup.companyNamePlaceholder")
+                    : t("signup.existingCompanyNamePlaceholder")
+                }
                 required
               />
+              <p className="mt-1 text-xs text-slate-500 px-1">
+                {role === UserRole.MANAGER
+                  ? t("signup.companyNameHelp.manager")
+                  : t("signup.companyNameHelp.employee")}
+              </p>
             </div>
 
             {role === UserRole.MANAGER && (
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t("planSelection.title")}
-                  </label>
-                  <p className="text-sm text-gray-600 mb-4">
-                    {t("planSelection.subtitle")}
-                  </p>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {pricingTiers.map((tier) => (
-                      <div
-                        key={tier.planValue}
-                        onClick={() => setPlan(tier.planValue)}
-                        className={`cursor-pointer border rounded-xl p-4 flex flex-col text-center transition-all duration-200 ${
-                          plan === tier.planValue
-                            ? "border-primary ring-2 ring-primary ring-offset-2 shadow-lg"
-                            : "border-slate-200 hover:border-primary/70 hover:shadow-md"
-                        }`}
-                      >
-                        <div className="mx-auto mb-3">{tier.icon}</div>
-                        <h3 className="font-bold text-slate-800 text-lg">
-                          {t(tier.nameKey)}
-                        </h3>
-                        <div className="my-2">
-                          {tier.planValue === "freemium" ? (
-                            <p className="text-xl font-bold text-green-600">
-                              {t(tier.priceKey)}
-                            </p>
-                          ) : tier.planValue === "standard" ? (
-                            <div>
-                              <p className="text-xl font-bold text-blue-600">
-                                {t(tier.priceKey)}
-                                {t("signup.planSelection.perAgentPerMonth")}
-                              </p>
-                              <p className="text-sm text-gray-500 line-through">
-                                {t("signup.planSelection.originalPrice")}{" "}
-                                {t("pricing.standard.originalPrice")}
-                                {t("signup.planSelection.perAgentPerMonth")}
-                              </p>
-                            </div>
-                          ) : (
-                            <div>
-                              <p className="text-xl font-bold text-amber-600">
-                                {t(tier.priceKey)}
-                                {t("signup.planSelection.perAgentPerMonth")}
-                              </p>
-                              <p className="text-sm text-gray-500 line-through">
-                                {t("signup.planSelection.originalPrice")}{" "}
-                                {t("pricing.pro.originalPrice")}
-                                {t("signup.planSelection.perAgentPerMonth")}
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                        <ul className="mt-4 space-y-2 text-xs text-slate-600 text-left flex-grow">
-                          {tier.features.map((featureKey) => (
-                            <li key={featureKey} className="flex items-start">
-                              <CheckIcon className="w-4 h-4 text-green-500 me-2 mt-0.5 flex-shrink-0" />
-                              <span>{t(featureKey)}</span>
-                            </li>
-                          ))}
-                        </ul>
+              <div className="space-y-4 pt-4">
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  {t("signup.planLabel", { default: "Subscription Plan" })}
+                </label>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {pricingTiers.map((tier) => (
+                    <div
+                      key={tier.nameKey}
+                      onClick={() => setPlan(tier.planValue)}
+                      className={`cursor-pointer border rounded-xl p-4 flex flex-col text-center transition-all duration-200 ${
+                        plan === tier.planValue
+                          ? "border-primary ring-2 ring-primary ring-offset-2 shadow-lg"
+                          : "border-slate-200 hover:border-primary/70 hover:shadow-md"
+                      }`}
+                    >
+                      <div className="mx-auto mb-3">{tier.icon}</div>
+                      <h3 className="font-bold text-slate-800 text-lg">
+                        {t(tier.nameKey)}
+                      </h3>
+                      <div className="my-2">
+                        <span className="text-3xl font-bold">
+                          {t(tier.priceKey)}
+                        </span>
+                        {tier.planValue !== "freemium" && (
+                          <span className="text-slate-500 ms-1 text-sm">
+                            {t("pricing.perAgentPerMonth")}
+                          </span>
+                        )}
                       </div>
-                    ))}
-                  </div>
+                      <ul className="mt-4 space-y-2 text-xs text-slate-600 text-left flex-grow">
+                        {tier.features.map((featureKey) => (
+                          <li key={featureKey} className="flex items-start">
+                            <CheckIcon className="w-4 h-4 text-green-500 me-2 mt-0.5 flex-shrink-0" />
+                            <span>{t(featureKey)}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
                 </div>
 
-                {plan !== "freemium" && (
-                  <div>
+                {(plan === "standard" || plan === "pro") && (
+                  <div className="mt-4 space-y-2 bg-slate-50 p-4 rounded-lg border border-slate-200">
                     <Input
-                      label={t("activationCodeLabel")}
+                      label={t("signup.activationCodeLabel", {
+                        default: "Activation Code",
+                      })}
                       id="activationCode"
-                      type="text"
                       value={activationCode}
                       onChange={(e) => setActivationCode(e.target.value)}
-                      placeholder={t("activationCodePlaceholder")}
+                      placeholder={t("signup.activationCodePlaceholder", {
+                        default: "Enter code from support",
+                      })}
                       required
                     />
-                    <p className="text-xs text-gray-600 mt-1">
-                      {t("activationCodeNote")}
+                    <p className="text-xs text-slate-600">
+                      {t("signup.activationCodeHelp.prefix", {
+                        default: "You need a code to sign up for a paid plan.",
+                      })}
+                      <a
+                        href={`mailto:hubnexusinfo@gmail.com?subject=${encodeURIComponent(
+                          `Request for Activation Code - ${
+                            plan.charAt(0).toUpperCase() + plan.slice(1)
+                          } Plan`
+                        )}&body=${encodeURIComponent(
+                          `Hello,\n\nOur company, [YOUR COMPANY NAME HERE], would like to sign up for the ${plan} plan. Please provide us with an activation code.\n\nThank you.`
+                        )}`}
+                        className="ms-1 text-primary hover:underline font-semibold"
+                      >
+                        {t("signup.activationCodeHelp.link", {
+                          default: "Request one via email.",
+                        })}
+                      </a>
                     </p>
-                  </div>
-                )}
-
-                {plan === "standard" && (
-                  <div className="text-center">
-                    <Button
-                      type="button"
-                      onClick={handlePayPalPayment}
-                      variant="outline"
-                      size="sm"
-                    >
-                      {t("planSelection.payWithPayPal")}
-                    </Button>
-                  </div>
-                )}
-
-                {plan === "pro" && (
-                  <div className="text-center">
-                    <Button
-                      type="button"
-                      onClick={handlePayPalProPayment}
-                      variant="outline"
-                      size="sm"
-                    >
-                      {t("planSelection.payWithPayPal")}
-                    </Button>
                   </div>
                 )}
               </div>
             )}
 
-            <div className="flex justify-center pt-4">
-              <Button type="submit" variant="primary" size="lg">
-                {t("signUpButton")}
-              </Button>
-            </div>
+            <Button
+              type="submit"
+              className="w-full !mt-6"
+              size="lg"
+              isLoading={isLoading}
+              disabled={isLoading}
+            >
+              {t("signup.signUpButton")}
+            </Button>
           </form>
-
-          <div className="text-center mt-6">
-            <p className="text-sm text-gray-600">
-              {t("alreadyHaveAccount")}{" "}
-              <Link to="/login" className="text-blue-600 hover:underline">
-                {t("loginLink")}
+          <div className="mt-6 text-center">
+            <p className="text-sm text-slate-500">
+              {t("signup.alreadyHaveAccount")}{" "}
+              <Link
+                to="/login"
+                className="font-medium text-primary hover:text-primary-dark"
+              >
+                {t("signup.signInLink")}
               </Link>
             </p>
+            <div className="mt-4 text-center">
+              <Link
+                to="/landing"
+                className="font-bold text-slate-600 hover:text-primary transition-colors text-sm"
+              >
+                &larr; {t("signup.backToHome", { default: "Back to Home" })}
+              </Link>
+            </div>
           </div>
-        </div>
+          <Footer />
+        </>
       </div>
-    </Suspense>
+    </div>
   );
 };
 
