@@ -1,7 +1,7 @@
 {
     "fr": {
-        "title": "Créer un Compte",
-        "subtitle": "Rejoignez Nexus Support Hub",
+        "title": "Créer un compte",
+        "subtitle": "Inscrivez-vous pour accéder à la plateforme",
         "form": {
             "fullName": "Nom Complet",
             "fullNamePlaceholder": "Votre nom complet",
@@ -26,19 +26,21 @@
             "manager": "Manager"
         },
         "planSelection": {
-            "title": "Choisissez Votre Plan",
-            "subtitle": "Sélectionnez le plan qui convient à votre entreprise",
+            "title": "Choisissez votre offre",
+            "subtitle": "Sélectionnez le plan adapté à vos besoins",
             "monthly": "par mois",
             "mostPopular": "Plus Populaire",
             "recommended": "Recommandé",
             "selectPlan": "Sélectionner ce Plan",
             "payWithPayPal": "Payer avec PayPal",
-            "features": "Fonctionnalités incluses"
+            "features": "Fonctionnalités incluses",
+            "perAgentPerMonth": "/agent/mois",
+            "originalPrice": "Ancien prix"
         },
         "plans": {
             "freemium": {
                 "name": "Freemium",
-                "price": "Gratuit",
+                "price": "1€",
                 "features": [
                     "Jusqu'à 3 agents",
                     "200 tickets par mois",
@@ -172,4 +174,3 @@
         }
     }
 }
-  
