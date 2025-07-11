@@ -14,10 +14,10 @@
         "price": "Free",
         "desc": "Limited access to main features.",
         "feature1": "Up to 3 agents",
-        "feature2": "AI chat with ticket creation",
-        "feature3": "Basic ticket management",
-        "feature4": "Community support",
-        "feature5": "Basic dashboards",
+        "feature2": "200 tickets per month",
+        "feature3": "AI chat with ticket creation",
+        "feature4": "Basic dashboards",
+        "feature5": "Email support",
         "ctaButton": "Start for free",
         "badge": "FREE"
     },
@@ -28,9 +28,10 @@
         "desc": "Ideal for teams",
         "feature1": "Unlimited agents",
         "feature2": "Unlimited tickets",
-        "feature3": "AI chat with ticket creation",
+        "feature3": "AI chat with full history",
         "feature4": "Advanced ticket management",
         "feature5": "Custom dashboards",
+        "feature6": "Priority support",
         "badge": "50% OFF"
     },
     "pro": {
@@ -39,9 +40,11 @@
         "originalPrice": "€20",
         "desc": "For large teams",
         "feature1": "All Standard features",
-        "feature2": "CRM integrations",
-        "feature3": "Advanced reports",
+        "feature2": "CRM and API integrations",
+        "feature3": "Advanced reports and analytics",
         "feature4": "24/7 phone support",
+        "feature5": "Voice features (TTS/STT)",
+        "feature6": "Appointment management",
         "badge": "40% OFF"
     }
 }

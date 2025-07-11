@@ -14,10 +14,10 @@
         "price": "Gratuit",
         "desc": "Accès limité aux fonctionnalités principales.",
         "feature1": "Jusqu'à 3 agents",
-        "feature2": "Chat IA avec création de tickets",
-        "feature3": "Gestion basique des tickets",
-        "feature4": "Support communautaire",
-        "feature5": "Tableaux de bord basiques",
+        "feature2": "200 tickets par mois",
+        "feature3": "Chat IA avec création de tickets",
+        "feature4": "Tableaux de bord basiques",
+        "feature5": "Support par email",
         "ctaButton": "Commencer gratuitement",
         "badge": "GRATUIT"
     },
@@ -28,9 +28,10 @@
         "desc": "Idéal pour les équipes",
         "feature1": "Agents illimités",
         "feature2": "Tickets illimités",
-        "feature3": "Chat IA avec création de tickets",
+        "feature3": "Chat IA avec historique complet",
         "feature4": "Gestion avancée des tickets",
         "feature5": "Tableaux de bord personnalisés",
+        "feature6": "Support prioritaire",
         "badge": "50% OFF"
     },
     "pro": {
@@ -38,10 +39,12 @@
         "price": "12€",
         "originalPrice": "20€",
         "desc": "Pour les grandes équipes",
-        "feature1": "Toutes les fonctionnalités Standard",
-        "feature2": "Intégrations CRM",
-        "feature3": "Rapports avancés",
+        "feature1": "Toutes les fonctionnalités du Standard",
+        "feature2": "Intégrations CRM et API",
+        "feature3": "Rapports avancés et analyses",
         "feature4": "Support téléphonique 24/7",
+        "feature5": "Fonctionnalités vocales (TTS/STT)",
+        "feature6": "Gestion des rendez-vous",
         "badge": "40% OFF"
     }
 }

@@ -368,20 +368,24 @@ const SignUpPage: React.FC = () => {
                     />
                     <p className="text-xs text-slate-600">
                       {t("activationCodeHelp.prefix", {
-                        default: "You need a code to sign up for a paid plan.",
+                        default: `Pour souscrire au plan ${
+                          plan === "standard" ? "Standard" : "Pro"
+                        }, vous devez obtenir un code d'activation. Après avoir effectué le paiement via PayPal, contactez le support pour recevoir votre code personnalisé.`,
                       })}
                       <a
                         href={`mailto:hubnexusinfo@gmail.com?subject=${encodeURIComponent(
-                          `Request for Activation Code - ${
-                            plan.charAt(0).toUpperCase() + plan.slice(1)
-                          } Plan`
+                          `Demande de code d'activation - ${
+                            plan === "standard" ? "Standard" : "Pro"
+                          }`
                         )}&body=${encodeURIComponent(
-                          `Hello,\n\nOur company, [YOUR COMPANY NAME HERE], would like to sign up for the ${plan} plan. Please provide us with an activation code.\n\nThank you.`
+                          `Bonjour,\n\nNotre société, [NOM DE VOTRE SOCIÉTÉ], souhaite souscrire au plan ${
+                            plan === "standard" ? "Standard" : "Pro"
+                          }. Merci de nous transmettre le code d'activation après vérification du paiement.\n\nCordialement.`
                         )}`}
                         className="ms-1 text-primary hover:underline font-semibold"
                       >
                         {t("activationCodeHelp.link", {
-                          default: "Request one via email.",
+                          default: "Demander votre code par email.",
                         })}
                       </a>
                     </p>
