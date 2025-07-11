@@ -289,24 +289,22 @@ const SignUpPage: React.FC = () => {
                   <p className="text-sm text-gray-600 mb-4">
                     {t("planSelection.subtitle")}
                   </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {pricingTiers.map((tier) => (
                       <div
                         key={tier.planValue}
-                        className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
-                          plan === tier.planValue
-                            ? "border-blue-500 bg-blue-50"
-                            : "border-gray-200 hover:border-gray-300"
-                        }`}
                         onClick={() => setPlan(tier.planValue)}
+                        className={`cursor-pointer border rounded-xl p-4 flex flex-col text-center transition-all duration-200 ${
+                          plan === tier.planValue
+                            ? "border-primary ring-2 ring-primary ring-offset-2 shadow-lg"
+                            : "border-slate-200 hover:border-primary/70 hover:shadow-md"
+                        }`}
                       >
-                        <div className="flex items-center justify-center mb-3">
-                          {tier.icon}
-                        </div>
-                        <h3 className="text-lg font-semibold text-center mb-2">
+                        <div className="mx-auto mb-3">{tier.icon}</div>
+                        <h3 className="font-bold text-slate-800 text-lg">
                           {t(tier.nameKey)}
                         </h3>
-                        <div className="text-center mb-3">
+                        <div className="my-2">
                           {tier.planValue === "freemium" ? (
                             <p className="text-xl font-bold text-green-600">
                               {t(tier.priceKey)}
@@ -315,33 +313,33 @@ const SignUpPage: React.FC = () => {
                             <div>
                               <p className="text-xl font-bold text-blue-600">
                                 {t(tier.priceKey)}
-                                {t("planSelection.perAgentPerMonth")}
+                                {t("signup.planSelection.perAgentPerMonth")}
                               </p>
                               <p className="text-sm text-gray-500 line-through">
-                                {t("planSelection.originalPrice")}{" "}
-                                {t("pricing:standard.originalPrice")}
-                                {t("planSelection.perAgentPerMonth")}
+                                {t("signup.planSelection.originalPrice")}{" "}
+                                {t("pricing.standard.originalPrice")}
+                                {t("signup.planSelection.perAgentPerMonth")}
                               </p>
                             </div>
                           ) : (
                             <div>
                               <p className="text-xl font-bold text-amber-600">
                                 {t(tier.priceKey)}
-                                {t("planSelection.perAgentPerMonth")}
+                                {t("signup.planSelection.perAgentPerMonth")}
                               </p>
                               <p className="text-sm text-gray-500 line-through">
-                                {t("planSelection.originalPrice")}{" "}
-                                {t("pricing:pro.originalPrice")}
-                                {t("planSelection.perAgentPerMonth")}
+                                {t("signup.planSelection.originalPrice")}{" "}
+                                {t("pricing.pro.originalPrice")}
+                                {t("signup.planSelection.perAgentPerMonth")}
                               </p>
                             </div>
                           )}
                         </div>
-                        <ul className="space-y-1 text-sm">
-                          {tier.features.map((feature, index) => (
-                            <li key={index} className="flex items-center">
-                              <CheckIcon className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" />
-                              <span>{feature}</span>
+                        <ul className="mt-4 space-y-2 text-xs text-slate-600 text-left flex-grow">
+                          {tier.features.map((featureKey) => (
+                            <li key={featureKey} className="flex items-start">
+                              <CheckIcon className="w-4 h-4 text-green-500 me-2 mt-0.5 flex-shrink-0" />
+                              <span>{t(featureKey)}</span>
                             </li>
                           ))}
                         </ul>
