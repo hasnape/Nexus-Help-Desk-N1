@@ -203,15 +203,11 @@ const LandingPage: React.FC = () => {
                     </span>
                   </div>
                   <p className="mb-2">
-                    <span className="font-semibold">
-                      {t("ai.userLabel")}
-                    </span>{" "}
+                    <span className="font-semibold">{t("ai.userLabel")}</span>{" "}
                     Marie Dupont
                   </p>
                   <p className="mb-2">
-                    <span className="font-semibold">
-                      {t("ai.titleLabel")}
-                    </span>{" "}
+                    <span className="font-semibold">{t("ai.titleLabel")}</span>{" "}
                     Impossible de se connecter à l'application
                   </p>
                   <p className="mb-2">
@@ -233,34 +229,24 @@ const LandingPage: React.FC = () => {
                   </p>
                   <div className="bg-white rounded p-2 mb-2 text-xs">
                     <p className="mb-1">
-                      <strong>
-                        {t("ai.userLabel")}
-                      </strong>{" "}
-                      Je n'arrive pas à me connecter
+                      <strong>{t("ai.userLabel")}</strong> Je n'arrive pas à me
+                      connecter
                     </p>
                     <p className="mb-1">
-                      <strong>
-                        {t("ai.aiLabel")}
-                      </strong>{" "}
-                      Avez-vous essayé de réinitialiser votre mot de passe ?
+                      <strong>{t("ai.aiLabel")}</strong> Avez-vous essayé de
+                      réinitialiser votre mot de passe ?
                     </p>
                     <p className="mb-1">
-                      <strong>
-                        {t("ai.userLabel")}
-                      </strong>{" "}
-                      Oui, mais ça ne fonctionne toujours pas
+                      <strong>{t("ai.userLabel")}</strong> Oui, mais ça ne
+                      fonctionne toujours pas
                     </p>
                     <p>
-                      <strong>
-                        {t("ai.aiLabel")}
-                      </strong>{" "}
-                      Je vais créer un ticket pour qu'un agent vous aide...
+                      <strong>{t("ai.aiLabel")}</strong> Je vais créer un ticket
+                      pour qu'un agent vous aide...
                     </p>
                   </div>
                   <p>
-                    <span className="font-semibold">
-                      {t("ai.statusLabel")}
-                    </span>{" "}
+                    <span className="font-semibold">{t("ai.statusLabel")}</span>{" "}
                     Ouvert - En attente d'assignation
                   </p>
                 </div>
@@ -376,7 +362,7 @@ const LandingPage: React.FC = () => {
                   </p>
                 </div>
                 <ul className="space-y-2 sm:space-y-3 mb-6 sm:mb-8">
-                  {[1,2,3,4,5].map(i => (
+                  {[1, 2, 3, 4, 5].map((i) => (
                     <li key={i} className="flex items-center">
                       <span className="text-green-600 mr-2">✓</span>
                       <span className="text-sm sm:text-base text-gray-700">
@@ -413,7 +399,8 @@ const LandingPage: React.FC = () => {
                     </div>
                     {t("pricing:standard.originalPrice") && (
                       <div className="text-base sm:text-lg text-gray-500 line-through">
-                        {t("pricing:wasPrice")} {t("pricing:standard.originalPrice")}
+                        {t("pricing:wasPrice")}{" "}
+                        {t("pricing:standard.originalPrice")}
                         {t("pricing:perAgentPerMonth")}
                       </div>
                     )}
@@ -499,4 +486,13 @@ const LandingPage: React.FC = () => {
                 >
                   {t("pricing:ctaButton")}
                 </button>
-              </div
+              </div>
+            </div>
+          </div>
+        </section>
+      </Layout>
+    </Suspense>
+  );
+};
+
+export default LandingPage;
