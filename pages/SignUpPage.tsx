@@ -335,14 +335,14 @@ const SignUpPage: React.FC = () => {
                             className="mt-2 block"
                           >
                             <button className="w-full py-2 px-4 rounded-lg font-semibold text-base bg-yellow-400 text-white">
-                              {t("signup.payButton", {
+                              {t("payButton", {
                                 default: "Payer avec PayPal",
                               })}
                             </button>
                           </a>
                           <p className="mt-2 text-xs text-slate-600">
                             {t(
-                              "signup.activationInfo",
+                              "activationInfo",
                               "Une fois le paiement confirmé, vous recevrez votre clé d’activation par email."
                             )}
                           </p>
@@ -355,19 +355,19 @@ const SignUpPage: React.FC = () => {
                 {["standard", "pro"].includes(plan) && (
                   <div className="mt-4 space-y-2 bg-slate-50 p-4 rounded-lg border border-slate-200">
                     <Input
-                      label={t("signup.activationCodeLabel", {
+                      label={t("activationCodeLabel", {
                         default: "Activation Code",
                       })}
                       id="activationCode"
                       value={activationCode}
                       onChange={(e) => setActivationCode(e.target.value)}
-                      placeholder={t("signup.activationCodePlaceholder", {
+                      placeholder={t("activationCodePlaceholder", {
                         default: "Enter code from support",
                       })}
                       required
                     />
                     <p className="text-xs text-slate-600">
-                      {t("signup.activationCodeHelp.prefix", {
+                      {t("activationCodeHelp.prefix", {
                         default: "You need a code to sign up for a paid plan.",
                       })}
                       <a
@@ -380,7 +380,7 @@ const SignUpPage: React.FC = () => {
                         )}`}
                         className="ms-1 text-primary hover:underline font-semibold"
                       >
-                        {t("signup.activationCodeHelp.link", {
+                        {t("activationCodeHelp.link", {
                           default: "Request one via email.",
                         })}
                       </a>
@@ -394,21 +394,21 @@ const SignUpPage: React.FC = () => {
                 type="submit"
                 className="w-full py-3 rounded-md text-lg font-semibold bg-primary text-white transition-all duration-200 hover:bg-primary/90"
               >
-                {t("signup.submitButton", { default: "Créer mon compte" })}
+                {t("submitButton", { default: "Créer mon compte" })}
               </Button>
             </div>
           </form>
 
           <div className="mt-6 text-center">
             <p className="text-sm text-slate-500">
-              {t("signup.alreadyHaveAccount", {
+              {t("alreadyHaveAccount", {
                 default: "Already have an account?",
               })}{" "}
               <Link
                 to="/login"
                 className="text-primary font-semibold hover:underline"
               >
-                {t("signup.loginLink", { default: "Log in" })}
+                {t("loginLink", { default: "Log in" })}
               </Link>
             </p>
           </div>
