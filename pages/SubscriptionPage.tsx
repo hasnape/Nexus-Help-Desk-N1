@@ -55,7 +55,7 @@ const SubscriptionPageContent: React.FC = () => {
       case "freemium":
         return {
           price: t("pricing.freemium.price"),
-          description: "",
+          description: t("pricing.freemium.description"),
         };
       case "standard":
         return {
@@ -70,7 +70,7 @@ const SubscriptionPageContent: React.FC = () => {
       default:
         return {
           price: t("pricing.freemium.price"),
-          description: "",
+          description: t("pricing.freemium.description"),
         };
     }
   };

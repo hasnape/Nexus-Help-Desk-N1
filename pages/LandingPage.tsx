@@ -356,229 +356,147 @@ const LandingPage: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-              {plans.map((plan, index) => (
-                <div
-                  key={index}
-                  className={`relative bg-white rounded-xl shadow-lg p-6 sm:p-8 ${
-                    plan.popular ? "ring-2 ring-blue-600 transform scale-105" : ""
-                  }`}
-                >
-                  {plan.popular && (
-                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                      <span className="bg-blue-600 text-white px-3 sm:px-4 py-1 rounded-full text-xs sm:text-sm font-semibold">
-                        {t("pricing:popularLabel")}
-                      </span>
+              {/* Freemium */}
+              <div className="relative bg-white rounded-xl shadow-lg p-6 sm:p-8">
+                <div className="text-center mb-4 sm:mb-6">
+                  <div className="text-3xl sm:text-4xl mb-2">🆓</div>
+                  <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+                    {t("pricing:freemium.name")}
+                  </h3>
+                  <div className="mb-2">
+                    <div className="text-2xl sm:text-3xl font-bold text-blue-600">
+                      {t("pricing:freemium.price")}
                     </div>
-                  )}
-
-                  <div className="text-center mb-4 sm:mb-6">
-                    <div className="text-3xl sm:text-4xl mb-2">{plan.icon}</div>
-                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-                      {plan.name}
-                    </h3>
-                    <div className="mb-2">
-                      <div className="text-2xl sm:text-3xl font-bold text-blue-600">
-                        {plan.price}
-                      </div>
-                      {plan.originalPrice && (
-                        <div className="text-base sm:text-lg text-gray-500 line-through">
-                          {t("pricing:wasPrice")} {plan.originalPrice}
-                          {t("pricing:perAgentPerMonth")}
-                        </div>
-                      )}
-                    </div>
-                    {plan.badge && (
-                      <span className="inline-block bg-orange-100 text-orange-800 text-xs font-semibold px-2 py-1 rounded-full mb-2">
-                        {plan.badge}
-                      </span>
-                    )}
-                    <p className="text-sm sm:text-base text-gray-600">
-                      {plan.description}
-                    </p>
                   </div>
-
-                  <ul className="space-y-2 sm:space-y-3 mb-6 sm:mb-8">
-                    {plan.features.map((feature, featureIndex) => (
-                      <li key={featureIndex} className="flex items-center">
-                        <span className="text-green-600 mr-2">✓</span>
-                        <span className="text-sm sm:text-base text-gray-700">
-                          {feature}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <button
-                    onClick={handleGetStarted}
-                    className={`w-full py-2 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base transition-colors ${
-                      plan.popular
-                        ? "bg-blue-600 text-white hover:bg-blue-700"
-                        : "bg-gray-100 text-gray-900 hover:bg-gray-200"
-                    }`}
-                  >
-                    {plan.name === t("pricing:freemium.name")
-                      ? t("pricing:freemium.ctaButton")
-                      : t("pricing:ctaButton")}
-                  </button>
+                  <span className="inline-block bg-orange-100 text-orange-800 text-xs font-semibold px-2 py-1 rounded-full mb-2">
+                    {t("pricing:freemium.badge")}
+                  </span>
+                  <p className="text-sm sm:text-base text-gray-600">
+                    {t("pricing:freemium.desc")}
+                  </p>
                 </div>
-              ))}
-            </div>
-
-            <div className="mt-8 sm:mt-12 text-center">
-              <p className="text-sm sm:text-base text-gray-600 mb-4">
-                {t("pricing.customSolutionPrompt")}
-              </p>
-              <Link
-                to="/contact"
-                className="text-blue-600 hover:text-blue-800 font-semibold text-sm sm:text-base"
-              >
-                {t("pricing.contactUs")}
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* Contact Section */}
-        <section id="contact" className="py-8 sm:py-12 bg-white text-black">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6">
-              {t("contact.title")}
-            </h2>
-            <p className="text-base sm:text-xl mb-6 sm:mb-8 max-w-3xl mx-auto">
-              {t("contact.subtitle")}
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-              <button
-                onClick={handleGetStarted}
-                className="bg-blue-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-semibold text-base sm:text-lg hover:bg-blue-700 transition-colors"
-              >
-                {t("contact.ctaButton")}
-              </button>
-              <Link
-                to="/contact"
-                className="border-2 border-blue-600 text-blue-600 px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-semibold text-base sm:text-lg hover:bg-blue-600 hover:text-white transition-colors inline-block"
-              >
-                {t("contact.contactButton")}
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* Footer */}
-        <footer className="bg-gray-800 text-white py-8">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-              <div className="col-span-1 md:col-span-2">
-                <h4 className="text-2xl font-bold text-blue-400 mb-4">
-                  {t("common:appName")}
-                </h4>
-                <p className="text-gray-300 mb-4 max-w-md">
-                  {t("footer.description")}
-                </p>
-              </div>
-
-              <div>
-                <h4 className="text-lg font-semibold mb-4">{t("footer.product")}</h4>
-                <ul className="space-y-2 text-gray-300">
-                  <li>
-                    <a
-                      href="#features"
-                      className="hover:text-white transition-colors"
-                    >
-                      {t("footer.features")}
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="#pricing"
-                      className="hover:text-white transition-colors"
-                    >
-                      {t("footer.pricing")}
-                    </a>
-                  </li>
-                  <li>
-                    <Link
-                      to="/contact"
-                      className="hover:text-white transition-colors"
-                    >
-                      {t("footer.integrations")}
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/contact"
-                      className="hover:text-white transition-colors"
-                    >
-                      {t("footer.security")}
-                    </Link>
-                  </li>
+                <ul className="space-y-2 sm:space-y-3 mb-6 sm:mb-8">
+                  {[1,2,3,4,5].map(i => (
+                    <li key={i} className="flex items-center">
+                      <span className="text-green-600 mr-2">✓</span>
+                      <span className="text-sm sm:text-base text-gray-700">
+                        {t(`pricing:freemium.feature${i}`)}
+                      </span>
+                    </li>
+                  ))}
                 </ul>
+                <a
+                  href="https://www.paypal.com/paypalme/votreLienFreemium"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-2 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base transition-colors bg-gray-100 text-gray-900 hover:bg-gray-200 block text-center"
+                >
+                  {t("pricing:freemium.payButton")}
+                </a>
               </div>
 
-              <div>
-                <h4 className="text-lg font-semibold mb-4">{t("footer.support")}</h4>
-                <ul className="space-y-2 text-gray-300">
-                  <li>
-                    <Link
-                      to="/user-manual"
-                      className="hover:text-white transition-colors"
-                    >
-                      {t("footer.userGuide")}
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/contact"
-                      className="hover:text-white transition-colors"
-                    >
-                      {t("footer.helpCenter")}
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/contact"
-                      className="hover:text-white transition-colors"
-                    >
-                      {t("footer.contactUs")}
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/promotional"
-                      className="hover:text-white transition-colors"
-                    >
-                      {t("footer.presentation")}
-                    </Link>
-                  </li>
+              {/* Standard */}
+              <div className="relative bg-white rounded-xl shadow-lg p-6 sm:p-8 ring-2 ring-blue-600 transform scale-105">
+                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                  <span className="bg-blue-600 text-white px-3 sm:px-4 py-1 rounded-full text-xs sm:text-sm font-semibold">
+                    {t("pricing:popularLabel")}
+                  </span>
+                </div>
+                <div className="text-center mb-4 sm:mb-6">
+                  <div className="text-3xl sm:text-4xl mb-2">⚡</div>
+                  <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+                    {t("pricing:standard.name")}
+                  </h3>
+                  <div className="mb-2">
+                    <div className="text-2xl sm:text-3xl font-bold text-blue-600">
+                      {t("pricing:standard.price")}
+                    </div>
+                    {t("pricing:standard.originalPrice") && (
+                      <div className="text-base sm:text-lg text-gray-500 line-through">
+                        {t("pricing:wasPrice")} {t("pricing:standard.originalPrice")}
+                        {t("pricing:perAgentPerMonth")}
+                      </div>
+                    )}
+                  </div>
+                  <span className="inline-block bg-orange-100 text-orange-800 text-xs font-semibold px-2 py-1 rounded-full mb-2">
+                    {t("pricing:standard.badge")}
+                  </span>
+                  <p className="text-sm sm:text-base text-gray-600">
+                    {t("pricing:standard.desc")}
+                  </p>
+                </div>
+
+                <ul className="space-y-2 sm:space-y-3 mb-6 sm:mb-8">
+                  {[
+                    "🚀 " + t("pricing:standard.feature1"),
+                    "🚀 " + t("pricing:standard.feature2"),
+                    t("pricing:standard.feature3"),
+                    t("pricing:standard.feature4"),
+                    t("pricing:standard.feature5"),
+                  ].map((feature, featureIndex) => (
+                    <li key={featureIndex} className="flex items-center">
+                      <span className="text-green-600 mr-2">✓</span>
+                      <span className="text-sm sm:text-base text-gray-700">
+                        {feature}
+                      </span>
+                    </li>
+                  ))}
                 </ul>
-              </div>
-            </div>
 
-            <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-              <p>{t("footer.copyright")}</p>
-              <div className="mt-4 flex justify-center space-x-6 text-sm">
-                <Link to="/legal" className="hover:text-white transition-colors">
-                  {t("footer.legal")}
-                </Link>
-                <Link
-                  to="/user-manual"
-                  className="hover:text-white transition-colors"
+                <button
+                  onClick={handleGetStarted}
+                  className="w-full py-2 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base transition-colors bg-blue-600 text-white hover:bg-blue-700"
                 >
-                  {t("footer.userManual")}
-                </Link>
-                <Link
-                  to="/promotional"
-                  className="hover:text-white transition-colors"
-                >
-                  {t("footer.presentation")}
-                </Link>
+                  {t("pricing:ctaButton")}
+                </button>
               </div>
-            </div>
-          </div>
-        </footer>
-      </Layout>
-    </Suspense>
-  );
-};
 
-export default LandingPage;
+              {/* Pro */}
+              <div className="relative bg-white rounded-xl shadow-lg p-6 sm:p-8">
+                <div className="text-center mb-4 sm:mb-6">
+                  <div className="text-3xl sm:text-4xl mb-2">🚀</div>
+                  <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+                    {t("pricing:pro.name")}
+                  </h3>
+                  <div className="mb-2">
+                    <div className="text-2xl sm:text-3xl font-bold text-blue-600">
+                      {t("pricing:pro.price")}
+                    </div>
+                    {t("pricing:pro.originalPrice") && (
+                      <div className="text-base sm:text-lg text-gray-500 line-through">
+                        {t("pricing:wasPrice")} {t("pricing:pro.originalPrice")}
+                        {t("pricing:perAgentPerMonth")}
+                      </div>
+                    )}
+                  </div>
+                  <span className="inline-block bg-orange-100 text-orange-800 text-xs font-semibold px-2 py-1 rounded-full mb-2">
+                    {t("pricing:pro.badge")}
+                  </span>
+                  <p className="text-sm sm:text-base text-gray-600">
+                    {t("pricing:pro.desc")}
+                  </p>
+                </div>
+
+                <ul className="space-y-2 sm:space-y-3 mb-6 sm:mb-8">
+                  {[
+                    t("pricing:pro.feature1"),
+                    "🤖 " + t("pricing:pro.feature2"),
+                    t("pricing:pro.feature3"),
+                    t("pricing:pro.feature4"),
+                  ].map((feature, featureIndex) => (
+                    <li key={featureIndex} className="flex items-center">
+                      <span className="text-green-600 mr-2">✓</span>
+                      <span className="text-sm sm:text-base text-gray-700">
+                        {feature}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+
+                <button
+                  onClick={handleGetStarted}
+                  className="w-full py-2 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base transition-colors bg-gray-100 text-gray-900 hover:bg-gray-200"
+                >
+                  {t("pricing:ctaButton")}
+                </button>
+              </div

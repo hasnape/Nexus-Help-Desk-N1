@@ -15,14 +15,16 @@
     "plans": {
         "freemium": {
             "name": "Freemium",
-            "price": "Gratuit",
+            "price": "1€/mois",
             "description": "Parfait pour débuter",
             "features": [
                 "Jusqu'à 3 agents",
                 "200 tickets par mois",
                 "Chat IA basique",
                 "Support par email"
-            ]
+            ],
+            "payButton": "Payer avec PayPal",
+            "paypalLink": "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-3KG35083B1716942TNBYOA4Q"
         },
         "standard": {
             "name": "Standard",

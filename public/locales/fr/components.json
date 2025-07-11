@@ -53,9 +53,9 @@
             "managerDashboard": "Dashboard Manager",
             "newUser": "Nouvel utilisateur",
             "ticketDetail": "Détails ticket",
-             "tickets": "Tickets",
-             "settings": "Paramètres",
-             "logout": "Déconnexion"
+            "tickets": "Tickets",
+            "settings": "Paramètres",
+            "logout": "Déconnexion"
         },
         "quickLinks": {
             "title": "Navigation",
@@ -181,5 +181,12 @@
         "newTicket": "Nouveau ticket",
         "help": "Aide",
         "chat": "Chat"
+    },
+    "plan": {
+        "freemium": {
+            "name": "Freemium",
+            "price": "1€",
+            "description": "Accès limité aux fonctionnalités principales."
+        }
     }
 }

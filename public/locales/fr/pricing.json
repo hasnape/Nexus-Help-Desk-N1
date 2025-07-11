@@ -11,8 +11,8 @@
     "wasPrice": "était",
     "freemium": {
         "name": "Freemium",
-        "price": "Gratuit",
-        "desc": "Parfait pour débuter",
+        "price": "1€",
+        "desc": "Accès limité aux fonctionnalités principales.",
         "feature1": "Jusqu'à 3 agents",
         "feature2": "Chat IA avec création de tickets",
         "feature3": "Gestion basique des tickets",

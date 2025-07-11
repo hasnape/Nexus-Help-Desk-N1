@@ -11,8 +11,8 @@
     "wasPrice": "was",
     "freemium": {
         "name": "Freemium",
-        "price": "Free",
-        "desc": "Perfect to get started",
+        "price": "1€",
+        "desc": "Limited access to main features.",
         "feature1": "Up to 3 agents",
         "feature2": "AI chat with ticket creation",
         "feature3": "Basic ticket management",
