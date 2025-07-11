@@ -36,43 +36,38 @@ i18n
       'labels',
       'speechRecognition'
     ],
-    
+
     interpolation: {
       escapeValue: false,
+      formatSeparator: ',',
     },
-    
+
     backend: {
       loadPath: '/locales/{{lng}}/{{ns}}.json',
       requestOptions: {
         cache: 'default',
       },
     },
-    
+
     detection: {
       order: ['localStorage', 'navigator', 'htmlTag'],
       caches: ['localStorage'],
     },
-    
+
     react: {
       useSuspense: false,
     },
-    
+
     // Configuration pour un meilleur debugging
     debug: process.env.NODE_ENV === 'development',
-    
+
     // Options de mise en cache
     saveMissing: false,
     updateMissing: false,
-    
+
     // Options de chargement
     load: 'languageOnly',
     preload: ['fr', 'en'],
-    
-    // Interpolation avancée
-    interpolation: {
-      escapeValue: false,
-      formatSeparator: ',',
-    },
   });
 
 export default i18n;
