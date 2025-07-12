@@ -4,6 +4,9 @@ import { useTranslation } from "react-i18next";
 import NexusInfographic from "../components/NexusInfographic";
 import Layout from "../components/Layout";
 import LoadingSpinner from "../components/LoadingSpinner";
+import FreemiumPlanIcon from "../components/plan_images/FreemiumPlanIcon";
+import StandardPlanIcon from "../components/plan_images/StandardPlanIcon";
+import ProPlanIcon from "../components/plan_images/ProPlanIcon";
 
 const LandingPage: React.FC = () => {
   const { t } = useTranslation(["landing", "pricing", "common"]);
@@ -61,7 +64,7 @@ const LandingPage: React.FC = () => {
               </button>
               <button
                 onClick={handleWatchDemo}
-                className="border-2 border-white text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-semibold text-base sm:text-lg hover:bg-white hover:text-blue-600 transition-colors"
+                className="border-2 border-white text-blue-600 px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-semibold text-base sm:text-lg hover:bg-blue-600 hover:text-white transition-colors"
               >
                 {t("hero.demoButton")}
               </button>
@@ -295,12 +298,7 @@ const LandingPage: React.FC = () => {
               {/* Freemium */}
               <div className="border rounded-xl p-8 flex flex-col text-center transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-2xl border-slate-200 shadow-lg">
                 <div className="mx-auto mb-4">
-                  {/* Logo personnalisé */}
-                  <img
-                    src="/logo.png"
-                    alt="Logo Nexus"
-                    className="w-12 h-12 object-contain mx-auto"
-                  />
+                  <FreemiumPlanIcon className="w-12 h-12 text-slate-400 mx-auto" />
                 </div>
                 <h3 className="text-xl font-bold text-slate-800">
                   {t("pricing:freemium.name")}
@@ -357,12 +355,7 @@ const LandingPage: React.FC = () => {
                   {t("pricing:popularLabel")}
                 </span>
                 <div className="mx-auto mb-4">
-                  {/* Logo personnalisé */}
-                  <img
-                    src="/logo.png"
-                    alt="Logo Nexus"
-                    className="w-12 h-12 object-contain mx-auto"
-                  />
+                  <StandardPlanIcon className="w-12 h-12 text-primary mx-auto" />
                 </div>
                 <h3 className="text-xl font-bold text-slate-800">
                   {t("pricing:standard.name")}
@@ -416,12 +409,7 @@ const LandingPage: React.FC = () => {
               {/* Pro */}
               <div className="border rounded-xl p-8 flex flex-col text-center transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-2xl border-slate-200 shadow-lg">
                 <div className="mx-auto mb-4">
-                  {/* Logo personnalisé */}
-                  <img
-                    src="/logo.png"
-                    alt="Logo Nexus"
-                    className="w-12 h-12 object-contain mx-auto"
-                  />
+                  <ProPlanIcon className="w-12 h-12 text-amber-500 mx-auto" />
                 </div>
                 <h3 className="text-xl font-bold text-slate-800">
                   {t("pricing:pro.name")}
