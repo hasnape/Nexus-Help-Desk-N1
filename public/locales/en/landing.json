@@ -1,58 +1,58 @@
 {
     "hero": {
-        "title": "Intelligent Customer Support Solution",
-        "subtitle": "Transform your customer support with Nexus AI. Smart chat, multi-company management and automatic ticket creation.",
-        "ctaButton": "Get Started Now",
-        "demoButton": "Watch Demo"
+        "title": "Welcome to Nexus Help Desk",
+        "subtitle": "Your AI-powered support platform",
+        "ctaButton": "Get Started",
+        "demoButton": "Try Demo"
     },
     "features": {
-        "title": "A Complete and Secure Platform",
-        "subtitle": "All essential features for modern customer support, with an architecture designed for businesses.",
+        "title": "Features",
+        "subtitle": "Discover our main features",
         "ai": {
-            "title": "Conversational AI Assistant",
-            "desc": "Smart chat with Nexus AI that helps your users and automatically creates detailed tickets with conversation history when needed."
+            "title": "AI Assistance",
+            "desc": "Get instant help from our AI assistant"
         },
         "secure": {
-            "title": "Secure Multi-Company Management",
-            "desc": "Multi-tenant architecture with complete data isolation per company. Each organization has its own users, agents and tickets."
+            "title": "Secure",
+            "desc": "Your data is protected and private"
         },
         "multilingual": {
-            "title": "Multilingual Interface",
-            "desc": "User interface available in French, English and Arabic to adapt to international teams."
+            "title": "Multilingual",
+            "desc": "Support in multiple languages"
         },
         "dashboards": {
-            "title": "Role-Based Dashboards",
-            "desc": "Dedicated views for users, agents and managers with ticket management adapted to each level of responsibility."
+            "title": "Dashboards",
+            "desc": "Monitor and manage tickets easily"
         }
     },
     "ai": {
-        "title": "Nexus AI Assistant: Your First Line of Support",
-        "subtitle": "Nexus AI helps your users in real time and automatically transforms conversations into organized tickets for your teams.",
-        "chatTitle": "Smart 24/7 Chat",
-        "chatDesc": "Nexus AI chats with your users, understands their problems and provides immediate assistance based on its knowledge base.",
-        "ticketCreationTitle": "Automatic Ticket Creation",
-        "ticketCreationDesc": "When AI reaches its limits, it automatically creates a ticket with all conversation history, suggested category and priority.",
+        "title": "AI Features",
+        "subtitle": "How AI helps you",
+        "chatTitle": "AI Chat",
+        "chatDesc": "Chat with our AI for quick solutions",
+        "ticketCreationTitle": "AI Ticket Creation",
+        "ticketCreationDesc": "Create tickets automatically with AI",
         "smartAssignmentTitle": "Smart Assignment",
-        "smartAssignmentDesc": "Created tickets can be automatically assigned to appropriate agents based on category and workload.",
-        "exampleTicketTitle": "Example of automatically created ticket",
-        "ticketNumber": "Ticket #12345",
-        "createdByAI": "Created by Nexus AI",
-        "userLabel": "User:",
-        "titleLabel": "Title:",
-        "categoryLabel": "Category:",
-        "priorityLabel": "Priority:",
-        "conversationHistoryLabel": "Conversation history:",
-        "aiLabel": "AI:",
-        "statusLabel": "Status:"
+        "smartAssignmentDesc": "AI assigns tickets to the right agent",
+        "exampleTicketTitle": "Example Ticket",
+        "ticketNumber": "Ticket Number",
+        "createdByAI": "Created by AI",
+        "userLabel": "User",
+        "titleLabel": "Title",
+        "categoryLabel": "Category",
+        "priorityLabel": "Priority",
+        "conversationHistoryLabel": "Conversation History",
+        "aiLabel": "AI",
+        "statusLabel": "Status"
     },
     "demo": {
-        "title": "Discover Support Hub in Video",
-        "subtitle": "Watch a complete demonstration of the platform: AI chat, ticket creation, dashboards and multi-role management.",
-        "ctaButton": "Try now"
+        "title": "Demo",
+        "subtitle": "Try our demo now",
+        "ctaButton": "Start Demo"
     },
     "pricing": {
-        "title": "Transparent and Affordable Pricing",
-        "subtitle": "Start free to test the platform, then evolve according to your needs. Simple pricing per active agent.",
+        "title": "Pricing",
+        "subtitle": "Choose your plan",
         "customSolutionPrompt": "Need a custom solution for your business?",
         "contactUs": "Contact us for a personalized quote"
     },

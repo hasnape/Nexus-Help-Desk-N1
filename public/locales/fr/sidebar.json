@@ -1,0 +1,25 @@
+{
+    "categories": {
+        "main": "Principal",
+        "information": "Information",
+        "authentication": "Authentification",
+        "mySpace": "Mon espace",
+        "administration": "Administration"
+    },
+    "home": "Accueil",
+    "contact": "Contact",
+    "promotions": "Promotions",
+    "subscription": "Abonnement",
+    "userManual": "Manuel utilisateur",
+    "legal": "Mentions légales",
+    "login": "Connexion",
+    "signup": "Inscription",
+    "dashboard": "Tableau de bord",
+    "newTicket": "Nouveau ticket",
+    "helpChat": "Chat d'aide",
+    "myTickets": "Mes tickets",
+    "agentDashboard": "Espace agent",
+    "managerDashboard": "Espace manager",
+    "newUser": "Nouvel utilisateur",
+    "ticketDetail": "Détail du ticket"
+}

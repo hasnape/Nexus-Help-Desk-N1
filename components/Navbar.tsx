@@ -6,7 +6,7 @@ import { Button } from "./FormElements";
 import { Locale } from "../contexts/LanguageContext";
 import { useSidebar } from "../contexts/SidebarContext";
 import Logo from "./Logo";
-import LoadingSpinner from "./LoadingSpinner";
+// ...existing code...
 
 interface NavbarProps {
   showSidebar?: boolean;
@@ -108,7 +108,7 @@ const Navbar: React.FC<NavbarProps> = ({ showSidebar = true }) => {
                     </span>
                     <Button
                       onClick={handleLogout}
-                      variant="outline"
+                      variant="secondary"
                       size="sm"
                       className="text-xs sm:text-sm !px-2 sm:!px-3 !py-1 sm:!py-2"
                     >
@@ -120,7 +120,7 @@ const Navbar: React.FC<NavbarProps> = ({ showSidebar = true }) => {
                 <div className="flex items-center space-x-1 sm:space-x-2">
                   <Link to="/login">
                     <Button
-                      variant="outline"
+                      variant="secondary"
                       size="sm"
                       className="text-xs sm:text-sm !px-2 sm:!px-3 !py-1 sm:!py-2"
                     >

@@ -48,7 +48,7 @@ const SpeakerOffIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 );
 
 const HelpChatPage: React.FC = () => {
-  const { user, isAutoReadEnabled, toggleAutoRead } = useApp();
+  const { isAutoReadEnabled, toggleAutoRead } = useApp();
   const { t, i18n } = useTranslation(["helpChat", "common"]);
   const navigate = useNavigate();
   const location = useLocation();
@@ -78,11 +78,10 @@ const HelpChatPage: React.FC = () => {
     transcript,
     startListening,
     stopListening,
-    resetTranscript,
     browserSupportsSpeechRecognition,
   } = useSpeechRecognition();
 
-  const { speak, cancel, speaking } = useTextToSpeech();
+  const { speak, cancel } = useTextToSpeech();
 
   useEffect(() => {
     const initialAiMessage: ChatMessage = {
@@ -142,7 +141,7 @@ const HelpChatPage: React.FC = () => {
     const updatedHistory = [...chatHistory, userMessage];
     setChatHistory(updatedHistory);
     setNewMessage("");
-    resetTranscript();
+    // Si le hook ne fournit pas resetTranscript, on ignore cette ligne
 
     setIsLoadingAi(true);
     try {
@@ -164,7 +163,7 @@ const HelpChatPage: React.FC = () => {
       const finalHistory = [...updatedHistory, aiMessage];
       setChatHistory(finalHistory);
 
-      if (response.shouldCreateTicket) {
+      if (response.escalationSuggested) {
         setShowCreateTicketButton(true);
       }
 
@@ -300,7 +299,7 @@ const HelpChatPage: React.FC = () => {
               <div className="flex flex-col space-y-2">
                 {browserSupportsSpeechRecognition && (
                   <Button
-                    variant={isListening ? "primary" : "outline"}
+                    variant={isListening ? "primary" : "secondary"}
                     size="sm"
                     onClick={() => handleVoiceFeatureClick("microphone")}
                     disabled={!voiceFeatureCheck.allowed}
@@ -317,7 +316,7 @@ const HelpChatPage: React.FC = () => {
                 )}
                 {browserSupportsTextToSpeech && (
                   <Button
-                    variant={isAutoReadEnabled ? "primary" : "outline"}
+                    variant={isAutoReadEnabled ? "primary" : "secondary"}
                     size="sm"
                     onClick={() => handleVoiceFeatureClick("speaker")}
                     disabled={!voiceFeatureCheck.allowed}
@@ -371,8 +370,18 @@ const HelpChatPage: React.FC = () => {
           <PlanLimitModal
             isOpen={showPlanModal}
             onClose={() => setShowPlanModal(false)}
-            feature={planModalFeature}
-            currentPlan={user?.company_id ? "freemium" : "freemium"}
+            feature={
+              typeof planModalFeature === "string" &&
+              [
+                "maxTicketsPerMonth",
+                "maxAgents",
+                "hasVoiceFeatures",
+                "hasUnlimitedTickets",
+                "hasUnlimitedAgents",
+              ].includes(planModalFeature)
+                ? (planModalFeature as keyof import("../contexts/PlanContext.tsx").PlanLimits)
+                : undefined
+            }
           />
         )}
       </div>

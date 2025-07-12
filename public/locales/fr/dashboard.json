@@ -79,9 +79,9 @@
         "refresh": "Actualiser",
         "search": "Rechercher",
         "filter": "Filtrer",
-        "sort": "Trier",
+        "sortLabel": "Trier",
         "export": "Exporter",
-        
+
         "filters": {
             "all": "Tous",
             "open": "Ouvert",

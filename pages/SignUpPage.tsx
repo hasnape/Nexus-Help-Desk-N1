@@ -7,6 +7,7 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import FreemiumPlanIcon from "../components/plan_images/FreemiumPlanIcon";
 import StandardPlanIcon from "../components/plan_images/StandardPlanIcon";
 import ProPlanIcon from "../components/plan_images/ProPlanIcon";
+import Logo from "../components/Logo";
 import { useTranslation } from "react-i18next";
 
 const CheckIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
@@ -180,20 +181,9 @@ const SignUpPage: React.FC = () => {
       <div className="bg-white p-8 rounded-xl shadow-2xl w-full max-w-3xl">
         <>
           <div className="text-center mb-6">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="w-16 h-16 mx-auto text-primary mb-2"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.5A5.625 5.625 0 0 1 15.75 21H8.25A5.625 5.625 0 0 1 2.25 15.375V8.625c0-1.062.31-2.073.856-2.922m1.025-.975A3.75 3.75 0 0 0 6 5.25v1.5c0 .621.504 1.125 1.125 1.125H9"
-              />
-            </svg>
+            <div className="flex justify-center mb-2">
+              <Logo size="xl" showText={false} />
+            </div>
             <h1 className="text-3xl font-bold text-textPrimary">
               {t("title")}
             </h1>

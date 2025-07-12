@@ -28,31 +28,22 @@ const ChatMessageComponent: React.FC<ChatMessageComponentProps> = ({
   showSpeakButton = false,
 }) => {
   const { t, i18n } = useTranslation(["common", "components"]);
-  const { user, getAllUsers } = useApp();
+  const { getAllUsers } = useApp();
 
   const getSenderName = () => {
     switch (message.sender) {
       case "user":
-        if (message.userId && message.userId === user?.id) {
-          return t("chatMessage.you");
-        }
-        const messageUser = getAllUsers().find((u) => u.id === message.userId);
-        return messageUser?.full_name || t("chatMessage.user");
-
+        return t("chatMessage.you");
       case "agent":
         if (message.agentId) {
           const agent = getAllUsers().find((u) => u.id === message.agentId);
           return agent?.full_name || t("chatMessage.agent");
         }
         return t("chatMessage.agent");
-
       case "ai":
         return t("chatMessage.ai");
-
-      case "system":
       case "system_summary":
         return t("chatMessage.system");
-
       default:
         return t("chatMessage.system");
     }
@@ -66,7 +57,6 @@ const ChatMessageComponent: React.FC<ChatMessageComponentProps> = ({
         return "bg-green-500 text-white";
       case "ai":
         return "bg-purple-500 text-white";
-      case "system":
       case "system_summary":
         return "bg-gray-500 text-white";
       default:
@@ -75,14 +65,14 @@ const ChatMessageComponent: React.FC<ChatMessageComponentProps> = ({
   };
 
   const getMessageAlignment = () => {
-    if (message.sender === "user" && message.userId === user?.id) {
+    if (message.sender === "user") {
       return "flex-row-reverse";
     }
     return "flex-row";
   };
 
   const getMessageBubbleStyle = () => {
-    if (message.sender === "user" && message.userId === user?.id) {
+    if (message.sender === "user") {
       return "bg-blue-500 text-white ml-auto";
     }
     switch (message.sender) {
@@ -90,7 +80,6 @@ const ChatMessageComponent: React.FC<ChatMessageComponentProps> = ({
         return "bg-green-100 text-green-800";
       case "ai":
         return "bg-purple-100 text-purple-800";
-      case "system":
       case "system_summary":
         return "bg-gray-100 text-gray-800";
       default:

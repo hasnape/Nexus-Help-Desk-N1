@@ -1,41 +1,42 @@
 {
-    "title": "Tarification",
-    "subtitle": "Choisissez le plan qui convient à votre entreprise",
-    "perAgentPerMonth": "/agent/mois",
-    "popularLabel": "Le plus populaire",
-    "promotionalBadge": "Offre promotionnelle",
-    "firstMonth": "Premier mois",
-    "firstWeek": "Première semaine",
-    "thenRegularPrice": "puis tarif normal",
-    "ctaButton": "Choisir ce plan",
-    "wasPrice": "était",
     "freemium": {
         "name": "Freemium",
         "price": "Gratuit",
-        "desc": "Accès limité aux fonctionnalités principales.",
-        "feature1": "Jusqu'à 3 agents",
-        "feature2": "200 tickets par mois",
-        "feature3": "Chat IA avec création de tickets",
-        "feature4": "Tableaux de bord basiques",
-        "feature5": "Support par email",
-        "ctaButton": "Commencer gratuitement",
-        "badge": "GRATUIT"
+        "description": "Gratuit pour une personne. Vous pouvez gérer vos demandes (tickets) et utiliser le chat IA pour poser des questions ou créer un ticket. Pas de personnalisation, pas d'intégration avancée. Idéal pour démarrer seul.",
+        "features": [
+            "1 utilisateur (vous seul)",
+            "Gestion de vos demandes (tickets)",
+            "Créer un ticket ou poser une question avec le chat IA",
+            "Tableau de suivi basique",
+            "Assistance par email (réponse sous 48h)"
+        ]
     },
     "standard": {
         "name": "Standard",
-        "price": "5€",
-        "originalPrice": "10€",
-        "desc": "Idéal pour les équipes",
-        "feature1": "Agents illimités",
-        "feature2": "Tickets illimités",
-        "feature3": "Chat IA avec historique complet",
-        "feature4": "Gestion avancée des tickets",
-        "feature5": "Tableaux de bord personnalisés",
-        "feature6": "Support prioritaire",
-        "badge": "50% OFF"
+        "price": "9 €/mois",
+        "description": "Convient aux petites équipes. Vous pouvez inviter autant de collègues que vous voulez et gérer un nombre illimité de demandes. Assistance prioritaire par email. Pas de personnalisation avancée.",
+        "features": [
+            "Équipe illimitée (invitez autant de personnes que vous voulez)",
+            "Demandes illimitées",
+            "Historique complet des conversations",
+            "Outils de suivi avancés",
+            "Assistance prioritaire par email"
+        ]
     },
     "pro": {
         "name": "Pro",
+        "price": "29 €/mois",
+        "description": "Pour les entreprises qui veulent gérer plusieurs profils et accéder à des outils avancés. API web multi-profil, rapports détaillés, fonctions vocales et assistance par mail ou téléphone sur rendez-vous.",
+        "features": [
+            "Tout ce qui est inclus dans Standard",
+            "API web multi-profil (plusieurs utilisateurs et rôles)",
+            "Rapports détaillés et statistiques",
+            "Fonction vocale (parler et écouter)",
+            "Prise de rendez-vous intégrée",
+            "Assistance par mail ou téléphone sur rendez-vous"
+        ]
+    },
+    "enterprise": {
         "price": "12€",
         "originalPrice": "20€",
         "desc": "Pour les grandes équipes",

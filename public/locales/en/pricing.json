@@ -1,50 +1,22 @@
 {
-    "title": "Pricing",
-    "subtitle": "Choose the plan that fits your business",
-    "perAgentPerMonth": "/agent/month",
-    "popularLabel": "Most Popular",
-    "promotionalBadge": "Promotional Offer",
-    "firstMonth": "First month",
-    "firstWeek": "First week",
-    "thenRegularPrice": "then regular price",
-    "ctaButton": "Choose this plan",
-    "wasPrice": "was",
     "freemium": {
         "name": "Freemium",
+        "desc": "Basic features for free",
         "price": "Free",
-        "desc": "Limited access to main features.",
-        "feature1": "Up to 3 agents",
-        "feature2": "200 tickets per month",
-        "feature3": "AI chat with ticket creation",
-        "feature4": "Basic dashboards",
-        "feature5": "Email support",
-        "ctaButton": "Start for free",
-        "badge": "FREE"
+        "ctaButton": "Choose Freemium"
     },
     "standard": {
         "name": "Standard",
-        "price": "€5",
-        "originalPrice": "€10",
-        "desc": "Ideal for teams",
-        "feature1": "Unlimited agents",
-        "feature2": "Unlimited tickets",
-        "feature3": "AI chat with full history",
-        "feature4": "Advanced ticket management",
-        "feature5": "Custom dashboards",
-        "feature6": "Priority support",
-        "badge": "50% OFF"
+        "desc": "Standard plan for growing teams",
+        "price": "$10",
+        "ctaButton": "Choose Standard"
     },
     "pro": {
         "name": "Pro",
-        "price": "€12",
-        "originalPrice": "€20",
-        "desc": "For large teams",
-        "feature1": "All Standard features",
-        "feature2": "CRM and API integrations",
-        "feature3": "Advanced reports and analytics",
-        "feature4": "24/7 phone support",
-        "feature5": "Voice features (TTS/STT)",
-        "feature6": "Appointment management",
-        "badge": "40% OFF"
-    }
+        "desc": "Advanced features for professionals",
+        "price": "$20",
+        "ctaButton": "Choose Pro"
+    },
+    "perAgentPerMonth": "per agent per month",
+    "popularLabel": "Most Popular"
 }

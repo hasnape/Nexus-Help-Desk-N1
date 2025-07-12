@@ -3,8 +3,9 @@ import { useTranslation } from "react-i18next";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useApp } from "../App";
 import { Button, Input, Select } from "../components/FormElements";
-import { UserRole } from "../types";
+// ...existing code...
 import LoadingSpinner from "../components/LoadingSpinner";
+import Logo from "../components/Logo";
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -58,8 +59,8 @@ const LoginPage: React.FC = () => {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
         <div className="max-w-md w-full space-y-8">
           <div>
-            <div className="mx-auto h-12 w-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">N</span>
+            <div className="flex justify-center mb-2">
+              <Logo size="xl" showText={false} />
             </div>
             <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
               {t("login.title")}
@@ -151,7 +152,7 @@ const LoginPage: React.FC = () => {
                 size="lg"
               >
                 {isLoading ? (
-                  <LoadingSpinner size="sm" text={false} />
+                  <LoadingSpinner size="sm" text="" />
                 ) : (
                   t("login.form.loginButton")
                 )}

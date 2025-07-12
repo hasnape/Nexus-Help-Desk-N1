@@ -42,23 +42,12 @@ const Logo: React.FC<LogoProps> = ({
       }
     >
       <div className={`flex items-center ${className}`}>
-        {/* Logo Icon */}
-        <div
-          className={`bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold ${sizeClasses[size]}`}
-        >
-          <span
-            className={
-              size === "sm"
-                ? "text-xs"
-                : size === "lg" || size === "xl"
-                ? "text-lg"
-                : "text-sm"
-            }
-          >
-            N
-          </span>
-        </div>
-
+        {/* Logo personnalisé */}
+        <img
+          src="/logo.png"
+          alt="Logo Nexus"
+          className={`${sizeClasses[size]} object-contain`}
+        />
         {/* Logo Text */}
         {showText && (
           <div className="ml-2">

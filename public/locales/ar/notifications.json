@@ -1,44 +1,44 @@
 {
     "types": {
-        "info": "Information",
-        "success": "Succès",
-        "warning": "Avertissement",
-        "error": "Erreur"
+        "info": "معلومات",
+        "success": "نجاح",
+        "warning": "تحذير",
+        "error": "خطأ"
     },
     "actions": {
-        "dismiss": "Fermer",
-        "viewDetails": "Voir les détails",
-        "retry": "Réessayer",
-        "undo": "Annuler",
-        "confirm": "Confirmer"
+        "dismiss": "إغلاق",
+        "viewDetails": "عرض التفاصيل",
+        "retry": "إعادة المحاولة",
+        "undo": "تراجع",
+        "confirm": "تأكيد"
     },
     "tickets": {
-        "newTicketAssigned": "Nouveau ticket assigné: {{title}}",
-        "ticketStatusChanged": "Statut du ticket modifié: {{status}}",
-        "newMessageReceived": "Nouveau message reçu",
-        "ticketEscalated": "Ticket escaladé",
-        "ticketDueSoon": "Ticket dû bientôt",
-        "ticketOverdue": "Ticket en retard"
+        "newTicketAssigned": "تم تعيين تذكرة جديدة: {{title}}",
+        "ticketStatusChanged": "تم تغيير حالة التذكرة: {{status}}",
+        "newMessageReceived": "تم استلام رسالة جديدة",
+        "ticketEscalated": "تم تصعيد التذكرة",
+        "ticketDueSoon": "تذكرة مستحقة قريبًا",
+        "ticketOverdue": "تذكرة متأخرة"
     },
     "system": {
-        "maintenanceScheduled": "Maintenance programmée le {{date}}",
-        "systemUpdateAvailable": "Mise à jour système disponible",
-        "backupCompleted": "Sauvegarde terminée",
-        "performanceWarning": "Performances dégradées détectées",
-        "connectionRestored": "Connexion rétablie"
+        "maintenanceScheduled": "تم جدولة الصيانة في {{date}}",
+        "systemUpdateAvailable": "تحديث النظام متوفر",
+        "backupCompleted": "اكتملت النسخة الاحتياطية",
+        "performanceWarning": "تم اكتشاف تدهور في الأداء",
+        "connectionRestored": "تم استعادة الاتصال"
     },
     "plan": {
-        "limitApproaching": "Limite de plan approchée",
-        "limitExceeded": "Limite de plan dépassée",
-        "upgradeAvailable": "Mise à niveau disponible",
-        "paymentDue": "Paiement dû",
-        "subscriptionExpiring": "Abonnement expirant bientôt"
+        "limitApproaching": "اقتربت من حد الخطة",
+        "limitExceeded": "تم تجاوز حد الخطة",
+        "upgradeAvailable": "الترقية متاحة",
+        "paymentDue": "الدفع مستحق",
+        "subscriptionExpiring": "الاشتراك سينتهي قريبًا"
     },
     "security": {
-        "passwordExpiring": "Mot de passe expirant dans {{days}} jours",
-        "suspiciousActivity": "Activité suspecte détectée",
-        "newLoginDetected": "Nouvelle connexion détectée",
-        "accountLocked": "Compte verrouillé pour sécurité",
-        "permissionsChanged": "Permissions modifiées"
+        "passwordExpiring": "ستنتهي صلاحية كلمة المرور خلال {{days}} يومًا",
+        "suspiciousActivity": "تم اكتشاف نشاط مشبوه",
+        "newLoginDetected": "تم اكتشاف تسجيل دخول جديد",
+        "accountLocked": "تم قفل الحساب لأسباب أمنية",
+        "permissionsChanged": "تم تغيير الصلاحيات"
     }
 }

@@ -34,7 +34,13 @@
             "location": "Lieu ou méthode",
             "locationPlaceholder": "Ex: Bureau 123, Teams, Téléphone...",
             "submit": "Proposer le rendez-vous"
-        }
+        },
+        "title": "Rendez-vous",
+        "propose": "Proposer un Rendez-vous",
+        "scheduled": "Rendez-vous Programmé",
+        "time": "Heure",
+        "update": "Mettre à Jour",
+        "cancel": "Annuler le Rendez-vous"
     },
     "conversation": {
         "noMessages": "Aucun message dans cette conversation.",
@@ -88,16 +94,6 @@
         "selectAgent": "Sélectionner un agent",
         "assign": "Assigner",
         "unassign": "Désassigner"
-    },
-    "appointment": {
-        "title": "Rendez-vous",
-        "propose": "Proposer un Rendez-vous",
-        "scheduled": "Rendez-vous Programmé",
-        "date": "Date",
-        "time": "Heure",
-        "location": "Lieu",
-        "update": "Mettre à Jour",
-        "cancel": "Annuler le Rendez-vous"
     },
     "voiceFeatures": {
         "title": "Fonctionnalités Vocales",

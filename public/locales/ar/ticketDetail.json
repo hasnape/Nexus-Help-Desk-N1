@@ -1,110 +1,109 @@
 {
-    "title": "Détail du Ticket",
-    "backToTickets": "Retour aux Tickets",
-    "backToDashboard": "Retour au Tableau de Bord",
-    "ticketNotFound": "Ticket non trouvé",
+    "title": "تفاصيل التذكرة",
+    "backToTickets": "العودة إلى التذاكر",
+    "backToDashboard": "العودة للوحة التحكم",
+    "ticketNotFound": "لم يتم العثور على التذكرة",
     "ticketInfo": {
-        "title": "Informations du Ticket",
-        "ticketId": "ID du Ticket",
-        "title": "Titre",
-        "description": "Description",
-        "status": "Statut",
-        "priority": "Priorité",
-        "category": "Catégorie",
-        "workstation": "Poste de Travail",
-        "createdBy": "Créé par",
-        "assignedTo": "Assigné à",
-        "createdAt": "Créé le",
-        "updatedAt": "Mis à jour le",
-        "unassigned": "Non assigné",
-        "notApplicable": "Non applicable"
+        "ticketId": "معرّف التذكرة",
+        "title": "العنوان",
+        "description": "الوصف",
+        "status": "الحالة",
+        "priority": "الأولوية",
+        "category": "الفئة",
+        "workstation": "الجهاز",
+        "createdBy": "أنشأها",
+        "assignedTo": "مُسند إلى",
+        "createdAt": "تاريخ الإنشاء",
+        "updatedAt": "تاريخ التحديث",
+        "unassigned": "غير مُسند",
+        "notApplicable": "غير متوفر"
     },
     "conversation": {
-        "title": "Conversation",
-        "placeholder": "Tapez votre message...",
-        "send": "Envoyer",
-        "noMessages": "Aucun message dans cette conversation.",
+        "title": "المحادثة",
+        "placeholder": "اكتب رسالتك...",
+        "send": "إرسال",
+        "noMessages": "لا توجد رسائل في هذه المحادثة.",
         "messageTime": "{{time}}",
-        "you": "Vous",
-        "user": "Utilisateur",
-        "agent": "Agent",
-        "ai": "IA",
-        "system": "Système"
+        "you": "أنت",
+        "user": "مستخدم",
+        "agent": "وكيل",
+        "ai": "ذكاء اصطناعي",
+        "system": "النظام"
     },
     "actions": {
-        "title": "Actions",
-        "updateStatus": "Mettre à Jour le Statut",
-        "assignToMe": "M'assigner",
-        "reassign": "Réassigner",
-        "resolve": "Résoudre",
-        "close": "Fermer",
-        "reopen": "Rouvrir",
-        "delete": "Supprimer",
-        "proposeAppointment": "Proposer un Rendez-vous"
+        "title": "الإجراءات",
+        "updateStatus": "تحديث الحالة",
+        "assignToMe": "تعيين لي",
+        "reassign": "إعادة تعيين",
+        "resolve": "حل",
+        "close": "إغلاق",
+        "reopen": "إعادة فتح",
+        "delete": "حذف",
+        "proposeAppointment": "اقتراح موعد"
     },
     "statusUpdate": {
-        "title": "Mettre à Jour le Statut",
-        "currentStatus": "Statut Actuel",
-        "newStatus": "Nouveau Statut",
-        "update": "Mettre à Jour",
-        "cancel": "Annuler"
+        "title": "تحديث الحالة",
+        "currentStatus": "الحالة الحالية",
+        "newStatus": "الحالة الجديدة",
+        "update": "تحديث",
+        "cancel": "إلغاء"
     },
     "appointment": {
-        "title": "Gestion des Rendez-vous",
-        "propose": "Proposer un Rendez-vous",
-        "current": "Rendez-vous Actuel",
-        "history": "Historique des Rendez-vous",
+        "title": "إدارة المواعيد",
+        "propose": "اقتراح موعد",
+        "current": "الموعد الحالي",
+        "history": "سجل المواعيد",
         "form": {
-            "date": "Date",
-            "time": "Heure",
-            "location": "Lieu/Méthode",
-            "locationPlaceholder": "Lieu physique ou méthode (ex: Zoom, Teams...)",
-            "propose": "Proposer",
-            "update": "Mettre à Jour",
-            "cancel": "Annuler"
+            "date": "التاريخ",
+            "time": "الوقت",
+            "location": "المكان/الطريقة",
+            "locationPlaceholder": "مكان فعلي أو طريقة (مثل: Zoom، Teams...)",
+            "propose": "اقتراح",
+            "update": "تحديث",
+            "cancel": "إلغاء"
         },
         "status": {
-            "pending": "En Attente",
-            "confirmed": "Confirmé",
-            "rejected": "Rejeté",
-            "rescheduled": "Reprogrammé"
+            "pending": "معلقة",
+            "confirmed": "مؤكد",
+            "rejected": "مرفوض",
+            "rescheduled": "معاد جدولته"
         },
         "chat": {
-            "agentProposed": "Agent a proposé un rendez-vous le {{date}} à {{time}} ({{location}})",
-            "userConfirmed": "Utilisateur a confirmé le rendez-vous du {{date}} à {{time}} ({{location}})",
-            "userRequestsReschedule": "Utilisateur demande de reprogrammer pour le {{date}} à {{time}} ({{location}})"
+            "agentProposed": "اقترح الوكيل موعدًا في {{date}} الساعة {{time}} ({{location}})",
+            "userConfirmed": "أكد المستخدم الموعد في {{date}} الساعة {{time}} ({{location}})",
+            "userRequestsReschedule": "طلب المستخدم إعادة الجدولة إلى {{date}} الساعة {{time}} ({{location}})"
         }
     },
     "voice": {
-        "startListening": "Commencer l'écoute vocale",
-        "stopListening": "Arrêter l'écoute",
-        "speakMessage": "Prononcer le message",
-        "muteMessage": "Couper le son",
-        "listening": "Écoute en cours...",
-        "speechError": "Erreur de reconnaissance vocale",
-        "autoRead": "Lecture automatique",
-        "toggleAutoRead": "Activer/Désactiver la lecture automatique"
+        "startListening": "بدء الاستماع الصوتي",
+        "stopListening": "إيقاف الاستماع",
+        "speakMessage": "نطق الرسالة",
+        "muteMessage": "كتم الصوت",
+        "listening": "جاري الاستماع...",
+        "speechError": "خطأ في التعرف على الصوت",
+        "autoRead": "القراءة التلقائية",
+        "toggleAutoRead": "تفعيل/تعطيل القراءة التلقائية"
     },
     "messages": {
-        "statusUpdated": "Statut du ticket mis à jour avec succès",
-        "messageAdded": "Message ajouté avec succès",
-        "assignmentUpdated": "Assignation mise à jour avec succès",
-        "appointmentProposed": "Rendez-vous proposé avec succès",
-        "ticketDeleted": "Ticket supprimé avec succès"
+        "statusUpdated": "تم تحديث حالة التذكرة بنجاح",
+        "messageAdded": "تم إضافة الرسالة بنجاح",
+        "assignmentUpdated": "تم تحديث التعيين بنجاح",
+        "appointmentProposed": "تم اقتراح الموعد بنجاح",
+        "ticketDeleted": "تم حذف التذكرة بنجاح"
     },
     "errors": {
-        "messageEmpty": "Le message ne peut pas être vide",
-        "statusUpdateFailed": "Échec de la mise à jour du statut",
-        "assignmentFailed": "Échec de l'assignation",
-        "appointmentFailed": "Échec de la proposition de rendez-vous",
-        "deleteFailed": "Échec de la suppression du ticket",
-        "unauthorized": "Vous n'êtes pas autorisé à effectuer cette action",
-        "networkError": "Erreur réseau. Vérifiez votre connexion."
+        "messageEmpty": "لا يمكن أن تكون الرسالة فارغة",
+        "statusUpdateFailed": "فشل تحديث الحالة",
+        "assignmentFailed": "فشل التعيين",
+        "appointmentFailed": "فشل اقتراح الموعد",
+        "deleteFailed": "فشل حذف التذكرة",
+        "unauthorized": "غير مصرح لك بتنفيذ هذا الإجراء",
+        "networkError": "خطأ في الشبكة. تحقق من الاتصال."
     },
     "confirmDelete": {
-        "title": "Confirmer la Suppression",
-        "message": "Êtes-vous sûr de vouloir supprimer ce ticket ? Cette action est irréversible.",
-        "confirm": "Supprimer",
-        "cancel": "Annuler"
+        "title": "تأكيد الحذف",
+        "message": "هل أنت متأكد أنك تريد حذف هذه التذكرة؟ هذا الإجراء لا يمكن التراجع عنه.",
+        "confirm": "حذف",
+        "cancel": "إلغاء"
     }
 }

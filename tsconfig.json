@@ -6,10 +6,10 @@
     "module": "ESNext",
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
-    "types": ["vite/client"], // ✅ AJOUT: Types pour import.meta.env
+    "types": ["vite/client", "react"], // ✅ AJOUT: Types pour import.meta.env
 
     /* Bundler mode */
-    "moduleResolution": "bundler",
+    "moduleResolution": "node",
     "allowImportingTsExtensions": true,
     "isolatedModules": true,
     "moduleDetection": "force",
@@ -26,6 +26,8 @@
 
     "paths": {
       "@/*" :  ["./*"]
-    }
+    },
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
   }
 }

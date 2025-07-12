@@ -1,5 +1,5 @@
 import React, { Suspense } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import NexusInfographic from "../components/NexusInfographic";
 import Layout from "../components/Layout";
@@ -37,55 +37,6 @@ const LandingPage: React.FC = () => {
       title: t("features.dashboards.title"),
       description: t("features.dashboards.desc"),
       icon: "📊",
-    },
-  ];
-
-  const plans = [
-    {
-      name: t("pricing:freemium.name"),
-      price: t("pricing:freemium.price"),
-      description: t("pricing:freemium.desc"),
-      features: [
-        "🎁 " + t("pricing:freemium.feature1"),
-        "🎁 " + t("pricing:freemium.feature2"),
-        "🎁 " + t("pricing:freemium.feature3"),
-        "🎁 " + t("pricing:freemium.feature4"),
-        "🎁 " + t("pricing:freemium.feature5"),
-      ],
-      popular: false,
-      icon: "🆓",
-      badge: t("pricing:freemium.badge"),
-    },
-    {
-      name: t("pricing:standard.name"),
-      price: t("pricing:standard.price") + t("pricing:perAgentPerMonth"),
-      originalPrice: t("pricing:standard.originalPrice"),
-      description: t("pricing:standard.desc"),
-      features: [
-        "🚀 " + t("pricing:standard.feature1"),
-        "🚀 " + t("pricing:standard.feature2"),
-        t("pricing:standard.feature3"),
-        t("pricing:standard.feature4"),
-        t("pricing:standard.feature5"),
-      ],
-      popular: true,
-      icon: "⚡",
-      badge: t("pricing:standard.badge"),
-    },
-    {
-      name: t("pricing:pro.name"),
-      price: t("pricing:pro.price") + t("pricing:perAgentPerMonth"),
-      originalPrice: t("pricing:pro.originalPrice"),
-      description: t("pricing:pro.desc"),
-      features: [
-        t("pricing:pro.feature1"),
-        "🤖 " + t("pricing:pro.feature2"),
-        t("pricing:pro.feature3"),
-        t("pricing:pro.feature4"),
-      ],
-      popular: false,
-      icon: "🚀",
-      badge: t("pricing:pro.badge"),
     },
   ];
 
@@ -344,26 +295,12 @@ const LandingPage: React.FC = () => {
               {/* Freemium */}
               <div className="border rounded-xl p-8 flex flex-col text-center transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-2xl border-slate-200 shadow-lg">
                 <div className="mx-auto mb-4">
-                  {/* Icône SVG Freemium */}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className="w-10 h-10 text-slate-400"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M9 9.563C9 9.252 9.252 9 9.563 9h4.874c.311 0 .563.252.563.563v4.874c0 .311-.252.563-.563.563H9.563A.562.562 0 0 1 9 14.437V9.564Z"
-                    />
-                  </svg>
+                  {/* Logo personnalisé */}
+                  <img
+                    src="/logo.png"
+                    alt="Logo Nexus"
+                    className="w-12 h-12 object-contain mx-auto"
+                  />
                 </div>
                 <h3 className="text-xl font-bold text-slate-800">
                   {t("pricing:freemium.name")}
@@ -420,19 +357,12 @@ const LandingPage: React.FC = () => {
                   {t("pricing:popularLabel")}
                 </span>
                 <div className="mx-auto mb-4">
-                  {/* Icône SVG Standard */}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    className="w-10 h-10 text-primary"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm14.024-.983a1.125 1.125 0 0 1 0 1.966l-5.603 3.113A1.125 1.125 0 0 1 9 15.113V8.887c0-.857.921-1.4 1.671-.983l5.603 3.113Z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
+                  {/* Logo personnalisé */}
+                  <img
+                    src="/logo.png"
+                    alt="Logo Nexus"
+                    className="w-12 h-12 object-contain mx-auto"
+                  />
                 </div>
                 <h3 className="text-xl font-bold text-slate-800">
                   {t("pricing:standard.name")}
@@ -486,19 +416,12 @@ const LandingPage: React.FC = () => {
               {/* Pro */}
               <div className="border rounded-xl p-8 flex flex-col text-center transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-2xl border-slate-200 shadow-lg">
                 <div className="mx-auto mb-4">
-                  {/* Icône SVG Pro */}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    className="w-10 h-10 text-amber-500"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
+                  {/* Logo personnalisé */}
+                  <img
+                    src="/logo.png"
+                    alt="Logo Nexus"
+                    className="w-12 h-12 object-contain mx-auto"
+                  />
                 </div>
                 <h3 className="text-xl font-bold text-slate-800">
                   {t("pricing:pro.name")}
@@ -540,7 +463,7 @@ const LandingPage: React.FC = () => {
                 </ul>
                 <div className="mt-8">
                   <a className="block w-full" href="/signup?plan=pro">
-                    <button className="font-semibold rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 flex items-center justify-center px-6 py-3 text-base bg-primary hover:bg-primary-dark text-white focus:ring-primary w-full">
+                    <button className="font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 flex items-center justify-center px-6 py-3 text-base bg-primary hover:bg-primary-dark text-white focus:ring-primary w-full shadow-md">
                       {t("pricing:pro.ctaButton", {
                         default: "Choisir ce plan",
                       })}

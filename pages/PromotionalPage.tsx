@@ -25,9 +25,19 @@ const PromotionalPage: React.FC = () => {
 
   const backLinkDestination = user ? "/dashboard" : "/login";
 
+  const [modalOpen, setModalOpen] = React.useState(false);
+  const [modalContent, setModalContent] = React.useState<string>("");
+  const [modalTitle, setModalTitle] = React.useState<string>("");
+
   const renderSection = (titleKey: string, contentKey: string) => {
     const title = t(titleKey);
-    const content = t(contentKey);
+    let content = t(contentKey);
+
+    // Ajout automatique de la mention prise de rendez-vous dans la section features
+    if (titleKey.includes("features") && typeof content === "string") {
+      content +=
+        '<ul class="mt-2"><li><strong>Prise de rendez-vous :</strong> Disponible uniquement pour les plans Standard et Pro</li></ul>';
+    }
 
     if (!title || !content || title === titleKey || content === contentKey) {
       return (
@@ -41,15 +51,31 @@ const PromotionalPage: React.FC = () => {
       );
     }
 
+    // Limite le texte à 220 caractères pour la carte, bouton pour voir le détail
+    const shortContent =
+      typeof content === "string" && content.length > 220
+        ? content.slice(0, 220) + "..."
+        : content;
+
     return (
       <section className="mb-6 sm:mb-8">
-        <h2 className="text-xl sm:text-2xl font-bold text-primary mb-3 pb-2 border-b border-slate-300">
+        <h2 className="text-xl sm:text-2xl font-bold text-primary mb-3 pb-2 border-b border-slate-300 truncate">
           {title}
         </h2>
         <div
-          className="prose prose-slate max-w-none text-sm sm:text-base"
-          dangerouslySetInnerHTML={{ __html: content }}
+          className="prose prose-slate max-w-none text-sm sm:text-base truncate"
+          dangerouslySetInnerHTML={{ __html: shortContent }}
         />
+        <button
+          className="mt-3 px-4 py-2 bg-primary text-white rounded-lg font-semibold shadow hover:bg-primary-dark transition-colors text-xs sm:text-sm"
+          onClick={() => {
+            setModalTitle(title);
+            setModalContent(content);
+            setModalOpen(true);
+          }}
+        >
+          Voir le détail
+        </button>
       </section>
     );
   };
@@ -122,6 +148,28 @@ const PromotionalPage: React.FC = () => {
             )}
           </article>
         </main>
+
+        {/* Modal détail section */}
+        {modalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+            <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full mx-4 p-6 relative">
+              <button
+                className="absolute top-2 right-2 text-slate-400 hover:text-primary text-xl font-bold"
+                onClick={() => setModalOpen(false)}
+                aria-label="Fermer"
+              >
+                ×
+              </button>
+              <h2 className="text-xl font-bold text-primary mb-4 truncate">
+                {modalTitle}
+              </h2>
+              <div
+                className="prose prose-slate max-w-none text-sm sm:text-base"
+                dangerouslySetInnerHTML={{ __html: modalContent }}
+              />
+            </div>
+          </div>
+        )}
 
         <footer className="py-6 sm:py-8 mt-6 sm:mt-8 border-t border-slate-200 text-center text-xs text-slate-500">
           <p>

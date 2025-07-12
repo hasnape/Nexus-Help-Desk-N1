@@ -47,16 +47,12 @@ import PromotionalPage from "./pages/PromotionalPage";
 import LandingPage from "./pages/LandingPage";
 import SubscriptionPage from "./pages/SubscriptionPage";
 import ContactPage from "./pages/ContactPage";
-import {
-  DEFAULT_AI_LEVEL,
-  DEFAULT_USER_ROLE,
-  TICKET_STATUS_KEYS,
-} from "./constants";
+import { DEFAULT_AI_LEVEL, TICKET_STATUS_KEYS } from "./constants";
 import { useTranslation } from "react-i18next";
 import CookieConsentBanner from "./components/CookieConsentBanner";
 import { SidebarProvider } from "./contexts/SidebarContext";
 import { PlanProvider, PLAN_LIMITS } from "./contexts/PlanContext";
-import { useNavigationGuard } from "./hooks/useNavigationGuard";
+// import { useNavigationGuard } from "./hooks/useNavigationGuard"; // supprimé car inutilisé
 import ContextDebugger from "./components/ContextDebugger";
 import "./src/i18n/config"; // Ajoutez cette ligne au début
 
@@ -815,10 +811,11 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
     ) {
       setIsLoadingAi(true);
       try {
-        const summaryText = await getTicketSummary(
-          ticketToUpdate,
-          getBCP47Locale(language)
-        );
+        // getTicketSummary attend un type Locale ('en' | 'fr' | 'ar')
+        const locale: "en" | "fr" | "ar" = ["en", "fr", "ar"].includes(language)
+          ? (language as "en" | "fr" | "ar")
+          : "en";
+        const summaryText = await getTicketSummary(ticketToUpdate, locale);
         summaryMessage = {
           id: crypto.randomUUID(),
           sender: "system_summary",
@@ -1221,7 +1218,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
       return false;
     }
 
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from("companies")
       .update({ plan: plan, subscription_id: null })
       .eq("id", company.id)

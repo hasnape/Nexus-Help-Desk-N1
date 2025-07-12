@@ -1,26 +1,26 @@
 {
-    "appName": "Nexus Support Hub",
-    "loading": "Chargement...",
-    "error": "Erreur",
-    "success": "Succès",
-    "cancel": "Annuler",
-    "save": "Enregistrer",
-    "delete": "Supprimer",
-    "edit": "Modifier",
-    "view": "Voir",
-    "back": "Retour",
-    "next": "Suivant",
-    "previous": "Précédent",
+    "appName": "مركز دعم نيكسوس",
+    "loading": "جاري التحميل...",
+    "error": "خطأ",
+    "success": "نجاح",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "view": "عرض",
+    "back": "رجوع",
+    "next": "التالي",
+    "previous": "السابق",
     "footer": {
-        "allRightsReserved": "Tous droits réservés.",
-        "legalLink": "Mentions légales",
-        "userManualLink": "Manuel d'utilisation",
-        "promotionalLink": "Présentation"
+        "allRightsReserved": "جميع الحقوق محفوظة.",
+        "legalLink": "الشروط القانونية",
+        "userManualLink": "دليل المستخدم",
+        "promotionalLink": "العرض الترويجي"
     },
     "navbar": {
-        "loginButton": "Connexion",
-        "signUpButton": "Inscription",
-        "logoutButton": "Déconnexion",
-        "welcome": "Bienvenue, {{username}}"
+        "loginButton": "تسجيل الدخول",
+        "signUpButton": "إنشاء حساب",
+        "logoutButton": "تسجيل الخروج",
+        "welcome": "مرحبًا، {{username}}"
     }
 }

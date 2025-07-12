@@ -1,50 +1,50 @@
 {
     "ticketStatus": {
-        "Open": "Ouvert",
-        "InProgress": "En Cours",
-        "Resolved": "Résolu",
-        "Closed": "Fermé",
-        "Pending": "En Attente"
+        "Open": "مفتوحة",
+        "InProgress": "قيد التنفيذ",
+        "Resolved": "تم الحل",
+        "Closed": "مغلقة",
+        "Pending": "معلقة"
     },
     "ticketPriority": {
-        "Low": "Faible",
-        "Medium": "Moyen",
-        "High": "Élevé",
-        "Urgent": "Urgent"
+        "Low": "منخفضة",
+        "Medium": "متوسطة",
+        "High": "مرتفعة",
+        "Urgent": "عاجلة"
     },
     "ticketCategory": {
-        "SoftwareIssue": "Problème Logiciel",
-        "HardwareProblem": "Problème Matériel",
-        "AccountAccess": "Accès au Compte",
-        "BillingInquiry": "Demande de Facturation",
-        "NetworkOutage": "Panne Réseau",
-        "MaterialReplacementRequest": "Demande de Remplacement de Matériel",
-        "LostMaterial": "Matériel Perdu",
-        "BrokenMaterial": "Matériel Cassé",
-        "MaterialInvestigation": "Enquête sur le Matériel",
-        "GeneralQuestion": "Question Générale"
+        "SoftwareIssue": "مشكلة برمجية",
+        "HardwareProblem": "مشكلة عتاد",
+        "AccountAccess": "مشكلة وصول للحساب",
+        "BillingInquiry": "استفسار حول الفواتير",
+        "NetworkOutage": "انقطاع الشبكة",
+        "MaterialReplacementRequest": "طلب استبدال مادة",
+        "LostMaterial": "مادة مفقودة",
+        "BrokenMaterial": "مادة تالفة",
+        "MaterialInvestigation": "تحقيق حول المادة",
+        "GeneralQuestion": "سؤال عام"
     },
     "userRole": {
-        "user": "Utilisateur",
-        "agent": "Agent",
-        "manager": "Manager"
+        "user": "مستخدم",
+        "agent": "وكيل",
+        "manager": "مدير"
     },
     "language": {
-        "french": "Français",
-        "english": "Anglais",
-        "arabic": "Arabe"
+        "french": "فرنسي",
+        "english": "إنجليزي",
+        "arabic": "عربي"
     },
     "planType": {
-        "freemium": "Freemium",
-        "standard": "Standard",
-        "pro": "Pro"
+        "freemium": "مجاني",
+        "standard": "قياسي",
+        "pro": "احترافي"
     },
     "appointmentStatus": {
-        "pending": "En Attente",
-        "confirmed": "Confirmé",
-        "rejected": "Rejeté",
-        "rescheduled": "Reprogrammé",
-        "completed": "Terminé",
-        "cancelled": "Annulé"
+        "pending": "معلقة",
+        "confirmed": "مؤكد",
+        "rejected": "مرفوض",
+        "rescheduled": "معاد جدولته",
+        "completed": "مكتمل",
+        "cancelled": "ملغى"
     }
 }

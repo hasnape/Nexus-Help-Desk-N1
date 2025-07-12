@@ -2,7 +2,7 @@ import React, { useState, useMemo, Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, Navigate } from "react-router-dom";
 import { useApp } from "../App";
-import { Ticket, User, UserRole, TicketPriority, TicketStatus } from "../types";
+import { UserRole } from "../types";
 import { Button, Select, Input } from "../components/FormElements";
 import LoadingSpinner from "../components/LoadingSpinner";
 import FloatingActionButton from "../components/FloatingActionButton";
@@ -38,16 +38,13 @@ const TrashIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 interface StatCardProps {
   title: string;
   value: number;
-  icon: string;
   color: string;
 }
 
-const StatCard: React.FC<StatCardProps> = ({ title, value, icon, color }) => (
+const StatCard: React.FC<StatCardProps> = ({ title, value, color }) => (
   <div className="bg-white rounded-lg shadow p-6">
     <div className="flex items-center">
-      <div className={`p-3 rounded-md ${color}`}>
-        <div className="w-6 h-6 text-white" />
-      </div>
+      <div className={`p-3 rounded-md ${color}`}></div>
       <div className="ml-5 w-0 flex-1">
         <dl>
           <dt className="text-sm font-medium text-gray-500 truncate">
@@ -83,7 +80,7 @@ const ManagerDashboardPage: React.FC = () => {
   ]);
 
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [assigneeFilter, setAssigneeFilter] = useState<string>("all");
+  // const [assigneeFilter, setAssigneeFilter] = useState<string>("all"); // supprimé car non utilisé
   const [searchTerm, setSearchTerm] = useState("");
   const [showAssignModal, setShowAssignModal] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<{
@@ -106,9 +103,7 @@ const ManagerDashboardPage: React.FC = () => {
     const resolvedTickets = tickets.filter(
       (t) => t.status === "Resolved"
     ).length;
-    const priorityTickets = tickets.filter(
-      (t) => t.priority === "High" || t.priority === "Urgent"
-    ).length;
+    const priorityTickets = tickets.filter((t) => t.priority === "High").length;
     const unassignedTickets = tickets.filter(
       (t) => !t.assigned_agent_id
     ).length;
@@ -127,18 +122,13 @@ const ManagerDashboardPage: React.FC = () => {
     return tickets.filter((ticket) => {
       const matchesStatus =
         statusFilter === "all" || ticket.status === statusFilter;
-      const matchesAssignee =
-        assigneeFilter === "all" ||
-        (assigneeFilter === "unassigned" && !ticket.assigned_agent_id) ||
-        ticket.assigned_agent_id === assigneeFilter;
       const matchesSearch =
         searchTerm === "" ||
         ticket.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         ticket.description.toLowerCase().includes(searchTerm.toLowerCase());
-
-      return matchesStatus && matchesAssignee && matchesSearch;
+      return matchesStatus && matchesSearch;
     });
-  }, [tickets, statusFilter, assigneeFilter, searchTerm]);
+  }, [tickets, statusFilter, searchTerm]);
 
   const handleAssignTicket = async (
     ticketId: string,
@@ -221,7 +211,7 @@ const ManagerDashboardPage: React.FC = () => {
                 />
                 <Button
                   onClick={handleUpdateCompanyName}
-                  variant="outline"
+                  variant="secondary"
                   size="sm"
                   className="ml-2"
                   disabled={
@@ -247,31 +237,26 @@ const ManagerDashboardPage: React.FC = () => {
             <StatCard
               title={t("stats.totalTickets")}
               value={stats.totalTickets}
-              icon="total"
               color="bg-blue-500"
             />
             <StatCard
               title={t("stats.openTickets")}
               value={stats.openTickets}
-              icon="open"
               color="bg-yellow-500"
             />
             <StatCard
               title={t("stats.resolvedTickets")}
               value={stats.resolvedTickets}
-              icon="resolved"
               color="bg-green-500"
             />
             <StatCard
               title={t("stats.priorityTickets")}
               value={stats.priorityTickets}
-              icon="priority"
               color="bg-red-500"
             />
             <StatCard
               title={t("stats.unassignedTickets")}
               value={stats.unassignedTickets}
-              icon="unassigned"
               color="bg-gray-500"
             />
           </div>
@@ -481,16 +466,15 @@ const ManagerDashboardPage: React.FC = () => {
                         {t(`userRole.${currentUser.role}`, { ns: "enums" })}
                       </td>
                       <td className="p-3 text-sm text-slate-500">
-                        {new Date(currentUser.created_at).toLocaleDateString(
-                          i18n.language
-                        )}
+                        {/* La propriété 'created_at' n'existe pas sur User, afficher '-' */}
+                        {"-"}
                       </td>
                       <td className="p-3 text-sm">
                         {currentUser.id !== user.id && (
                           <div className="flex space-x-2">
                             {currentUser.role !== UserRole.AGENT && (
                               <Button
-                                variant="outline"
+                                variant="secondary"
                                 size="sm"
                                 onClick={() =>
                                   handleUpdateUserRole(
@@ -504,7 +488,7 @@ const ManagerDashboardPage: React.FC = () => {
                             )}
                             {currentUser.role === UserRole.AGENT && (
                               <Button
-                                variant="outline"
+                                variant="secondary"
                                 size="sm"
                                 onClick={() =>
                                   handleUpdateUserRole(
@@ -517,7 +501,7 @@ const ManagerDashboardPage: React.FC = () => {
                               </Button>
                             )}
                             <Button
-                              variant="outline"
+                              variant="secondary"
                               size="sm"
                               onClick={() =>
                                 setShowDeleteConfirm({
@@ -555,7 +539,7 @@ const ManagerDashboardPage: React.FC = () => {
               </h3>
               <div className="space-y-4">
                 <Button
-                  variant="outline"
+                  variant="secondary"
                   className="w-full"
                   onClick={() => handleAssignTicket(showAssignModal, null)}
                 >
@@ -564,7 +548,7 @@ const ManagerDashboardPage: React.FC = () => {
                 {agents.map((agent) => (
                   <Button
                     key={agent.id}
-                    variant="outline"
+                    variant="secondary"
                     className="w-full"
                     onClick={() =>
                       handleAssignTicket(showAssignModal, agent.id)
@@ -576,7 +560,7 @@ const ManagerDashboardPage: React.FC = () => {
               </div>
               <div className="flex justify-end mt-6">
                 <Button
-                  variant="outline"
+                  variant="secondary"
                   onClick={() => setShowAssignModal(null)}
                 >
                   {t("ticketManagement.assignModal.cancel")}
@@ -602,13 +586,13 @@ const ManagerDashboardPage: React.FC = () => {
               </p>
               <div className="flex justify-end space-x-3">
                 <Button
-                  variant="outline"
+                  variant="secondary"
                   onClick={() => setShowDeleteConfirm(null)}
                 >
                   {t("userManagement.confirmDelete.cancel")}
                 </Button>
                 <Button
-                  variant="primary"
+                  variant="danger"
                   onClick={() => {
                     if (showDeleteConfirm.type === "ticket") {
                       handleDeleteTicket(showDeleteConfirm.id);

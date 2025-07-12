@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useApp } from "../App";
 import { Button, Input, Textarea, Select } from "../components/FormElements";
 import { TicketPriority, UserRole, ChatMessage, TicketStatus } from "../types";
-import { TICKET_CATEGORY_KEYS, TICKET_PRIORITY_KEYS } from "../constants";
+import { TICKET_CATEGORY_KEYS } from "../constants";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { summarizeAndCategorizeChat } from "../services/geminiService";
 
@@ -44,7 +44,7 @@ const NewTicketPage: React.FC = () => {
       try {
         const summary = await summarizeAndCategorizeChat(
           state.chatHistory,
-          i18n.language
+          i18n.language as any // Correction du typage si la fonction attend un type 'Locale'
         );
         if (isMounted) {
           setTitle(summary.title);
@@ -347,7 +347,7 @@ const NewTicketPage: React.FC = () => {
               <div className="flex justify-end space-x-3 pt-6 border-t">
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="secondary"
                   onClick={handleReturnToDashboard}
                   disabled={isSubmitting}
                 >
@@ -361,7 +361,7 @@ const NewTicketPage: React.FC = () => {
                 >
                   {isSubmitting ? (
                     <div className="flex items-center">
-                      <LoadingSpinner size="sm" text={false} />
+                      <LoadingSpinner size="sm" text="" />
                       <span className="ml-2">{t("actions.submit")}</span>
                     </div>
                   ) : (

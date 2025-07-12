@@ -54,40 +54,60 @@ const SubscriptionPageContent: React.FC = () => {
     switch (plan) {
       case "freemium":
         return {
-          price: t("pricing.freemium.price"),
-          description: t("pricing.freemium.description"),
+          price: "Gratuit",
+          description:
+            "Pour une société, utilisateurs illimités. Créez et gérez les tickets de votre société, chat IA, tableau de suivi simple, assistance par email.",
         };
       case "standard":
         return {
-          price: t("pricing.standard.price"),
-          description: t("pricing.standard.priceDescription"),
+          price: "9 €/mois",
+          description:
+            "Toutes les fonctions du Freemium, gestion des rôles (user, manager), historique complet des tickets de la société, assistance prioritaire par email.",
         };
       case "pro":
         return {
-          price: t("pricing.pro.price"),
-          description: t("pricing.pro.priceDescription"),
+          price: "19 €/mois",
+          description:
+            "Toutes les fonctions du Standard, support par email ou téléphone sur rendez-vous, gestion avancée des utilisateurs (suppression par manager).",
         };
       default:
         return {
-          price: t("pricing.freemium.price"),
-          description: t("pricing.freemium.description"),
+          price: "Gratuit",
+          description:
+            "Pour une société, utilisateurs illimités. Créez et gérez les tickets de votre société, chat IA, tableau de suivi simple, assistance par email.",
         };
     }
   };
 
   const getPlanFeatures = (plan: string) => {
-    const features = [];
-    const featureCount = 6; // Maximum number of features to try
-
-    for (let i = 1; i <= featureCount; i++) {
-      const featureKey = `pricing.${plan}.feature${i}`;
-      const feature = t(featureKey);
-      if (feature && feature !== featureKey) {
-        features.push(feature);
-      }
+    if (plan === "freemium") {
+      return [
+        "Société unique, utilisateurs illimités",
+        "Création et gestion de tickets pour la société",
+        "Chat IA pour poser des questions",
+        "Tableau de suivi simple",
+        "Assistance par email",
+        "Prise de rendez-vous non disponible",
+      ];
     }
-
-    return features;
+    if (plan === "standard") {
+      return [
+        "Toutes les fonctions du Freemium",
+        "Gestion des rôles (user, manager)",
+        "Historique complet des tickets de la société",
+        "Assistance prioritaire par email",
+        "Prise de rendez-vous disponible",
+      ];
+    }
+    if (plan === "pro") {
+      return [
+        "Toutes les fonctions du Standard",
+        "Support par email ou téléphone sur rendez-vous",
+        "Gestion avancée des utilisateurs (suppression par manager)",
+        "Prise de rendez-vous disponible",
+      ];
+    }
+    return [];
   };
 
   const planPricing = getPlanPricing(currentUserPlan);

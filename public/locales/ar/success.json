@@ -1,46 +1,46 @@
 {
     "generic": {
-        "operationSuccessful": "Opération réussie",
-        "changesSaved": "Modifications sauvegardées",
-        "actionCompleted": "Action terminée avec succès",
-        "dataUpdated": "Données mises à jour",
-        "settingsUpdated": "Paramètres mis à jour"
+        "operationSuccessful": "تمت العملية بنجاح",
+        "changesSaved": "تم حفظ التغييرات",
+        "actionCompleted": "تم تنفيذ الإجراء بنجاح",
+        "dataUpdated": "تم تحديث البيانات",
+        "settingsUpdated": "تم تحديث الإعدادات"
     },
     "auth": {
-        "loginSuccessful": "Connexion réussie",
-        "logoutSuccessful": "Déconnexion réussie",
-        "accountCreated": "Compte créé avec succès",
-        "passwordResetSent": "Email de réinitialisation envoyé",
-        "passwordChanged": "Mot de passe modifié avec succès",
-        "emailVerified": "Email vérifié avec succès"
+        "loginSuccessful": "تم تسجيل الدخول بنجاح",
+        "logoutSuccessful": "تم تسجيل الخروج بنجاح",
+        "accountCreated": "تم إنشاء الحساب بنجاح",
+        "passwordResetSent": "تم إرسال بريد إعادة تعيين كلمة المرور",
+        "passwordChanged": "تم تغيير كلمة المرور بنجاح",
+        "emailVerified": "تم التحقق من البريد الإلكتروني بنجاح"
     },
     "tickets": {
-        "ticketCreated": "Ticket créé avec succès",
-        "ticketUpdated": "Ticket mis à jour",
-        "ticketClosed": "Ticket fermé",
-        "ticketReopened": "Ticket rouvert",
-        "messageAdded": "Message ajouté",
-        "statusChanged": "Statut modifié",
-        "assignmentChanged": "Assignation modifiée"
+        "ticketCreated": "تم إنشاء التذكرة بنجاح",
+        "ticketUpdated": "تم تحديث التذكرة",
+        "ticketClosed": "تم إغلاق التذكرة",
+        "ticketReopened": "تم إعادة فتح التذكرة",
+        "messageAdded": "تم إضافة الرسالة",
+        "statusChanged": "تم تغيير الحالة",
+        "assignmentChanged": "تم تغيير التعيين"
     },
     "users": {
-        "userCreated": "Utilisateur créé",
-        "userUpdated": "Utilisateur mis à jour",
-        "userDeleted": "Utilisateur supprimé",
-        "roleChanged": "Rôle modifié",
-        "permissionsUpdated": "Permissions mises à jour"
+        "userCreated": "تم إنشاء المستخدم",
+        "userUpdated": "تم تحديث المستخدم",
+        "userDeleted": "تم حذف المستخدم",
+        "roleChanged": "تم تغيير الدور",
+        "permissionsUpdated": "تم تحديث الصلاحيات"
     },
     "company": {
-        "companyCreated": "Entreprise créée",
-        "companyUpdated": "Entreprise mise à jour",
-        "planUpgraded": "Plan mis à niveau",
-        "planDowngraded": "Plan rétrogradé",
-        "settingsUpdated": "Paramètres d'entreprise mis à jour"
+        "companyCreated": "تم إنشاء الشركة",
+        "companyUpdated": "تم تحديث الشركة",
+        "planUpgraded": "تمت ترقية الخطة",
+        "planDowngraded": "تم تخفيض الخطة",
+        "settingsUpdated": "تم تحديث إعدادات الشركة"
     },
     "file": {
-        "fileUploaded": "Fichier téléchargé",
-        "fileDeleted": "Fichier supprimé",
-        "fileSaved": "Fichier sauvegardé",
-        "exportCompleted": "Export terminé"
+        "fileUploaded": "تم رفع الملف",
+        "fileDeleted": "تم حذف الملف",
+        "fileSaved": "تم حفظ الملف",
+        "exportCompleted": "تم الانتهاء من التصدير"
     }
 }
