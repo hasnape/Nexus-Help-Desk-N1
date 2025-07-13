@@ -44,27 +44,48 @@ const LandingPage: React.FC = () => {
   ];
 
   return (
-    <Suspense fallback={<LoadingSpinner size="lg" />}>
+    <Suspense
+      fallback={
+        <LoadingSpinner
+          size="lg"
+          aria-label={t("landing.loading", "Chargement de la page d'accueil")}
+        />
+      }
+    >
       <Layout>
         {/* Hero Section */}
-        <section id="home" className="bg-gray-800 text-white py-8 sm:py-12">
+        <section
+          id="home"
+          className="bg-gray-800 text-white py-8 sm:py-12"
+          aria-label={t("landing.heroAria", "Section d'accueil")}
+        >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1 className="text-2xl sm:text-4xl md:text-6xl font-bold mb-4 sm:mb-6">
+            <h1
+              className="text-2xl sm:text-4xl md:text-6xl font-bold mb-4 sm:mb-6"
+              aria-label={t("landing.heroTitleAria", "Titre principal")}
+            >
               {t("hero.title")}
             </h1>
-            <p className="text-base sm:text-xl md:text-2xl mb-6 sm:mb-8 max-w-3xl mx-auto">
+            <p
+              className="text-base sm:text-xl md:text-2xl mb-6 sm:mb-8 max-w-3xl mx-auto"
+              aria-label={t("landing.heroSubtitleAria", "Sous-titre d'accueil")}
+            >
               {t("hero.subtitle")}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
               <button
                 onClick={handleGetStarted}
-                className="bg-white text-blue-600 px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-semibold text-base sm:text-lg hover:bg-gray-100 transition-colors"
+                className="bg-white text-blue-600 px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-semibold text-base sm:text-lg hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+                aria-label={t("landing.ctaAria", "Commencer l'inscription")}
+                tabIndex={0}
               >
                 {t("hero.ctaButton")}
               </button>
               <button
                 onClick={handleWatchDemo}
-                className="border-2 border-white text-blue-600 px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-semibold text-base sm:text-lg hover:bg-blue-600 hover:text-white transition-colors"
+                className="border-2 border-white text-blue-600 px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-semibold text-base sm:text-lg hover:bg-blue-600 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+                aria-label={t("landing.demoAria", "Voir la démo vidéo")}
+                tabIndex={0}
               >
                 {t("hero.demoButton")}
               </button>

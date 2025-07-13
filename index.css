@@ -2,6 +2,42 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Focus visible pour l’accessibilité */
+:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
+}
+
+/* Responsive images et vidéos */
+img,
+video {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Contraste élevé pour les textes importants */
+.high-contrast {
+    color: #111827;
+    background: #fff;
+    font-weight: bold;
+}
+
+/* Animation d’apparition douce pour les modales et overlays */
+.modal {
+    @apply animate-fade-in;
+}
+
+/* Amélioration du style des liens */
+a {
+    @apply transition-colors duration-200 underline-offset-2;
+}
+
+a:hover,
+a:focus {
+    @apply text-blue-700 underline;
+}
+
 /* Styles personnalisés pour Nexus Support Hub */
 body {
     font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'Noto Sans', sans-serif;

@@ -30,22 +30,22 @@ const ChatMessageComponent: React.FC<ChatMessageComponentProps> = ({
   const { t, i18n } = useTranslation(["common", "components"]);
   const { getAllUsers } = useApp();
 
-  const getSenderName = () => {
+  const getSenderName = (): string => {
     switch (message.sender) {
       case "user":
-        return t("chatMessage.you");
+        return t("chatMessage.you", "Vous");
       case "agent":
         if (message.agentId) {
           const agent = getAllUsers().find((u) => u.id === message.agentId);
-          return agent?.full_name || t("chatMessage.agent");
+          return agent?.full_name || t("chatMessage.agent", "Agent");
         }
-        return t("chatMessage.agent");
+        return t("chatMessage.agent", "Agent");
       case "ai":
-        return t("chatMessage.ai");
+        return t("chatMessage.ai", "IA");
       case "system_summary":
-        return t("chatMessage.system");
+        return t("chatMessage.system", "Système");
       default:
-        return t("chatMessage.system");
+        return t("chatMessage.system", "Système");
     }
   };
 
@@ -93,6 +93,7 @@ const ChatMessageComponent: React.FC<ChatMessageComponentProps> = ({
         {/* Avatar */}
         <div
           className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold ${getSenderColor()}`}
+          aria-label={t("chatMessage.avatarAria", "Avatar expéditeur")}
         >
           {getSenderName().charAt(0).toUpperCase()}
         </div>
@@ -101,10 +102,16 @@ const ChatMessageComponent: React.FC<ChatMessageComponentProps> = ({
         <div className="flex-1 max-w-xs sm:max-w-md lg:max-w-lg">
           {/* Sender Name and Timestamp */}
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-sm font-medium text-gray-600">
+            <span
+              className="text-sm font-medium text-gray-600"
+              aria-label={t("chatMessage.senderAria", "Nom de l'expéditeur")}
+            >
               {getSenderName()}
             </span>
-            <span className="text-xs text-gray-400">
+            <span
+              className="text-xs text-gray-400"
+              aria-label={t("chatMessage.timestampAria", "Heure du message")}
+            >
               {t("chatMessage.timestamp", {
                 time: new Date(message.timestamp).toLocaleTimeString(
                   i18n.language,
@@ -118,7 +125,10 @@ const ChatMessageComponent: React.FC<ChatMessageComponentProps> = ({
           </div>
 
           {/* Message Bubble */}
-          <div className={`rounded-lg p-3 ${getMessageBubbleStyle()}`}>
+          <div
+            className={`rounded-lg p-3 ${getMessageBubbleStyle()}`}
+            aria-label={t("chatMessage.bubbleAria", "Contenu du message")}
+          >
             <p className="text-sm whitespace-pre-wrap break-words">
               {message.text}
             </p>
@@ -130,19 +140,27 @@ const ChatMessageComponent: React.FC<ChatMessageComponentProps> = ({
               <button
                 onClick={() => onSpeak(message.text)}
                 disabled={isSpeaking}
-                className={`flex items-center gap-1 text-xs px-2 py-1 rounded transition-colors ${
+                className={`flex items-center gap-1 text-xs px-2 py-1 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                   isSpeaking
                     ? "bg-blue-100 text-blue-600"
                     : "text-gray-500 hover:text-blue-600 hover:bg-blue-50"
                 }`}
                 title={
                   isSpeaking
-                    ? t("chatMessage.stopSpeaking")
-                    : t("chatMessage.speakMessage")
+                    ? t("chatMessage.stopSpeaking", "Arrêter la lecture")
+                    : t("chatMessage.speakMessage", "Écouter le message")
                 }
+                aria-label={
+                  isSpeaking
+                    ? t("chatMessage.stopSpeaking", "Arrêter la lecture")
+                    : t("chatMessage.speakMessage", "Écouter le message")
+                }
+                tabIndex={0}
               >
                 <SpeakerIcon className="w-3 h-3" />
-                {isSpeaking ? "Lecture..." : "Écouter"}
+                {isSpeaking
+                  ? t("chatMessage.reading", "Lecture...")
+                  : t("chatMessage.listen", "Écouter")}
               </button>
             </div>
           )}

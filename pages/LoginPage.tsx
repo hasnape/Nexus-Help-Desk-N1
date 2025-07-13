@@ -55,39 +55,72 @@ const LoginPage: React.FC = () => {
   ];
 
   return (
-    <Suspense fallback={<LoadingSpinner size="lg" />}>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+    <Suspense
+      fallback={
+        <LoadingSpinner
+          size="lg"
+          aria-label={t("login.loading", "Chargement de la page de connexion")}
+        />
+      }
+    >
+      <div
+        className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4"
+        aria-label={t("login.pageAria", "Page de connexion")}
+      >
         <div className="max-w-md w-full space-y-8">
           <div>
             <div className="flex justify-center mb-2">
               <Logo size="xl" showText={false} />
             </div>
-            <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            <h2
+              className="mt-6 text-center text-3xl font-extrabold text-gray-900"
+              aria-label={t("login.titleAria", "Titre de la page de connexion")}
+            >
               {t("login.title")}
             </h2>
-            <p className="mt-2 text-center text-sm text-gray-600">
+            <p
+              className="mt-2 text-center text-sm text-gray-600"
+              aria-label={t(
+                "login.subtitleAria",
+                "Sous-titre de la page de connexion"
+              )}
+            >
               {t("login.subtitle")}
             </p>
           </div>
 
-          <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <form
+            className="mt-8 space-y-6"
+            onSubmit={handleSubmit}
+            aria-label={t("login.formAria", "Formulaire de connexion")}
+          >
             <div className="rounded-md shadow-sm space-y-4">
               {/* Language Selector */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                  htmlFor="language"
+                  aria-label={t("login.language.label")}
+                >
                   {t("login.language.label")}
                 </label>
                 <Select
+                  id="language"
                   value={i18n.language}
                   onChange={(e) => handleLanguageChange(e.target.value)}
                   options={languageOptions}
                   className="w-full"
+                  aria-label={t("login.language.label")}
                 />
               </div>
 
               {/* Email */}
               <div>
-                <label htmlFor="email" className="sr-only">
+                <label
+                  htmlFor="email"
+                  className="sr-only"
+                  aria-label={t("login.form.email")}
+                >
                   {t("login.form.email")}
                 </label>
                 <Input
@@ -99,12 +132,17 @@ const LoginPage: React.FC = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={t("login.form.emailPlaceholder")}
+                  aria-label={t("login.form.email")}
                 />
               </div>
 
               {/* Password */}
               <div>
-                <label htmlFor="password" className="sr-only">
+                <label
+                  htmlFor="password"
+                  className="sr-only"
+                  aria-label={t("login.form.password")}
+                >
                   {t("login.form.password")}
                 </label>
                 <Input
@@ -116,12 +154,17 @@ const LoginPage: React.FC = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder={t("login.form.passwordPlaceholder")}
+                  aria-label={t("login.form.password")}
                 />
               </div>
 
               {/* Company Name */}
               <div>
-                <label htmlFor="companyName" className="sr-only">
+                <label
+                  htmlFor="companyName"
+                  className="sr-only"
+                  aria-label={t("login.form.companyName")}
+                >
                   {t("login.form.companyName")}
                 </label>
                 <Input
@@ -133,12 +176,17 @@ const LoginPage: React.FC = () => {
                   value={companyName}
                   onChange={(e) => setCompanyName(e.target.value)}
                   placeholder={t("login.form.companyNamePlaceholder")}
+                  aria-label={t("login.form.companyName")}
                 />
               </div>
             </div>
 
             {error && (
-              <div className="rounded-md bg-red-50 p-4">
+              <div
+                className="rounded-md bg-red-50 p-4"
+                aria-live="polite"
+                aria-label={t("login.errorAria", "Erreur de connexion")}
+              >
                 <div className="text-sm text-red-700">{error}</div>
               </div>
             )}
@@ -147,9 +195,14 @@ const LoginPage: React.FC = () => {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="group relative w-full flex justify-center"
+                className="group relative w-full flex justify-center focus:outline-none focus:ring-2 focus:ring-blue-500"
                 variant="primary"
                 size="lg"
+                aria-label={t(
+                  "login.form.loginButtonAria",
+                  "Bouton de connexion"
+                )}
+                tabIndex={0}
               >
                 {isLoading ? (
                   <LoadingSpinner size="sm" text="" />
@@ -160,11 +213,19 @@ const LoginPage: React.FC = () => {
             </div>
 
             <div className="text-center">
-              <p className="text-sm text-gray-600">
+              <p
+                className="text-sm text-gray-600"
+                aria-label={t(
+                  "login.actions.noAccountAria",
+                  "Lien vers l'inscription"
+                )}
+              >
                 {t("login.actions.noAccount")}{" "}
                 <Link
                   to="/signup"
                   className="font-medium text-blue-600 hover:text-blue-500"
+                  aria-label={t("login.actions.signUpAria", "S'inscrire")}
+                  tabIndex={0}
                 >
                   {t("login.actions.signUp")}
                 </Link>

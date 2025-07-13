@@ -52,20 +52,28 @@ const TicketCard: React.FC<TicketCardProps> = ({
   return (
     <Suspense
       fallback={
-        <div className="bg-surface shadow-lg rounded-lg p-6 h-48 animate-pulse" />
+        <div
+          className="bg-surface shadow-lg rounded-lg p-6 h-48 animate-pulse"
+          aria-label={t("ticketCard.loading", "Chargement du ticket...")}
+        />
       }
     >
       <Link
         to={`/ticket/${ticket.id}`}
         className="block hover:shadow-xl transition-shadow duration-200"
+        aria-label={t("ticketCard.linkAria", "Voir le détail du ticket")}
       >
-        <div className="bg-surface shadow-lg rounded-lg p-6 h-full flex flex-col justify-between">
+        <div
+          className="bg-surface shadow-lg rounded-lg p-6 h-full flex flex-col justify-between"
+          aria-label={t("ticketCard.cardAria", "Carte du ticket")}
+        >
           <div>
             {/* Header */}
             <div className="flex justify-between items-start mb-2">
               <h3
                 className="text-xl font-semibold text-primary truncate"
                 title={ticket.title}
+                aria-label={t("ticketCard.titleAria", "Titre du ticket")}
               >
                 {ticket.title}
               </h3>
@@ -73,13 +81,17 @@ const TicketCard: React.FC<TicketCardProps> = ({
                 className={`px-2 py-1 text-xs font-semibold rounded-full ${
                   statusColors[ticket.status]
                 }`}
+                aria-label={t("ticketCard.statusAria", "Statut du ticket")}
               >
                 {t(`ticketStatus.${ticket.status}`, { ns: "enums" })}
               </span>
             </div>
 
             {/* Category */}
-            <p className="text-sm text-textSecondary mb-1">
+            <p
+              className="text-sm text-textSecondary mb-1"
+              aria-label={t("ticketCard.categoryAria", "Catégorie du ticket")}
+            >
               {t(`ticketCategory.${ticket.category}`, { ns: "enums" })}
             </p>
 
@@ -88,6 +100,7 @@ const TicketCard: React.FC<TicketCardProps> = ({
               className={`text-sm font-medium ${
                 priorityColors[ticket.priority]
               } mb-3`}
+              aria-label={t("ticketCard.priorityAria", "Priorité du ticket")}
             >
               {t("ticketCard.priorityLabel", {
                 priority: t(`ticketPriority.${ticket.priority}`, {
@@ -97,33 +110,49 @@ const TicketCard: React.FC<TicketCardProps> = ({
             </p>
 
             {/* Last Message Preview */}
-            <p className="text-sm text-textSecondary line-clamp-2 mb-3">
+            <p
+              className="text-sm text-textSecondary line-clamp-2 mb-3"
+              aria-label={t("ticketCard.lastMessageAria", "Dernier message")}
+            >
               {getLastMessage()}
             </p>
 
             {/* Workstation ID */}
             {ticket.workstation_id && (
-              <p className="text-xs text-slate-500 mb-2">
-                Poste: {ticket.workstation_id}
+              <p
+                className="text-xs text-slate-500 mb-2"
+                aria-label={t("ticketCard.workstationAria", "Poste de travail")}
+              >
+                {t("ticketCard.workstationLabel", "Poste")}:{" "}
+                {ticket.workstation_id}
               </p>
             )}
           </div>
 
           {/* Footer */}
-          <div className="text-xs text-slate-500 mt-auto pt-2 border-t border-slate-200">
+          <div
+            className="text-xs text-slate-500 mt-auto pt-2 border-t border-slate-200"
+            aria-label={t("ticketCard.footerAria", "Informations du ticket")}
+          >
             {showClientInfo && (
-              <p className="mb-1">
+              <p
+                className="mb-1"
+                aria-label={t("ticketCard.createdByAria", "Créateur du ticket")}
+              >
                 {t("ticketCard.createdBy", { name: creatorName })}
               </p>
             )}
 
             {showAssigneeInfo && ticket.assigned_agent_id && (
-              <p className="mb-1">
+              <p
+                className="mb-1"
+                aria-label={t("ticketCard.assignedToAria", "Agent assigné")}
+              >
                 {t("ticketCard.assignedTo", { agent: assigneeName })}
               </p>
             )}
 
-            <p>
+            <p aria-label={t("ticketCard.createdOnAria", "Date de création")}>
               {t("ticketCard.createdOn", {
                 date: new Date(ticket.updated_at).toLocaleDateString(
                   i18n.language

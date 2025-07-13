@@ -31,7 +31,10 @@ const Logo: React.FC<LogoProps> = ({
   return (
     <Suspense
       fallback={
-        <div className={`flex items-center ${className}`}>
+        <div
+          className={`flex items-center ${className}`}
+          aria-label={t("logo.loading", "Chargement du logo")}
+        >
           <div
             className={`bg-gray-300 rounded ${sizeClasses[size]} animate-pulse`}
           />
@@ -41,11 +44,14 @@ const Logo: React.FC<LogoProps> = ({
         </div>
       }
     >
-      <div className={`flex items-center ${className}`}>
+      <div
+        className={`flex items-center ${className}`}
+        aria-label={t("logo.ariaLabel", "Logo Nexus Help Desk")}
+      >
         {/* Logo personnalisé */}
         <img
           src="/logo.png"
-          alt="Logo Nexus"
+          alt={t("logo.alt", "Logo Nexus Help Desk")}
           className={`${sizeClasses[size]} object-contain`}
         />
         {/* Logo Text */}
@@ -53,11 +59,15 @@ const Logo: React.FC<LogoProps> = ({
           <div className="ml-2">
             <span
               className={`font-bold text-gray-800 ${textSizeClasses[size]}`}
+              aria-label={t("logo.textAria", "Nom de l'application")}
             >
               {t("appName")}
             </span>
             {(size === "lg" || size === "xl") && (
-              <div className="text-xs text-gray-500">
+              <div
+                className="text-xs text-gray-500"
+                aria-label={t("logo.taglineAria", "Slogan du logo")}
+              >
                 {t("logo.tagline", { ns: "components" })}
               </div>
             )}

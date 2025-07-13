@@ -40,9 +40,21 @@ const Navbar: React.FC<NavbarProps> = ({ showSidebar = true }) => {
     : "left-0";
 
   return (
-    <Suspense fallback={<div className="h-16 bg-white border-b" />}>
+    <Suspense
+      fallback={
+        <div
+          className="h-16 bg-white border-b"
+          aria-label={t(
+            "navbar.loading",
+            "Chargement de la barre de navigation"
+          )}
+        />
+      }
+    >
       <nav
         className={`bg-white shadow-sm border-b border-gray-200 sticky top-0 right-0 z-30 ${navClasses}`}
+        aria-label={t("navbar.ariaLabel", "Barre de navigation principale")}
+        role="navigation"
       >
         <div className="px-2 sm:px-4 lg:px-8">
           <div className="flex items-center justify-between h-14 sm:h-16">
@@ -52,6 +64,8 @@ const Navbar: React.FC<NavbarProps> = ({ showSidebar = true }) => {
               <Link
                 to={user ? "/dashboard" : "/"}
                 className="hover:opacity-80 transition-opacity"
+                aria-label={t("navbar.logoAria", "Accueil Nexus Help Desk")}
+                tabIndex={0}
               >
                 <div className="flex items-center">
                   <div className="block sm:hidden">
@@ -71,22 +85,35 @@ const Navbar: React.FC<NavbarProps> = ({ showSidebar = true }) => {
                   onClick={() => setIsLanguageMenuOpen(!isLanguageMenuOpen)}
                   className="px-2 sm:px-3 py-1 sm:py-2 text-xs sm:text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
                   title={t("language.current", { ns: "common" })}
+                  aria-label={t("navbar.languageAria", "Changer la langue")}
+                  tabIndex={0}
                 >
                   {i18n.language.toUpperCase()}
                 </button>
 
                 {isLanguageMenuOpen && (
-                  <div className="absolute right-0 top-full mt-1 w-36 sm:w-48 bg-white rounded-md shadow-lg z-50 border border-gray-200">
+                  <div
+                    className="absolute right-0 top-full mt-1 w-36 sm:w-48 bg-white rounded-md shadow-lg z-50 border border-gray-200"
+                    aria-label={t(
+                      "navbar.languageMenuAria",
+                      "Menu de sélection de langue"
+                    )}
+                  >
                     <div className="py-1 sm:py-2">
                       {languages.map((lang) => (
                         <button
                           key={lang.code}
                           onClick={() => handleLanguageChange(lang.code)}
-                          className={`block w-full text-left px-3 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm transition-colors ${
+                          className={`block w-full text-left px-3 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                             i18n.language === lang.code
                               ? "bg-blue-600 text-white"
                               : "text-gray-700 hover:bg-gray-100"
                           }`}
+                          aria-label={t(lang.nameKey, {
+                            ns: "common",
+                            defaultValue: lang.defaultName,
+                          })}
+                          tabIndex={0}
                         >
                           {t(lang.nameKey, {
                             ns: "common",
@@ -103,7 +130,13 @@ const Navbar: React.FC<NavbarProps> = ({ showSidebar = true }) => {
                 <>
                   {/* User Menu */}
                   <div className="flex items-center space-x-2">
-                    <span className="text-xs sm:text-sm text-gray-700 truncate max-w-20 sm:max-w-none">
+                    <span
+                      className="text-xs sm:text-sm text-gray-700 truncate max-w-20 sm:max-w-none"
+                      aria-label={t(
+                        "navbar.userAria",
+                        "Nom de l'utilisateur connecté"
+                      )}
+                    >
                       {user.full_name}
                     </span>
                     <Button
@@ -111,6 +144,8 @@ const Navbar: React.FC<NavbarProps> = ({ showSidebar = true }) => {
                       variant="secondary"
                       size="sm"
                       className="text-xs sm:text-sm !px-2 sm:!px-3 !py-1 sm:!py-2"
+                      aria-label={t("navbar.logoutAria", "Se déconnecter")}
+                      tabIndex={0}
                     >
                       {t("navigation.logout", { ns: "common" })}
                     </Button>
@@ -123,6 +158,8 @@ const Navbar: React.FC<NavbarProps> = ({ showSidebar = true }) => {
                       variant="secondary"
                       size="sm"
                       className="text-xs sm:text-sm !px-2 sm:!px-3 !py-1 sm:!py-2"
+                      aria-label={t("navbar.loginAria", "Se connecter")}
+                      tabIndex={0}
                     >
                       {t("actions.login", {
                         ns: "auth",
@@ -135,6 +172,8 @@ const Navbar: React.FC<NavbarProps> = ({ showSidebar = true }) => {
                       variant="primary"
                       size="sm"
                       className="text-xs sm:text-sm !px-2 sm:!px-3 !py-1 sm:!py-2"
+                      aria-label={t("navbar.signupAria", "S'inscrire")}
+                      tabIndex={0}
                     >
                       {t("actions.signUp", {
                         ns: "auth",
@@ -153,6 +192,11 @@ const Navbar: React.FC<NavbarProps> = ({ showSidebar = true }) => {
           <div
             className="fixed inset-0 z-40"
             onClick={() => setIsLanguageMenuOpen(false)}
+            aria-label={t(
+              "navbar.closeLanguageMenuAria",
+              "Fermer le menu de langue"
+            )}
+            tabIndex={0}
           />
         )}
       </nav>
