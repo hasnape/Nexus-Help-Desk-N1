@@ -1,5 +1,5 @@
 import React, { Suspense } from "react";
-import { useTranslation } from "react-i18next";
+// import supprimé
 import { usePlan } from "../contexts/PlanContext";
 import { useApp } from "../App";
 import { Link } from "react-router-dom";
@@ -34,7 +34,7 @@ interface PlanUsageWidgetProps {
 const PlanUsageWidgetContent: React.FC<PlanUsageWidgetProps> = ({
   className = "",
 }) => {
-  const { t } = useTranslation(["components", "pricing", "common"]);
+  // Traductions supprimées, tout est statique en français
   const { currentPlan, planLimits } = usePlan();
   const { tickets, getAllUsers } = useApp();
 
@@ -71,10 +71,16 @@ const PlanUsageWidgetContent: React.FC<PlanUsageWidgetProps> = ({
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-gray-900 flex items-center">
           <ChartBarIcon className="w-5 h-5 mr-2 text-primary" />
-          {t("components.planUsageWidget.title")}
+          {"Utilisation du plan"}
         </h3>
         <span className="text-sm font-medium px-2 py-1 bg-primary/10 text-primary rounded-md capitalize">
-          {t(`pricing.${currentPlan}.name`)}
+          {currentPlan === "freemium"
+            ? "Freemium"
+            : currentPlan === "standard"
+            ? "Standard"
+            : currentPlan === "pro"
+            ? "Pro"
+            : currentPlan}
         </span>
       </div>
 
@@ -83,7 +89,7 @@ const PlanUsageWidgetContent: React.FC<PlanUsageWidgetProps> = ({
         <div>
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-gray-700">
-              {t("components.planUsageWidget.tickets")}
+              {"Tickets ce mois"}
             </span>
             <span
               className={`text-sm font-semibold ${getUsageColor(
@@ -92,9 +98,7 @@ const PlanUsageWidgetContent: React.FC<PlanUsageWidgetProps> = ({
               )}`}
             >
               {planLimits.hasUnlimitedTickets
-                ? `${ticketsThisMonth} / ${t(
-                    "components.planUsageWidget.unlimited"
-                  )}`
+                ? `${ticketsThisMonth} / illimité`
                 : `${ticketsThisMonth} / ${planLimits.maxTicketsPerMonth}`}
             </span>
           </div>
@@ -121,7 +125,7 @@ const PlanUsageWidgetContent: React.FC<PlanUsageWidgetProps> = ({
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-gray-700 flex items-center">
               <UsersIcon className="w-4 h-4 mr-1" />
-              {t("components.planUsageWidget.agents")}
+              {"Agents actifs"}
             </span>
             <span
               className={`text-sm font-semibold ${getUsageColor(
@@ -130,7 +134,7 @@ const PlanUsageWidgetContent: React.FC<PlanUsageWidgetProps> = ({
               )}`}
             >
               {planLimits.maxAgents === Infinity
-                ? `${agentCount} / ${t("components.planUsageWidget.unlimited")}`
+                ? `${agentCount} / illimité`
                 : `${agentCount} / ${planLimits.maxAgents}`}
             </span>
           </div>
@@ -155,7 +159,7 @@ const PlanUsageWidgetContent: React.FC<PlanUsageWidgetProps> = ({
         {/* Fonctionnalités disponibles */}
         <div className="pt-2 border-t border-gray-200">
           <h4 className="text-sm font-medium text-gray-700 mb-2">
-            {t("components.planUsageWidget.features")}
+            {"Fonctionnalités disponibles"}
           </h4>
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div
@@ -168,7 +172,7 @@ const PlanUsageWidgetContent: React.FC<PlanUsageWidgetProps> = ({
                   planLimits.hasVoiceFeatures ? "bg-green-500" : "bg-gray-300"
                 }`}
               ></span>
-              {t("components.planUsageWidget.voice")}
+              {"Synthèse vocale"}
             </div>
             <div
               className={`flex items-center ${
@@ -184,7 +188,7 @@ const PlanUsageWidgetContent: React.FC<PlanUsageWidgetProps> = ({
                     : "bg-gray-300"
                 }`}
               ></span>
-              {t("components.planUsageWidget.appointments")}
+              {"Prise de rendez-vous"}
             </div>
             <div
               className={`flex items-center ${
@@ -198,7 +202,7 @@ const PlanUsageWidgetContent: React.FC<PlanUsageWidgetProps> = ({
                   planLimits.hasDetailedReports ? "bg-green-500" : "bg-gray-300"
                 }`}
               ></span>
-              {t("components.planUsageWidget.reports")}
+              {"Rapports détaillés"}
             </div>
             <div
               className={`flex items-center ${
@@ -210,7 +214,7 @@ const PlanUsageWidgetContent: React.FC<PlanUsageWidgetProps> = ({
                   planLimits.hasInternalNotes ? "bg-green-500" : "bg-gray-300"
                 }`}
               ></span>
-              {t("components.planUsageWidget.notes")}
+              {"Notes internes"}
             </div>
           </div>
         </div>
@@ -224,7 +228,7 @@ const PlanUsageWidgetContent: React.FC<PlanUsageWidgetProps> = ({
               to="/subscription"
               className="w-full inline-flex justify-center items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"
             >
-              {t("components.planUsageWidget.upgradeNow")}
+              {"Mettre à niveau maintenant"}
             </Link>
           </div>
         )}

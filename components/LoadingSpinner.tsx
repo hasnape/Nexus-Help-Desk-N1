@@ -1,5 +1,5 @@
-import React, { Suspense } from "react";
-import { useTranslation } from "react-i18next";
+import React from "react";
+// import supprimé
 
 interface LoadingSpinnerProps {
   size?: "sm" | "md" | "lg";
@@ -12,7 +12,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   text,
   className = "",
 }) => {
-  const { t } = useTranslation(["common", "components"]);
+  // Traductions supprimées, tout est statique en français
 
   const sizeClasses = {
     sm: "w-4 h-4",
@@ -26,33 +26,24 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
     lg: "text-base",
   };
 
-  const displayText = text || t("loadingSpinner.loading");
+  const displayText = text || "Chargement...";
 
   return (
-    <Suspense
-      fallback={
-        <div
-          className={`flex flex-col items-center justify-center p-4 ${className}`}
-        >
-          <div
-            className={`animate-spin rounded-full border-2 border-gray-300 border-t-blue-600 ${sizeClasses[size]}`}
-          />
-        </div>
-      }
+    <div
+      className={`flex flex-col items-center justify-center p-4 ${className}`}
     >
       <div
-        className={`flex flex-col items-center justify-center p-4 ${className}`}
-      >
-        <div
-          className={`animate-spin rounded-full border-2 border-gray-300 border-t-blue-600 ${sizeClasses[size]}`}
-        />
-        {text !== false && (
-          <p className={`mt-2 text-gray-600 ${textSizeClasses[size]}`}>
-            {displayText}
-          </p>
-        )}
-      </div>
-    </Suspense>
+        className={`animate-spin rounded-full border-2 border-gray-300 border-t-blue-600 ${sizeClasses[size]}`}
+      />
+      {typeof text === "string" && (
+        <p className={`mt-2 text-gray-600 ${textSizeClasses[size]}`}>{text}</p>
+      )}
+      {text === undefined && (
+        <p className={`mt-2 text-gray-600 ${textSizeClasses[size]}`}>
+          Chargement...
+        </p>
+      )}
+    </div>
   );
 };
 

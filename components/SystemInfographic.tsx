@@ -1,19 +1,21 @@
 import React, { Suspense } from "react";
-import { useTranslation } from "react-i18next";
+// import supprimé
 import LoadingSpinner from "./LoadingSpinner";
 
 const SystemInfographicContent: React.FC = () => {
-  const { t } = useTranslation(["components", "common"]);
+  // Traductions supprimées, tout est statique en français
 
   return (
     <div className="bg-gradient-to-br from-slate-50 to-slate-100 py-16 px-4">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold text-slate-800 mb-4">
-            {t("components.systemInfographic.title")}
+            {"Présentation du système Nexus"}
           </h2>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-            {t("components.systemInfographic.subtitle")}
+            {
+              "Découvrez comment Nexus Help Desk optimise la gestion de vos tickets et utilisateurs."
+            }
           </p>
         </div>
 
@@ -24,10 +26,10 @@ const SystemInfographicContent: React.FC = () => {
               <span className="text-2xl font-bold text-white">1</span>
             </div>
             <h3 className="text-xl font-semibold text-slate-800 mb-2">
-              {t("components.systemInfographic.step1.title")}
+              {"Création de ticket simplifiée"}
             </h3>
             <p className="text-slate-600">
-              {t("components.systemInfographic.step1.desc")}
+              {"Créez un ticket en quelques clics, sans complexité."}
             </p>
           </div>
 
@@ -37,10 +39,12 @@ const SystemInfographicContent: React.FC = () => {
               <span className="text-2xl font-bold text-white">2</span>
             </div>
             <h3 className="text-xl font-semibold text-slate-800 mb-2">
-              {t("components.systemInfographic.step2.title")}
+              {"Affectation intelligente"}
             </h3>
             <p className="text-slate-600">
-              {t("components.systemInfographic.step2.desc")}
+              {
+                "Les tickets sont automatiquement assignés à l’agent le plus pertinent."
+              }
             </p>
           </div>
 
@@ -50,10 +54,10 @@ const SystemInfographicContent: React.FC = () => {
               <span className="text-2xl font-bold text-white">3</span>
             </div>
             <h3 className="text-xl font-semibold text-slate-800 mb-2">
-              {t("components.systemInfographic.step3.title")}
+              {"Suivi et résolution"}
             </h3>
             <p className="text-slate-600">
-              {t("components.systemInfographic.step3.desc")}
+              {"Suivez l’avancement et la résolution en temps réel."}
             </p>
           </div>
         </div>
@@ -61,7 +65,7 @@ const SystemInfographicContent: React.FC = () => {
         {/* Diagramme de flux */}
         <div className="bg-white rounded-xl shadow-lg p-8 mb-12">
           <h3 className="text-2xl font-bold text-slate-800 text-center mb-8">
-            {t("components.systemInfographic.workflow.title")}
+            {"Flux de traitement des tickets"}
           </h3>
 
           <div className="flex flex-col lg:flex-row items-center justify-between space-y-6 lg:space-y-0 lg:space-x-4">
@@ -80,11 +84,9 @@ const SystemInfographicContent: React.FC = () => {
                   />
                 </svg>
               </div>
-              <h4 className="font-semibold text-slate-800">
-                {t("components.systemInfographic.roles.user.title")}
-              </h4>
+              <h4 className="font-semibold text-slate-800">{"Utilisateur"}</h4>
               <p className="text-sm text-slate-600 text-center mt-1">
-                {t("components.systemInfographic.roles.user.desc")}
+                {"Crée un ticket et suit sa résolution."}
               </p>
             </div>
 
@@ -120,11 +122,9 @@ const SystemInfographicContent: React.FC = () => {
                   />
                 </svg>
               </div>
-              <h4 className="font-semibold text-slate-800">
-                {t("components.systemInfographic.roles.ai.title")}
-              </h4>
+              <h4 className="font-semibold text-slate-800">{"IA"}</h4>
               <p className="text-sm text-slate-600 text-center mt-1">
-                {t("components.systemInfographic.roles.ai.desc")}
+                {"Analyse et assigne le ticket à l’agent le plus pertinent."}
               </p>
             </div>
 
@@ -160,11 +160,9 @@ const SystemInfographicContent: React.FC = () => {
                   />
                 </svg>
               </div>
-              <h4 className="font-semibold text-slate-800">
-                {t("components.systemInfographic.roles.agent.title")}
-              </h4>
+              <h4 className="font-semibold text-slate-800">{"Agent"}</h4>
               <p className="text-sm text-slate-600 text-center mt-1">
-                {t("components.systemInfographic.roles.agent.desc")}
+                {"Prend en charge et résout le ticket."}
               </p>
             </div>
           </div>
@@ -174,27 +172,19 @@ const SystemInfographicContent: React.FC = () => {
         <div className="grid md:grid-cols-4 gap-6">
           <div className="text-center p-6 bg-white rounded-lg shadow-md">
             <div className="text-3xl font-bold text-primary mb-2">85%</div>
-            <p className="text-slate-600">
-              {t("components.systemInfographic.stats.resolution")}
-            </p>
+            <p className="text-slate-600">{"Taux de résolution des tickets"}</p>
           </div>
           <div className="text-center p-6 bg-white rounded-lg shadow-md">
             <div className="text-3xl font-bold text-accent mb-2">24/7</div>
-            <p className="text-slate-600">
-              {t("components.systemInfographic.stats.availability")}
-            </p>
+            <p className="text-slate-600">{"Disponibilité du support"}</p>
           </div>
           <div className="text-center p-6 bg-white rounded-lg shadow-md">
             <div className="text-3xl font-bold text-amber-500 mb-2">3min</div>
-            <p className="text-slate-600">
-              {t("components.systemInfographic.stats.response")}
-            </p>
+            <p className="text-slate-600">{"Temps de réponse moyen"}</p>
           </div>
           <div className="text-center p-6 bg-white rounded-lg shadow-md">
             <div className="text-3xl font-bold text-purple-500 mb-2">99%</div>
-            <p className="text-slate-600">
-              {t("components.systemInfographic.stats.satisfaction")}
-            </p>
+            <p className="text-slate-600">{"Satisfaction client"}</p>
           </div>
         </div>
       </div>

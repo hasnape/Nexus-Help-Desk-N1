@@ -1,5 +1,5 @@
 import React, { Suspense } from "react";
-import { useTranslation } from "react-i18next";
+// import supprimé
 import { usePlan } from "../contexts/PlanContext";
 import { Link } from "react-router-dom";
 
@@ -35,23 +35,16 @@ const PlanLimitAlert: React.FC<PlanLimitAlertProps> = ({
   showUpgradeButton = true,
   className = "",
 }) => {
-  const { t } = useTranslation(["common", "components"]);
+  // Traductions supprimées, tout est statique en français
   const { currentPlan } = usePlan();
 
   const getUpgradeMessage = (
     feature?: keyof import("../contexts/PlanContext").PlanLimits
   ): string => {
     if (message) return message;
-    if (!feature) return t("planLimitAlert.messages.upgradeGeneral");
-
-    return t(
-      `planLimitAlert.messages.upgradeFor${
-        feature.charAt(0).toUpperCase() + feature.slice(1)
-      }`,
-      {
-        defaultValue: t("planLimitAlert.messages.upgradeGeneral"),
-      }
-    );
+    if (!feature)
+      return "Veuillez mettre à niveau votre abonnement pour débloquer cette fonctionnalité.";
+    return "Veuillez mettre à niveau votre abonnement pour débloquer cette fonctionnalité.";
   };
 
   const getAlertStyle = () => {
@@ -84,12 +77,22 @@ const PlanLimitAlert: React.FC<PlanLimitAlertProps> = ({
             <ExclamationTriangleIcon className={`h-5 w-5 ${getIconColor()}`} />
           </div>
           <div className="ml-3 flex-1">
-            <h3 className="text-sm font-medium">{t("planLimitAlert.title")}</h3>
+            <h3 className="text-sm font-medium">
+              {"Limite d'abonnement atteinte"}
+            </h3>
             <div className="mt-2 text-sm">
               <p>{getUpgradeMessage(feature)}</p>
               {currentPlan && (
                 <p className="mt-1">
-                  {t("planLimitAlert.currentPlan", { plan: currentPlan })}
+                  {`Abonnement actuel : ${
+                    currentPlan === "freemium"
+                      ? "Freemium"
+                      : currentPlan === "standard"
+                      ? "Standard"
+                      : currentPlan === "pro"
+                      ? "Pro"
+                      : currentPlan
+                  }`}
                 </p>
               )}
             </div>
@@ -100,7 +103,7 @@ const PlanLimitAlert: React.FC<PlanLimitAlertProps> = ({
                     to="/subscribe"
                     className="rounded-md px-2 py-1.5 text-sm font-medium hover:bg-opacity-75 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-amber-100 text-amber-800 hover:bg-amber-200 focus:ring-amber-600"
                   >
-                    {t("planLimitAlert.upgradeButton")}
+                    {"Mettre à niveau"}
                   </Link>
                 </div>
               </div>

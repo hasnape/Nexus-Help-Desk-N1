@@ -1,5 +1,5 @@
 import React, { Suspense } from "react";
-import { useTranslation } from "react-i18next";
+// import supprimé : plus de traduction dynamique
 import { Link, useLocation } from "react-router-dom";
 import { useApp } from "../App";
 import LoadingSpinner from "../components/LoadingSpinner";
@@ -32,16 +32,16 @@ const MailIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 );
 
 const ContactPageContent: React.FC = () => {
-  const { t } = useTranslation(["contact", "common"]);
+  // Traduction supprimée, tout est statique en français
   const { user } = useApp();
   const location = useLocation();
 
-  // If user is logged in, link back to their dashboard, otherwise to the landing page.
+  // Si l'utilisateur est connecté, retour au tableau de bord, sinon à l'accueil.
   const backLinkDestination = user ? "/dashboard" : "/landing";
   const backLinkText = user
-    ? t("common.actions.backToDashboard")
-    : t("contact.backToHome");
-  const emailAddress = t("contact.email.address");
+    ? "Retour au tableau de bord"
+    : "Retour à l'accueil";
+  const emailAddress = "contact@nexus-support.fr";
 
   return (
     <div className="bg-slate-50 min-h-screen flex items-center justify-center p-4">
@@ -62,10 +62,11 @@ const ContactPageContent: React.FC = () => {
             {/* Header */}
             <div className="text-center mb-8">
               <h1 className="text-3xl sm:text-4xl font-bold text-slate-800 mb-2">
-                {t("contact.title")}
+                Contactez-nous
               </h1>
               <p className="text-slate-600 text-sm sm:text-base">
-                {t("contact.subtitle")}
+                Notre équipe est à votre écoute pour toute demande ou
+                assistance.
               </p>
             </div>
 
@@ -76,11 +77,11 @@ const ContactPageContent: React.FC = () => {
                 <div className="flex items-center mb-4">
                   <MailIcon className="w-6 h-6 text-primary mr-3" />
                   <h2 className="text-xl font-semibold text-slate-800">
-                    {t("contact.email.title")}
+                    Adresse e-mail
                   </h2>
                 </div>
                 <p className="text-slate-600 mb-4">
-                  {t("contact.email.description")}
+                  Vous pouvez nous écrire à l'adresse ci-dessous :
                 </p>
                 <a
                   href={`mailto:${emailAddress}`}
@@ -94,28 +95,24 @@ const ContactPageContent: React.FC = () => {
               {/* Support Hours */}
               <div className="bg-slate-50 rounded-lg p-6">
                 <h2 className="text-xl font-semibold text-slate-800 mb-4">
-                  {t("contact.supportHours.title")}
+                  Horaires du support
                 </h2>
                 <div className="space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-slate-600">
-                      {t("contact.supportHours.weekdays")}
-                    </span>
+                    <span className="text-slate-600">Lundi - Vendredi</span>
                     <span className="font-semibold text-slate-800">
-                      {t("contact.supportHours.weekdaysTime")}
+                      9h00 - 18h00
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-600">
-                      {t("contact.supportHours.weekends")}
-                    </span>
+                    <span className="text-slate-600">Samedi - Dimanche</span>
                     <span className="font-semibold text-slate-800">
-                      {t("contact.supportHours.weekendsTime")}
+                      10h00 - 16h00
                     </span>
                   </div>
                   <div className="pt-3 border-t border-slate-200">
                     <p className="text-sm text-slate-500">
-                      {t("contact.supportHours.note")}
+                      Nous répondons généralement sous 24h ouvrées.
                     </p>
                   </div>
                 </div>
@@ -125,66 +122,66 @@ const ContactPageContent: React.FC = () => {
             {/* Contact Form */}
             <div className="bg-slate-50 rounded-lg p-6 mb-8">
               <h2 className="text-xl font-semibold text-slate-800 mb-4">
-                {t("contact.form.title")}
+                Formulaire de contact
               </h2>
               <form className="space-y-4">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1">
-                      {t("contact.form.firstName")}
+                      Prénom
                     </label>
                     <input
                       type="text"
                       className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                      placeholder={t("contact.form.firstNamePlaceholder")}
+                      placeholder="Votre prénom"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1">
-                      {t("contact.form.lastName")}
+                      Nom
                     </label>
                     <input
                       type="text"
                       className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                      placeholder={t("contact.form.lastNamePlaceholder")}
+                      placeholder="Votre nom"
                     />
                   </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">
-                    {t("contact.form.email")}
+                    E-mail
                   </label>
                   <input
                     type="email"
                     className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                    placeholder={t("contact.form.emailPlaceholder")}
+                    placeholder="Votre e-mail"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">
-                    {t("contact.form.subject")}
+                    Sujet
                   </label>
                   <input
                     type="text"
                     className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                    placeholder={t("contact.form.subjectPlaceholder")}
+                    placeholder="Sujet de votre demande"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">
-                    {t("contact.form.message")}
+                    Message
                   </label>
                   <textarea
                     rows={4}
                     className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                    placeholder={t("contact.form.messagePlaceholder")}
+                    placeholder="Votre message"
                   />
                 </div>
                 <button
                   type="submit"
                   className="w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-primary-dark transition-colors font-semibold"
                 >
-                  {t("contact.form.submit")}
+                  Envoyer
                 </button>
               </form>
             </div>
@@ -192,20 +189,18 @@ const ContactPageContent: React.FC = () => {
             {/* Additional Information */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
               <h2 className="text-xl font-semibold text-blue-800 mb-4">
-                {t("contact.additionalInfo.title")}
+                Informations complémentaires
               </h2>
               <div className="space-y-3">
                 <p className="text-blue-700">
-                  <strong>{t("contact.additionalInfo.responseTime")}:</strong>{" "}
-                  {t("contact.additionalInfo.responseTimeValue")}
+                  <strong>Délai de réponse :</strong> Sous 24h ouvrées
                 </p>
                 <p className="text-blue-700">
-                  <strong>{t("contact.additionalInfo.languages")}:</strong>{" "}
-                  {t("contact.additionalInfo.languagesValue")}
+                  <strong>Langues :</strong> Français
                 </p>
                 <p className="text-blue-700">
-                  <strong>{t("contact.additionalInfo.urgentMatters")}:</strong>{" "}
-                  {t("contact.additionalInfo.urgentMattersValue")}
+                  <strong>Urgence :</strong> Pour les demandes urgentes,
+                  précisez-le dans le sujet.
                 </p>
               </div>
             </div>

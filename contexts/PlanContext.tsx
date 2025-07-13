@@ -1,5 +1,5 @@
 import React, { createContext, useContext, ReactNode } from "react";
-import { useTranslation } from "react-i18next";
+// import supprimé : plus de traduction dynamique
 import { Plan, UserRole } from "../types";
 import { useApp } from "../App";
 
@@ -115,7 +115,7 @@ interface PlanProviderProps {
 
 export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
   const { company, tickets, getAllUsers } = useApp();
-  const { t } = useTranslation(["pricing", "common"]);
+  // Traduction supprimée, tout est statique en français
 
   const currentPlan: Plan = company?.plan || "freemium";
   const planLimits = PLAN_LIMITS[currentPlan];
@@ -160,7 +160,16 @@ export const PlanProvider: React.FC<PlanProviderProps> = ({ children }) => {
   };
 
   const getPlanDescription = (): string => {
-    return t(`pricing.${currentPlan}.description`);
+    switch (currentPlan) {
+      case "freemium":
+        return "Plan Freemium : idéal pour débuter, avec gestion de tickets et agents limitée.";
+      case "standard":
+        return "Plan Standard : gestion avancée, support prioritaire, tickets et agents illimités.";
+      case "pro":
+        return "Plan Pro : toutes les fonctionnalités, IA avancée, rapports détaillés et support premium.";
+      default:
+        return "Plan inconnu.";
+    }
   };
 
   const canCreateTicket = (): boolean => {

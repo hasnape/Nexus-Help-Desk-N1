@@ -1,5 +1,5 @@
 import React from "react";
-import { useTranslation } from "react-i18next";
+// import supprimé
 import { usePlan } from "../contexts/PlanContext";
 import { Link } from "react-router-dom";
 
@@ -46,7 +46,7 @@ const PlanLimitModal: React.FC<PlanLimitModalProps> = ({
   title,
   message,
 }) => {
-  const { t } = useTranslation(["components", "pricing", "common"]);
+  // Traductions supprimées, tout est statique en français
   const { currentPlan } = usePlan();
 
   if (!isOpen) return null;
@@ -54,17 +54,17 @@ const PlanLimitModal: React.FC<PlanLimitModalProps> = ({
   const getFeatureTitle = () => {
     if (title) return title;
     if (feature) {
-      return t(`components.planLimitModal.features.${feature}.title`);
+      return "Fonctionnalité limitée";
     }
-    return t("components.planLimitModal.defaultTitle");
+    return "Limite du plan atteinte";
   };
 
   const getFeatureMessage = () => {
     if (message) return message;
     if (feature) {
-      return t(`components.planLimitModal.features.${feature}.message`);
+      return "Vous avez atteint la limite pour cette fonctionnalité avec votre abonnement actuel.";
     }
-    return t("components.planLimitModal.defaultMessage");
+    return "Vous avez atteint une limite de votre plan. Pour débloquer cette fonctionnalité, veuillez mettre à niveau votre abonnement.";
   };
 
   return (
@@ -90,10 +90,16 @@ const PlanLimitModal: React.FC<PlanLimitModalProps> = ({
             <p className="text-gray-600 mb-4">{getFeatureMessage()}</p>
             <div className="bg-slate-50 rounded-lg p-4 mb-4">
               <p className="text-sm font-medium text-slate-700 mb-2">
-                {t("components.planLimitModal.currentPlan")}
+                {"Votre abonnement actuel"}
               </p>
               <p className="text-lg font-semibold text-primary capitalize">
-                {t(`pricing.${currentPlan}.name`)}
+                {currentPlan === "freemium"
+                  ? "Freemium"
+                  : currentPlan === "standard"
+                  ? "Standard"
+                  : currentPlan === "pro"
+                  ? "Pro"
+                  : currentPlan}
               </p>
             </div>
           </div>
@@ -103,13 +109,13 @@ const PlanLimitModal: React.FC<PlanLimitModalProps> = ({
               onClick={onClose}
               className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
             >
-              {t("common.actions.cancel")}
+              {"Annuler"}
             </button>
             <Link
               to="/subscription"
               className="flex-1 px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark transition-colors text-center"
             >
-              {t("components.planLimitModal.upgradeButton")}
+              {"Mettre à niveau"}
             </Link>
           </div>
         </div>
