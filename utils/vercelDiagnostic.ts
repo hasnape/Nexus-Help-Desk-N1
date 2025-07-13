@@ -3,12 +3,9 @@ export const diagnoseVercelIssues = async () => {
   console.log('📍 URL actuelle:', window.location.href);
   console.log('🌐 Environnement:', import.meta.env.MODE || 'development');
   
-  const locales = ['en', 'fr', 'ar'];
+  // Suppression de la gestion des locales
   const paths = [
-    '/locales/',           // Chemin direct depuis la racine
-    '/public/locales/',    // Chemin avec /public/
-    './locales/',          // Chemin relatif
-    './public/locales/',   // Chemin relatif avec /public/
+    // Suppression des chemins de locales
   ];
   
   // Test de base - vérifier si on peut accéder à des fichiers publics

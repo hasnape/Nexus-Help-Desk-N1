@@ -1,6 +1,6 @@
 {
     "headers": [{
-        "source": "/locales/(.*).json",
+
         "headers": [{
                 "key": "Content-Type",
                 "value": "application/json; charset=utf-8"
@@ -21,14 +21,12 @@
     }],
     "trailingSlash": false,
     "cleanUrls": true,
-    "rewrites": [
-        {
-            "source": "/locales/:file",
-            "destination": "/locales/:file"
+    "rewrites": [{
+
         },
-        { 
-            "source": "/(.*)", 
-            "destination": "/index.html" 
+        {
+            "source": "/(.*)",
+            "destination": "/index.html"
         }
     ]
 }
