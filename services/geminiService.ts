@@ -1,6 +1,6 @@
 import { GoogleGenAI, GenerateContentResponse, Content } from "@google/genai";
 import { ChatMessage, Ticket, TicketPriority } from '../types'; 
-import { Locale } from "../contexts/LanguageContext"; // Import Locale type
+// Suppression de l'import inutilisé
 import { TICKET_CATEGORY_KEYS } from "../constants";
 
 // Correction: utiliser la bonne variable d'environnement pour Vite
@@ -28,23 +28,18 @@ function formatChatHistoryForGemini(appChatHistory: ChatMessage[]): Content[] {
         }));
 }
 
-const getLanguageName = (locale: Locale): string => {
-    switch (locale) {
-        case 'en': return 'English';
-        case 'fr': return 'French';
-        case 'ar': return 'Arabic';
-        default: return 'English';
-    }
+const getLanguageName = (): string => {
+    return "Français";
 };
 
 export async function summarizeAndCategorizeChat(
     chatHistory: ChatMessage[],
-    language: Locale
+    language: "fr"
 ): Promise<{ title: string; description: string; category: string; priority: TicketPriority }> {
     if (!ai) throw new Error("AI Service Unavailable: API Key not configured.");
     
     const geminiFormattedHistory = formatChatHistoryForGemini(chatHistory);
-    const targetLanguage = getLanguageName(language);
+    const targetLanguage = getLanguageName();
 
     const validCategories = TICKET_CATEGORY_KEYS.join(', ');
     const validPriorities = Object.values(TicketPriority).join(', ');
@@ -112,7 +107,7 @@ export async function getFollowUpHelpResponse(
   ticketCategoryKey: string, 
   fullChatHistoryIncludingCurrentUserMessage: ChatMessage[],
   assignedAiLevel: 1 | 2 = 1, // Default to Level 1
-  language: Locale,
+    language: "fr",
   additionalSystemContext?: string 
 ): Promise<{ text: string; escalationSuggested: boolean; }> {
   if (!ai) {
@@ -123,33 +118,27 @@ export async function getFollowUpHelpResponse(
   }
   
   const geminiFormattedHistory = formatChatHistoryForGemini(fullChatHistoryIncludingCurrentUserMessage);
-  const targetLanguage = getLanguageName(language);
+    const targetLanguage = getLanguageName();
 
   const roleInstructions = assignedAiLevel === 1 ? `
 You are acting as a Level 1 (N1) support agent. Your task is to continue assisting the user by focusing on common solutions for known basic issues, gathering further essential details (one or two questions at a time), or guiding the user through simple, predefined troubleshooting steps. If the issue persists after these initial attempts or if it clearly requires more advanced expertise, inform the user that you have documented all interactions and the issue will be escalated to our Level 2 (N2) technical team for further investigation.
 
 N1 Specific instructions based on category:
-- If the category is "ticketCategory.MaterialReplacementRequest", "ticketCategory.LostMaterial", or "ticketCategory.BrokenMaterial":
   - If the specific item isn't identified yet, ask for it.
   - If the item is identified but, for example, the circumstances (if "LostMaterial" or "BrokenMaterial") are unknown, ask: "Thanks for confirming the item. Could you briefly describe how it was lost/broken?" (This is still N1 info gathering).
   - Once basic info is gathered (item, very brief circumstance), state: "Thank you. I have noted these details. Your request will be forwarded to our IT hardware team for processing."
   - Do NOT attempt to troubleshoot the hardware issue itself.
-- If the category is "ticketCategory.MaterialInvestigation":
   - Ask one more basic clarifying question based on the user's last message. For example, if they described a "slow laptop", you could ask "Does this happen all the time, or only with specific applications?".
   - If the issue is not immediately resolvable with a very simple suggestion (like "Have you tried restarting it?"), then state: "Thank you for the additional information. This will help our Level 2 technical team investigate further. I've documented our conversation, and they will take a closer look."
   - Avoid making a final decision on replacement or complex troubleshooting.
-- For all other categories (Level 1): Guide through one more basic, common troubleshooting step. If it fails or if the user indicates the problem is complex, inform them: "I've noted the steps we've tried. It seems this issue requires a more in-depth look. I'll document our conversation and escalate this to our Level 2 support team."
 ` : `
 You are acting as a Level 2 (N2) IT Help Desk AI specialist. Your primary role is to diagnose and resolve technical incidents that require more in-depth knowledge than Level 1 support. You possess a good understanding of various systems and software. Respond professionally and technically, aiming to identify the root cause. Ask targeted diagnostic questions if needed, one or two at a time. If you propose a solution, it should be within the scope of an N2 agent (e.g., advanced configuration, specific repairs, known complex workarounds, but not architectural changes or new development which are N3 tasks). If the problem seems to exceed N2 capabilities (e.g., requires direct vendor/editor involvement or custom development), you can state that further specialized (N3) investigation might be necessary if your current approach doesn't resolve it.
 
 N2 Specific instructions based on category:
-- If the category is "ticketCategory.MaterialReplacementRequest", "ticketCategory.LostMaterial", or "ticketCategory.BrokenMaterial":
   - (N2 typically wouldn't handle initial requests, but if escalated here) Confirm all details are present. If user has further questions about process, answer them.
-- If the category is "ticketCategory.MaterialInvestigation":
   - Continue the diagnostic conversation with more technical questions. For example: "Could you check the driver version for [device]?" or "Are there any specific error codes in the event logs when this occurs?".
   - Offer more specific troubleshooting steps that an N2 would perform (e.g., "Let's try reinstalling the driver for that component.").
   - If a replacement seems likely after N2 diagnosis: "Based on these findings, it appears a replacement of [item] is the most effective solution. I can process this for you. Would you like to proceed with requesting a replacement?"
-- For all other categories (Level 2): Provide more technical or in-depth solutions. Analyze logs if conceptually provided. Guide through advanced configuration changes.
 `;
 
   const systemInstruction = `You are Nexus, an IT Help Desk AI assistant.
@@ -204,11 +193,11 @@ ${roleInstructions}`;
 
 export async function getTicketSummary(
     ticket: Ticket,
-    language: Locale
+    language: "fr"
 ): Promise<string> {
     if (!ai) return "AI Service for summary unavailable: API Key not configured.";
 
-    const targetLanguage = getLanguageName(language);
+    const targetLanguage = getLanguageName();
     // Create a concise representation of the ticket for the summary prompt
     const ticketContext = `Ticket Title: "${ticket.title}"
 Category: "${ticket.category}" 

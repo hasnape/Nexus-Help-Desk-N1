@@ -1,11 +1,11 @@
 import React from "react";
-import { useLanguageSafe } from "../contexts/LanguageContext";
+// Suppression de l'import inutilisé
 import { useSidebarSafe } from "../contexts/SidebarContext";
 import { usePlanSafe } from "../contexts/PlanContext";
 import { useApp } from "../App";
 
 const ContextDebugger: React.FC = () => {
-  const language = useLanguageSafe();
+  // Suppression de toute logique liée à la langue, tout est statique en français
   const sidebar = useSidebarSafe();
   const app = useApp();
   const plan = usePlanSafe();
@@ -69,7 +69,7 @@ const ContextDebugger: React.FC = () => {
       <div className="space-y-1">
         <div className="flex justify-between">
           <span>🌐 Langue:</span>
-          <span className="text-green-400">{language.language} ✅</span>
+          <span className="text-green-400">Français ✅</span>
         </div>
         <div className="flex justify-between">
           <span>📱 Sidebar:</span>

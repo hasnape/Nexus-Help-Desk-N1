@@ -950,7 +950,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
         ticket.category,
         tempUpdatedChatMessages,
         ticket.assigned_ai_level,
-        user.language_preference
+        "fr"
       );
       const aiResponseMessage: ChatMessage = {
         id: crypto.randomUUID(),

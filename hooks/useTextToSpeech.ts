@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { useLanguage } from '../contexts/LanguageContext'; // Import useLanguage
+// Suppression de l'import inutilisé
 
 interface TextToSpeechHook {
   isSpeaking: boolean;
@@ -14,7 +14,7 @@ const useTextToSpeech = (): TextToSpeechHook => {
   const [error, setError] = useState<string | null>(null);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const onEndCallbackRef = useRef<(() => void) | null | undefined>(null);
-  const { getBCP47Locale, t } = useLanguage(); 
+  // Suppression de toute logique liée à la langue, tout est statique en français
 
   const browserSupportsTextToSpeech =
     typeof window !== 'undefined' && 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
@@ -23,7 +23,7 @@ const useTextToSpeech = (): TextToSpeechHook => {
 
   useEffect(() => {
     if (!browserSupportsTextToSpeech) {
-      setError(t('speechTts.notSupported', { default: 'Text-to-speech is not supported in this browser.' }));
+      setError("La synthèse vocale n'est pas supportée par ce navigateur.");
       return;
     }
 
@@ -49,11 +49,11 @@ const useTextToSpeech = (): TextToSpeechHook => {
         window.speechSynthesis.cancel();
       }
     };
-  }, [browserSupportsTextToSpeech, t]);
+  }, [browserSupportsTextToSpeech]);
 
   const speak = useCallback((text: string, onEnd?: () => void) => {
     if (!browserSupportsTextToSpeech) {
-        setError(t('speechTts.notSupported', { default: 'Text-to-speech is not supported in this browser.' }));
+        setError("La synthèse vocale n'est pas supportée par ce navigateur.");
         return;
     }
 
@@ -66,7 +66,7 @@ const useTextToSpeech = (): TextToSpeechHook => {
     cleanedText = cleanedText.replace(/\s+/g, ' ').trim();
 
     const utterance = new SpeechSynthesisUtterance(cleanedText);
-    const bcp47Lang = getBCP47Locale(); 
+    const bcp47Lang = "fr-FR";
     utterance.lang = bcp47Lang; // Always set the language for the utterance
 
     let selectedVoice: SpeechSynthesisVoice | undefined = undefined;
@@ -143,7 +143,7 @@ const useTextToSpeech = (): TextToSpeechHook => {
     };
 
     utterance.onerror = (event: SpeechSynthesisErrorEvent) => {
-      setError(t('ticketDetail.speechPlaybackError', { error: event.error }));
+      setError("Erreur lors de la lecture vocale du ticket.");
       setIsSpeaking(false);
       if (onEndCallbackRef.current) {
         onEndCallbackRef.current(); 
@@ -154,7 +154,7 @@ const useTextToSpeech = (): TextToSpeechHook => {
     };
     
     window.speechSynthesis.speak(utterance);
-  }, [browserSupportsTextToSpeech, getBCP47Locale, voices, t]);
+  }, [browserSupportsTextToSpeech, voices]);
 
   const cancel = useCallback(() => {
     if (!browserSupportsTextToSpeech || !window.speechSynthesis.speaking) return;

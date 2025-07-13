@@ -1,18 +1,16 @@
 import { usePlan } from '../contexts/PlanContext';
-import { useLanguage } from '../contexts/LanguageContext';
+// Suppression de l'import inutilisé
 
 export const usePlanLimits = () => {
   const planContext = usePlan();
-  const { t } = useLanguage();
+  // Suppression de toute logique liée à la langue, tout est statique en français
 
   // Wrapper pour vérifications communes avec messages traduits
   const checkTicketCreation = () => {
     const allowed = planContext.canCreateTicket();
     return {
       allowed,
-      warningMessage: allowed ? undefined : t("maxTicketsReached", { 
-        limit: planContext.planLimits.maxTicketsPerMonth 
-      })
+      warningMessage: allowed ? undefined : `Nombre maximal de tickets atteint (${planContext.planLimits.maxTicketsPerMonth}). Veuillez mettre à niveau votre abonnement.`
     };
   };
 
@@ -20,17 +18,15 @@ export const usePlanLimits = () => {
     const allowed = planContext.canAddAgent();
     return {
       allowed,
-      warningMessage: allowed ? undefined : t("maxAgentsReached", { 
-        limit: planContext.planLimits.maxAgents 
-      })
+      warningMessage: allowed ? undefined : `Nombre maximal d'agents atteint (${planContext.planLimits.maxAgents}). Veuillez mettre à niveau votre abonnement.`
     };
   };
 
   const checkFeatureAccess = (feature: keyof import('../contexts/PlanContext').PlanLimits) => {
-    const allowed = planContext.isFeatureAvailable(feature);
+    const allowed = planContext.checkFeatureAccess(feature);
     return {
       allowed,
-      warningMessage: allowed ? undefined : t("featureNotAvailable")
+      warningMessage: allowed ? undefined : `Fonctionnalité non disponible dans votre abonnement actuel.`
     };
   };
 

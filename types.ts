@@ -81,6 +81,5 @@ export interface Company {
   subscription_id?: string;
 }
 
-// Ensure Locale is defined or imported if it's from LanguageContext
-// For simplicity, assuming Locale is 'en' | 'fr' | 'ar' as typically defined in LanguageContext
+// Suppression de toute référence à LanguageContext
 export type Locale = 'en' | 'fr' | 'ar';
