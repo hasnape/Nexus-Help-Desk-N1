@@ -177,26 +177,48 @@ const SignUpPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-700 py-8 px-4">
-      <div className="bg-white p-8 rounded-xl shadow-2xl w-full max-w-3xl">
+    <div
+      className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-700 py-8 px-4"
+      aria-label={t("signup.pageAria", "Page d'inscription")}
+    >
+      <div
+        className="bg-white p-8 rounded-xl shadow-2xl w-full max-w-3xl"
+        aria-label={t("signup.formAria", "Formulaire d'inscription")}
+      >
         <>
           <div className="text-center mb-6">
             <div className="flex justify-center mb-2">
               <Logo size="xl" showText={false} />
             </div>
-            <h1 className="text-3xl font-bold text-textPrimary">
+            <h1
+              className="text-3xl font-bold text-textPrimary"
+              aria-label={t("signup.titleAria", "Titre d'inscription")}
+            >
               {t("title")}
             </h1>
-            <p className="text-textSecondary mt-1">{t("subtitle")}</p>
+            <p
+              className="text-textSecondary mt-1"
+              aria-label={t("signup.subtitleAria", "Sous-titre d'inscription")}
+            >
+              {t("subtitle")}
+            </p>
           </div>
 
           {error && (
-            <p className="mb-4 text-center text-red-600 bg-red-100 p-2 rounded-md">
+            <p
+              className="mb-4 text-center text-red-600 bg-red-100 p-2 rounded-md"
+              aria-live="polite"
+              aria-label={t("signup.errorAria", "Erreur d'inscription")}
+            >
               {error}
             </p>
           )}
 
-          <form onSubmit={handleSignUp} className="space-y-4">
+          <form
+            onSubmit={handleSignUp}
+            className="space-y-4"
+            aria-label={t("signup.formAria", "Formulaire d'inscription")}
+          >
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
                 label={t("emailLabel")}
@@ -205,6 +227,7 @@ const SignUpPage: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                aria-label={t("signup.emailAria", "Adresse email")}
               />
               <Input
                 label={t("fullNameLabel")}
@@ -213,6 +236,7 @@ const SignUpPage: React.FC = () => {
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 required
+                aria-label={t("signup.fullNameAria", "Nom complet")}
               />
               <Input
                 label={t("passwordLabel")}
@@ -221,6 +245,7 @@ const SignUpPage: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                aria-label={t("signup.passwordAria", "Mot de passe")}
               />
               <Input
                 label={t("confirmPasswordLabel")}
@@ -229,6 +254,10 @@ const SignUpPage: React.FC = () => {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
+                aria-label={t(
+                  "signup.confirmPasswordAria",
+                  "Confirmation du mot de passe"
+                )}
               />
             </div>
 
@@ -239,6 +268,7 @@ const SignUpPage: React.FC = () => {
               onChange={(e) => setRole(e.target.value as UserRole)}
               options={roleOptions}
               required
+              aria-label={t("signup.roleAria", "Rôle utilisateur")}
             />
 
             <div>
@@ -258,8 +288,12 @@ const SignUpPage: React.FC = () => {
                     : t("existingCompanyNamePlaceholder")
                 }
                 required
+                aria-label={t("signup.companyNameAria", "Nom de la société")}
               />
-              <p className="mt-1 text-xs text-slate-500 px-1">
+              <p
+                className="mt-1 text-xs text-slate-500 px-1"
+                aria-label={t("signup.companyNameHelpAria", "Aide société")}
+              >
                 {role === UserRole.MANAGER
                   ? t("companyNameHelp.manager")
                   : t("companyNameHelp.employee")}
@@ -268,7 +302,10 @@ const SignUpPage: React.FC = () => {
 
             {role === UserRole.MANAGER && (
               <div className="space-y-4 pt-4">
-                <label className="block text-sm font-medium text-slate-700 mb-2">
+                <label
+                  className="block text-sm font-medium text-slate-700 mb-2"
+                  aria-label={t("signup.planAria", "Choix du plan")}
+                >
                   {t("planLabel")}
                 </label>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -281,6 +318,11 @@ const SignUpPage: React.FC = () => {
                           ? "border-primary ring-2 ring-primary ring-offset-2 shadow-lg"
                           : "border-slate-200 hover:border-primary/70 hover:shadow-md"
                       }`}
+                      aria-label={t(
+                        `signup.planCardAria.${tier.planValue}`,
+                        `Carte plan ${tier.planValue}`
+                      )}
+                      tabIndex={0}
                     >
                       <div className="mx-auto mb-3">{tier.icon}</div>
                       <h3 className="font-bold text-slate-800 text-lg">
@@ -307,7 +349,12 @@ const SignUpPage: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => setPlan(tier.planValue)}
-                        className="mt-4 font-semibold rounded-md px-6 py-2 text-base bg-primary text-white w-full"
+                        className="mt-4 font-semibold rounded-md px-6 py-2 text-base bg-primary text-white w-full focus:outline-none focus:ring-2 focus:ring-primary"
+                        aria-label={t(
+                          `signup.selectButtonAria.${tier.planValue}`,
+                          `Sélectionner le plan ${tier.planValue}`
+                        )}
+                        tabIndex={0}
                       >
                         {t("signup.selectButton", { default: "Commencer" })}
                       </button>
@@ -323,6 +370,11 @@ const SignUpPage: React.FC = () => {
                             target="_blank"
                             rel="noopener noreferrer"
                             className="mt-2 block"
+                            aria-label={t(
+                              `signup.paypalAria.${tier.planValue}`,
+                              `Payer le plan ${tier.planValue} avec PayPal`
+                            )}
+                            tabIndex={0}
                           >
                             <button className="w-full py-2 px-4 rounded-lg font-semibold text-base bg-yellow-400 text-white">
                               {t("payButton", {
@@ -330,7 +382,13 @@ const SignUpPage: React.FC = () => {
                               })}
                             </button>
                           </a>
-                          <p className="mt-2 text-xs text-slate-600">
+                          <p
+                            className="mt-2 text-xs text-slate-600"
+                            aria-label={t(
+                              `signup.activationInfoAria.${tier.planValue}`,
+                              `Info activation ${tier.planValue}`
+                            )}
+                          >
                             {t(
                               "activationInfo",
                               "Une fois le paiement confirmé, vous recevrez votre clé d’activation par email."
@@ -343,7 +401,13 @@ const SignUpPage: React.FC = () => {
                 </div>
                 {/* Activation code: une seule fois après sélection du plan */}
                 {["standard", "pro"].includes(plan) && (
-                  <div className="mt-4 space-y-2 bg-slate-50 p-4 rounded-lg border border-slate-200">
+                  <div
+                    className="mt-4 space-y-2 bg-slate-50 p-4 rounded-lg border border-slate-200"
+                    aria-label={t(
+                      "signup.activationCodeSectionAria",
+                      "Section code d'activation"
+                    )}
+                  >
                     <Input
                       label={t("activationCodeLabel", {
                         default: "Activation Code",
@@ -355,8 +419,18 @@ const SignUpPage: React.FC = () => {
                         default: "Enter code from support",
                       })}
                       required
+                      aria-label={t(
+                        "signup.activationCodeAria",
+                        "Code d'activation"
+                      )}
                     />
-                    <p className="text-xs text-slate-600">
+                    <p
+                      className="text-xs text-slate-600"
+                      aria-label={t(
+                        "signup.activationCodeHelpAria",
+                        "Aide code d'activation"
+                      )}
+                    >
                       {t("activationCodeHelp.prefix", {
                         default: `Pour souscrire au plan ${
                           plan === "standard" ? "Standard" : "Pro"
@@ -373,6 +447,11 @@ const SignUpPage: React.FC = () => {
                           }. Merci de nous transmettre le code d'activation après vérification du paiement.\n\nCordialement.`
                         )}`}
                         className="ms-1 text-primary hover:underline font-semibold"
+                        aria-label={t(
+                          "signup.activationCodeEmailAria",
+                          "Demander le code d'activation par email"
+                        )}
+                        tabIndex={0}
                       >
                         {t("activationCodeHelp.link", {
                           default: "Demander votre code par email.",
@@ -386,7 +465,9 @@ const SignUpPage: React.FC = () => {
             <div className="mt-6">
               <Button
                 type="submit"
-                className="w-full py-3 rounded-md text-lg font-semibold bg-primary text-white transition-all duration-200 hover:bg-primary/90"
+                className="w-full py-3 rounded-md text-lg font-semibold bg-primary text-white transition-all duration-200 hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary"
+                aria-label={t("signup.submitButtonAria", "Créer mon compte")}
+                tabIndex={0}
               >
                 {t("submitButton", { default: "Créer mon compte" })}
               </Button>
@@ -394,13 +475,21 @@ const SignUpPage: React.FC = () => {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-sm text-slate-500">
+            <p
+              className="text-sm text-slate-500"
+              aria-label={t(
+                "signup.alreadyHaveAccountAria",
+                "Lien vers la connexion"
+              )}
+            >
               {t("alreadyHaveAccount", {
                 default: "Already have an account?",
               })}{" "}
               <Link
                 to="/login"
                 className="text-primary font-semibold hover:underline"
+                aria-label={t("signup.loginLinkAria", "Se connecter")}
+                tabIndex={0}
               >
                 {t("loginLink", { default: "Log in" })}
               </Link>

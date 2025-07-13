@@ -39,10 +39,13 @@ const MagnifyingGlassIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
 
 const DashboardPage: React.FC = () => {
   const { tickets, user } = useApp();
-  const { t } = useTranslation(["dashboard", "common"]);
+  const { t } = useTranslation(["dashboard", "user", "helpChat"]);
   const { checkTicketCreation } = usePlanLimits();
 
-  const myTickets = user ? tickets.filter((t) => t.user_id === user.id) : [];
+  // Harmonisation du modèle Ticket : user_id, updated_at, enums
+  const myTickets = user
+    ? tickets.filter((ticket) => ticket.user_id === user.id)
+    : [];
   const sortedTickets = [...myTickets].sort(
     (a, b) =>
       new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
@@ -51,37 +54,57 @@ const DashboardPage: React.FC = () => {
   const ticketCreationCheck = checkTicketCreation();
 
   return (
-    <Suspense fallback={<LoadingSpinner />}>
-      <div className="space-y-8">
+    <Suspense
+      fallback={
+        <LoadingSpinner
+          aria-label={t("dashboard.loading", "Chargement du tableau de bord")}
+        />
+      }
+    >
+      <div
+        className="space-y-8"
+        aria-label={t("dashboard.pageAria", "Tableau de bord utilisateur")}
+      >
         <div className="pb-4 border-b border-slate-300">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
             <div className="mb-4 sm:mb-0">
-              <h1 className="text-3xl font-bold text-textPrimary">
+              <h1
+                className="text-3xl font-bold text-textPrimary"
+                aria-label={t("dashboard.welcomeAria", "Bienvenue utilisateur")}
+              >
                 {t("user.welcomeMessage", {
-                  username: user?.full_name || "User",
+                  username:
+                    user?.full_name?.trim() ||
+                    t("user.defaultUsername", "Utilisateur"),
                 })}
               </h1>
-              {user?.company_id && (
-                <p className="text-lg text-slate-500 font-medium">
-                  {user.company_id}
-                </p>
-              )}
+              <p
+                className="text-lg text-slate-500 font-medium"
+                aria-label={t("dashboard.companyAria", "Nom de la société")}
+              >
+                {user?.company_id?.trim() ||
+                  t("user.defaultCompany", "Aucune société")}
+              </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
               <Link to="/help">
                 <Button
                   variant="primary"
                   size="md"
-                  className="w-full sm:w-auto"
+                  className="w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-primary"
                   disabled={!ticketCreationCheck.allowed}
                   title={
                     !ticketCreationCheck.allowed
                       ? ticketCreationCheck.warningMessage
                       : undefined
                   }
+                  aria-label={t(
+                    "dashboard.createTicketAria",
+                    t("user.createNewTicketButton", "Créer un nouveau ticket")
+                  )}
                 >
                   <PlusIcon className="w-5 h-5 me-2" />
-                  {t("user.createNewTicketButton")}
+                  {t("user.createNewTicketButton", "Nouveau ticket")}
                 </Button>
               </Link>
               <Link
@@ -97,16 +120,23 @@ const DashboardPage: React.FC = () => {
                 <Button
                   variant="secondary"
                   size="md"
-                  className="w-full sm:w-auto"
+                  className="w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-primary"
                   disabled={!ticketCreationCheck.allowed}
                   title={
                     !ticketCreationCheck.allowed
                       ? ticketCreationCheck.warningMessage
                       : undefined
                   }
+                  aria-label={t(
+                    "dashboard.investigateAria",
+                    "Enquêter sur un équipement"
+                  )}
                 >
                   <MagnifyingGlassIcon className="w-5 h-5 me-2" />
-                  {t("user.investigateEquipmentButton")}
+                  {t(
+                    "user.investigateEquipmentButton",
+                    "Enquêter sur un équipement"
+                  )}
                 </Button>
               </Link>
             </div>
@@ -116,21 +146,39 @@ const DashboardPage: React.FC = () => {
             <PlanLimitAlert
               message={ticketCreationCheck.warningMessage}
               type="warning"
+              aria-label={t("dashboard.planLimitAria", "Alerte limite de plan")}
             />
           )}
         </div>
 
-        <section className="bg-surface shadow-lg rounded-lg p-4 sm:p-6">
-          <h2 className="text-xl font-semibold text-textPrimary mb-4">
-            {t("user.myTicketsTitle")}
+        <section
+          className="bg-surface shadow-lg rounded-lg p-4 sm:p-6"
+          aria-label={t(
+            "dashboard.ticketsSectionAria",
+            "Section tickets utilisateur"
+          )}
+        >
+          <h2
+            className="text-xl font-semibold text-textPrimary mb-4"
+            aria-label={t("dashboard.myTicketsAria", "Mes tickets")}
+          >
+            {t("user.myTicketsTitle", "Mes tickets")}
           </h2>
 
           {sortedTickets.length === 0 ? (
-            <div className="text-center py-8">
+            <div
+              className="text-center py-8"
+              aria-label={t("dashboard.noTicketsAria", "Aucun ticket")}
+            >
               <p className="text-slate-500 text-lg mb-2">
-                {t("user.noTicketsMessage")}
+                {t("user.noTicketsMessage", "Aucun ticket trouvé")}
               </p>
-              <p className="text-slate-400">{t("user.noTicketsSubtitle")}</p>
+              <p className="text-slate-400">
+                {t(
+                  "user.noTicketsSubtitle",
+                  "Vous n'avez pas encore de tickets."
+                )}
+              </p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -140,6 +188,7 @@ const DashboardPage: React.FC = () => {
                   ticket={ticket}
                   showAssigneeInfo={false}
                   showClientInfo={false}
+                  aria-label={t("dashboard.ticketCardAria", "Carte ticket")}
                 />
               ))}
             </div>
@@ -149,7 +198,8 @@ const DashboardPage: React.FC = () => {
         <FloatingActionButton
           onClick={() => (window.location.href = "/help")}
           disabled={!ticketCreationCheck.allowed}
-          tooltip={t("user.getAiHelpButton")}
+          tooltip={t("user.getAiHelpButton", "Obtenir de l'aide IA")}
+          aria-label={t("dashboard.fabAria", "Obtenir de l'aide IA")}
         />
       </div>
     </Suspense>

@@ -58,7 +58,7 @@ const AgentTicketRow: React.FC<{
         {new Date(ticket.created_at).toLocaleDateString(i18n.language)}
       </td>
       <td className="p-3 text-sm text-slate-500">
-        {t(`status.${ticket.status}`, { ns: "tickets" })}
+        {t(`enums.ticketStatus.${ticket.status}`, { ns: "enums" })}
       </td>
       <td className="p-3 text-sm">
         {isUnassigned && onTakeCharge && (

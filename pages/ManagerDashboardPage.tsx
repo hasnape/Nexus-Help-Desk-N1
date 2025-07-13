@@ -99,11 +99,13 @@ const ManagerDashboardPage: React.FC = () => {
   // Statistics
   const stats = useMemo(() => {
     const totalTickets = tickets.length;
-    const openTickets = tickets.filter((t) => t.status === "Open").length;
+    const openTickets = tickets.filter((t) => t.status === "open").length;
     const resolvedTickets = tickets.filter(
-      (t) => t.status === "Resolved"
+      (t) => t.status === "resolved"
     ).length;
-    const priorityTickets = tickets.filter((t) => t.priority === "High").length;
+    const priorityTickets = tickets.filter(
+      (t) => t.priority === "high" || t.priority === "urgent"
+    ).length;
     const unassignedTickets = tickets.filter(
       (t) => !t.assigned_agent_id
     ).length;
@@ -125,7 +127,10 @@ const ManagerDashboardPage: React.FC = () => {
       const matchesSearch =
         searchTerm === "" ||
         ticket.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        ticket.description.toLowerCase().includes(searchTerm.toLowerCase());
+        (ticket.detailed_description &&
+          ticket.detailed_description
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()));
       return matchesStatus && matchesSearch;
     });
   }, [tickets, statusFilter, searchTerm]);

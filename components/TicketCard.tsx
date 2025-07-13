@@ -12,16 +12,17 @@ interface TicketCardProps {
 }
 
 const statusColors: Record<TicketStatus, string> = {
-  [TICKET_STATUS_KEYS.OPEN]: "bg-blue-100 text-blue-800",
-  [TICKET_STATUS_KEYS.IN_PROGRESS]: "bg-yellow-100 text-yellow-800",
-  [TICKET_STATUS_KEYS.RESOLVED]: "bg-green-100 text-green-800",
-  [TICKET_STATUS_KEYS.CLOSED]: "bg-slate-100 text-slate-800",
+  [TicketStatus.OPEN]: "bg-blue-100 text-blue-800",
+  [TicketStatus.IN_PROGRESS]: "bg-yellow-100 text-yellow-800",
+  [TicketStatus.RESOLVED]: "bg-green-100 text-green-800",
+  [TicketStatus.CLOSED]: "bg-slate-100 text-slate-800",
 };
 
 const priorityColors: Record<TicketPriority, string> = {
-  [TICKET_PRIORITY_KEYS.LOW]: "text-green-600",
-  [TICKET_PRIORITY_KEYS.MEDIUM]: "text-yellow-600",
-  [TICKET_PRIORITY_KEYS.HIGH]: "text-red-600",
+  [TicketPriority.LOW]: "text-green-600",
+  [TicketPriority.MEDIUM]: "text-yellow-600",
+  [TicketPriority.HIGH]: "text-red-600",
+  [TicketPriority.URGENT]: "text-red-800",
 };
 
 const TicketCard: React.FC<TicketCardProps> = ({
@@ -43,10 +44,10 @@ const TicketCard: React.FC<TicketCardProps> = ({
     : t("ticketCard.unassigned");
 
   const getLastMessage = () => {
-    if (ticket.chat_history.length > 0) {
-      return ticket.chat_history[ticket.chat_history.length - 1].text;
+    if (ticket.chat_messages && ticket.chat_messages.length > 0) {
+      return ticket.chat_messages[ticket.chat_messages.length - 1].message;
     }
-    return ticket.description || t("ticketCard.noMessages");
+    return ticket.detailed_description || t("ticketCard.noMessages");
   };
 
   return (

@@ -8,6 +8,8 @@ interface ChatMessageComponentProps {
   onSpeak?: (text: string) => void;
   isSpeaking?: boolean;
   showSpeakButton?: boolean;
+  speechSupported?: boolean;
+  speakButtonProps?: React.ButtonHTMLAttributes<HTMLButtonElement>;
 }
 
 const SpeakerIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
@@ -26,6 +28,8 @@ const ChatMessageComponent: React.FC<ChatMessageComponentProps> = ({
   onSpeak,
   isSpeaking = false,
   showSpeakButton = false,
+  speechSupported = true,
+  speakButtonProps = {},
 }) => {
   const { t, i18n } = useTranslation(["common", "components"]);
   const { getAllUsers } = useApp();
@@ -130,38 +134,39 @@ const ChatMessageComponent: React.FC<ChatMessageComponentProps> = ({
             aria-label={t("chatMessage.bubbleAria", "Contenu du message")}
           >
             <p className="text-sm whitespace-pre-wrap break-words">
-              {message.text}
+              {message.message}
             </p>
           </div>
 
           {/* Actions */}
-          {showSpeakButton && onSpeak && (
+          {showSpeakButton && onSpeak && speechSupported && (
             <div className="flex items-center mt-2">
               <button
-                onClick={() => onSpeak(message.text)}
+                onClick={() => onSpeak(message.message)}
                 disabled={isSpeaking}
                 className={`flex items-center gap-1 text-xs px-2 py-1 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                   isSpeaking
                     ? "bg-blue-100 text-blue-600"
                     : "text-gray-500 hover:text-blue-600 hover:bg-blue-50"
                 }`}
-                title={
-                  isSpeaking
-                    ? t("chatMessage.stopSpeaking", "Arrêter la lecture")
-                    : t("chatMessage.speakMessage", "Écouter le message")
-                }
-                aria-label={
-                  isSpeaking
-                    ? t("chatMessage.stopSpeaking", "Arrêter la lecture")
-                    : t("chatMessage.speakMessage", "Écouter le message")
-                }
                 tabIndex={0}
+                {...speakButtonProps}
               >
                 <SpeakerIcon className="w-3 h-3" />
                 {isSpeaking
                   ? t("chatMessage.reading", "Lecture...")
                   : t("chatMessage.listen", "Écouter")}
               </button>
+            </div>
+          )}
+          {showSpeakButton && !speechSupported && (
+            <div className="flex items-center mt-2">
+              <span className="text-xs text-gray-400">
+                {t(
+                  "chatMessage.speechNotSupported",
+                  "Synthèse vocale non supportée"
+                )}
+              </span>
             </div>
           )}
         </div>

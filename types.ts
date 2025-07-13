@@ -3,16 +3,17 @@
 export type Plan = 'freemium' | 'standard' | 'pro';
 
 export enum TicketStatus {
-  OPEN = 'Open',
-  IN_PROGRESS = 'InProgress', // Changed to avoid space for easier key construction
-  RESOLVED = 'Resolved',
-  CLOSED = 'Closed',
+  OPEN = 'open',
+  IN_PROGRESS = 'in_progress',
+  RESOLVED = 'resolved',
+  CLOSED = 'closed',
 }
 
 export enum TicketPriority {
-  LOW = 'Low',
-  MEDIUM = 'Medium',
-  HIGH = 'High',
+  LOW = 'low',
+  MEDIUM = 'medium',
+  HIGH = 'high',
+  URGENT = 'urgent',
 }
 
 export enum UserRole {
@@ -23,10 +24,10 @@ export enum UserRole {
 
 export interface ChatMessage {
   id: string;
-  sender: 'user' | 'ai' | 'agent' | 'system_summary'; // Added 'system_summary'
-  text: string;
-  timestamp: Date;
-  agentId?: string; // UUID of the agent if sender is 'agent'
+  sender: 'user' | 'ai' | 'agent' | 'system_summary';
+  message: string;
+  timestamp: string | Date;
+  agentId?: string;
 }
 
 export interface InternalNote {
@@ -37,33 +38,30 @@ export interface InternalNote {
 }
 
 export interface AppointmentDetails {
-  proposedBy: 'agent' | 'user';
-  proposedDate: string; // YYYY-MM-DD
-  proposedTime: string; // HH:MM
-  locationOrMethod: string; // e.g., "On-site at your desk", "Remote session", "Equipment pickup at IT office"
-  status: 'pending_user_approval' | 'pending_agent_approval' | 'confirmed' | 'cancelled_by_user' | 'cancelled_by_agent' | 'rescheduled_by_user' | 'rescheduled_by_agent';
-  notes?: string;
-  history?: AppointmentDetails[]; // Optional: To track negotiation history if needed directly on object
-  id: string; // Unique ID for each appointment proposal/instance
+  date: string;
+  time: string;
+  location_method: string;
+  proposed_by: string;
+  proposed_at: string;
 }
 
 export interface Ticket {
-  id: string; // uuid
-  user_id: string; // uuid, Foreign Key to users.id
-  company_id: string; // Stores the company name (text) for easier RLS and querying
+  id: string;
+  user_id: string;
+  company_id: string;
   title: string;
-  description: string;
-  category: string; 
+  detailed_description: string;
+  category: string;
   priority: TicketPriority;
   status: TicketStatus;
-  created_at: Date;
-  updated_at: Date;
-  chat_history: ChatMessage[];
+  created_at: string | Date;
+  updated_at: string | Date;
+  chat_messages: ChatMessage[];
   assigned_ai_level: 1 | 2;
-  assigned_agent_id?: string; // UUID of the agent assigned to this ticket
-  workstation_id?: string;   // "Poste" or Workstation ID
-  internal_notes?: InternalNote[]; // Notes visible only to agents/managers
-  current_appointment?: AppointmentDetails; // For appointment scheduling
+  assigned_agent_id?: string;
+  workstation_id?: string;
+  internal_notes?: InternalNote[];
+  appointment_details?: AppointmentDetails;
 }
 
 export interface User {

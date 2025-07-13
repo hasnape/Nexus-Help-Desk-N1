@@ -104,7 +104,7 @@ const TicketDetailPageContent: React.FC = () => {
   const {
     speak,
     stop: stopSpeaking,
-    speaking,
+    speaking: isSpeaking,
     supported: speechSynthesisSupported,
   } = useTextToSpeech();
 
@@ -182,7 +182,7 @@ const TicketDetailPageContent: React.FC = () => {
   };
 
   const handleSpeakMessage = (message: ChatMessageType) => {
-    if (speaking && speakingMessageId === message.id) {
+    if (isSpeaking && speakingMessageId === message.id) {
       stopSpeaking();
       setSpeakingMessageId(null);
     } else {
@@ -229,19 +229,35 @@ const TicketDetailPageContent: React.FC = () => {
   }
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto">
+    <div
+      className="p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto"
+      aria-label={t("ticketDetail.pageAria", "Détail du ticket")}
+    >
       {/* Header */}
-      <div className="mb-6">
+      <div
+        className="mb-6"
+        aria-label={t("ticketDetail.headerAria", "En-tête du ticket")}
+      >
         <Link
           to="/tickets"
           className="inline-flex items-center text-primary hover:text-primary-dark mb-4"
+          aria-label={t(
+            "ticketDetail.backAria",
+            "Retour à la liste des tickets"
+          )}
         >
           ← {t("ticketDetail.navigation.backToTickets")}
         </Link>
-        <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 mb-2">
+        <h1
+          className="text-2xl sm:text-3xl font-bold text-slate-800 mb-2"
+          aria-label={t("ticketDetail.titleAria", "Titre du ticket")}
+        >
           {ticket.title}
         </h1>
-        <div className="flex flex-wrap gap-4 text-sm text-slate-600">
+        <div
+          className="flex flex-wrap gap-4 text-sm text-slate-600"
+          aria-label={t("ticketDetail.infoAria", "Infos ticket")}
+        >
           <span>
             <strong>{t("ticketDetail.info.ticketId")}:</strong> {ticket.id}
           </span>
@@ -257,8 +273,9 @@ const TicketDetailPageContent: React.FC = () => {
                   ? "bg-green-100 text-green-800"
                   : "bg-gray-100 text-gray-800"
               }`}
+              aria-label={t("ticketDetail.statusAria", "Statut du ticket")}
             >
-              {t(`enums.ticketStatus.${ticket.status}`)}
+              {t(`enums.ticketStatus.${ticket.status}`, ticket.status)}
             </span>
           </span>
           <span>
@@ -273,8 +290,9 @@ const TicketDetailPageContent: React.FC = () => {
                   ? "bg-yellow-100 text-yellow-800"
                   : "bg-gray-100 text-gray-800"
               }`}
+              aria-label={t("ticketDetail.priorityAria", "Priorité du ticket")}
             >
-              {t(`enums.ticketPriority.${ticket.priority}`)}
+              {t(`enums.ticketPriority.${ticket.priority}`, ticket.priority)}
             </span>
           </span>
         </div>
@@ -309,15 +327,36 @@ const TicketDetailPageContent: React.FC = () => {
       )}
 
       {/* Ticket Description */}
-      <div className="mb-6 p-4 bg-slate-50 rounded-lg">
-        <h2 className="text-lg font-semibold text-slate-800 mb-2">
+      <div
+        className="mb-6 p-4 bg-slate-50 rounded-lg"
+        aria-label={t("ticketDetail.descriptionAria", "Description du ticket")}
+      >
+        <h2
+          className="text-lg font-semibold text-slate-800 mb-2"
+          aria-label={t(
+            "ticketDetail.descriptionTitleAria",
+            "Titre de la description"
+          )}
+        >
           {t("ticketDetail.sections.description")}
         </h2>
-        <p className="text-slate-700 whitespace-pre-wrap">
+        <p
+          className="text-slate-700 whitespace-pre-wrap"
+          aria-label={t(
+            "ticketDetail.descriptionTextAria",
+            "Texte de la description"
+          )}
+        >
           {ticket.detailed_description}
         </p>
         {ticket.workstation_id && (
-          <div className="mt-3 text-sm text-slate-600">
+          <div
+            className="mt-3 text-sm text-slate-600"
+            aria-label={t(
+              "ticketDetail.workstationAria",
+              "ID poste de travail"
+            )}
+          >
             <strong>{t("ticketDetail.info.workstationId")}:</strong>{" "}
             {ticket.workstation_id}
           </div>
@@ -424,24 +463,72 @@ const TicketDetailPageContent: React.FC = () => {
       )}
 
       {/* Chat Messages */}
-      <div className="mb-6">
-        <h2 className="text-lg font-semibold text-slate-800 mb-4">
+      <div
+        className="mb-6"
+        aria-label={t("ticketDetail.conversationAria", "Section conversation")}
+      >
+        <h2
+          className="text-lg font-semibold text-slate-800 mb-4"
+          aria-label={t(
+            "ticketDetail.conversationTitleAria",
+            "Titre conversation"
+          )}
+        >
           {t("ticketDetail.sections.conversation")}
         </h2>
-        <div className="space-y-4 max-h-96 overflow-y-auto border border-slate-200 rounded-lg p-4">
+        <div
+          className="space-y-4 max-h-96 overflow-y-auto border border-slate-200 rounded-lg p-4"
+          aria-label={t(
+            "ticketDetail.conversationListAria",
+            "Liste des messages"
+          )}
+        >
           {ticket.chat_messages && ticket.chat_messages.length > 0 ? (
             ticket.chat_messages.map((message) => (
-              <div key={message.id} className="relative">
+              <div
+                key={message.id}
+                className="relative"
+                aria-label={t("ticketDetail.messageAria", "Message du chat")}
+              >
                 <ChatMessageComponent
                   message={message}
                   onSpeak={() => handleSpeakMessage(message)}
-                  speaking={speaking && speakingMessageId === message.id}
+                  speaking={
+                    speechSynthesisSupported
+                      ? isSpeaking && speakingMessageId === message.id
+                      : false
+                  }
                   speechSupported={speechSynthesisSupported}
+                  speakButtonProps={{
+                    "aria-label":
+                      isSpeaking && speakingMessageId === message.id
+                        ? t(
+                            "ticketDetail.conversation.stopSpeakingAria",
+                            "Arrêter la lecture du message"
+                          )
+                        : t(
+                            "ticketDetail.conversation.speakAria",
+                            "Lire le message à voix haute"
+                          ),
+                    title:
+                      isSpeaking && speakingMessageId === message.id
+                        ? t(
+                            "ticketDetail.conversation.stopSpeakingTitle",
+                            "Arrêter la lecture"
+                          )
+                        : t(
+                            "ticketDetail.conversation.speakTitle",
+                            "Lire le message à voix haute"
+                          ),
+                  }}
                 />
               </div>
             ))
           ) : (
-            <p className="text-slate-500 text-center py-8">
+            <p
+              className="text-slate-500 text-center py-8"
+              aria-label={t("ticketDetail.noMessagesAria", "Aucun message")}
+            >
               {t("ticketDetail.conversation.noMessages")}
             </p>
           )}
