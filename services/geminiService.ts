@@ -24,7 +24,7 @@ function formatChatHistoryForGemini(appChatHistory: ChatMessage[]): Content[] {
         .filter(msg => msg.sender !== 'system_summary') 
         .map(msg => ({
             role: msg.sender === 'user' ? 'user' : 'model', // Treat 'agent' messages as 'model' for context
-            parts: [{ text: msg.text }],
+            parts: [{ text: msg.message }],
         }));
 }
 
@@ -212,14 +212,14 @@ export async function getTicketSummary(
     // Create a concise representation of the ticket for the summary prompt
     const ticketContext = `Ticket Title: "${ticket.title}"
 Category: "${ticket.category}" 
-Initial Description: "${ticket.description}"
+Initial Description: "${ticket.detailed_description}"
 Status: ${ticket.status}
 Priority: ${ticket.priority}
 Workstation ID: ${ticket.workstation_id || 'Not provided'}
 `;
 
     // Format chat history, excluding any previous system summaries
-    const geminiFormattedHistory = formatChatHistoryForGemini(ticket.chat_history);
+    const geminiFormattedHistory = formatChatHistoryForGemini(ticket.chat_messages);
 
     const systemInstruction = `You are Nexus, an AI assistant. Your task is to provide a concise summary (2-4 sentences) of the user's problem and key interactions based on the provided ticket context and chat history. 
 This summary is for a help desk agent who is about to take over the ticket.

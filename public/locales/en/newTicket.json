@@ -1,92 +1,82 @@
 {
-    "title": "Nouveau Ticket",
-    "subtitle": "Créer un nouveau ticket de support",
-    "backToDashboard": "Retour au Tableau de Bord",
+    "title": "New Ticket",
+    "subtitle": "Create a new support ticket",
+    "backToDashboard": "Back to Dashboard",
     "form": {
-        "title": "Titre du Ticket",
-        "titlePlaceholder": "Résumé bref du problème",
-        "description": "Description Détaillée",
-        "descriptionPlaceholder": "Décrivez votre problème en détail...",
-        "category": "Catégorie",
-        "categoryPlaceholder": "Sélectionnez une catégorie",
-        "priority": "Niveau de Priorité",
-        "priorityPlaceholder": "Sélectionnez la priorité",
-        "workstationId": "ID du Poste de Travail",
-        "workstationIdPlaceholder": "Optionnel - Identifiant de votre poste",
-        "attachments": "Pièces Jointes",
-        "attachmentsHelper": "Ajoutez des captures d'écran ou fichiers pertinents"
+        "title": "Ticket Title",
+        "titlePlaceholder": "Brief summary of the issue",
+        "description": "Detailed Description",
+        "descriptionPlaceholder": "Describe your issue in detail...",
+        "category": "Category",
+        "categoryPlaceholder": "Select a category",
+        "priority": "Priority Level",
+        "priorityPlaceholder": "Select priority",
+        "workstationId": "Workstation ID",
+        "workstationIdPlaceholder": "Optional - Your workstation ID",
+        "attachments": "Attachments",
+        "attachmentsHelper": "Add relevant screenshots or files"
     },
     "categories": {
-        "technical": "Technique",
-        "hardware": "Matériel",
-        "software": "Logiciel",
-        "network": "Réseau",
-        "security": "Sécurité",
-        "billing": "Facturation",
-        "general": "Général",
-        "feature": "Demande de Fonctionnalité",
-        "bug": "Rapport de Bug",
-        "other": "Autre"
+        "technical": "Technical",
+        "hardware": "Hardware",
+        "software": "Software",
+        "network": "Network",
+        "security": "Security",
+        "billing": "Billing",
+        "general": "General",
+        "feature": "Feature Request",
+        "bug": "Bug Report",
+        "other": "Other"
     },
     "priorities": {
-        "low": "Faible - Non urgent",
-        "medium": "Moyen - Normal",
-        "high": "Élevé - Important",
-        "urgent": "Urgent - Critique"
+        "low": "Low - Not urgent",
+        "medium": "Medium - Normal",
+        "high": "High - Important",
+        "urgent": "Urgent - Critical"
     },
     "actions": {
-        "submit": "Créer le Ticket",
-        "cancel": "Annuler",
-        "saveDraft": "Sauvegarder le Brouillon",
-        "reset": "Réinitialiser"
+        "submit": "Create Ticket",
+        "cancel": "Cancel",
+        "saveDraft": "Save Draft",
+        "reset": "Reset"
     },
     "aiSummary": {
-        "title": "Résumé IA",
-        "generating": "Génération du résumé automatique...",
-        "generated": "Résumé généré automatiquement à partir de votre conversation",
-        "failed": "Échec de la génération automatique. Veuillez remplir manuellement."
+        "title": "AI Summary",
+        "generating": "Generating automatic summary...",
+        "generated": "Summary automatically generated from your conversation",
+        "failed": "Failed to generate summary. Please fill out manually."
     },
     "validation": {
-        "titleRequired": "Le titre est requis",
-        "titleMaxLength": "Le titre ne peut pas dépasser 100 caractères",
-        "descriptionRequired": "La description est requise",
-        "descriptionMinLength": "La description doit contenir au moins 10 caractères",
-        "categoryRequired": "La catégorie est requise",
-        "priorityRequired": "La priorité est requise",
-        "workstationIdMaxLength": "L'ID du poste ne peut pas dépasser 50 caractères"
+        "titleRequired": "Title is required",
+        "titleMaxLength": "Title cannot exceed 100 characters",
+        "descriptionRequired": "Description is required",
+        "descriptionMinLength": "Description must be at least 10 characters",
+        "categoryRequired": "Category is required",
+        "priorityRequired": "Priority is required",
+        "workstationIdMaxLength": "Workstation ID cannot exceed 50 characters"
     },
     "errors": {
-        "titleRequired": "Le titre est requis",
-        "titleMaxLength": "Le titre ne peut pas dépasser 100 caractères",
-        "descriptionRequired": "La description est requise",
-        "descriptionMinLength": "La description doit contenir au moins 10 caractères",
-        "categoryRequired": "La catégorie est requise",
-        "priorityRequired": "La priorité est requise",
-        "workstationIdMaxLength": "L'ID du poste ne peut pas dépasser 50 caractères",
-        "summaryFailed": "Échec du résumé IA : {{error}}. Veuillez remplir le formulaire manuellement.",
-        "createFailed": "Échec de la création du ticket. Veuillez réessayer.",
-        "networkError": "Erreur réseau. Vérifiez votre connexion.",
-        "unauthorized": "Session expirée. Veuillez vous reconnecter.",
-        "planLimitReached": "Limite de tickets atteinte pour votre plan.",
-        "critical": "Une erreur critique s'est produite. Veuillez contacter le support."
+        "titleRequired": "Title is required",
+        "titleMaxLength": "Title cannot exceed 100 characters",
+        "descriptionRequired": "Description is required",
+        "descriptionMinLength": "Description must be at least 10 characters",
+        "categoryRequired": "Category is required",
+        "priorityRequired": "Priority is required",
+        "workstationIdMaxLength": "Workstation ID cannot exceed 50 characters",
+        "summaryFailed": "AI summary failed: {{error}}. Please fill out the form manually.",
+        "createFailed": "Failed to create ticket. Please try again.",
+        "networkError": "Network error. Please check your connection.",
+        "unauthorized": "Session expired. Please log in again.",
+        "planLimitReached": "Ticket limit reached for your plan.",
+        "critical": "A critical error occurred. Please contact support."
     },
     "success": {
-        "created": "Ticket créé avec succès !",
-        "createdWithId": "Ticket #{{id}} créé avec succès !",
-        "redirecting": "Redirection vers le détail du ticket...",
-        "draftSaved": "Brouillon sauvegardé"
+        "created": "Ticket created successfully!",
+        "createdWithId": "Ticket #{{id}} created successfully!",
+        "redirecting": "Redirecting to ticket details...",
+        "draftSaved": "Draft saved"
     },
     "chatHistory": {
-        "title": "Historique de Conversation",
-        "subtitle": "Basé sur votre conversation avec l'assistant IA",
-        "noHistory": "Aucun historique de conversation disponible",
-        "messages": "{{count}} messages"
-    },
-    "tips": {
-        "title": "Conseils pour un Bon Ticket",
-        "tip1": "Soyez précis dans le titre",
-        "tip2": "Décrivez les étapes pour reproduire le problème",
-        "tip3": "Incluez des captures d'écran si possible",
-        "tip4": "Mentionnez votre environnement (OS, navigateur, etc.)"
+        "title": "Conversation History"
     }
 }

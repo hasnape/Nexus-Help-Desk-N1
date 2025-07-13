@@ -64,16 +64,18 @@ const SignUpPage: React.FC = () => {
     { value: UserRole.MANAGER, label: t("roles.manager") },
   ];
 
+  // Récupérer les infos pricing depuis la traduction
   const pricingTiers = [
     {
       nameKey: "pricing.freemium.name",
       planValue: "freemium" as Plan,
       icon: <FreemiumPlanIcon className="w-8 h-8 text-slate-400" />,
       priceKey: "pricing.freemium.price",
+      paypalLink: t("pricing.freemium.paypalLink"),
       features: [
-        "pricing.freemium.feature1",
-        "pricing.freemium.feature2",
-        "pricing.freemium.feature3",
+        ...((t("pricing.freemium.features", {
+          returnObjects: true,
+        }) as string[]) ?? []),
       ],
     },
     {
@@ -81,11 +83,11 @@ const SignUpPage: React.FC = () => {
       planValue: "standard" as Plan,
       icon: <StandardPlanIcon className="w-8 h-8 text-primary" />,
       priceKey: "pricing.standard.price",
+      paypalLink: t("pricing.standard.paypalLink"),
       features: [
-        "pricing.standard.feature1",
-        "pricing.standard.feature2",
-        "pricing.standard.feature3",
-        "pricing.standard.feature4",
+        ...((t("pricing.standard.features", {
+          returnObjects: true,
+        }) as string[]) ?? []),
       ],
     },
     {
@@ -93,11 +95,10 @@ const SignUpPage: React.FC = () => {
       planValue: "pro" as Plan,
       icon: <ProPlanIcon className="w-8 h-8 text-amber-500" />,
       priceKey: "pricing.pro.price",
+      paypalLink: t("pricing.pro.paypalLink"),
       features: [
-        "pricing.pro.feature1",
-        "pricing.pro.feature2",
-        "pricing.pro.feature3",
-        "pricing.pro.feature4",
+        ...((t("pricing.pro.features", { returnObjects: true }) as string[]) ??
+          []),
       ],
     },
   ];
@@ -359,43 +360,40 @@ const SignUpPage: React.FC = () => {
                         {t("signup.selectButton", { default: "Commencer" })}
                       </button>
                       {/* PayPal et info activation uniquement pour les plans payants */}
-                      {["standard", "pro"].includes(tier.planValue) && (
-                        <>
-                          <a
-                            href={
-                              tier.planValue === "standard"
-                                ? "https://www.paypal.com/biz/fund?id=nexushelpdeskpro"
-                                : "https://www.paypal.com/biz/fund?id=nexushelpdeskpremium"
-                            }
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="mt-2 block"
-                            aria-label={t(
-                              `signup.paypalAria.${tier.planValue}`,
-                              `Payer le plan ${tier.planValue} avec PayPal`
-                            )}
-                            tabIndex={0}
-                          >
-                            <button className="w-full py-2 px-4 rounded-lg font-semibold text-base bg-yellow-400 text-white">
-                              {t("payButton", {
-                                default: "Payer avec PayPal",
-                              })}
-                            </button>
-                          </a>
-                          <p
-                            className="mt-2 text-xs text-slate-600"
-                            aria-label={t(
-                              `signup.activationInfoAria.${tier.planValue}`,
-                              `Info activation ${tier.planValue}`
-                            )}
-                          >
-                            {t(
-                              "activationInfo",
-                              "Une fois le paiement confirmé, vous recevrez votre clé d’activation par email."
-                            )}
-                          </p>
-                        </>
-                      )}
+                      {["standard", "pro"].includes(tier.planValue) &&
+                        tier.paypalLink && (
+                          <>
+                            <a
+                              href={tier.paypalLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="mt-2 block"
+                              aria-label={t(
+                                `signup.paypalAria.${tier.planValue}`,
+                                `Payer le plan ${tier.planValue} avec PayPal`
+                              )}
+                              tabIndex={0}
+                            >
+                              <button className="w-full py-2 px-4 rounded-lg font-semibold text-base bg-yellow-400 text-white">
+                                {t("payButton", {
+                                  default: "Payer avec PayPal",
+                                })}
+                              </button>
+                            </a>
+                            <p
+                              className="mt-2 text-xs text-slate-600"
+                              aria-label={t(
+                                `signup.activationInfoAria.${tier.planValue}`,
+                                `Info activation ${tier.planValue}`
+                              )}
+                            >
+                              {t(
+                                "activationInfo",
+                                "Une fois le paiement confirmé, vous recevrez votre clé d’activation par email."
+                              )}
+                            </p>
+                          </>
+                        )}
                     </div>
                   ))}
                 </div>

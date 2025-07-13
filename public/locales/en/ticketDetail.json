@@ -112,5 +112,8 @@
         "appointmentScheduled": "Appointment scheduled",
         "messageSent": "Message sent",
         "error": "An error occurred"
-    }
+    },
+    "agentProposed": "Agent proposed an appointment on {{date}} at {{time}} ({{location}})",
+    "userConfirmed": "User confirmed the appointment on {{date}} at {{time}} ({{location}})",
+    "userRequestsReschedule": "User requests rescheduling to {{date}} at {{time}} ({{location}})"
 }

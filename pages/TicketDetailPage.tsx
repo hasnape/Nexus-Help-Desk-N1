@@ -3,15 +3,14 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useApp } from "../App";
 import ChatMessageComponent from "../components/ChatMessage";
-import { Button, Textarea, Select, Input } from "../components/FormElements";
+import { Button, Textarea, Input } from "../components/FormElements";
 import {
   TicketStatus,
   ChatMessage as ChatMessageType,
-  TicketPriority,
   UserRole,
   AppointmentDetails,
 } from "../types";
-import { TICKET_STATUS_KEYS, TICKET_PRIORITY_KEYS } from "../constants";
+import { TICKET_STATUS_KEYS } from "../constants";
 import LoadingSpinner from "../components/LoadingSpinner";
 import useSpeechRecognition from "../hooks/useSpeechRecognition";
 import useTextToSpeech from "../hooks/useTextToSpeech";
@@ -32,32 +31,12 @@ const MicrophoneIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   </svg>
 );
 
-const SpeakerLoudIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 20 20"
-    fill="currentColor"
-    {...props}
-  >
-    <path d="M10 3a.75.75 0 01.75.75v12.5a.75.75 0 01-1.5 0V3.75A.75.75 0 0110 3zM6.5 5.05A.75.75 0 005 5.801v8.397a.75.75 0 001.5.652V5.802a.75.75 0 00-.75-.752zM13.5 5.05a.75.75 0 00-.75.752v8.397a.75.75 0 001.5.652V5.802a.75.75 0 00-.75-.752zM2.75 7.5a.75.75 0 00-1.5 0v5a.75.75 0 001.5 0v-5zM17.25 7.5a.75.75 0 00-1.5 0v5a.75.75 0 001.5 0v-5z" />
-  </svg>
-);
-
-const SpeakerMutedIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 20 20"
-    fill="currentColor"
-    {...props}
-  >
-    <path d="M10 3.75a.75.75 0 00-1.14-.64L5.24 5.74a.75.75 0 00-.49.65v7.22c0 .27.14.52.37.66l3.38 2.25a.75.75 0 001.14-.64V3.75zM15.98 7.67a.75.75 0 10-1.06-1.06L13.5 8.03l-1.42-1.42a.75.75 0 00-1.06 1.06L12.44 9.09l-1.42 1.42a.75.75 0 001.06 1.06L13.5 10.15l1.42 1.42a.75.75 0 001.06-1.06L14.56 9.09l1.42-1.42z" />
-  </svg>
-);
+// ... Suppression des icônes inutilisées ...
 
 const TicketDetailPageContent: React.FC = () => {
   const { ticketId } = useParams<{ ticketId: string }>();
   const navigate = useNavigate();
-  const { t, i18n } = useTranslation([
+  const { t } = useTranslation([
     "ticketDetail",
     "common",
     "enums",
@@ -67,7 +46,7 @@ const TicketDetailPageContent: React.FC = () => {
   const {
     user,
     getTicketById,
-    sendChatMessage,
+    addChatMessage,
     updateTicketStatus,
     isAutoReadEnabled,
     toggleAutoRead,
@@ -101,22 +80,11 @@ const TicketDetailPageContent: React.FC = () => {
     browserSupportsSpeechRecognition,
   } = useSpeechRecognition();
 
-  const {
-    speak,
-    stop: stopSpeaking,
-    speaking: isSpeaking,
-    supported: speechSynthesisSupported,
-  } = useTextToSpeech();
+  const { speak, cancel, isSpeaking } = useTextToSpeech();
+  const speechSynthesisSupported =
+    typeof window !== "undefined" && "speechSynthesis" in window;
 
-  // Obtenir la locale BCP-47 pour la synthèse vocale
-  const getBCP47Locale = (): string => {
-    const langMap: Record<string, string> = {
-      fr: "fr-FR",
-      en: "en-US",
-      ar: "ar-SA",
-    };
-    return langMap[i18n.language] || "fr-FR";
-  };
+  // ...
 
   useEffect(() => {
     if (!ticket) {
@@ -145,7 +113,7 @@ const TicketDetailPageContent: React.FC = () => {
       speechSynthesisSupported
     ) {
       setLastSpokenAiMessage({ text: lastMessage.message, id: lastMessage.id });
-      speak(lastMessage.message, getBCP47Locale());
+      speak(lastMessage.message);
       setSpeakingMessageId(lastMessage.id);
     }
   }, [
@@ -160,7 +128,7 @@ const TicketDetailPageContent: React.FC = () => {
     if (!newMessage.trim() || !ticket) return;
 
     try {
-      await sendChatMessage(ticket.id, newMessage);
+      await addChatMessage(ticket.id, newMessage);
       setNewMessage("");
     } catch (error) {
       console.error("Failed to send message:", error);
@@ -183,10 +151,10 @@ const TicketDetailPageContent: React.FC = () => {
 
   const handleSpeakMessage = (message: ChatMessageType) => {
     if (isSpeaking && speakingMessageId === message.id) {
-      stopSpeaking();
+      cancel();
       setSpeakingMessageId(null);
     } else {
-      speak(message.message, getBCP47Locale());
+      speak(message.message);
       setSpeakingMessageId(message.id);
     }
   };
@@ -210,7 +178,13 @@ const TicketDetailPageContent: React.FC = () => {
     };
 
     try {
-      await proposeOrUpdateAppointment(ticket.id, appointmentDetails);
+      const role = user?.role === UserRole.AGENT ? "agent" : "user";
+      await proposeOrUpdateAppointment(
+        ticket.id,
+        appointmentDetails,
+        role,
+        user?.id ?? ""
+      );
       setApptDate("");
       setApptTime("");
       setApptLocationMethod("");
@@ -370,19 +344,21 @@ const TicketDetailPageContent: React.FC = () => {
             {t("ticketDetail.sections.statusManagement")}
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            {TICKET_STATUS_KEYS.map((status) => (
-              <button
-                key={status}
-                onClick={() => handleStatusChange(status as TicketStatus)}
-                className={`px-3 py-2 rounded text-sm font-medium transition-colors ${
-                  ticket.status === status
-                    ? "bg-primary text-white"
-                    : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                }`}
-              >
-                {t(`enums.ticketStatus.${status}`)}
-              </button>
-            ))}
+            {Array.isArray(TICKET_STATUS_KEYS)
+              ? TICKET_STATUS_KEYS.map((status) => (
+                  <button
+                    key={status}
+                    onClick={() => handleStatusChange(status as TicketStatus)}
+                    className={`px-3 py-2 rounded text-sm font-medium transition-colors ${
+                      ticket.status === status
+                        ? "bg-primary text-white"
+                        : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                    }`}
+                  >
+                    {t(`enums.ticketStatus.${status}`)}
+                  </button>
+                ))
+              : null}
           </div>
         </div>
       )}
@@ -493,7 +469,7 @@ const TicketDetailPageContent: React.FC = () => {
                 <ChatMessageComponent
                   message={message}
                   onSpeak={() => handleSpeakMessage(message)}
-                  speaking={
+                  isSpeaking={
                     speechSynthesisSupported
                       ? isSpeaking && speakingMessageId === message.id
                       : false

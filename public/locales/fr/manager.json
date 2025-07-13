@@ -96,7 +96,8 @@
         "deleteUserFailed": "Échec de la suppression de l'utilisateur : {{message}}",
         "deleteUserCritical": "Erreur critique lors de la suppression de l'utilisateur : {{message}}",
         "agentLimitReached": "Limite d'agents atteinte pour le plan {{plan}}. Veuillez mettre à niveau pour ajouter plus d'agents.",
-        "loadingError": "Erreur lors du chargement des données"
+        "loadingError": "Erreur lors du chargement des données",
+        "summaryGenerationFailed": "Échec de la génération du résumé du ticket."
     },
     "emptyStates": {
         "noTickets": "Aucun ticket trouvé",

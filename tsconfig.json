@@ -1,12 +1,13 @@
 {
   "compilerOptions": {
     "target": "ES2020",
+    "typeRoots": ["./node_modules/@types"],
     "experimentalDecorators": true,
     "useDefineForClassFields": false,
     "module": "ESNext",
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
-    "types": ["vite/client", "react"], // ✅ AJOUT: Types pour import.meta.env
+    "types": ["react"], // ✅ AJOUT: Types pour import.meta.env
 
     /* Bundler mode */
     "moduleResolution": "node",

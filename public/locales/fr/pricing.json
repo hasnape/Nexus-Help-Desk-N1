@@ -1,8 +1,9 @@
 {
     "freemium": {
         "name": "Freemium",
-        "price": "Gratuit",
-        "description": "Gratuit pour une personne. Vous pouvez gérer vos demandes (tickets) et utiliser le chat IA pour poser des questions ou créer un ticket. Pas de personnalisation, pas d'intégration avancée. Idéal pour démarrer seul.",
+        "price": "1,00 € EUR/mois",
+        "paypalLink": "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-3KG35083B1716942TNBYOA4Q",
+        "description": "Freemium GÉNÉREUX Parfait pour débuter FONCTION BASIC. Frais de configuration: 0,00 € EUR. Suspendre l'abonnement après 2 périodes de facturation manquées. Facturer automatiquement les paiements dus: Activé.",
         "features": [
             "1 utilisateur (vous seul)",
             "Gestion de vos demandes (tickets)",
@@ -13,8 +14,9 @@
     },
     "standard": {
         "name": "Standard",
-        "price": "9 €/mois",
-        "description": "Convient aux petites équipes. Vous pouvez inviter autant de collègues que vous voulez et gérer un nombre illimité de demandes. Assistance prioritaire par email. Pas de personnalisation avancée.",
+        "price": "10,00 € EUR/mois",
+        "paypalLink": "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-0E515487AE797135CNBTRYKA",
+        "description": "50% OFF - 5€ au lieu de 10€/mois la première période, puis 10€/mois. Agents illimités, Tickets illimités, IA avancée, Support prioritaire, Fonctions vocales. Frais de configuration: 0,00 € EUR. Suspendre l'abonnement après 2 périodes de facturation manquées. Facturer automatiquement les paiements dus: Activé.",
         "features": [
             "Équipe illimitée (invitez autant de personnes que vous voulez)",
             "Demandes illimitées",
@@ -25,8 +27,9 @@
     },
     "pro": {
         "name": "Pro",
-        "price": "29 €/mois",
-        "description": "Pour les entreprises qui veulent gérer plusieurs profils et accéder à des outils avancés. API web multi-profil, rapports détaillés, fonctions vocales et assistance par mail ou téléphone sur rendez-vous.",
+        "price": "20,00 € EUR/mois",
+        "paypalLink": "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-7HP75881LB3608938NBTBGUA",
+        "description": "40% OFF - 12€ au lieu de 20€/mois la première période, puis 20€/mois. Toutes Standard PLUS IA Niveau 2, Rapports avancés, Support 24/7, API complète. Frais de configuration: 0,00 € EUR. Suspendre l'abonnement après 2 périodes de facturation manquées. Facturer automatiquement les paiements dus: Activé.",
         "features": [
             "Tout ce qui est inclus dans Standard",
             "API web multi-profil (plusieurs utilisateurs et rôles)",

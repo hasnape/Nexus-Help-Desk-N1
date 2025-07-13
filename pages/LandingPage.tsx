@@ -329,7 +329,10 @@ const LandingPage: React.FC = () => {
                 </p>
                 <div className="mt-6">
                   <span className="text-4xl font-bold">
-                    {t("pricing:freemium.price")}
+                    {/* Affichage du prix Freemium à 1€ */}
+                    {t("pricing:freemium.price", {
+                      defaultValue: "1,00 € EUR/mois",
+                    })}
                   </span>
                   <span className="text-slate-500 ms-1">
                     {t("pricing:perAgentPerMonth")}
@@ -363,7 +366,7 @@ const LandingPage: React.FC = () => {
                   <a className="block w-full" href="/signup?plan=freemium">
                     <button className="font-semibold rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 flex items-center justify-center px-6 py-3 text-base bg-primary hover:bg-primary-dark text-white focus:ring-primary w-full">
                       {t("pricing:freemium.ctaButton", {
-                        default: "Commencer gratuitement",
+                        default: "Commencer pour 1€ / mois",
                       })}
                     </button>
                   </a>

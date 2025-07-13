@@ -62,7 +62,7 @@ const NewTicketPage: React.FC = () => {
             }),
           });
           const fallbackDescription = state.chatHistory
-            .map((m) => `[${m.sender}] ${m.text}`)
+            .map((m) => `[${m.sender}] ${m.message}`)
             .join("\n");
           setDescription(fallbackDescription);
         }
@@ -130,11 +130,12 @@ const NewTicketPage: React.FC = () => {
 
     const ticketData = {
       title: title.trim(),
-      description: description.trim(),
+      detailed_description: description.trim(),
       category,
       priority,
-      workstation_id: workstationId.trim() || undefined,
       status: "Open" as TicketStatus,
+      workstation_id: workstationId.trim() || undefined,
+      chat_messages: chatHistoryRef.current,
     };
 
     try {

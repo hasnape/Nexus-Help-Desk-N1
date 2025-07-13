@@ -108,5 +108,8 @@
         "appointmentScheduled": "Rendez-vous programmé",
         "messageSent": "Message envoyé",
         "error": "Une erreur s'est produite"
-    }
+    },
+    "agentProposed": "L'agent a proposé un rendez-vous le {{date}} à {{time}} ({{location}})",
+    "userConfirmed": "L'utilisateur a confirmé le rendez-vous le {{date}} à {{time}} ({{location}})",
+    "userRequestsReschedule": "L'utilisateur demande un report au {{date}} à {{time}} ({{location}})"
 }

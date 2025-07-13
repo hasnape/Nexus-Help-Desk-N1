@@ -72,29 +72,31 @@
     "plans": {
         "freemium": {
             "name": "Freemium",
-            "price": "Free",
+            "price": "1€ EUR/month",
             "features": [
                 "Up to 3 agents",
                 "200 tickets per month",
                 "AI chat with ticket creation",
                 "Basic dashboards",
                 "Email support"
-            ]
+            ],
+            "ctaButton": "Start for 1€ / month"
         },
         "standard": {
             "name": "Standard",
-            "price": "5€",
+            "price": "5€ EUR/month",
             "features": [
                 "Unlimited agents",
                 "Unlimited tickets",
                 "AI chat with full history",
                 "Advanced ticket management",
                 "Priority support"
-            ]
+            ],
+            "ctaButton": "Choose this plan"
         },
         "pro": {
             "name": "Pro",
-            "price": "12€",
+            "price": "12€ EUR/month",
             "features": [
                 "Everything in Standard",
                 "Voice features (TTS/STT)",
@@ -102,7 +104,8 @@
                 "Advanced analytics",
                 "Dedicated 24/7 support",
                 "API integrations"
-            ]
+            ],
+            "ctaButton": "Choose this plan"
         }
     },
     "submitButton": "Create my account",

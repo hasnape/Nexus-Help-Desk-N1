@@ -87,7 +87,7 @@ const HelpChatPage: React.FC = () => {
     const initialAiMessage: ChatMessage = {
       id: crypto.randomUUID(),
       sender: "ai",
-      text: t("initialMessage"),
+      message: t("initialMessage"),
       timestamp: new Date(),
     };
 
@@ -134,7 +134,7 @@ const HelpChatPage: React.FC = () => {
     const userMessage: ChatMessage = {
       id: crypto.randomUUID(),
       sender: "user",
-      text: newMessage,
+      message: newMessage,
       timestamp: new Date(),
     };
 
@@ -156,7 +156,7 @@ const HelpChatPage: React.FC = () => {
       const aiMessage: ChatMessage = {
         id: crypto.randomUUID(),
         sender: "ai",
-        text: response.text,
+        message: response.text,
         timestamp: new Date(),
       };
 
@@ -176,7 +176,7 @@ const HelpChatPage: React.FC = () => {
       const errorMessage: ChatMessage = {
         id: crypto.randomUUID(),
         sender: "ai",
-        text: t("ai.error"),
+        message: t("ai.error"),
         timestamp: new Date(),
       };
       setChatHistory([...updatedHistory, errorMessage]);
@@ -262,6 +262,20 @@ const HelpChatPage: React.FC = () => {
                   showSpeakButton={
                     voiceFeatureCheck.allowed && browserSupportsTextToSpeech
                   }
+                  speechSupported={browserSupportsTextToSpeech}
+                  speakButtonProps={{
+                    "aria-label":
+                      speakingMessageId === message.id
+                        ? t(
+                            "voice.stopSpeakingAria",
+                            "Arrêter la lecture du message"
+                          )
+                        : t("voice.speakAria", "Lire le message à voix haute"),
+                    title:
+                      speakingMessageId === message.id
+                        ? t("voice.stopSpeakingTitle", "Arrêter la lecture")
+                        : t("voice.speakTitle", "Lire le message à voix haute"),
+                  }}
                 />
               ))}
               {isLoadingAi && (

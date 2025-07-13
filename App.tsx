@@ -114,9 +114,9 @@ interface AppContextType {
   getAllUsers: () => User[];
   proposeOrUpdateAppointment: (
     ticketId: string,
-    details: Omit<AppointmentDetails, "proposedBy" | "id" | "history">,
+    details: Omit<AppointmentDetails, "proposed_by" | "proposed_at">,
     proposedBy: "agent" | "user",
-    newStatus: AppointmentDetails["status"]
+    newStatus: string
   ) => Promise<void>;
   deleteTicket: (ticketId: string) => Promise<void>;
   updateUserRole: (
@@ -819,7 +819,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
         summaryMessage = {
           id: crypto.randomUUID(),
           sender: "system_summary",
-          text: summaryText,
+          message: summaryText,
           timestamp: new Date(),
         };
       } catch (error) {
@@ -827,7 +827,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
         summaryMessage = {
           id: crypto.randomUUID(),
           sender: "system_summary",
-          text: translateHook("appContext.error.summaryGenerationFailed", {
+          message: translateHook("appContext.error.summaryGenerationFailed", {
             default: "Failed to generate ticket summary.",
           }),
           timestamp: new Date(),
@@ -837,9 +837,9 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
       }
     }
 
-    const updatedChatHistory = summaryMessage
-      ? [...ticketToUpdate.chat_history, summaryMessage]
-      : ticketToUpdate.chat_history;
+    const updatedChatMessages = summaryMessage
+      ? [...ticketToUpdate.chat_messages, summaryMessage]
+      : ticketToUpdate.chat_messages;
 
     try {
       const { data, error } = await supabase
@@ -847,7 +847,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
         .update({
           assigned_agent_id: agentId || null,
           updated_at: new Date().toISOString(),
-          chat_history: updatedChatHistory,
+          chat_messages: updatedChatMessages,
         })
         .eq("id", ticketId)
         .select()
@@ -915,11 +915,11 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
     const agentMessage: ChatMessage = {
       id: crypto.randomUUID(),
       sender: "agent",
-      text: agentMessageText,
+      message: agentMessageText,
       timestamp: new Date(),
       agentId: user.id,
     };
-    const updated_chat_history = [...ticket.chat_history, agentMessage];
+    const updated_chat_messages = [...ticket.chat_messages, agentMessage];
     const newStatus =
       ticket.status === TICKET_STATUS_KEYS.OPEN ||
       ticket.status === TICKET_STATUS_KEYS.RESOLVED
@@ -929,7 +929,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
     const { data, error } = await supabase
       .from("tickets")
       .update({
-        chat_history: updated_chat_history,
+        chat_messages: updated_chat_messages,
         status: newStatus,
         updated_at: new Date().toISOString(),
       })
@@ -955,7 +955,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
     const userMessage: ChatMessage = {
       id: crypto.randomUUID(),
       sender: "user",
-      text: userMessageText,
+      message: userMessageText,
       timestamp: new Date(),
     };
     const newStatus =
@@ -964,13 +964,13 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
         ? TICKET_STATUS_KEYS.IN_PROGRESS
         : ticket.status;
 
-    let tempUpdatedChatHistory = [...ticket.chat_history, userMessage];
+    let tempUpdatedChatMessages = [...ticket.chat_messages, userMessage];
     setTickets((prev) =>
       prev.map((t) =>
         t.id === ticketId
           ? {
               ...t,
-              chat_history: tempUpdatedChatHistory,
+              chat_messages: tempUpdatedChatMessages,
               status: newStatus,
               updated_at: new Date(),
             }
@@ -982,7 +982,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
       await supabase
         .from("tickets")
         .update({
-          chat_history: tempUpdatedChatHistory,
+          chat_messages: tempUpdatedChatMessages,
           status: newStatus,
           updated_at: new Date().toISOString(),
         })
@@ -991,31 +991,31 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
     }
 
     setIsLoadingAi(true);
-    let finalChatHistory;
+    let finalChatMessages;
     try {
       const aiResponse = await getFollowUpHelpResponse(
         ticket.title,
         ticket.category,
-        tempUpdatedChatHistory,
+        tempUpdatedChatMessages,
         ticket.assigned_ai_level,
         user.language_preference
       );
       const aiResponseMessage: ChatMessage = {
         id: crypto.randomUUID(),
         sender: "ai",
-        text: aiResponse.text,
+        message: aiResponse.text,
         timestamp: new Date(),
       };
-      finalChatHistory = [...tempUpdatedChatHistory, aiResponseMessage];
+      finalChatMessages = [...tempUpdatedChatMessages, aiResponseMessage];
       if (onAiMessageAdded) onAiMessageAdded(aiResponseMessage);
     } catch (error: any) {
       console.error("Error getting AI follow-up response:", error);
-      finalChatHistory = [
-        ...tempUpdatedChatHistory,
+      finalChatMessages = [
+        ...tempUpdatedChatMessages,
         {
           id: crypto.randomUUID(),
           sender: "ai",
-          text: translateHook("appContext.error.aiFollowUpFailed", {
+          message: translateHook("appContext.error.aiFollowUpFailed", {
             error: error.message || "Unknown",
           }),
           timestamp: new Date(),
@@ -1025,7 +1025,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
       const { data, error } = await supabase
         .from("tickets")
         .update({
-          chat_history: finalChatHistory,
+          chat_messages: finalChatMessages,
           status: newStatus,
           updated_at: new Date().toISOString(),
         })
@@ -1043,30 +1043,24 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
 
   const proposeOrUpdateAppointment = async (
     ticketId: string,
-    details: Omit<AppointmentDetails, "proposedBy" | "id" | "history">,
+    details: Omit<AppointmentDetails, "proposed_by" | "proposed_at">,
     proposedBy: "agent" | "user",
-    newStatus: AppointmentDetails["status"]
+    newStatus: string
   ): Promise<void> => {
     if (!user || !company || company.plan !== "pro") return;
     const ticket = tickets.find((t) => t.id === ticketId);
     if (!ticket) return;
 
     const newAppointment: AppointmentDetails = {
-      ...details,
-      id: crypto.randomUUID(),
-      proposedBy: proposedBy,
-      status: newStatus,
-      history: ticket.current_appointment
-        ? [
-            ...(ticket.current_appointment.history || []),
-            ticket.current_appointment,
-          ]
-        : [],
+      date: details.date,
+      time: details.time,
+      location_method: details.location_method,
+      proposed_by: proposedBy,
+      proposed_at: new Date().toISOString(),
     };
 
     let chatMessageText = "";
-    const { proposedDate, proposedTime, locationOrMethod } = details;
-    const apptDateStr = new Date(proposedDate).toLocaleDateString(language, {
+    const apptDateStr = new Date(details.date).toLocaleDateString(language, {
       weekday: "long",
       month: "long",
       day: "numeric",
@@ -1075,37 +1069,41 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
     if (newStatus === "pending_user_approval")
       chatMessageText = translateHook("appointment.chat.agentProposed", {
         date: apptDateStr,
-        time: proposedTime,
-        location: locationOrMethod,
+        time: details.time,
+        location: details.location_method,
       });
     else if (newStatus === "confirmed")
       chatMessageText = translateHook("appointment.chat.userConfirmed", {
         date: apptDateStr,
-        time: proposedTime,
-        location: locationOrMethod,
+        time: details.time,
+        location: details.location_method,
       });
     else if (newStatus === "rescheduled_by_user")
       chatMessageText = translateHook(
         "appointment.chat.userRequestsReschedule",
-        { date: apptDateStr, time: proposedTime, location: locationOrMethod }
+        {
+          date: apptDateStr,
+          time: details.time,
+          location: details.location_method,
+        }
       );
 
     const systemMessage: ChatMessage = {
       id: crypto.randomUUID(),
       sender: proposedBy === "agent" ? "agent" : "user",
       agentId: proposedBy === "agent" ? user.id : undefined,
-      text: chatMessageText,
+      message: chatMessageText,
       timestamp: new Date(),
     };
-    const updatedChatHistory = chatMessageText
-      ? [...ticket.chat_history, systemMessage]
-      : ticket.chat_history;
+    const updatedChatMessages = chatMessageText
+      ? [...ticket.chat_messages, systemMessage]
+      : ticket.chat_messages;
 
     const { data, error } = await supabase
       .from("tickets")
       .update({
-        current_appointment: newAppointment,
-        chat_history: updatedChatHistory,
+        appointment_details: newAppointment,
+        chat_messages: updatedChatMessages,
         updated_at: new Date().toISOString(),
       })
       .eq("id", ticketId)

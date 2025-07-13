@@ -2,7 +2,7 @@ import React, { Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { Ticket, TicketStatus, TicketPriority } from "../types";
-import { TICKET_STATUS_KEYS, TICKET_PRIORITY_KEYS } from "../constants";
+// ...existing code...
 import { useApp } from "../App";
 
 interface TicketCardProps {

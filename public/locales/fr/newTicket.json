@@ -10,11 +10,9 @@
         "category": "Catégorie",
         "categoryPlaceholder": "Sélectionnez une catégorie",
         "priority": "Niveau de Priorité",
-        "priorityPlaceholder": "Sélectionnez la priorité",
-        "workstationId": "ID du Poste de Travail",
-        "workstationIdPlaceholder": "Optionnel - Identifiant de votre poste",
-        "attachments": "Pièces Jointes",
-        "attachmentsHelper": "Ajoutez des captures d'écran ou fichiers pertinents"
+        "chatHistory": {
+            "title": "Historique de Conversation"
+        }
     },
     "categories": {
         "technical": "Technique",

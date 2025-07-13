@@ -2,10 +2,9 @@ import React, { Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, Navigate } from "react-router-dom";
 import { useApp } from "../App";
-import { Ticket, UserRole } from "../types";
+import { Ticket } from "../types";
 import { Button } from "../components/FormElements";
 import LoadingSpinner from "../components/LoadingSpinner";
-import FloatingActionButton from "../components/FloatingActionButton";
 
 const PlusIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg
@@ -74,7 +73,7 @@ const AgentTicketRow: React.FC<{
         {!isUnassigned && (
           <Link to={`/ticket/${ticket.id}`}>
             <Button
-              variant="outline"
+              variant="secondary"
               size="sm"
               className="!text-xs !py-1 !px-2"
             >

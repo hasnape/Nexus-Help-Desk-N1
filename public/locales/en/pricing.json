@@ -1,21 +1,46 @@
 {
     "freemium": {
         "name": "Freemium",
-        "desc": "Basic features for free",
-        "price": "Free",
-        "ctaButton": "Choose Freemium"
+        "price": "€1 EUR/month",
+        "paypalLink": "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-3KG35083B1716942TNBYOA4Q",
+        "desc": "Generous Freemium. Perfect to start. BASIC FUNCTION. Setup fee: €0 EUR. Subscription suspended after 2 missed payments. Auto-billing enabled.",
+        "features": [
+            "1 user (just you)",
+            "Manage your requests (tickets)",
+            "Create a ticket or ask a question with AI chat",
+            "Basic dashboard",
+            "Email support (response within 48h)"
+        ],
+        "ctaButton": "Start for €1/month"
     },
     "standard": {
         "name": "Standard",
-        "desc": "Standard plan for growing teams",
-        "price": "$10",
-        "ctaButton": "Choose Standard"
+        "price": "€10 EUR/month",
+        "paypalLink": "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-0E515487AE797135CNBTRYKA",
+        "desc": "50% OFF - €5 instead of €10/month for the first period, then €10/month. Unlimited agents, unlimited tickets, advanced AI, priority support, voice features. Setup fee: €0 EUR. Subscription suspended after 2 missed payments. Auto-billing enabled.",
+        "features": [
+            "Unlimited team (invite as many as you want)",
+            "Unlimited requests",
+            "Full conversation history",
+            "Advanced tracking tools",
+            "Priority email support"
+        ],
+        "ctaButton": "Choose this plan"
     },
     "pro": {
         "name": "Pro",
-        "desc": "Advanced features for professionals",
-        "price": "$20",
-        "ctaButton": "Choose Pro"
+        "price": "€20 EUR/month",
+        "paypalLink": "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-7HP75881LB3608938NBTBGUA",
+        "desc": "40% OFF - €12 instead of €20/month for the first period, then €20/month. All Standard PLUS AI Level 2, advanced reports, 24/7 support, full API. Setup fee: €0 EUR. Subscription suspended after 2 missed payments. Auto-billing enabled.",
+        "features": [
+            "Everything in Standard",
+            "Multi-profile web API (multiple users and roles)",
+            "Detailed reports and statistics",
+            "Voice function (speak and listen)",
+            "Integrated appointment booking",
+            "Support by email or phone by appointment"
+        ],
+        "ctaButton": "Choose this plan"
     },
     "perAgentPerMonth": "per agent per month",
     "popularLabel": "Most Popular"

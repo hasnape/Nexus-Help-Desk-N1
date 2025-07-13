@@ -76,6 +76,18 @@
         "presentation": "Présentation",
         "copyright": "© 2024 Support Hub. Tous droits réservés.",
         "legal": "Mentions légales",
-        "userManual": "Manuel d'utilisation"
+        "userManual": "Manuel d'utilisation",
+        "allRightsReserved": "Tous droits réservés.",
+        "legalLink": "Mentions légales",
+        "userManualLink": "Manuel utilisateur",
+        "promotionalLink": "Présentation"
+    },
+    "landing": {
+        "loading": "Chargement de la page d'accueil",
+        "heroAria": "Section d'accueil",
+        "heroTitleAria": "Titre principal",
+        "heroSubtitleAria": "Sous-titre d'accueil",
+        "ctaAria": "Commencer l'inscription",
+        "demoAria": "Voir la démo vidéo"
     }
 }

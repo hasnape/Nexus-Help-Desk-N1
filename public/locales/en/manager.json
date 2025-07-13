@@ -203,7 +203,8 @@
             "deleteUserFailed": "Failed to delete user: {{message}}",
             "deleteUserCritical": "Critical error while deleting user: {{message}}",
             "agentLimitReached": "Agent limit reached for {{plan}} plan. Please upgrade to add more agents.",
-            "loadingError": "Error loading data"
+            "loadingError": "Error loading data",
+            "summaryGenerationFailed": "Failed to generate ticket summary."
         },
         "emptyStates": {
             "noTickets": "No tickets found",
@@ -212,4 +213,3 @@
         }
     }
 }
-  

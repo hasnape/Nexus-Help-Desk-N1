@@ -1,0 +1,63 @@
+{
+    "user": {
+        "title": "Dashboard",
+        "welcomeMessage": "Welcome, {{username}}",
+        "createNewTicketButton": "Create New Ticket",
+        "getAiHelpButton": "Get AI Help",
+        "investigateEquipmentButton": "Investigate Equipment",
+        "myTicketsTitle": "My Tickets",
+        "noTicketsMessage": "You have no tickets yet.",
+        "noTicketsSubtitle": "Click 'Get AI Help' to start.",
+        "stats": {
+            "totalTickets": "Total Tickets",
+            "openTickets": "Open Tickets",
+            "resolvedTickets": "Resolved Tickets",
+            "inProgressTickets": "Tickets In Progress"
+        },
+        "actions": {
+            "viewTicket": "View Ticket",
+            "createTicket": "Create Ticket",
+            "getHelp": "Get Help"
+        }
+    },
+    "agent": {
+        "title": "Agent Dashboard - {{username}}",
+        "subtitle": "Manage your assigned tickets and take charge of new ones.",
+        "createTicketButton": "Create Ticket",
+        "unassignedTicketsTitle": "Unassigned Tickets",
+        "myTicketsTitle": "My Tickets",
+        "takeChargeButton": "Take Charge",
+        "viewTicketButton": "View",
+        "notApplicableShort": "N/A",
+        "loadingTickets": "Loading tickets...",
+        "stats": {
+            "totalAssigned": "Total Assigned",
+            "pendingResponse": "Pending Response",
+            "resolvedToday": "Resolved Today"
+        },
+        "table": {
+            "title": "Title",
+            "client": "Client",
+            "workstation": "Workstation",
+            "created": "Created",
+            "status": "Status",
+            "actions": "Actions"
+        },
+        "noTickets": {
+            "unassigned": "No unassigned tickets available.",
+            "assigned": "No assigned tickets yet."
+        }
+    },
+    "manager": {
+        "title": "Manager Dashboard - {{username}}",
+        "subtitle": "Complete overview of all tickets and users.",
+        "allTicketsTitle": "All Tickets",
+        "userManagementTitle": "User Management",
+        "companySettings": "Company Settings",
+        "analytics": "Analytics",
+        "stats": {
+            "totalUsers": "Total Users",
+            "activeAgents": "Active Agents"
+        }
+    }
+}

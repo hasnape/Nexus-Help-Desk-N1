@@ -96,7 +96,8 @@
         "deleteUserFailed": "فشل حذف المستخدم: {{message}}",
         "deleteUserCritical": "خطأ جسيم أثناء حذف المستخدم: {{message}}",
         "agentLimitReached": "تم الوصول إلى حد الوكلاء في خطة {{plan}}. يرجى الترقية لإضافة المزيد من الوكلاء.",
-        "loadingError": "حدث خطأ أثناء تحميل البيانات"
+        "loadingError": "حدث خطأ أثناء تحميل البيانات",
+        "summaryGenerationFailed": "فشل في توليد ملخص التذكرة."
     },
     "emptyStates": {
         "noTickets": "لا توجد تذاكر",
