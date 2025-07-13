@@ -148,8 +148,7 @@ const HelpChatPage: React.FC = () => {
         "Assistant IA",
         "general",
         updatedHistory,
-        1,
-        "fr"
+        1
       );
 
       const aiMessage: ChatMessage = {

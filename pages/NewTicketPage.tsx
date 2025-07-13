@@ -40,7 +40,7 @@ const NewTicketPage: React.FC = () => {
       chatHistoryRef.current = chatHistory;
 
       try {
-        const summary = await summarizeAndCategorizeChat(chatHistory, "fr");
+        const summary = await summarizeAndCategorizeChat(chatHistory);
         if (isMounted) {
           setTitle(summary.title);
           setDescription(summary.description);

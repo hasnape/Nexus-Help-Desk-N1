@@ -33,8 +33,7 @@ const getLanguageName = (): string => {
 };
 
 export async function summarizeAndCategorizeChat(
-    chatHistory: ChatMessage[],
-    language: "fr"
+    chatHistory: ChatMessage[]
 ): Promise<{ title: string; description: string; category: string; priority: TicketPriority }> {
     if (!ai) throw new Error("AI Service Unavailable: API Key not configured.");
     
@@ -107,7 +106,6 @@ export async function getFollowUpHelpResponse(
   ticketCategoryKey: string, 
   fullChatHistoryIncludingCurrentUserMessage: ChatMessage[],
   assignedAiLevel: 1 | 2 = 1, // Default to Level 1
-    language: "fr",
   additionalSystemContext?: string 
 ): Promise<{ text: string; escalationSuggested: boolean; }> {
   if (!ai) {
@@ -192,8 +190,7 @@ ${roleInstructions}`;
 }
 
 export async function getTicketSummary(
-    ticket: Ticket,
-    language: "fr"
+    ticket: Ticket
 ): Promise<string> {
     if (!ai) return "AI Service for summary unavailable: API Key not configured.";
 
@@ -243,8 +240,6 @@ IMPORTANT: Respond ONLY in ${targetLanguage}.`;
         return response.text || ''; // ✅ CORRECTION: Gestion de undefined
     } catch (error: any) {
         console.error("Error getting ticket summary from Gemini:", error);
-        if (language === 'fr') return `Désolé, impossible de générer le résumé du ticket. Erreur: ${error.message || 'Inconnue'}`;
-        if (language === 'ar') return `عذراً، لم نتمكن من إنشاء ملخص للتذكرة. خطأ: ${error.message || 'غير معروف'}`;
-        return `Sorry, could not generate ticket summary. Error: ${error.message || 'Unknown'}`;
+        return `Désolé, impossible de générer le résumé du ticket. Erreur: ${error.message || 'Inconnue'}`;
     }
 }

@@ -1,1 +1,0 @@
-// Ce fichier est volontairement vide : toute la logique i18n a été supprimée.

@@ -777,7 +777,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
       setIsLoadingAi(true);
       try {
         // getTicketSummary attend un type Locale, on force "fr"
-        const summaryText = await getTicketSummary(ticketToUpdate, "fr");
+        const summaryText = await getTicketSummary(ticketToUpdate);
         summaryMessage = {
           id: crypto.randomUUID(),
           sender: "system_summary",
