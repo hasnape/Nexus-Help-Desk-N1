@@ -42,7 +42,7 @@ import AgentDashboardPage from "./pages/AgentDashboardPage";
 import ManagerDashboardPage from "./pages/ManagerDashboardPage";
 import HelpChatPage from "./pages/HelpChatPage";
 import LegalPage from "./pages/LegalPage";
-const UserManualPage = require("./pages/UserManualPage").default;
+import UserManualPage from "./pages/UserManualPage";
 import PromotionalPage from "./pages/PromotionalPage";
 import LandingPage from "./pages/LandingPage";
 import SubscriptionPage from "./pages/SubscriptionPage";
