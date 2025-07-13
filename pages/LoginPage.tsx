@@ -1,8 +1,8 @@
-import React, { useState, useEffect, Suspense } from "react";
-import { useTranslation } from "react-i18next";
+import React, { useState, useEffect } from "react";
+// import supprimé : plus de gestion multilingue
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useApp } from "../App";
-import { Button, Input, Select } from "../components/FormElements";
+import { Button, Input } from "../components/FormElements";
 // ...existing code...
 import LoadingSpinner from "../components/LoadingSpinner";
 import Logo from "../components/Logo";
@@ -17,7 +17,7 @@ const LoginPage: React.FC = () => {
   const { login, user } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
-  const { t, i18n } = useTranslation(["auth", "common", "login"]);
+  // Suppression de la logique i18n
 
   const from = location.state?.from?.pathname || "/";
 
@@ -30,7 +30,7 @@ const LoginPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (email.trim() === "" || password === "" || companyName.trim() === "") {
-      setError(t("login.validation.allFieldsRequired"));
+      setError("Veuillez remplir tous les champs.");
       return;
     }
 
@@ -44,197 +44,153 @@ const LoginPage: React.FC = () => {
     }
   };
 
-  const handleLanguageChange = (langCode: string) => {
-    i18n.changeLanguage(langCode);
-  };
-
-  const languageOptions = [
-    { value: "fr", label: t("language.french", { ns: "common" }) },
-    { value: "en", label: t("language.english", { ns: "common" }) },
-    { value: "ar", label: t("language.arabic", { ns: "common" }) },
-  ];
+  // Suppression du menu de langue et de la logique associée
 
   return (
-    <Suspense
-      fallback={
-        <LoadingSpinner
-          size="lg"
-          aria-label={t("login.loading", "Chargement de la page de connexion")}
-        />
-      }
+    <div
+      className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4"
+      aria-label="Page de connexion"
     >
-      <div
-        className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4"
-        aria-label={t("login.pageAria", "Page de connexion")}
-      >
-        <div className="max-w-md w-full space-y-8">
-          <div>
-            <div className="flex justify-center mb-2">
-              <Logo size="xl" showText={false} />
+      <div className="max-w-md w-full space-y-8">
+        <div>
+          <div className="flex justify-center mb-2">
+            <Logo size="xl" showText={false} />
+          </div>
+          <h2
+            className="mt-6 text-center text-3xl font-extrabold text-gray-900"
+            aria-label="Titre de la page de connexion"
+          >
+            Connexion à Nexus Help Desk
+          </h2>
+          <p
+            className="mt-2 text-center text-sm text-gray-600"
+            aria-label="Accédez à votre espace support client."
+          >
+            Accédez à votre espace support client.
+          </p>
+        </div>
+
+        <form
+          className="mt-8 space-y-6"
+          onSubmit={handleSubmit}
+          aria-label="Formulaire de connexion"
+        >
+          <div className="rounded-md shadow-sm space-y-4">
+            {/* Email */}
+            <div>
+              <label
+                htmlFor="email"
+                className="sr-only"
+                aria-label="Adresse e-mail"
+              >
+                Adresse e-mail
+              </label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Votre adresse e-mail"
+                aria-label="Adresse e-mail"
+              />
             </div>
-            <h2
-              className="mt-6 text-center text-3xl font-extrabold text-gray-900"
-              aria-label={t("login.titleAria", "Titre de la page de connexion")}
-            >
-              {t("login.title")}
-            </h2>
-            <p
-              className="mt-2 text-center text-sm text-gray-600"
-              aria-label={t(
-                "login.subtitleAria",
-                "Sous-titre de la page de connexion"
-              )}
-            >
-              {t("login.subtitle")}
-            </p>
+
+            {/* Mot de passe */}
+            <div>
+              <label
+                htmlFor="password"
+                className="sr-only"
+                aria-label="Mot de passe"
+              >
+                Mot de passe
+              </label>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Votre mot de passe"
+                aria-label="Mot de passe"
+              />
+            </div>
+
+            {/* Nom de l'entreprise */}
+            <div>
+              <label
+                htmlFor="companyName"
+                className="sr-only"
+                aria-label="Nom de l'entreprise"
+              >
+                Nom de l'entreprise
+              </label>
+              <Input
+                id="companyName"
+                name="companyName"
+                type="text"
+                autoComplete="organization"
+                required
+                value={companyName}
+                onChange={(e) => setCompanyName(e.target.value)}
+                placeholder="Nom de votre entreprise"
+                aria-label="Nom de l'entreprise"
+              />
+            </div>
           </div>
 
-          <form
-            className="mt-8 space-y-6"
-            onSubmit={handleSubmit}
-            aria-label={t("login.formAria", "Formulaire de connexion")}
-          >
-            <div className="rounded-md shadow-sm space-y-4">
-              {/* Language Selector */}
-              <div>
-                <label
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                  htmlFor="language"
-                  aria-label={t("login.language.label")}
-                >
-                  {t("login.language.label")}
-                </label>
-                <Select
-                  id="language"
-                  value={i18n.language}
-                  onChange={(e) => handleLanguageChange(e.target.value)}
-                  options={languageOptions}
-                  className="w-full"
-                  aria-label={t("login.language.label")}
-                />
-              </div>
-
-              {/* Email */}
-              <div>
-                <label
-                  htmlFor="email"
-                  className="sr-only"
-                  aria-label={t("login.form.email")}
-                >
-                  {t("login.form.email")}
-                </label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder={t("login.form.emailPlaceholder")}
-                  aria-label={t("login.form.email")}
-                />
-              </div>
-
-              {/* Password */}
-              <div>
-                <label
-                  htmlFor="password"
-                  className="sr-only"
-                  aria-label={t("login.form.password")}
-                >
-                  {t("login.form.password")}
-                </label>
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder={t("login.form.passwordPlaceholder")}
-                  aria-label={t("login.form.password")}
-                />
-              </div>
-
-              {/* Company Name */}
-              <div>
-                <label
-                  htmlFor="companyName"
-                  className="sr-only"
-                  aria-label={t("login.form.companyName")}
-                >
-                  {t("login.form.companyName")}
-                </label>
-                <Input
-                  id="companyName"
-                  name="companyName"
-                  type="text"
-                  autoComplete="organization"
-                  required
-                  value={companyName}
-                  onChange={(e) => setCompanyName(e.target.value)}
-                  placeholder={t("login.form.companyNamePlaceholder")}
-                  aria-label={t("login.form.companyName")}
-                />
-              </div>
+          {error && (
+            <div
+              className="rounded-md bg-red-50 p-4"
+              aria-live="polite"
+              aria-label="Erreur de connexion"
+            >
+              <div className="text-sm text-red-700">{error}</div>
             </div>
+          )}
 
-            {error && (
-              <div
-                className="rounded-md bg-red-50 p-4"
-                aria-live="polite"
-                aria-label={t("login.errorAria", "Erreur de connexion")}
-              >
-                <div className="text-sm text-red-700">{error}</div>
-              </div>
-            )}
+          <div>
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="group relative w-full flex justify-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+              variant="primary"
+              size="lg"
+              aria-label="Bouton de connexion"
+              tabIndex={0}
+            >
+              {isLoading ? (
+                <LoadingSpinner size="sm" text="" />
+              ) : (
+                "Se connecter"
+              )}
+            </Button>
+          </div>
 
-            <div>
-              <Button
-                type="submit"
-                disabled={isLoading}
-                className="group relative w-full flex justify-center focus:outline-none focus:ring-2 focus:ring-blue-500"
-                variant="primary"
-                size="lg"
-                aria-label={t(
-                  "login.form.loginButtonAria",
-                  "Bouton de connexion"
-                )}
+          <div className="text-center">
+            <p
+              className="text-sm text-gray-600"
+              aria-label="Lien vers l'inscription"
+            >
+              Pas de compte ?
+              <Link
+                to="/signup"
+                className="font-medium text-blue-600 hover:text-blue-500"
+                aria-label="S'inscrire"
                 tabIndex={0}
               >
-                {isLoading ? (
-                  <LoadingSpinner size="sm" text="" />
-                ) : (
-                  t("login.form.loginButton")
-                )}
-              </Button>
-            </div>
-
-            <div className="text-center">
-              <p
-                className="text-sm text-gray-600"
-                aria-label={t(
-                  "login.actions.noAccountAria",
-                  "Lien vers l'inscription"
-                )}
-              >
-                {t("login.actions.noAccount")}{" "}
-                <Link
-                  to="/signup"
-                  className="font-medium text-blue-600 hover:text-blue-500"
-                  aria-label={t("login.actions.signUpAria", "S'inscrire")}
-                  tabIndex={0}
-                >
-                  {t("login.actions.signUp")}
-                </Link>
-              </p>
-            </div>
-          </form>
-        </div>
+                S'inscrire
+              </Link>
+            </p>
+          </div>
+        </form>
       </div>
-    </Suspense>
+    </div>
+    // ...
   );
 };
 

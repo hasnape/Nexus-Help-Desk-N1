@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, Suspense } from "react";
-import { useTranslation } from "react-i18next";
+// import supprimé : plus de logique i18n
 import { useNavigate, useLocation } from "react-router-dom";
 import { useApp } from "../App";
 import { Button, Textarea } from "../components/FormElements";
@@ -49,7 +49,7 @@ const SpeakerOffIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 
 const HelpChatPage: React.FC = () => {
   const { isAutoReadEnabled, toggleAutoRead } = useApp();
-  const { t, i18n } = useTranslation(["helpChat", "common"]);
+  // Suppression de la logique i18n
   const navigate = useNavigate();
   const location = useLocation();
   const { checkTicketCreation, checkFeatureAccess } = usePlanLimits();
@@ -87,7 +87,7 @@ const HelpChatPage: React.FC = () => {
     const initialAiMessage: ChatMessage = {
       id: crypto.randomUUID(),
       sender: "ai",
-      message: t("initialMessage"),
+      message: "Bonjour ! Comment puis-je vous aider aujourd'hui ?",
       timestamp: new Date(),
     };
 
@@ -105,12 +105,11 @@ const HelpChatPage: React.FC = () => {
         browserSupportsTextToSpeech &&
         !initialMessageSpoken
       ) {
-        speak(t("initialMessage"));
+        speak("Bonjour ! Comment puis-je vous aider aujourd'hui ?");
         setInitialMessageSpoken(true);
       }
     }
   }, [
-    t,
     location.state,
     isAutoReadEnabled,
     browserSupportsTextToSpeech,
@@ -146,11 +145,11 @@ const HelpChatPage: React.FC = () => {
     setIsLoadingAi(true);
     try {
       const response = await getFollowUpHelpResponse(
-        t("ai.name"),
+        "Assistant IA",
         "general",
         updatedHistory,
         1,
-        i18n.language as any
+        "fr"
       );
 
       const aiMessage: ChatMessage = {
@@ -176,7 +175,7 @@ const HelpChatPage: React.FC = () => {
       const errorMessage: ChatMessage = {
         id: crypto.randomUUID(),
         sender: "ai",
-        message: t("ai.error"),
+        message: "Une erreur est survenue. Veuillez réessayer.",
         timestamp: new Date(),
       };
       setChatHistory([...updatedHistory, errorMessage]);
@@ -188,7 +187,7 @@ const HelpChatPage: React.FC = () => {
   const handleCreateTicket = () => {
     if (!ticketCreationCheck.allowed) {
       setShowPlanModal(true);
-      setPlanModalFeature(t("createTicket.title"));
+      setPlanModalFeature("Création de ticket");
       return;
     }
 
@@ -216,7 +215,7 @@ const HelpChatPage: React.FC = () => {
   const handleSpeakMessage = (messageId: string, text: string) => {
     if (!voiceFeatureCheck.allowed) {
       setShowPlanModal(true);
-      setPlanModalFeature(t("voice.speakResponse"));
+      setPlanModalFeature("Lire la réponse à voix haute");
       return;
     }
 
@@ -234,9 +233,11 @@ const HelpChatPage: React.FC = () => {
       <div className="max-w-4xl mx-auto h-[calc(100vh-200px)] flex flex-col">
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-textPrimary mb-2">
-            {t("title")}
+            Centre d'aide et chat IA
           </h1>
-          <p className="text-slate-600">{t("subtitle")}</p>
+          <p className="text-slate-600">
+            Discutez avec notre assistant IA ou créez un ticket de support.
+          </p>
         </div>
 
         {!ticketCreationCheck.allowed && (
@@ -266,15 +267,12 @@ const HelpChatPage: React.FC = () => {
                   speakButtonProps={{
                     "aria-label":
                       speakingMessageId === message.id
-                        ? t(
-                            "voice.stopSpeakingAria",
-                            "Arrêter la lecture du message"
-                          )
-                        : t("voice.speakAria", "Lire le message à voix haute"),
+                        ? "Arrêter la lecture du message"
+                        : "Lire le message à voix haute",
                     title:
                       speakingMessageId === message.id
-                        ? t("voice.stopSpeakingTitle", "Arrêter la lecture")
-                        : t("voice.speakTitle", "Lire le message à voix haute"),
+                        ? "Arrêter la lecture"
+                        : "Lire le message à voix haute",
                   }}
                 />
               ))}
@@ -284,7 +282,7 @@ const HelpChatPage: React.FC = () => {
                     <div className="flex items-center space-x-2">
                       <LoadingSpinner size="sm" />
                       <span className="text-sm text-slate-600">
-                        {t("ai.thinking")}
+                        {"L'IA réfléchit..."}
                       </span>
                     </div>
                   </div>
@@ -300,7 +298,7 @@ const HelpChatPage: React.FC = () => {
                 <Textarea
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
-                  placeholder={t("placeholder")}
+                  placeholder="Écrivez votre message ici..."
                   rows={3}
                   onKeyPress={(e) => {
                     if (e.key === "Enter" && !e.shiftKey) {
@@ -319,10 +317,10 @@ const HelpChatPage: React.FC = () => {
                     disabled={!voiceFeatureCheck.allowed}
                     title={
                       !voiceFeatureCheck.allowed
-                        ? t("planLimits.voiceNotAvailable")
+                        ? "Fonctionnalité vocale non disponible avec votre formule."
                         : isListening
-                        ? t("voice.stopListening")
-                        : t("voice.startListening")
+                        ? "Arrêter l'écoute"
+                        : "Démarrer la reconnaissance vocale"
                     }
                   >
                     <MicrophoneIcon className="w-4 h-4" />
@@ -336,10 +334,10 @@ const HelpChatPage: React.FC = () => {
                     disabled={!voiceFeatureCheck.allowed}
                     title={
                       !voiceFeatureCheck.allowed
-                        ? t("planLimits.voiceNotAvailable")
+                        ? "Fonctionnalité vocale non disponible avec votre formule."
                         : isAutoReadEnabled
-                        ? t("voice.muteResponse")
-                        : t("voice.speakResponse")
+                        ? "Couper la lecture vocale"
+                        : "Lire la réponse à voix haute"
                     }
                   >
                     {isAutoReadEnabled ? (
@@ -355,14 +353,14 @@ const HelpChatPage: React.FC = () => {
                   onClick={handleSendMessage}
                   disabled={!newMessage.trim() || isLoadingAi}
                 >
-                  {t("sendButton")}
+                  Envoyer
                 </Button>
               </div>
             </div>
 
             {isListening && (
               <div className="mt-2 text-sm text-primary">
-                {t("voice.listening")}
+                Reconnaissance vocale en cours...
               </div>
             )}
           </div>
@@ -375,7 +373,7 @@ const HelpChatPage: React.FC = () => {
               onClick={handleCreateTicket}
               disabled={!ticketCreationCheck.allowed}
             >
-              {t("ai.createTicket")}
+              Créer un ticket de support
             </Button>
           </div>
         )}

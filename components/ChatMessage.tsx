@@ -1,5 +1,4 @@
 import React, { Suspense } from "react";
-import { useTranslation } from "react-i18next";
 import { ChatMessage as ChatMessageType } from "../types";
 import { useApp } from "../App";
 
@@ -31,25 +30,24 @@ const ChatMessageComponent: React.FC<ChatMessageComponentProps> = ({
   speechSupported = true,
   speakButtonProps = {},
 }) => {
-  const { t, i18n } = useTranslation(["common", "components"]);
   const { getAllUsers } = useApp();
 
   const getSenderName = (): string => {
     switch (message.sender) {
       case "user":
-        return t("chatMessage.you", "Vous");
+        return "Vous";
       case "agent":
         if (message.agentId) {
           const agent = getAllUsers().find((u) => u.id === message.agentId);
-          return agent?.full_name || t("chatMessage.agent", "Agent");
+          return agent?.full_name || "Agent";
         }
-        return t("chatMessage.agent", "Agent");
+        return "Agent";
       case "ai":
-        return t("chatMessage.ai", "IA");
+        return "IA";
       case "system_summary":
-        return t("chatMessage.system", "Système");
+        return "Système";
       default:
-        return t("chatMessage.system", "Système");
+        return "Système";
     }
   };
 
@@ -97,7 +95,7 @@ const ChatMessageComponent: React.FC<ChatMessageComponentProps> = ({
         {/* Avatar */}
         <div
           className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold ${getSenderColor()}`}
-          aria-label={t("chatMessage.avatarAria", "Avatar expéditeur")}
+          aria-label="Avatar expéditeur"
         >
           {getSenderName().charAt(0).toUpperCase()}
         </div>
@@ -108,22 +106,17 @@ const ChatMessageComponent: React.FC<ChatMessageComponentProps> = ({
           <div className="flex items-center gap-2 mb-1">
             <span
               className="text-sm font-medium text-gray-600"
-              aria-label={t("chatMessage.senderAria", "Nom de l'expéditeur")}
+              aria-label="Nom de l'expéditeur"
             >
               {getSenderName()}
             </span>
             <span
               className="text-xs text-gray-400"
-              aria-label={t("chatMessage.timestampAria", "Heure du message")}
+              aria-label="Heure du message"
             >
-              {t("chatMessage.timestamp", {
-                time: new Date(message.timestamp).toLocaleTimeString(
-                  i18n.language,
-                  {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  }
-                ),
+              {new Date(message.timestamp).toLocaleTimeString("fr-FR", {
+                hour: "2-digit",
+                minute: "2-digit",
               })}
             </span>
           </div>
@@ -131,7 +124,7 @@ const ChatMessageComponent: React.FC<ChatMessageComponentProps> = ({
           {/* Message Bubble */}
           <div
             className={`rounded-lg p-3 ${getMessageBubbleStyle()}`}
-            aria-label={t("chatMessage.bubbleAria", "Contenu du message")}
+            aria-label="Contenu du message"
           >
             <p className="text-sm whitespace-pre-wrap break-words">
               {message.message}
@@ -153,19 +146,14 @@ const ChatMessageComponent: React.FC<ChatMessageComponentProps> = ({
                 {...speakButtonProps}
               >
                 <SpeakerIcon className="w-3 h-3" />
-                {isSpeaking
-                  ? t("chatMessage.reading", "Lecture...")
-                  : t("chatMessage.listen", "Écouter")}
+                {isSpeaking ? "Lecture..." : "Écouter"}
               </button>
             </div>
           )}
           {showSpeakButton && !speechSupported && (
             <div className="flex items-center mt-2">
               <span className="text-xs text-gray-400">
-                {t(
-                  "chatMessage.speechNotSupported",
-                  "Synthèse vocale non supportée"
-                )}
+                Synthèse vocale non supportée
               </span>
             </div>
           )}

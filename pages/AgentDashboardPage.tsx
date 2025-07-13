@@ -1,5 +1,4 @@
-import React, { Suspense } from "react";
-import { useTranslation } from "react-i18next";
+import React from "react";
 import { Link, Navigate } from "react-router-dom";
 import { useApp } from "../App";
 import { Ticket } from "../types";
@@ -22,18 +21,23 @@ const AgentTicketRow: React.FC<{
   onTakeCharge?: (ticketId: string) => void;
   isUnassigned?: boolean;
 }> = ({ ticket, onTakeCharge, isUnassigned }) => {
-  const { t, i18n } = useTranslation(["dashboard", "tickets", "common"]);
   const { getAllUsers } = useApp();
 
   const clientUser = getAllUsers().find((u) => u.id === ticket.user_id);
-  const clientName = clientUser
-    ? clientUser.full_name
-    : t("agent.notApplicableShort");
+  const clientName = clientUser ? clientUser.full_name : "Non applicable";
 
   const handleAssignToSelf = () => {
     if (onTakeCharge) {
       onTakeCharge(ticket.id);
     }
+  };
+
+  // Traduction statique française pour le statut
+  const statusLabels: Record<string, string> = {
+    open: "Ouvert",
+    in_progress: "En cours",
+    resolved: "Résolu",
+    closed: "Fermé",
   };
 
   return (
@@ -51,13 +55,13 @@ const AgentTicketRow: React.FC<{
       </td>
       <td className="p-3 text-sm text-slate-600">{clientName}</td>
       <td className="p-3 text-sm text-slate-600">
-        {ticket.workstation_id || t("agent.notApplicableShort")}
+        {ticket.workstation_id || "Non applicable"}
       </td>
       <td className="p-3 text-sm text-slate-500">
-        {new Date(ticket.created_at).toLocaleDateString(i18n.language)}
+        {new Date(ticket.created_at).toLocaleDateString("fr-FR")}
       </td>
       <td className="p-3 text-sm text-slate-500">
-        {t(`enums.ticketStatus.${ticket.status}`, { ns: "enums" })}
+        {statusLabels[ticket.status] || ticket.status}
       </td>
       <td className="p-3 text-sm">
         {isUnassigned && onTakeCharge && (
@@ -67,7 +71,7 @@ const AgentTicketRow: React.FC<{
             onClick={handleAssignToSelf}
             className="!text-xs !py-1 !px-2"
           >
-            {t("agent.takeChargeButton")}
+            Prendre en charge
           </Button>
         )}
         {!isUnassigned && (
@@ -77,7 +81,7 @@ const AgentTicketRow: React.FC<{
               size="sm"
               className="!text-xs !py-1 !px-2"
             >
-              {t("agent.viewTicketButton")}
+              Voir le ticket
             </Button>
           </Link>
         )}
@@ -88,7 +92,6 @@ const AgentTicketRow: React.FC<{
 
 const AgentDashboardPage: React.FC = () => {
   const { tickets, user, agentTakeTicket, isLoading } = useApp();
-  const { t } = useTranslation(["dashboard", "common"]);
 
   if (!user) {
     return <Navigate to="/login" />;
@@ -109,130 +112,128 @@ const AgentDashboardPage: React.FC = () => {
     );
 
   return (
-    <Suspense fallback={<LoadingSpinner />}>
-      <div className="space-y-8">
-        <div className="pb-4 border-b border-slate-300 flex flex-col sm:flex-row justify-between items-start sm:items-center">
-          <div className="mb-4 sm:mb-0">
-            <h1 className="text-3xl font-bold text-textPrimary">
-              {t("agent.title", { username: user.full_name })}
-            </h1>
-            {user.company_id && (
-              <p className="text-lg text-slate-500 font-medium">
-                {user.company_id}
-              </p>
-            )}
-            <p className="text-sm text-slate-600 mt-1">{t("agent.subtitle")}</p>
-          </div>
-          <div className="flex-shrink-0">
-            <Link to="/help">
-              <Button variant="primary" size="md">
-                <PlusIcon className="w-5 h-5 me-2" />
-                {t("agent.createTicketButton")}
-              </Button>
-            </Link>
-          </div>
+    <div className="space-y-8">
+      <div className="pb-4 border-b border-slate-300 flex flex-col sm:flex-row justify-between items-start sm:items-center">
+        <div className="mb-4 sm:mb-0">
+          <h1 className="text-3xl font-bold text-textPrimary">
+            Espace agent : {user.full_name}
+          </h1>
+          {user.company_id && (
+            <p className="text-lg text-slate-500 font-medium">
+              {user.company_id}
+            </p>
+          )}
+          <p className="text-sm text-slate-600 mt-1">
+            Liste des tickets à traiter et tickets assignés.
+          </p>
         </div>
-
-        {isLoading && <LoadingSpinner text={t("agent.loadingTickets")} />}
-
-        <section className="bg-surface shadow-lg rounded-lg p-4 sm:p-6">
-          <h2 className="text-xl font-semibold text-textPrimary mb-4">
-            {t("agent.unassignedTicketsTitle")}
-          </h2>
-
-          {unassignedTickets.length === 0 ? (
-            <p className="text-slate-500 text-center py-4">
-              {t("agent.noTickets.unassigned")}
-            </p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-slate-300">
-                    <th className="text-left p-3 text-sm font-semibold text-slate-700">
-                      {t("agent.table.title")}
-                    </th>
-                    <th className="text-left p-3 text-sm font-semibold text-slate-700">
-                      {t("agent.table.client")}
-                    </th>
-                    <th className="text-left p-3 text-sm font-semibold text-slate-700">
-                      {t("agent.table.workstation")}
-                    </th>
-                    <th className="text-left p-3 text-sm font-semibold text-slate-700">
-                      {t("agent.table.created")}
-                    </th>
-                    <th className="text-left p-3 text-sm font-semibold text-slate-700">
-                      {t("agent.table.status")}
-                    </th>
-                    <th className="text-left p-3 text-sm font-semibold text-slate-700">
-                      {t("agent.table.actions")}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {unassignedTickets.map((ticket) => (
-                    <AgentTicketRow
-                      key={ticket.id}
-                      ticket={ticket}
-                      onTakeCharge={agentTakeTicket}
-                      isUnassigned={true}
-                    />
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </section>
-
-        <section className="bg-surface shadow-lg rounded-lg p-4 sm:p-6">
-          <h2 className="text-xl font-semibold text-textPrimary mb-4">
-            {t("agent.myTicketsTitle")}
-          </h2>
-
-          {myTickets.length === 0 ? (
-            <p className="text-slate-500 text-center py-4">
-              {t("agent.noTickets.assigned")}
-            </p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-slate-300">
-                    <th className="text-left p-3 text-sm font-semibold text-slate-700">
-                      {t("agent.table.title")}
-                    </th>
-                    <th className="text-left p-3 text-sm font-semibold text-slate-700">
-                      {t("agent.table.client")}
-                    </th>
-                    <th className="text-left p-3 text-sm font-semibold text-slate-700">
-                      {t("agent.table.workstation")}
-                    </th>
-                    <th className="text-left p-3 text-sm font-semibold text-slate-700">
-                      {t("agent.table.created")}
-                    </th>
-                    <th className="text-left p-3 text-sm font-semibold text-slate-700">
-                      {t("agent.table.status")}
-                    </th>
-                    <th className="text-left p-3 text-sm font-semibold text-slate-700">
-                      {t("agent.table.actions")}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {myTickets.map((ticket) => (
-                    <AgentTicketRow
-                      key={ticket.id}
-                      ticket={ticket}
-                      isUnassigned={false}
-                    />
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </section>
+        <div className="flex-shrink-0">
+          <Link to="/help">
+            <Button variant="primary" size="md">
+              <PlusIcon className="w-5 h-5 me-2" />
+              Nouveau ticket
+            </Button>
+          </Link>
+        </div>
       </div>
-    </Suspense>
+
+      {isLoading && <LoadingSpinner text="Chargement des tickets..." />}
+
+      <section className="bg-surface shadow-lg rounded-lg p-4 sm:p-6">
+        <h2 className="text-xl font-semibold text-textPrimary mb-4">
+          Tickets non assignés
+        </h2>
+        {unassignedTickets.length === 0 ? (
+          <p className="text-slate-500 text-center py-4">
+            Aucun ticket non assigné.
+          </p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-slate-300">
+                  <th className="text-left p-3 text-sm font-semibold text-slate-700">
+                    Titre
+                  </th>
+                  <th className="text-left p-3 text-sm font-semibold text-slate-700">
+                    Client
+                  </th>
+                  <th className="text-left p-3 text-sm font-semibold text-slate-700">
+                    Poste
+                  </th>
+                  <th className="text-left p-3 text-sm font-semibold text-slate-700">
+                    Créé le
+                  </th>
+                  <th className="text-left p-3 text-sm font-semibold text-slate-700">
+                    Statut
+                  </th>
+                  <th className="text-left p-3 text-sm font-semibold text-slate-700">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {unassignedTickets.map((ticket) => (
+                  <AgentTicketRow
+                    key={ticket.id}
+                    ticket={ticket}
+                    onTakeCharge={agentTakeTicket}
+                    isUnassigned={true}
+                  />
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+
+      <section className="bg-surface shadow-lg rounded-lg p-4 sm:p-6">
+        <h2 className="text-xl font-semibold text-textPrimary mb-4">
+          Mes tickets assignés
+        </h2>
+        {myTickets.length === 0 ? (
+          <p className="text-slate-500 text-center py-4">
+            Aucun ticket assigné.
+          </p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-slate-300">
+                  <th className="text-left p-3 text-sm font-semibold text-slate-700">
+                    Titre
+                  </th>
+                  <th className="text-left p-3 text-sm font-semibold text-slate-700">
+                    Client
+                  </th>
+                  <th className="text-left p-3 text-sm font-semibold text-slate-700">
+                    Poste
+                  </th>
+                  <th className="text-left p-3 text-sm font-semibold text-slate-700">
+                    Créé le
+                  </th>
+                  <th className="text-left p-3 text-sm font-semibold text-slate-700">
+                    Statut
+                  </th>
+                  <th className="text-left p-3 text-sm font-semibold text-slate-700">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {myTickets.map((ticket) => (
+                  <AgentTicketRow
+                    key={ticket.id}
+                    ticket={ticket}
+                    isUnassigned={false}
+                  />
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+    </div>
   );
 };
 

@@ -1,5 +1,4 @@
-import React, { Suspense } from "react";
-import { useTranslation } from "react-i18next";
+import React from "react";
 
 interface LogoProps {
   size?: "sm" | "md" | "lg" | "xl";
@@ -12,8 +11,6 @@ const Logo: React.FC<LogoProps> = ({
   showText = true,
   className = "",
 }) => {
-  const { t } = useTranslation(["common", "components"]);
-
   const sizeClasses = {
     sm: "w-6 h-6",
     md: "w-8 h-8",
@@ -29,52 +26,33 @@ const Logo: React.FC<LogoProps> = ({
   };
 
   return (
-    <Suspense
-      fallback={
-        <div
-          className={`flex items-center ${className}`}
-          aria-label={t("logo.loading", "Chargement du logo")}
-        >
-          <div
-            className={`bg-gray-300 rounded ${sizeClasses[size]} animate-pulse`}
-          />
-          {showText && (
-            <div className="ml-2 h-4 bg-gray-300 rounded w-24 animate-pulse" />
+    <div
+      className={`flex items-center ${className}`}
+      aria-label="Logo Nexus Help Desk"
+    >
+      {/* Logo personnalisé */}
+      <img
+        src="/logo.png"
+        alt="Logo Nexus Help Desk"
+        className={`${sizeClasses[size]} object-contain`}
+      />
+      {/* Logo Text */}
+      {showText && (
+        <div className="ml-2">
+          <span
+            className={`font-bold text-gray-800 ${textSizeClasses[size]}`}
+            aria-label="Nom de l'application"
+          >
+            Nexus Help Desk
+          </span>
+          {(size === "lg" || size === "xl") && (
+            <div className="text-xs text-gray-500" aria-label="Slogan du logo">
+              Assistance simplifiée pour tous
+            </div>
           )}
         </div>
-      }
-    >
-      <div
-        className={`flex items-center ${className}`}
-        aria-label={t("logo.ariaLabel", "Logo Nexus Help Desk")}
-      >
-        {/* Logo personnalisé */}
-        <img
-          src="/logo.png"
-          alt={t("logo.alt", "Logo Nexus Help Desk")}
-          className={`${sizeClasses[size]} object-contain`}
-        />
-        {/* Logo Text */}
-        {showText && (
-          <div className="ml-2">
-            <span
-              className={`font-bold text-gray-800 ${textSizeClasses[size]}`}
-              aria-label={t("logo.textAria", "Nom de l'application")}
-            >
-              {t("appName")}
-            </span>
-            {(size === "lg" || size === "xl") && (
-              <div
-                className="text-xs text-gray-500"
-                aria-label={t("logo.taglineAria", "Slogan du logo")}
-              >
-                {t("logo.tagline", { ns: "components" })}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    </Suspense>
+      )}
+    </div>
   );
 };
 

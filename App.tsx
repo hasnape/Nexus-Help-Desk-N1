@@ -42,19 +42,19 @@ import AgentDashboardPage from "./pages/AgentDashboardPage";
 import ManagerDashboardPage from "./pages/ManagerDashboardPage";
 import HelpChatPage from "./pages/HelpChatPage";
 import LegalPage from "./pages/LegalPage";
-import UserManualPage from "./pages/UserManualPage";
+const UserManualPage = require("./pages/UserManualPage").default;
 import PromotionalPage from "./pages/PromotionalPage";
 import LandingPage from "./pages/LandingPage";
 import SubscriptionPage from "./pages/SubscriptionPage";
 import ContactPage from "./pages/ContactPage";
 import { DEFAULT_AI_LEVEL, TICKET_STATUS_KEYS } from "./constants";
-import { useTranslation } from "react-i18next";
+// import supprimé : plus de gestion i18n
 import CookieConsentBanner from "./components/CookieConsentBanner";
 import { SidebarProvider } from "./contexts/SidebarContext";
 import { PlanProvider, PLAN_LIMITS } from "./contexts/PlanContext";
 // import { useNavigationGuard } from "./hooks/useNavigationGuard"; // supprimé car inutilisé
 import ContextDebugger from "./components/ContextDebugger";
-import "./src/i18n/config"; // Ajoutez cette ligne au début
+// import supprimé : plus de gestion i18n
 
 interface AppContextType {
   user: User | null;
@@ -131,6 +131,10 @@ interface AppContextType {
   consentGiven: boolean;
   giveConsent: () => void;
   forceStopAllLoading: () => void;
+  plan: string;
+  setPlan: (plan: string) => void;
+  activationCode: string;
+  setActivationCode: (code: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -188,6 +192,9 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
     string | null
   >(null);
   const [consentGiven, setConsentGiven] = useState<boolean>(false);
+  // Ajout des états pour le plan et le code d'activation
+  const [plan, setPlan] = useState<string>("freemium");
+  const [activationCode, setActivationCode] = useState<string>("");
 
   // ✅ SIMPLIFICATION: État de chargement plus simple
   const [isLoading, setIsLoading] = useState(false);
@@ -203,10 +210,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
   const authStateLoading = useRef(false);
   const authTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  const { t, i18n } = useTranslation();
-  const language = i18n.language;
-  const setAppLanguage = (lng: string) => i18n.changeLanguage(lng);
-  const translateHook = t;
+  // Suppression de la logique i18n, tout est en français statique
 
   useEffect(() => {
     const storedConsent = localStorage.getItem("cookieConsent");
@@ -341,13 +345,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
     };
   }, []);
 
-  useEffect(() => {
-    if (user?.language_preference && user.language_preference !== language) {
-      if (company?.plan === "pro") {
-        setAppLanguage(user.language_preference);
-      }
-    }
-  }, [user, company, language, setAppLanguage]);
+  // Suppression du changement de langue utilisateur, tout est en français
 
   useEffect(() => {
     localStorage.setItem(
@@ -378,7 +376,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
 
       if (error) {
         console.error("Supabase login error:", error.message);
-        return translateHook("login.error.invalidCredentials");
+        return "Identifiants invalides.";
       }
 
       if (authData.user) {
@@ -391,7 +389,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
         if (profileError || !userProfile) {
           console.error("Could not fetch user profile:", profileError);
           await supabase.auth.signOut();
-          return translateHook("login.error.profileFetchFailed");
+          return "Impossible de récupérer le profil utilisateur.";
         }
 
         const { data: companyData, error: companyError } = await supabase
@@ -403,23 +401,21 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
         if (companyError || !companyData) {
           console.error("Could not fetch company data:", companyError);
           await supabase.auth.signOut();
-          return translateHook("login.error.companyNotFound");
+          return "Entreprise introuvable.";
         }
 
         if (userProfile.company_id !== companyName) {
           await supabase.auth.signOut();
-          return translateHook("login.error.companyIdMismatch");
+          return "Le nom de l'entreprise ne correspond pas.";
         }
       } else {
-        return translateHook("login.error.invalidCredentials");
+        return "Identifiants invalides.";
       }
 
       return true;
     } catch (error: any) {
       console.error("Critical login error:", error);
-      return translateHook("login.error.generic", {
-        default: "An unexpected error occurred. Please try again.",
-      });
+      return "Une erreur inattendue est survenue. Veuillez réessayer.";
     }
   };
 
@@ -445,9 +441,9 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
         if (createCompanyError) {
           console.error("Error creating company:", createCompanyError);
           if (createCompanyError.code === "23505") {
-            throw new Error(translateHook("signup.error.companyNameTaken"));
+            throw new Error("Ce nom d'entreprise est déjà utilisé.");
           }
-          throw new Error(translateHook("signup.error.companyCreateFailed"));
+          throw new Error("Impossible de créer l'entreprise.");
         }
         setNewlyCreatedCompanyName(companyName);
       } else {
@@ -460,9 +456,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
 
         if (findCompanyError || !existingCompanyData) {
           console.error("Error finding company:", findCompanyError);
-          throw new Error(
-            translateHook("signup.error.companyNotFound", { companyName })
-          );
+          throw new Error("Entreprise introuvable : " + companyName);
         }
 
         if (
@@ -477,7 +471,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
 
           if (countError) {
             console.error("Error counting agents:", countError);
-            throw new Error(translateHook("signup.error.generic"));
+            throw new Error("Erreur lors du comptage des agents.");
           }
 
           // ✅ Utiliser PLAN_LIMITS au lieu de hardcoder "3"
@@ -486,9 +480,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
 
           if (agentCount !== null && agentCount >= agentLimit) {
             throw new Error(
-              translateHook("signup.error.agentLimitReached", {
-                default: `Agent limit reached for ${existingCompanyData.plan} plan. Please ask your manager to upgrade.`,
-              })
+              `Limite d'agents atteinte pour la formule ${existingCompanyData.plan}. Veuillez demander à votre manager de mettre à niveau.`
             );
           }
         }
@@ -513,20 +505,18 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
         if (
           signUpError.message.toLowerCase().includes("user already registered")
         ) {
-          throw new Error(translateHook("signup.error.emailInUse"));
+          throw new Error("Cet email est déjà utilisé.");
         }
-        throw new Error(
-          signUpError.message || translateHook("signup.error.generic")
-        );
+        throw new Error(signUpError.message || "Erreur lors de l'inscription.");
       }
 
       if (!signUpData.user) {
-        throw new Error(translateHook("signup.error.generic"));
+        throw new Error("Erreur lors de l'inscription.");
       }
 
       return true;
     } catch (e: any) {
-      return e.message || translateHook("signup.error.generic");
+      return e.message || "Erreur lors de l'inscription.";
     }
   };
 
@@ -599,9 +589,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
         agentLimit !== Number.MAX_SAFE_INTEGER &&
         currentAgentCount >= agentLimit
       ) {
-        return translateHook("managerDashboard.error.agentLimitReached", {
-          default: `Agent limit reached for ${company.plan} plan. Please upgrade to add more agents.`,
-        });
+        return `Limite d'agents atteinte pour la formule ${company.plan}. Veuillez mettre à niveau pour ajouter plus d'agents.`;
       }
     }
 
@@ -631,9 +619,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
       if (error) {
         console.error("Error deleting user via RPC:", error);
         alert(
-          translateHook("managerDashboard.deleteUserError.rpc", {
-            message: error.message,
-          })
+          `Erreur lors de la suppression de l'utilisateur : ${error.message}`
         );
       } else {
         setAllUsers((prev) => prev.filter((u) => u.id !== userId));
@@ -651,9 +637,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
     } catch (e: any) {
       console.error("Critical error calling delete user RPC:", e);
       alert(
-        translateHook("managerDashboard.deleteUserError.critical", {
-          message: e.message,
-        })
+        `Erreur critique lors de la suppression de l'utilisateur : ${e.message}`
       );
     }
   };
@@ -676,9 +660,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
   ): Promise<Ticket | null | string> => {
     if (!user || !company) {
       console.error("User or company not found when creating ticket");
-      return translateHook("newTicket.error.userNotFound", {
-        default: "User session expired. Please log in again.",
-      });
+      return "Session utilisateur expirée. Veuillez vous reconnecter.";
     }
 
     if (company.plan === "freemium") {
@@ -694,14 +676,9 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
 
       if (error) {
         console.error("Error counting tickets:", error);
-        return translateHook("newTicket.error.countingTickets", {
-          default: "Unable to verify ticket limits. Please try again.",
-        });
+        return "Impossible de vérifier la limite de tickets. Veuillez réessayer.";
       } else if (count !== null && count >= 200) {
-        return translateHook("newTicket.error.ticketLimitReached", {
-          default:
-            "You have reached the 200 tickets/month limit for the Freemium plan. Please upgrade.",
-        });
+        return "Vous avez atteint la limite de 200 tickets/mois pour la formule Freemium. Veuillez passer à une formule supérieure.";
       }
     }
 
@@ -730,9 +707,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
 
       if (error) {
         console.error("Error creating ticket:", error);
-        return translateHook("newTicket.error.createFailed", {
-          default: "Failed to create ticket. Please try again.",
-        });
+        return "Impossible de créer le ticket. Veuillez réessayer.";
       }
 
       const createdTicket = reviveTicketDates(data);
@@ -740,9 +715,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
       return createdTicket;
     } catch (error) {
       console.error("Critical error creating ticket:", error);
-      return translateHook("newTicket.error.critical", {
-        default: "A critical error occurred. Please contact support.",
-      });
+      return "Erreur critique lors de la création du ticket. Veuillez contacter le support.";
     }
   };
 
@@ -769,21 +742,13 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
         .eq("id", ticketId);
       if (error) {
         console.error("Error deleting ticket:", error);
-        alert(
-          translateHook("managerDashboard.deleteTicketError.rpc", {
-            message: error.message,
-          })
-        );
+        alert(`Erreur lors de la suppression du ticket : ${error.message}`);
       } else {
         setTickets((prev) => prev.filter((t) => t.id !== ticketId));
       }
     } catch (e: any) {
       console.error("Critical error deleting ticket:", e);
-      alert(
-        translateHook("managerDashboard.deleteTicketError.critical", {
-          message: e.message,
-        })
-      );
+      alert(`Erreur critique lors de la suppression du ticket : ${e.message}`);
     }
   };
 
@@ -811,11 +776,8 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
     ) {
       setIsLoadingAi(true);
       try {
-        // getTicketSummary attend un type Locale ('en' | 'fr' | 'ar')
-        const locale: "en" | "fr" | "ar" = ["en", "fr", "ar"].includes(language)
-          ? (language as "en" | "fr" | "ar")
-          : "en";
-        const summaryText = await getTicketSummary(ticketToUpdate, locale);
+        // getTicketSummary attend un type Locale, on force "fr"
+        const summaryText = await getTicketSummary(ticketToUpdate, "fr");
         summaryMessage = {
           id: crypto.randomUUID(),
           sender: "system_summary",
@@ -827,9 +789,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
         summaryMessage = {
           id: crypto.randomUUID(),
           sender: "system_summary",
-          message: translateHook("appContext.error.summaryGenerationFailed", {
-            default: "Failed to generate ticket summary.",
-          }),
+          message: "Impossible de générer le résumé du ticket.",
           timestamp: new Date(),
         };
       } finally {
@@ -855,11 +815,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
 
       if (error) {
         console.error("Error assigning ticket:", error);
-        alert(
-          translateHook("managerDashboard.error.assignTicketFailed", {
-            default: "Failed to assign ticket. Please try again.",
-          })
-        );
+        alert("Impossible d'assigner le ticket. Veuillez réessayer.");
       } else {
         setTickets((prev) =>
           prev.map((t) => (t.id === ticketId ? reviveTicketDates(data) : t))
@@ -867,11 +823,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
       }
     } catch (error) {
       console.error("Critical error assigning ticket:", error);
-      alert(
-        translateHook("managerDashboard.error.assignTicketCritical", {
-          default: "A critical error occurred while assigning the ticket.",
-        })
-      );
+      alert("Erreur critique lors de l'assignation du ticket.");
     }
   };
 
@@ -1015,9 +967,9 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
         {
           id: crypto.randomUUID(),
           sender: "ai",
-          message: translateHook("appContext.error.aiFollowUpFailed", {
-            error: error.message || "Unknown",
-          }),
+          message: `Erreur lors de la réponse IA : ${
+            error.message || "Inconnue"
+          }`,
           timestamp: new Date(),
         },
       ];
@@ -1060,33 +1012,18 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
     };
 
     let chatMessageText = "";
-    const apptDateStr = new Date(details.date).toLocaleDateString(language, {
+    const apptDateStr = new Date(details.date).toLocaleDateString("fr-FR", {
       weekday: "long",
       month: "long",
       day: "numeric",
     });
 
     if (newStatus === "pending_user_approval")
-      chatMessageText = translateHook("appointment.chat.agentProposed", {
-        date: apptDateStr,
-        time: details.time,
-        location: details.location_method,
-      });
+      chatMessageText = `Rendez-vous proposé le ${apptDateStr} à ${details.time} (${details.location_method})`;
     else if (newStatus === "confirmed")
-      chatMessageText = translateHook("appointment.chat.userConfirmed", {
-        date: apptDateStr,
-        time: details.time,
-        location: details.location_method,
-      });
+      chatMessageText = `Rendez-vous confirmé le ${apptDateStr} à ${details.time} (${details.location_method})`;
     else if (newStatus === "rescheduled_by_user")
-      chatMessageText = translateHook(
-        "appointment.chat.userRequestsReschedule",
-        {
-          date: apptDateStr,
-          time: details.time,
-          location: details.location_method,
-        }
-      );
+      chatMessageText = `Demande de replanification pour le ${apptDateStr} à ${details.time} (${details.location_method})`;
 
     const systemMessage: ChatMessage = {
       id: crypto.randomUUID(),
@@ -1140,9 +1077,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
     if (updateCompanyError) {
       console.error("Error updating company name:", updateCompanyError);
       alert(
-        translateHook("managerDashboard.companyInfo.updateError", {
-          default: `Failed to update company name. The new name might be taken.`,
-        })
+        "Impossible de mettre à jour le nom de l'entreprise. Le nouveau nom est peut-être déjà pris."
       );
       return false;
     }
@@ -1162,9 +1097,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
         .update({ name: oldName })
         .eq("id", company.id);
       alert(
-        translateHook("managerDashboard.companyInfo.updateError", {
-          default: `Failed to update company name for all users. The change has been rolled back.`,
-        })
+        "Impossible de mettre à jour le nom de l'entreprise pour tous les utilisateurs. Le changement a été annulé."
       );
       return false;
     }
@@ -1180,9 +1113,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
         updateTicketsError
       );
       alert(
-        translateHook("managerDashboard.companyInfo.updateError", {
-          default: `CRITICAL ERROR: Failed to update company name on tickets. Please contact support.`,
-        })
+        "ERREUR CRITIQUE : Impossible de mettre à jour le nom de l'entreprise sur les tickets. Veuillez contacter le support."
       );
     }
 
@@ -1209,9 +1140,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
   const updateCompanyPlan = async (plan: Plan): Promise<boolean> => {
     if (!company) {
       alert(
-        translateHook("subscription.error.noCompany", {
-          default: "Could not find company information to update.",
-        })
+        "Impossible de trouver les informations de l'entreprise à mettre à jour."
       );
       return false;
     }
@@ -1226,10 +1155,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
     if (error) {
       console.error("Error updating company plan:", error);
       alert(
-        translateHook("subscription.error.updateFailed", {
-          default:
-            "Failed to update your subscription. Please contact support.",
-        })
+        "Impossible de mettre à jour votre abonnement. Veuillez contacter le support."
       );
       return false;
     }
@@ -1237,11 +1163,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
     setCompany((prevCompany) =>
       prevCompany ? { ...prevCompany, plan, subscription_id: undefined } : null
     );
-    alert(
-      translateHook("subscription.success.updateComplete", {
-        default: "Your subscription has been successfully updated!",
-      })
-    );
+    alert("Votre abonnement a été mis à jour avec succès !");
     return true;
   };
 
@@ -1278,6 +1200,10 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({
         consentGiven,
         giveConsent,
         forceStopAllLoading,
+        plan,
+        setPlan,
+        activationCode,
+        setActivationCode,
       }}
     >
       {children}
@@ -1337,7 +1263,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 const MainAppContent: React.FC = () => {
   const { user, isLoading, consentGiven, giveConsent, forceStopAllLoading } =
     useApp();
-  const { t } = useTranslation();
+  // Suppression de la logique i18n
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -1366,7 +1292,7 @@ const MainAppContent: React.FC = () => {
         <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-800 mb-4">
-              {t("appName") || "Nexus Help Desk"}
+              {"Nexus Help Desk"}
             </h1>
 
             <div className="space-y-3 text-sm text-gray-600 mb-6">
@@ -1550,24 +1476,23 @@ const MainAppContent: React.FC = () => {
         </main>
         <footer className="bg-slate-100 py-4 text-center text-xs text-slate-500">
           <p>
-            &copy; {new Date().getFullYear()}{" "}
-            {t("appName", { default: "Nexus Support Hub" })}.{" "}
-            {t("footer.allRightsReserved", { default: "All Rights Reserved." })}
+            &copy; {new Date().getFullYear()} {"Nexus Support Hub"}.{" "}
+            {"Tous droits réservés."}
           </p>
           <p className="mt-1">
             <Link to="/legal" className="hover:text-primary hover:underline">
-              {t("footer.legalLink", { default: "Legal & Documentation" })}
+              {"Mentions légales & Documentation"}
             </Link>
             <span className="mx-2 text-slate-400">|</span>
             <Link to="/manual" className="hover:text-primary hover:underline">
-              {t("footer.userManualLink", { default: "User Manual" })}
+              {"Manuel utilisateur"}
             </Link>
             <span className="mx-2 text-slate-400">|</span>
             <Link
               to="/presentation"
               className="hover:text-primary hover:underline"
             >
-              {t("footer.promotionalLink", { default: "Presentation" })}
+              {"Présentation"}
             </Link>
           </p>
         </footer>

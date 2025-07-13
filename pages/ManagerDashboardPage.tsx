@@ -1,5 +1,4 @@
 import React, { useState, useMemo, Suspense } from "react";
-import { useTranslation } from "react-i18next";
 import { Link, Navigate } from "react-router-dom";
 import { useApp } from "../App";
 import { UserRole } from "../types";
@@ -71,13 +70,6 @@ const ManagerDashboardPage: React.FC = () => {
     deleteUserById,
     updateCompanyName,
   } = useApp();
-
-  const { t, i18n } = useTranslation([
-    "manager",
-    "common",
-    "enums",
-    "dashboard",
-  ]);
 
   const [statusFilter, setStatusFilter] = useState<string>("all");
   // const [assigneeFilter, setAssigneeFilter] = useState<string>("all"); // supprimé car non utilisé
@@ -167,7 +159,7 @@ const ManagerDashboardPage: React.FC = () => {
   };
 
   if (isLoading) {
-    return <LoadingSpinner size="lg" text={t("common:loading")} />;
+    return <LoadingSpinner size="lg" text="Chargement..." />;
   }
 
   return (
@@ -178,20 +170,22 @@ const ManagerDashboardPage: React.FC = () => {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
             <div className="mb-4 sm:mb-0">
               <h1 className="text-3xl font-bold text-textPrimary">
-                {t("title", { username: user.full_name })}
+                Tableau de bord manager : {user.full_name}
               </h1>
               {company && (
                 <p className="text-lg text-slate-500 font-medium">
                   {company.name}
                 </p>
               )}
-              <p className="text-sm text-slate-600 mt-1">{t("subtitle")}</p>
+              <p className="text-sm text-slate-600 mt-1">
+                Gestion des tickets et des utilisateurs
+              </p>
             </div>
             <div className="flex-shrink-0">
               <Link to="/help">
                 <Button variant="primary" size="md">
                   <PlusIcon className="w-5 h-5 me-2" />
-                  {t("createTicketButton")}
+                  Nouveau ticket
                 </Button>
               </Link>
             </div>
@@ -201,12 +195,12 @@ const ManagerDashboardPage: React.FC = () => {
         {/* Company Info */}
         <section className="bg-surface shadow-lg rounded-lg p-6">
           <h2 className="text-xl font-semibold text-textPrimary mb-4">
-            {t("companyInfo.title")}
+            Informations sur l'entreprise
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t("companyInfo.companyName")}
+                Nom de l'entreprise
               </label>
               <div className="flex">
                 <Input
@@ -223,7 +217,7 @@ const ManagerDashboardPage: React.FC = () => {
                     !newCompanyName.trim() || newCompanyName === company?.name
                   }
                 >
-                  {t("companyInfo.updateName")}
+                  Mettre à jour
                 </Button>
               </div>
             </div>
@@ -236,31 +230,31 @@ const ManagerDashboardPage: React.FC = () => {
         {/* Statistics */}
         <section>
           <h2 className="text-xl font-semibold text-textPrimary mb-4">
-            {t("stats.title")}
+            Statistiques
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             <StatCard
-              title={t("stats.totalTickets")}
+              title="Tickets totaux"
               value={stats.totalTickets}
               color="bg-blue-500"
             />
             <StatCard
-              title={t("stats.openTickets")}
+              title="Tickets ouverts"
               value={stats.openTickets}
               color="bg-yellow-500"
             />
             <StatCard
-              title={t("stats.resolvedTickets")}
+              title="Tickets résolus"
               value={stats.resolvedTickets}
               color="bg-green-500"
             />
             <StatCard
-              title={t("stats.priorityTickets")}
+              title="Tickets prioritaires"
               value={stats.priorityTickets}
               color="bg-red-500"
             />
             <StatCard
-              title={t("stats.unassignedTickets")}
+              title="Tickets non assignés"
               value={stats.unassignedTickets}
               color="bg-gray-500"
             />
@@ -271,13 +265,13 @@ const ManagerDashboardPage: React.FC = () => {
         <section className="bg-surface shadow-lg rounded-lg p-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
             <h2 className="text-xl font-semibold text-textPrimary mb-4 sm:mb-0">
-              {t("ticketManagement.title")}
+              Gestion des tickets
             </h2>
 
             {/* Filters */}
             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
               <Input
-                placeholder={t("common:search.placeholder")}
+                placeholder="Rechercher..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full sm:w-64"
@@ -286,20 +280,11 @@ const ManagerDashboardPage: React.FC = () => {
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
                 options={[
-                  { value: "all", label: t("ticketManagement.filters.all") },
-                  { value: "Open", label: t("ticketManagement.filters.open") },
-                  {
-                    value: "InProgress",
-                    label: t("ticketManagement.filters.inProgress"),
-                  },
-                  {
-                    value: "Resolved",
-                    label: t("ticketManagement.filters.resolved"),
-                  },
-                  {
-                    value: "Closed",
-                    label: t("ticketManagement.filters.closed"),
-                  },
+                  { value: "all", label: "Tous" },
+                  { value: "open", label: "Ouvert" },
+                  { value: "inProgress", label: "En cours" },
+                  { value: "resolved", label: "Résolu" },
+                  { value: "closed", label: "Fermé" },
                 ]}
               />
             </div>
@@ -311,25 +296,25 @@ const ManagerDashboardPage: React.FC = () => {
               <thead>
                 <tr className="border-b border-slate-300">
                   <th className="text-left p-3 text-sm font-semibold text-slate-700">
-                    {t("ticketManagement.table.title")}
+                    Titre
                   </th>
                   <th className="text-left p-3 text-sm font-semibold text-slate-700">
-                    {t("ticketManagement.table.client")}
+                    Client
                   </th>
                   <th className="text-left p-3 text-sm font-semibold text-slate-700">
-                    {t("ticketManagement.table.assignedTo")}
+                    Assigné à
                   </th>
                   <th className="text-left p-3 text-sm font-semibold text-slate-700">
-                    {t("ticketManagement.table.created")}
+                    Créé le
                   </th>
                   <th className="text-left p-3 text-sm font-semibold text-slate-700">
-                    {t("ticketManagement.table.priority")}
+                    Priorité
                   </th>
                   <th className="text-left p-3 text-sm font-semibold text-slate-700">
-                    {t("ticketManagement.table.status")}
+                    Statut
                   </th>
                   <th className="text-left p-3 text-sm font-semibold text-slate-700">
-                    {t("ticketManagement.table.actions")}
+                    Actions
                   </th>
                 </tr>
               </thead>
@@ -337,7 +322,7 @@ const ManagerDashboardPage: React.FC = () => {
                 {filteredTickets.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="text-center py-8 text-gray-500">
-                      {t("emptyStates.noTickets")}
+                      Aucun ticket trouvé
                     </td>
                   </tr>
                 ) : (
@@ -348,6 +333,10 @@ const ManagerDashboardPage: React.FC = () => {
                     const assignee = ticket.assigned_agent_id
                       ? allUsers.find((u) => u.id === ticket.assigned_agent_id)
                       : null;
+
+                    // Harmonisation de la casse pour priority et status
+                    const priority = (ticket.priority || "").toLowerCase();
+                    const status = (ticket.status || "").toLowerCase();
 
                     return (
                       <tr
@@ -363,34 +352,46 @@ const ManagerDashboardPage: React.FC = () => {
                           </Link>
                         </td>
                         <td className="p-3 text-sm text-slate-600">
-                          {client?.full_name ||
-                            t("common:ticketCard.unassigned")}
+                          {client?.full_name || "Non assigné"}
                         </td>
                         <td className="p-3 text-sm text-slate-600">
-                          {assignee?.full_name ||
-                            t("common:ticketCard.unassigned")}
+                          {assignee?.full_name || "Non assigné"}
                         </td>
                         <td className="p-3 text-sm text-slate-500">
                           {new Date(ticket.created_at).toLocaleDateString(
-                            i18n.language
+                            "fr-FR"
                           )}
                         </td>
                         <td className="p-3 text-sm text-slate-500">
-                          {t(`ticketPriority.${ticket.priority}`, {
-                            ns: "enums",
-                          })}
+                          {priority === "high"
+                            ? "Haute"
+                            : priority === "urgent"
+                            ? "Urgente"
+                            : priority === "medium"
+                            ? "Moyenne"
+                            : priority === "low"
+                            ? "Basse"
+                            : ticket.priority}
                         </td>
                         <td className="p-3 text-sm text-slate-500">
-                          {t(`ticketStatus.${ticket.status}`, { ns: "enums" })}
+                          {status === "open"
+                            ? "Ouvert"
+                            : status === "inprogress"
+                            ? "En cours"
+                            : status === "resolved"
+                            ? "Résolu"
+                            : status === "closed"
+                            ? "Fermé"
+                            : ticket.status}
                         </td>
                         <td className="p-3 text-sm">
                           <div className="flex space-x-2">
                             <Button
-                              variant="secondary" // au lieu de "outline"
+                              variant="secondary"
                               size="sm"
                               onClick={() => setShowAssignModal(ticket.id)}
                             >
-                              {t("ticketManagement.actions.assign")}
+                              Assigner
                             </Button>
                             <Button
                               variant="danger"
@@ -419,7 +420,7 @@ const ManagerDashboardPage: React.FC = () => {
         {/* User Management */}
         <section className="bg-surface shadow-lg rounded-lg p-6">
           <h2 className="text-xl font-semibold text-textPrimary mb-4">
-            {t("userManagement.title")}
+            Gestion des utilisateurs
           </h2>
 
           <div className="overflow-x-auto">
@@ -427,19 +428,19 @@ const ManagerDashboardPage: React.FC = () => {
               <thead>
                 <tr className="border-b border-slate-300">
                   <th className="text-left p-3 text-sm font-semibold text-slate-700">
-                    {t("userManagement.table.name")}
+                    Nom
                   </th>
                   <th className="text-left p-3 text-sm font-semibold text-slate-700">
-                    {t("userManagement.table.email")}
+                    Email
                   </th>
                   <th className="text-left p-3 text-sm font-semibold text-slate-700">
-                    {t("userManagement.table.role")}
+                    Rôle
                   </th>
                   <th className="text-left p-3 text-sm font-semibold text-slate-700">
-                    {t("userManagement.table.joined")}
+                    Inscrit le
                   </th>
                   <th className="text-left p-3 text-sm font-semibold text-slate-700">
-                    {t("userManagement.table.actions")}
+                    Actions
                   </th>
                 </tr>
               </thead>
@@ -447,7 +448,7 @@ const ManagerDashboardPage: React.FC = () => {
                 {allUsers.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="text-center py-8 text-gray-500">
-                      {t("emptyStates.noUsers")}
+                      Aucun utilisateur trouvé
                     </td>
                   </tr>
                 ) : (
@@ -460,7 +461,7 @@ const ManagerDashboardPage: React.FC = () => {
                         {currentUser.full_name}
                         {currentUser.id === user.id && (
                           <span className="ml-2 text-xs text-blue-600">
-                            ({t("common:labels.you")})
+                            (Vous)
                           </span>
                         )}
                       </td>
@@ -468,7 +469,13 @@ const ManagerDashboardPage: React.FC = () => {
                         {currentUser.email}
                       </td>
                       <td className="p-3 text-sm text-slate-600">
-                        {t(`userRole.${currentUser.role}`, { ns: "enums" })}
+                        {currentUser.role === UserRole.MANAGER
+                          ? "Manager"
+                          : currentUser.role === UserRole.AGENT
+                          ? "Agent"
+                          : currentUser.role === UserRole.USER
+                          ? "Utilisateur"
+                          : currentUser.role}
                       </td>
                       <td className="p-3 text-sm text-slate-500">
                         {/* La propriété 'created_at' n'existe pas sur User, afficher '-' */}
@@ -488,7 +495,7 @@ const ManagerDashboardPage: React.FC = () => {
                                   )
                                 }
                               >
-                                {t("userManagement.actions.promoteToAgent")}
+                                Promouvoir agent
                               </Button>
                             )}
                             {currentUser.role === UserRole.AGENT && (
@@ -502,7 +509,7 @@ const ManagerDashboardPage: React.FC = () => {
                                   )
                                 }
                               >
-                                {t("userManagement.actions.demoteToUser")}
+                                Rétrograder utilisateur
                               </Button>
                             )}
                             <Button
@@ -532,23 +539,21 @@ const ManagerDashboardPage: React.FC = () => {
         {/* Floating Action Button */}
         <FloatingActionButton
           onClick={() => (window.location.href = "/help")}
-          tooltip={t("createTicketButton")}
+          tooltip="Nouveau ticket"
         />
 
         {/* Assign Modal */}
         {showAssignModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-6 w-full max-w-md">
-              <h3 className="text-lg font-semibold mb-4">
-                {t("ticketManagement.assignModal.title")}
-              </h3>
+              <h3 className="text-lg font-semibold mb-4">Assigner un agent</h3>
               <div className="space-y-4">
                 <Button
                   variant="secondary"
                   className="w-full"
                   onClick={() => handleAssignTicket(showAssignModal, null)}
                 >
-                  {t("ticketManagement.assignModal.unassigned")}
+                  Non assigné
                 </Button>
                 {agents.map((agent) => (
                   <Button
@@ -568,7 +573,7 @@ const ManagerDashboardPage: React.FC = () => {
                   variant="secondary"
                   onClick={() => setShowAssignModal(null)}
                 >
-                  {t("ticketManagement.assignModal.cancel")}
+                  Annuler
                 </Button>
               </div>
             </div>
@@ -581,20 +586,20 @@ const ManagerDashboardPage: React.FC = () => {
             <div className="bg-white rounded-lg p-6 w-full max-w-md">
               <h3 className="text-lg font-semibold mb-4">
                 {showDeleteConfirm.type === "ticket"
-                  ? t("ticketManagement.confirmDelete.title")
-                  : t("userManagement.confirmDelete.title")}
+                  ? "Supprimer le ticket"
+                  : "Supprimer l'utilisateur"}
               </h3>
               <p className="text-gray-600 mb-6">
                 {showDeleteConfirm.type === "ticket"
-                  ? t("ticketManagement.confirmDelete.message")
-                  : t("userManagement.confirmDelete.message")}
+                  ? "Êtes-vous sûr de vouloir supprimer ce ticket ?"
+                  : "Êtes-vous sûr de vouloir supprimer cet utilisateur ?"}
               </p>
               <div className="flex justify-end space-x-3">
                 <Button
                   variant="secondary"
                   onClick={() => setShowDeleteConfirm(null)}
                 >
-                  {t("userManagement.confirmDelete.cancel")}
+                  Annuler
                 </Button>
                 <Button
                   variant="danger"
@@ -607,7 +612,7 @@ const ManagerDashboardPage: React.FC = () => {
                   }}
                   className="bg-red-600 hover:bg-red-700"
                 >
-                  {t("userManagement.confirmDelete.confirm")}
+                  Confirmer
                 </Button>
               </div>
             </div>

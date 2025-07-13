@@ -1,5 +1,5 @@
 import React from "react";
-import { useTranslation } from "react-i18next";
+// import supprimé : plus de logique i18n
 import { Link, useLocation } from "react-router-dom";
 import { useApp } from "../App";
 
@@ -19,77 +19,47 @@ const ArrowLeftIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 );
 
 const PromotionalPage: React.FC = () => {
-  const { t, ready } = useTranslation(["promotional", "common"]);
+  // Suppression de toute la logique i18n et des états liés au modal
   const { user } = useApp();
   const location = useLocation();
-
   const backLinkDestination = user ? "/dashboard" : "/login";
-
   const [modalOpen, setModalOpen] = React.useState(false);
   const [modalContent, setModalContent] = React.useState<string>("");
   const [modalTitle, setModalTitle] = React.useState<string>("");
 
-  const renderSection = (titleKey: string, contentKey: string) => {
-    const title = t(titleKey);
-    let content = t(contentKey);
-
-    // Ajout automatique de la mention prise de rendez-vous dans la section features
-    if (titleKey.includes("features") && typeof content === "string") {
-      content +=
-        '<ul class="mt-2"><li><strong>Prise de rendez-vous :</strong> Disponible uniquement pour les plans Standard et Pro</li></ul>';
-    }
-
-    if (!title || !content || title === titleKey || content === contentKey) {
-      return (
-        <section className="mb-8">
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-            <p className="text-yellow-800">
-              ⚠️ Contenu en cours de chargement... (Clé: {titleKey})
-            </p>
-          </div>
-        </section>
-      );
-    }
-
-    // Limite le texte à 220 caractères pour la carte, bouton pour voir le détail
-    const shortContent =
-      typeof content === "string" && content.length > 220
-        ? content.slice(0, 220) + "..."
-        : content;
-
-    return (
-      <section className="mb-6 sm:mb-8">
-        <h2 className="text-xl sm:text-2xl font-bold text-primary mb-3 pb-2 border-b border-slate-300 truncate">
-          {title}
-        </h2>
-        <div
-          className="prose prose-slate max-w-none text-sm sm:text-base truncate"
-          dangerouslySetInnerHTML={{ __html: shortContent }}
-        />
-        <button
-          className="mt-3 px-4 py-2 bg-primary text-white rounded-lg font-semibold shadow hover:bg-primary-dark transition-colors text-xs sm:text-sm"
-          onClick={() => {
-            setModalTitle(title);
-            setModalContent(content);
-            setModalOpen(true);
-          }}
-        >
-          Voir le détail
-        </button>
-      </section>
-    );
-  };
-
-  if (!ready) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Chargement des traductions...</p>
-        </div>
-      </div>
-    );
-  }
+  // Sections statiques en français
+  const sections = [
+    {
+      title: "Introduction",
+      content:
+        "Nexus Support Hub est la solution idéale pour la gestion de support client moderne. Notre plateforme centralise la gestion des tickets, la communication et l’automatisation grâce à l’IA, pour une expérience fluide et efficace.",
+    },
+    {
+      title: "Fonctionnalités principales",
+      content:
+        "• Gestion des tickets et des agents<br/>• Chat IA pour assistance et création de tickets<br/>• Tableaux de bord interactifs<br/>• Prise de rendez-vous (Standard et Pro)<br/>• Intégrations personnalisées (Pro)<br/>• Support prioritaire et technique dédié",
+    },
+    {
+      title: "Avantages",
+      content:
+        "• Gain de temps et d’efficacité<br/>• Automatisation des tâches répétitives<br/>• Amélioration de la satisfaction client<br/>• Sécurité et confidentialité des données",
+    },
+    {
+      title: "Limites",
+      content:
+        "La formule Freemium offre un accès limité aux fonctionnalités principales et un nombre restreint d’agents/tickets. Les formules Standard et Pro débloquent toutes les options avancées.",
+    },
+    {
+      title: "Perspectives d’évolution",
+      content:
+        "Nous prévoyons d’ajouter prochainement des modules d’analyse avancée, des intégrations avec de nouveaux outils, et des fonctionnalités IA encore plus puissantes.",
+    },
+    {
+      title: "Conclusion",
+      content:
+        "Nexus Support Hub accompagne votre croissance et simplifie la gestion du support client. Rejoignez-nous pour une expérience innovante et performante !",
+    },
+  ];
 
   return (
     <div className="bg-slate-50 min-h-screen">
@@ -101,51 +71,48 @@ const PromotionalPage: React.FC = () => {
             className="inline-flex items-center text-primary hover:text-primary-dark font-semibold text-sm"
           >
             <ArrowLeftIcon className="w-4 h-4 sm:w-5 sm:h-5 me-2" />
-            {t("promotional:backToApp", {
-              defaultValue: "Retour à l'application",
-            })}
+            Retour à l'application
           </Link>
         </div>
 
         <main className="bg-white p-4 sm:p-6 lg:p-10 rounded-lg shadow-lg">
           <header className="text-center mb-8 sm:mb-12">
             <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-800 mb-2">
-              {t("promotional:mainTitle", {
-                defaultValue: "Nexus Support Hub",
-              })}
+              Nexus Support Hub
             </h1>
             <p className="text-sm sm:text-lg text-slate-500">
-              {t("promotional:mainSubtitle", {
-                defaultValue: "Document promotionnel",
-              })}
+              Document promotionnel
             </p>
           </header>
 
           <article>
-            {renderSection(
-              "promotional:sections.intro.title",
-              "promotional:sections.intro.content"
-            )}
-            {renderSection(
-              "promotional:sections.features.title",
-              "promotional:sections.features.content"
-            )}
-            {renderSection(
-              "promotional:sections.advantages.title",
-              "promotional:sections.advantages.content"
-            )}
-            {renderSection(
-              "promotional:sections.limits.title",
-              "promotional:sections.limits.content"
-            )}
-            {renderSection(
-              "promotional:sections.future.title",
-              "promotional:sections.future.content"
-            )}
-            {renderSection(
-              "promotional:sections.conclusion.title",
-              "promotional:sections.conclusion.content"
-            )}
+            {sections.map((section, idx) => {
+              const shortContent =
+                section.content.length > 220
+                  ? section.content.slice(0, 220) + "..."
+                  : section.content;
+              return (
+                <section className="mb-6 sm:mb-8" key={section.title}>
+                  <h2 className="text-xl sm:text-2xl font-bold text-primary mb-3 pb-2 border-b border-slate-300 truncate">
+                    {section.title}
+                  </h2>
+                  <div
+                    className="prose prose-slate max-w-none text-sm sm:text-base truncate"
+                    dangerouslySetInnerHTML={{ __html: shortContent }}
+                  />
+                  <button
+                    className="mt-3 px-4 py-2 bg-primary text-white rounded-lg font-semibold shadow hover:bg-primary-dark transition-colors text-xs sm:text-sm"
+                    onClick={() => {
+                      setModalTitle(section.title);
+                      setModalContent(section.content);
+                      setModalOpen(true);
+                    }}
+                  >
+                    Voir le détail
+                  </button>
+                </section>
+              );
+            })}
           </article>
         </main>
 
@@ -173,16 +140,16 @@ const PromotionalPage: React.FC = () => {
 
         <footer className="py-6 sm:py-8 mt-6 sm:mt-8 border-t border-slate-200 text-center text-xs text-slate-500">
           <p>
-            &copy; {new Date().getFullYear()} {t("common:appName")}.{" "}
-            {t("common:footer.allRightsReserved")}
+            &copy; {new Date().getFullYear()} Nexus Support Hub. Tous droits
+            réservés.
           </p>
           <p className="mt-2">
             <Link to="/legal" className="hover:text-primary hover:underline">
-              {t("common:footer.legalLink")}
+              Mentions légales
             </Link>
             <span className="mx-2 text-slate-400">|</span>
             <Link to="/manual" className="hover:text-primary hover:underline">
-              {t("common:footer.userManualLink")}
+              Guide utilisateur
             </Link>
           </p>
         </footer>

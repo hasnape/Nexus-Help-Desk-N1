@@ -1,8 +1,6 @@
 import React from "react";
-import { useTranslation } from "react-i18next";
 
 const Footer: React.FC = () => {
-  const { t } = useTranslation("components");
   return (
     <footer className="w-full bg-gray-900 text-gray-300 py-6 mt-8 border-t border-gray-800">
       <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between">
@@ -14,13 +12,13 @@ const Footer: React.FC = () => {
         </div>
         <div className="flex space-x-4 mt-2 md:mt-0">
           <a href="/legal" className="hover:underline text-sm">
-            {t("footer.legal", "Mentions légales")}
+            Mentions légales
           </a>
           <a href="/contact" className="hover:underline text-sm">
-            {t("footer.contact", "Contact")}
+            Contact
           </a>
           <a href="/user-manual" className="hover:underline text-sm">
-            {t("footer.manual", "Manuel utilisateur")}
+            Manuel utilisateur
           </a>
         </div>
       </div>

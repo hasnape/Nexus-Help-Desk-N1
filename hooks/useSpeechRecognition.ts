@@ -1,7 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { useLanguage } from '../contexts/LanguageContext'; // Import useLanguage
 
-// Minimal Web Speech API type declarations (assuming they are defined as before)
+// Minimal Web Speech API type declarations
 interface ISpeechRecognitionAlternative {
   readonly transcript: string;
   readonly confidence: number;
@@ -12,9 +11,9 @@ interface ISpeechRecognitionResult {
   readonly length: number;
 }
 interface ISpeechRecognitionResultList {
-  readonly length: number;
   item(index: number): ISpeechRecognitionResult;
   [index: number]: ISpeechRecognitionResult;
+  length: number;
 }
 interface ISpeechRecognitionEvent extends Event {
   readonly resultIndex: number;
@@ -62,44 +61,40 @@ const useSpeechRecognition = (): SpeechRecognitionHook => {
   const [transcript, setTranscript] = useState('');
   const [error, setError] = useState<string | null>(null);
   const recognitionRef = useRef<ISpeechRecognition | null>(null);
-  const { getBCP47Locale, t } = useLanguage(); 
 
   const browserSupportsSpeechRecognition =
     typeof window !== 'undefined' &&
     ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
 
-  // Effect for proactive permission check
+  // Suppression du contexte de langue, tout est statique en français
   useEffect(() => {
     if (!browserSupportsSpeechRecognition) {
-      setError(t('speechRecognition.notSupported', { default: 'Speech recognition is not supported in this browser.'}));
+      setError("La reconnaissance vocale n'est pas prise en charge par votre navigateur.");
       return;
     }
 
     let permissionStatusRef: PermissionStatus | null = null;
 
     const handlePermissionChange = () => {
-        if (permissionStatusRef?.state === 'denied') {
-            setError(t('speechRecognition.permissionDeniedProactive'));
-        } else if (permissionStatusRef?.state === 'granted') {
-            setError((prevError: string | null) => {
-                const proactiveDenialError = t('speechRecognition.permissionDeniedProactive');
-                if (prevError === proactiveDenialError) {
-                    return null;
-                }
-                return prevError;
-            });
-        }
+      if (permissionStatusRef?.state === 'denied') {
+        setError("Microphone accès actuellement refusé. Veuillez autoriser l'accès au microphone pour cette page, puis actualisez pour utiliser la saisie vocale.");
+      } else if (permissionStatusRef?.state === 'granted') {
+        setError((prevError: string | null) => {
+          const proactiveDenialError = "Microphone accès actuellement refusé. Veuillez autoriser l'accès au microphone pour cette page, puis actualisez pour utiliser la saisie vocale.";
+          return prevError === proactiveDenialError ? null : prevError;
+        });
+      }
     };
 
     if (navigator.permissions && navigator.permissions.query) {
       navigator.permissions.query({ name: 'microphone' } as any).then(permissionStatus => {
         permissionStatusRef = permissionStatus;
         if (permissionStatus.state === 'denied') {
-          setError(t('speechRecognition.permissionDeniedProactive', { default: 'Microphone access is currently denied. Please go to your browser\'s site settings, allow microphone access for this page, and then refresh to use voice input.' }));
+          setError("Microphone accès actuellement refusé. Veuillez autoriser l'accès au microphone pour cette page, puis actualisez pour utiliser la saisie vocale.");
         }
         permissionStatus.onchange = handlePermissionChange;
       }).catch(permError => {
-        console.warn("Could not query microphone permission:", permError);
+        console.warn("Impossible de vérifier la permission du microphone :", permError);
         // Fallback to standard error handling if permission query fails
       });
     }
@@ -109,25 +104,25 @@ const useSpeechRecognition = (): SpeechRecognitionHook => {
             permissionStatusRef.onchange = null;
         }
     };
-  }, [browserSupportsSpeechRecognition, t]);
+  }, [browserSupportsSpeechRecognition]);
 
-  // Effect for SpeechRecognition instance setup and event handlers
+  // Configuration de l'instance de reconnaissance vocale
   useEffect(() => {
     if (!browserSupportsSpeechRecognition) {
-      setError(t('speechRecognition.notSupported', { default: 'Speech recognition is not supported in this browser.'}));
+        setError("La reconnaissance vocale n'est pas prise en charge par votre navigateur."); 
       return;
     }
 
     const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognitionAPI) {
-        setError(t('speechRecognition.notSupported', { default: 'Speech recognition API not found in this browser.'}));
+          setError("API de reconnaissance vocale introuvable dans ce navigateur."); 
         return;
     }
     
     recognitionRef.current = new SpeechRecognitionAPI() as ISpeechRecognition;
     const recognition = recognitionRef.current;
     
-    recognition.lang = getBCP47Locale(); 
+    recognition.lang = 'fr-FR'; // Langue par défaut : Français (France)
     recognition.continuous = false; 
     recognition.interimResults = false;
 
@@ -142,18 +137,18 @@ const useSpeechRecognition = (): SpeechRecognitionHook => {
     };
 
     recognition.onerror = (event: ISpeechRecognitionErrorEvent) => {
-      console.error('Speech recognition error', event.error, event.message);
+      console.error('Erreur de reconnaissance vocale', event.error, event.message);
       let newErrorText = '';
       if (event.error === 'no-speech') {
-        newErrorText = t('speechRecognition.error.noSpeech', { default: 'No speech detected. Please try speaking again.'});
+        newErrorText = 'Aucun discours détecté. Veuillez réessayer.';
       } else if (event.error === 'audio-capture') {
-        newErrorText = t('speechRecognition.error.audioCapture', { default: 'Audio capture error. Please ensure your microphone is connected and selected, then try again.'});
+        newErrorText = 'Erreur de capture audio. Assurez-vous que votre microphone est connecté et sélectionné.';
       } else if (event.error === 'not-allowed') {
-        newErrorText = t('speechRecognition.error.notAllowed', { default: 'Microphone access was denied. To use voice input, please allow microphone permission in your browser\'s site settings for this page and refresh.'});
+        newErrorText = 'Accès au microphone refusé. Pour utiliser la saisie vocale, veuillez autoriser l\'accès au microphone dans les paramètres de votre navigateur.';
       } else if (event.error === 'network') {
-        newErrorText = t('speechRecognition.error.network', { default: 'Network error with speech recognition. Please check your internet connection and try again.'});
+        newErrorText = 'Erreur réseau avec la reconnaissance vocale. Vérifiez votre connexion Internet.';
       } else {
-        newErrorText = t('speechRecognition.error.generic', { error: `${event.error}${event.message ? ` - ${event.message}` : ''}`});
+        newErrorText = `Erreur inconnue : ${event.error}${event.message ? ` - ${event.message}` : ''}`;
       }
       setError(newErrorText);
       setIsListening(false);
@@ -163,7 +158,7 @@ const useSpeechRecognition = (): SpeechRecognitionHook => {
       setIsListening(false);
     };
     
-    return () => {
+      return () => { 
       if (recognitionRef.current) {
         recognitionRef.current.stop(); 
         recognitionRef.current.onresult = null;
@@ -172,29 +167,29 @@ const useSpeechRecognition = (): SpeechRecognitionHook => {
         recognitionRef.current.onaudiostart = null;
       }
     };
-  }, [browserSupportsSpeechRecognition, getBCP47Locale, t]);
+  }, [browserSupportsSpeechRecognition]);
 
-  const startListening = useCallback(() => {
+  const startListening = useCallback(() => { 
     if (!recognitionRef.current || isListening || !browserSupportsSpeechRecognition) return;
     setTranscript('');
-    setError(null); 
+    setError(null);  
     try {
-      recognitionRef.current.lang = getBCP47Locale(); 
+      recognitionRef.current.lang = 'fr-FR'; // Langue par défaut : Français (France)
       recognitionRef.current.start();
       setIsListening(true);
     } catch (e: any) {
-      console.error("Error starting speech recognition:", e);
-      setError(t('speechRecognition.error.generic', { error: `Could not start listening: ${e.message}` }));
+      console.error("Erreur lors du démarrage de la reconnaissance vocale :", e);
+      setError(`Impossible de commencer à écouter : ${e.message}`);
       setIsListening(false);
     }
-  }, [isListening, browserSupportsSpeechRecognition, getBCP47Locale, t]);
+  }, [isListening, browserSupportsSpeechRecognition]);
 
   const stopListening = useCallback(() => {
     if (!recognitionRef.current || !isListening || !browserSupportsSpeechRecognition) return;
     try {
         recognitionRef.current.stop();
     } catch (e) {
-        console.error("Error stopping speech recognition:", e);
+        console.error("Erreur lors de l'arrêt de la reconnaissance vocale :", e);
     }
   }, [isListening, browserSupportsSpeechRecognition]);
 

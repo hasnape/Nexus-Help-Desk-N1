@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef, Suspense } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+// Suppression de l'i18n
 import { useApp } from "../App";
 import ChatMessageComponent from "../components/ChatMessage";
 import { Button, Textarea, Input } from "../components/FormElements";
@@ -36,12 +36,7 @@ const MicrophoneIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 const TicketDetailPageContent: React.FC = () => {
   const { ticketId } = useParams<{ ticketId: string }>();
   const navigate = useNavigate();
-  const { t } = useTranslation([
-    "ticketDetail",
-    "common",
-    "enums",
-    "components",
-  ]);
+  // Suppression de l'i18n, tout le contenu sera statique en français
 
   const {
     user,
@@ -197,7 +192,7 @@ const TicketDetailPageContent: React.FC = () => {
   if (!ticket) {
     return (
       <div className="p-4 sm:p-6 lg:p-8">
-        <LoadingSpinner text={t("ticketDetail.loading.ticket")} />
+        <LoadingSpinner text="Chargement du ticket..." />
       </div>
     );
   }
@@ -205,38 +200,32 @@ const TicketDetailPageContent: React.FC = () => {
   return (
     <div
       className="p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto"
-      aria-label={t("ticketDetail.pageAria", "Détail du ticket")}
+      aria-label="Détail du ticket"
     >
       {/* Header */}
-      <div
-        className="mb-6"
-        aria-label={t("ticketDetail.headerAria", "En-tête du ticket")}
-      >
+      <div className="mb-6" aria-label="En-tête du ticket">
         <Link
           to="/tickets"
           className="inline-flex items-center text-primary hover:text-primary-dark mb-4"
-          aria-label={t(
-            "ticketDetail.backAria",
-            "Retour à la liste des tickets"
-          )}
+          aria-label="Retour à la liste des tickets"
         >
-          ← {t("ticketDetail.navigation.backToTickets")}
+          ← Retour aux tickets
         </Link>
         <h1
           className="text-2xl sm:text-3xl font-bold text-slate-800 mb-2"
-          aria-label={t("ticketDetail.titleAria", "Titre du ticket")}
+          aria-label="Titre du ticket"
         >
           {ticket.title}
         </h1>
         <div
           className="flex flex-wrap gap-4 text-sm text-slate-600"
-          aria-label={t("ticketDetail.infoAria", "Infos ticket")}
+          aria-label="Infos ticket"
         >
           <span>
-            <strong>{t("ticketDetail.info.ticketId")}:</strong> {ticket.id}
+            <strong>ID du ticket :</strong> {ticket.id}
           </span>
           <span>
-            <strong>{t("ticketDetail.info.status")}:</strong>{" "}
+            <strong>Statut :</strong>{" "}
             <span
               className={`px-2 py-1 rounded text-xs font-medium ${
                 ticket.status === "open"
@@ -247,13 +236,19 @@ const TicketDetailPageContent: React.FC = () => {
                   ? "bg-green-100 text-green-800"
                   : "bg-gray-100 text-gray-800"
               }`}
-              aria-label={t("ticketDetail.statusAria", "Statut du ticket")}
+              aria-label="Statut du ticket"
             >
-              {t(`enums.ticketStatus.${ticket.status}`, ticket.status)}
+              {ticket.status === "open"
+                ? "Ouvert"
+                : ticket.status === "in_progress"
+                ? "En cours"
+                : ticket.status === "resolved"
+                ? "Résolu"
+                : ticket.status}
             </span>
           </span>
           <span>
-            <strong>{t("ticketDetail.info.priority")}:</strong>{" "}
+            <strong>Priorité :</strong>{" "}
             <span
               className={`px-2 py-1 rounded text-xs font-medium ${
                 ticket.priority === "urgent"
@@ -264,9 +259,15 @@ const TicketDetailPageContent: React.FC = () => {
                   ? "bg-yellow-100 text-yellow-800"
                   : "bg-gray-100 text-gray-800"
               }`}
-              aria-label={t("ticketDetail.priorityAria", "Priorité du ticket")}
+              aria-label="Priorité du ticket"
             >
-              {t(`enums.ticketPriority.${ticket.priority}`, ticket.priority)}
+              {ticket.priority === "urgent"
+                ? "Urgent"
+                : ticket.priority === "high"
+                ? "Haute"
+                : ticket.priority === "medium"
+                ? "Moyenne"
+                : ticket.priority}
             </span>
           </span>
         </div>
@@ -278,10 +279,11 @@ const TicketDetailPageContent: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-sm font-medium text-blue-800">
-                {t("ticketDetail.voiceSettings.autoRead.title")}
+                Lecture automatique des réponses IA
               </h3>
               <p className="text-xs text-blue-600 mt-1">
-                {t("ticketDetail.voiceSettings.autoRead.description")}
+                Activez pour lire automatiquement les réponses de l'IA à voix
+                haute.
               </p>
             </div>
             <button
@@ -303,36 +305,26 @@ const TicketDetailPageContent: React.FC = () => {
       {/* Ticket Description */}
       <div
         className="mb-6 p-4 bg-slate-50 rounded-lg"
-        aria-label={t("ticketDetail.descriptionAria", "Description du ticket")}
+        aria-label="Description du ticket"
       >
         <h2
           className="text-lg font-semibold text-slate-800 mb-2"
-          aria-label={t(
-            "ticketDetail.descriptionTitleAria",
-            "Titre de la description"
-          )}
+          aria-label="Titre de la description"
         >
-          {t("ticketDetail.sections.description")}
+          Description
         </h2>
         <p
           className="text-slate-700 whitespace-pre-wrap"
-          aria-label={t(
-            "ticketDetail.descriptionTextAria",
-            "Texte de la description"
-          )}
+          aria-label="Texte de la description"
         >
           {ticket.detailed_description}
         </p>
         {ticket.workstation_id && (
           <div
             className="mt-3 text-sm text-slate-600"
-            aria-label={t(
-              "ticketDetail.workstationAria",
-              "ID poste de travail"
-            )}
+            aria-label="ID poste de travail"
           >
-            <strong>{t("ticketDetail.info.workstationId")}:</strong>{" "}
-            {ticket.workstation_id}
+            <strong>ID poste de travail :</strong> {ticket.workstation_id}
           </div>
         )}
       </div>
@@ -341,7 +333,7 @@ const TicketDetailPageContent: React.FC = () => {
       {canModifyTicket() && (
         <div className="mb-6 p-4 bg-white border border-slate-200 rounded-lg">
           <h2 className="text-lg font-semibold text-slate-800 mb-4">
-            {t("ticketDetail.sections.statusManagement")}
+            Gestion du statut
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {Array.isArray(TICKET_STATUS_KEYS)
@@ -355,7 +347,13 @@ const TicketDetailPageContent: React.FC = () => {
                         : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                     }`}
                   >
-                    {t(`enums.ticketStatus.${status}`)}
+                    {status === "open"
+                      ? "Ouvert"
+                      : status === "in_progress"
+                      ? "En cours"
+                      : status === "resolved"
+                      ? "Résolu"
+                      : status}
                   </button>
                 ))
               : null}
@@ -368,31 +366,30 @@ const TicketDetailPageContent: React.FC = () => {
         <div className="mb-6 p-4 bg-white border border-slate-200 rounded-lg">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold text-slate-800">
-              {t("ticketDetail.sections.appointment")}
+              Rendez-vous
             </h2>
             <button
               onClick={() => setShowAppointmentForm(!showAppointmentForm)}
               className="px-3 py-1 text-sm bg-primary text-white rounded hover:bg-primary-dark"
             >
               {showAppointmentForm
-                ? t("common.actions.cancel")
-                : t("ticketDetail.appointment.proposeNew")}
+                ? "Annuler"
+                : "Proposer un nouveau rendez-vous"}
             </button>
           </div>
 
           {ticket.appointment_details && (
             <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded">
               <h3 className="font-medium text-green-800 mb-2">
-                {t("ticketDetail.appointment.existing")}
+                Rendez-vous existant
               </h3>
               <div className="text-sm text-green-700">
                 <p>
-                  <strong>{t("ticketDetail.appointment.date")}:</strong>{" "}
-                  {ticket.appointment_details.date} {t("common.labels.at")}{" "}
+                  <strong>Date :</strong> {ticket.appointment_details.date} à{" "}
                   {ticket.appointment_details.time}
                 </p>
                 <p>
-                  <strong>{t("ticketDetail.appointment.location")}:</strong>{" "}
+                  <strong>Lieu :</strong>{" "}
                   {ticket.appointment_details.location_method}
                 </p>
               </div>
@@ -403,14 +400,14 @@ const TicketDetailPageContent: React.FC = () => {
             <div className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Input
-                  label={t("ticketDetail.appointment.form.date")}
+                  label="Date"
                   type="date"
                   value={apptDate}
                   onChange={(e) => setApptDate(e.target.value)}
                   required
                 />
                 <Input
-                  label={t("ticketDetail.appointment.form.time")}
+                  label="Heure"
                   type="time"
                   value={apptTime}
                   onChange={(e) => setApptTime(e.target.value)}
@@ -418,12 +415,10 @@ const TicketDetailPageContent: React.FC = () => {
                 />
               </div>
               <Input
-                label={t("ticketDetail.appointment.form.location")}
+                label="Lieu ou méthode de rendez-vous"
                 value={apptLocationMethod}
                 onChange={(e) => setApptLocationMethod(e.target.value)}
-                placeholder={t(
-                  "ticketDetail.appointment.form.locationPlaceholder"
-                )}
+                placeholder="Ex : Salle 101, Visio, Téléphone..."
                 required
               />
               <button
@@ -431,7 +426,7 @@ const TicketDetailPageContent: React.FC = () => {
                 disabled={!apptDate || !apptTime || !apptLocationMethod.trim()}
                 className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
               >
-                {t("ticketDetail.appointment.form.submit")}
+                Proposer
               </button>
             </div>
           )}
@@ -439,32 +434,23 @@ const TicketDetailPageContent: React.FC = () => {
       )}
 
       {/* Chat Messages */}
-      <div
-        className="mb-6"
-        aria-label={t("ticketDetail.conversationAria", "Section conversation")}
-      >
+      <div className="mb-6" aria-label="Section conversation">
         <h2
           className="text-lg font-semibold text-slate-800 mb-4"
-          aria-label={t(
-            "ticketDetail.conversationTitleAria",
-            "Titre conversation"
-          )}
+          aria-label="Titre conversation"
         >
-          {t("ticketDetail.sections.conversation")}
+          Conversation
         </h2>
         <div
           className="space-y-4 max-h-96 overflow-y-auto border border-slate-200 rounded-lg p-4"
-          aria-label={t(
-            "ticketDetail.conversationListAria",
-            "Liste des messages"
-          )}
+          aria-label="Liste des messages"
         >
           {ticket.chat_messages && ticket.chat_messages.length > 0 ? (
             ticket.chat_messages.map((message) => (
               <div
                 key={message.id}
                 className="relative"
-                aria-label={t("ticketDetail.messageAria", "Message du chat")}
+                aria-label="Message du chat"
               >
                 <ChatMessageComponent
                   message={message}
@@ -478,24 +464,12 @@ const TicketDetailPageContent: React.FC = () => {
                   speakButtonProps={{
                     "aria-label":
                       isSpeaking && speakingMessageId === message.id
-                        ? t(
-                            "ticketDetail.conversation.stopSpeakingAria",
-                            "Arrêter la lecture du message"
-                          )
-                        : t(
-                            "ticketDetail.conversation.speakAria",
-                            "Lire le message à voix haute"
-                          ),
+                        ? "Arrêter la lecture du message"
+                        : "Lire le message à voix haute",
                     title:
                       isSpeaking && speakingMessageId === message.id
-                        ? t(
-                            "ticketDetail.conversation.stopSpeakingTitle",
-                            "Arrêter la lecture"
-                          )
-                        : t(
-                            "ticketDetail.conversation.speakTitle",
-                            "Lire le message à voix haute"
-                          ),
+                        ? "Arrêter la lecture"
+                        : "Lire le message à voix haute",
                   }}
                 />
               </div>
@@ -503,9 +477,9 @@ const TicketDetailPageContent: React.FC = () => {
           ) : (
             <p
               className="text-slate-500 text-center py-8"
-              aria-label={t("ticketDetail.noMessagesAria", "Aucun message")}
+              aria-label="Aucun message"
             >
-              {t("ticketDetail.conversation.noMessages")}
+              Aucun message pour ce ticket.
             </p>
           )}
           <div ref={chatEndRef} />
@@ -517,10 +491,10 @@ const TicketDetailPageContent: React.FC = () => {
         <div className="flex items-end space-x-2">
           <div className="flex-1">
             <Textarea
-              label={t("ticketDetail.conversation.messageInput")}
+              label="Votre message"
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
-              placeholder={t("ticketDetail.conversation.messagePlaceholder")}
+              placeholder="Écrivez votre message ici..."
               rows={3}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
@@ -540,8 +514,8 @@ const TicketDetailPageContent: React.FC = () => {
               }`}
               title={
                 isListeningChatInput
-                  ? t("ticketDetail.conversation.stopListening")
-                  : t("ticketDetail.conversation.startListening")
+                  ? "Arrêter la dictée vocale"
+                  : "Démarrer la dictée vocale"
               }
             >
               <MicrophoneIcon className="w-5 h-5" />
@@ -555,14 +529,14 @@ const TicketDetailPageContent: React.FC = () => {
 
         <div className="flex justify-between items-center">
           <div className="text-xs text-slate-500">
-            {t("ticketDetail.conversation.enterToSend")}
+            Appuyez sur Entrée pour envoyer
           </div>
           <Button
             onClick={handleSendMessage}
             disabled={!newMessage.trim()}
             variant="primary"
           >
-            {t("common.actions.send")}
+            Envoyer
           </Button>
         </div>
       </div>
@@ -571,11 +545,8 @@ const TicketDetailPageContent: React.FC = () => {
 };
 
 const TicketDetailPage: React.FC = () => {
-  return (
-    <Suspense fallback={<LoadingSpinner />}>
-      <TicketDetailPageContent />
-    </Suspense>
-  );
+  // Suppression du Suspense et du fallback inutile
+  return <TicketDetailPageContent />;
 };
 
 export default TicketDetailPage;
