@@ -37,8 +37,7 @@ const TicketCard: React.FC<TicketCardProps> = ({ ticket }) => {
           <div className="flex justify-between items-start mb-2">
             <h3 className="text-xl font-semibold text-primary truncate" title={ticket.title}>{ticket.title}</h3>
             <span
-              className={`px-2 py-1 text-xs font-semibold rounded-full ${statusColors[ticket.status]}`}
-            >
+              className={`px-2 py-1 text-xs font-semibold rounded-full ${statusColors[ticket.status]}`} >
               {t(`ticketStatus.${ticket.status}`)}
             </span>
           </div>
