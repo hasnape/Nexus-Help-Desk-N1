@@ -1,34 +1,33 @@
 {
-    "headers": [{
-        "source": "/locales/(.*).json",
-        "headers": [{
-                "key": "Content-Type",
-                "value": "application/json; charset=utf-8"
-            },
-            {
-                "key": "Cache-Control",
-                "value": "public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800"
-            },
-            {
-                "key": "Access-Control-Allow-Origin",
-                "value": "*"
-            },
-            {
-                "key": "X-Content-Type-Options",
-                "value": "nosniff"
-            }
-        ]
-    }],
-    "trailingSlash": false,
-    "cleanUrls": true,
-    "rewrites": [
+  "headers": [
+    {
+      "source": "/locales/(.*).json",
+      "headers": [
         {
-            "source": "/locales/:file",
-            "destination": "/locales/:file"
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
         },
-        { 
-            "source": "/(.*)", 
-            "destination": "/index.html" 
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
         }
-    ]
+      ]
+    }
+  ],
+  "trailingSlash": false,
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/((?!locales/).*)",
+      "destination": "/index.html"
+    }
+  ]
 }
