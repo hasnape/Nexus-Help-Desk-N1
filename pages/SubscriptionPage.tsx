@@ -126,7 +126,7 @@ const SubscriptionPage: React.FC = () => {
             {currentUserPlan === "Freemium" && (
               <p className="text-slate-500 mt-1">
                 {t("subscription.currentPlan.freemiumDesc", {
-                  default: "You are currently on the free plan.",
+                  default: "You are currently on the Freemium plan.",
                 })}
               </p>
             )}

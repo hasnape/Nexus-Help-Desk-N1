@@ -62,7 +62,7 @@ const Navbar: React.FC = () => {
           to: "/presentation",
           label: t("navbar.presentation", { default: "Présentation" }),
         },
-        { to: "/pricing", label: t("navbar.pricing", { default: "Tarifs" }) },
+        { to: "/SubscriptionPage", label: t("navbar.pricing", { default: "Tarifs" }) },
         {
           to: "/infographie",
           label: t("navbar.infographie", { default: "Infographie" }),

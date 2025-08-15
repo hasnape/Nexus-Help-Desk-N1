@@ -90,7 +90,7 @@ const ProModal = ({
                     />
                   </svg>
                   {t("signupPlans.pro.modal.features.unlimited", {
-                    default: "Tickets illimités",
+                    default: "10 Agents, 1000 Tickets mois",
                   })}
                 </li>
                 <li className="flex items-center">
@@ -283,7 +283,7 @@ const StandardModal = ({
                 <span className="text-4xl font-bold text-primary">10€</span>
                 <span className="text-gray-600 text-lg">
                   {t("signupPlans.standard.modal.pricing", {
-                    default: "/ agent / mois",
+                    default: "mois",
                   })}
                 </span>
               </div>
@@ -308,7 +308,7 @@ const StandardModal = ({
                     />
                   </svg>
                   {t("signupPlans.standard.modal.features.unlimited", {
-                    default: "Tickets illimités",
+                    default: "5 Agents, 500 Tickets mois",
                   })}
                 </li>
                 <li className="flex items-center">

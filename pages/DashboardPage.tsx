@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useApp } from '../App';
@@ -6,6 +5,7 @@ import TicketCard from '../components/TicketCard';
 import { Button } from '../components/FormElements';
 import { useLanguage } from '../contexts/LanguageContext';
 import FloatingActionButton from '../components/FloatingActionButton';
+import PlanLimits from '../components/planLimits';
 
 const PlusIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" {...props}>
@@ -19,53 +19,51 @@ const MagnifyingGlassIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => 
   </svg>
 );
 
-
 const DashboardPage: React.FC = () => {
   const { tickets, user } = useApp();
   const { t } = useLanguage();
 
   const myTickets = user ? tickets.filter(t => t.user_id === user.id) : [];
-
   const sortedTickets = [...myTickets].sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
 
   return (
     <div className="space-y-8">
+      {/* HEADER */}
       <div className="pb-4 border-b border-slate-300">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
-            <div className="mb-4 sm:mb-0">
-                <h1 className="text-3xl font-bold text-textPrimary">
-                    {t('dashboard.welcomeMessage', { username: user?.full_name || 'User' })}
-                </h1>
-                {user?.company_id && (
-                    <p className="text-lg text-slate-500 font-medium">{user.company_id}</p>
-                )}
-            </div>
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                <Link to="/help">
-                    <Button variant="primary" size="md" className="w-full sm:w-auto">
-                        <PlusIcon className="w-5 h-5 me-2" />
-                        {t('dashboard.createNewTicketButton')}
-                    </Button>
-                </Link>
-                <Link 
-                    to="/help"
-                    state={{
-                        initialMessage: t('helpChat.prefilled.materialInvestigation', { default: "I'd like to start an investigation on a piece of equipment."})
-                    }}
-                >
-                    <Button variant="secondary" size="md" className="w-full sm:w-auto">
-                        <MagnifyingGlassIcon className="w-5 h-5 me-2" />
-                        {t('dashboard.requestMaterialInvestigationButton')}
-                    </Button>
-                </Link>
-            </div>
+          <div className="mb-4 sm:mb-0">
+            <h1 className="text-3xl font-bold text-textPrimary">
+              {t('dashboard.welcomeMessage', { username: user?.full_name || 'User' })}
+            </h1>
+            {user?.company_id && <p className="text-lg text-slate-500 font-medium">{user.company_id}</p>}
+          </div>
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+            <Link to="/help">
+              <Button variant="primary" size="md" className="w-full sm:w-auto">
+                <PlusIcon className="w-5 h-5 me-2" />
+                {t('dashboard.createNewTicketButton')}
+              </Button>
+            </Link>
+            <Link 
+              to="/help"
+              state={{
+                initialMessage: t('helpChat.prefilled.materialInvestigation', { default: "I'd like to start an investigation on a piece of equipment."})
+              }}
+            >
+              <Button variant="secondary" size="md" className="w-full sm:w-auto">
+                <MagnifyingGlassIcon className="w-5 h-5 me-2" />
+                {t('dashboard.requestMaterialInvestigationButton')}
+              </Button>
+            </Link>
+          </div>
         </div>
-        <p className="text-sm text-slate-600 mt-1">
-            {t('dashboard.headerSubtitle')}
-        </p>
+        <p className="text-sm text-slate-600 mt-1">{t('dashboard.headerSubtitle')}</p>
       </div>
 
+      {/* PLAN LIMITS */}
+      {user?.company_id && <PlanLimits companyId={user.company_id} />}
 
+      {/* TICKETS */}
       {sortedTickets.length === 0 ? (
         <div className="text-center py-12">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-16 h-16 mx-auto text-slate-400 mb-4">
@@ -76,11 +74,10 @@ const DashboardPage: React.FC = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {sortedTickets.map(ticket => (
-            <TicketCard key={ticket.id} ticket={ticket} />
-          ))}
+          {sortedTickets.map(ticket => <TicketCard key={ticket.id} ticket={ticket} />)}
         </div>
       )}
+
       <FloatingActionButton to="/help" title={t('dashboard.createNewTicketButton')} />
     </div>
   );
