@@ -7,6 +7,7 @@ import { UserRole } from "../types";
 import { Transition } from "@headlessui/react"; // Ajoutez cette dépendance si besoin
 import type { Locale } from "../contexts/LanguageContext";
 
+
 const SpeakerLoudIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -62,15 +63,24 @@ const Navbar: React.FC = () => {
           to: "/presentation",
           label: t("navbar.presentation", { default: "Présentation" }),
         },
-        { to: "/SubscriptionPage", label: t("navbar.pricing", { default: "Tarifs" }) },
+
+        {
+        to: "/pricing", // chemin de route, pas d'import nécessaire
+        label: t("navbar.pricingpage", { default: "Tarifes" }),
+        },
+
+        
+        
         {
           to: "/infographie",
           label: t("navbar.infographie", { default: "Infographie" }),
         },
+        
         {
           to: "/manual",
           label: t("navbar.userManual", { default: "Manuel utilisateur" }),
         },
+        
         {
           to: "/help",
           label: t("navbar.helpCenter", { default: "Centre d'aide" }),
@@ -88,6 +98,9 @@ const Navbar: React.FC = () => {
         {
           to: "/presentation-video",
           label: t("navbar.demoVideo", { default: "Démonstration vidéo" }),
+        },{
+          to: "/SubscriptionPage",
+          label: t("navbar.pricing", { default: "Abonnés" })
         },
       ],
     },
@@ -189,9 +202,12 @@ const Navbar: React.FC = () => {
               className="w-10 h-10 rounded-full object-cover border-2 border-sky-400 bg-white"
               style={{ minWidth: 40, minHeight: 40, background: "#fff" }}
             />
-            <span className="text-2xl font-bold text-sky-400 hover:text-sky-300">
-              {t("appName", { default: "Nexus Support Hub" })}
-            </span>
+        <span className="hidden md:inline text-xl font-bold text-sky-400 hover:text-sky-300">
+  Nexus Support Hub
+</span>
+
+
+
           </Link>
         </div>
         {/* Boutons Connexion/Créer un compte + burger à droite */}

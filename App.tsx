@@ -3,7 +3,7 @@ import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation, Link } f
 import { Ticket, User, ChatMessage, TicketStatus, UserRole, Locale as AppLocale, AppointmentDetails } from "./types";
 import { getFollowUpHelpResponse, getTicketSummary } from "./services/geminiService";
 import { supabase } from "./services/supabaseClient";
-import Navbar from "./components/Navbar";
+import PricingPage from "./pages/PricingPage";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import NewTicketPage from "./pages/NewTicketPage";
@@ -28,6 +28,8 @@ import LoadingSpinner from "./components/LoadingSpinner";
 import CookieConsentBanner from "./components/CookieConsentBanner";
 import type { Session } from "@supabase/supabase-js";
 import { sendWelcomeManagerEmail, generateLoginUrl, formatRegistrationDate } from "./services/emailService";
+import PageLayout from './components/PageLayout';
+
 
 interface AppContextType {
   user: User | null;
@@ -686,79 +688,103 @@ const MainAppContent: React.FC = () => {
   }
 
   const renderRoutes = () => (
-    <Routes>
-      <Route path="/landing" element={<LandingPage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/signup" element={<SignUpPage />} />
-      <Route path="/legal" element={<LegalPage />} />
-      <Route path="/manual" element={<UserManualPage />} />
-      <Route path="/presentation" element={<PromotionalPage />} />
-      <Route path="/contact" element={<ContactPage />} />
-      <Route path="/about" element={<AboutPage />} />
-      <Route path="/testimonials" element={<TestimonialsPage />} />
-      <Route path="/partners" element={<PartnersPage />} />
-      <Route path="/infographie" element={<InfographiePage />} />
-      <Route path="/subscribe" element={<ProtectedRoute><SubscriptionPage /></ProtectedRoute>} />
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
-            {user?.role === UserRole.AGENT ? <Navigate to="/agent/dashboard" replace /> : user?.role === UserRole.MANAGER ? <Navigate to="/manager/dashboard" replace /> : <DashboardPage />}
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/help"
-        element={
-          <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
-            <HelpChatPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/ticket/new"
-        element={
-          <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
-            <NewTicketPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/ticket/:ticketId"
-        element={
-          <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
-            <TicketDetailPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/agent/dashboard"
-        element={
-          <ProtectedRoute allowedRoles={[UserRole.AGENT, UserRole.MANAGER]}>
-            <AgentDashboardPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/manager/dashboard"
-        element={
-          <ProtectedRoute allowedRoles={[UserRole.MANAGER]}>
-            <ManagerDashboardPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/"
-        element={
-          user ? (
-            user.role === UserRole.AGENT ? <Navigate to="/agent/dashboard" replace /> : user.role === UserRole.MANAGER ? <Navigate to="/manager/dashboard" replace /> : <Navigate to="/dashboard" replace />
+  <Routes>
+    <Route path="/landing" element={<LandingPage />} />
+    <Route path="/login" element={<LoginPage />} />
+    <Route path="/signup" element={<SignUpPage />} />
+    <Route path="/legal" element={<LegalPage />} />
+    <Route path="/manual" element={<UserManualPage />} />
+    <Route path="/presentation" element={<PromotionalPage />} />
+    <Route path="/contact" element={<ContactPage />} />
+    <Route path="/about" element={<AboutPage />} />
+    <Route path="/testimonials" element={<TestimonialsPage />} />
+    <Route path="/partners" element={<PartnersPage />} />
+    <Route path="/infographie" element={<InfographiePage />} />
+
+    {/* PricingPage */}
+    <Route path="/pricing" element={<PricingPage />} />
+
+    <Route path="/subscribe" element={<ProtectedRoute><SubscriptionPage /></ProtectedRoute>} />
+
+    <Route
+      path="/dashboard"
+      element={
+        <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
+          {user?.role === UserRole.AGENT ? (
+            <Navigate to="/agent/dashboard" replace />
+          ) : user?.role === UserRole.MANAGER ? (
+            <Navigate to="/manager/dashboard" replace />
           ) : (
-            <Navigate to="/landing" replace />
+            <DashboardPage />
+          )}
+        </ProtectedRoute>
+      }
+    />
+
+    <Route
+      path="/help"
+      element={
+        <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
+          <HelpChatPage />
+        </ProtectedRoute>
+      }
+    />
+
+    <Route
+      path="/ticket/new"
+      element={
+        <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
+          <NewTicketPage />
+        </ProtectedRoute>
+      }
+    />
+
+    <Route
+      path="/ticket/:ticketId"
+      element={
+        <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
+          <TicketDetailPage />
+        </ProtectedRoute>
+      }
+    />
+
+    <Route
+      path="/agent/dashboard"
+      element={
+        <ProtectedRoute allowedRoles={[UserRole.AGENT, UserRole.MANAGER]}>
+          <AgentDashboardPage />
+        </ProtectedRoute>
+      }
+    />
+
+    <Route
+      path="/manager/dashboard"
+      element={
+        <ProtectedRoute allowedRoles={[UserRole.MANAGER]}>
+          <ManagerDashboardPage />
+        </ProtectedRoute>
+      }
+    />
+
+    <Route
+      path="/"
+      element={
+        user ? (
+          user.role === UserRole.AGENT ? (
+            <Navigate to="/agent/dashboard" replace />
+          ) : user.role === UserRole.MANAGER ? (
+            <Navigate to="/manager/dashboard" replace />
+          ) : (
+            <Navigate to="/dashboard" replace />
           )
-        }
-      />
-    </Routes>
-  );
+        ) : (
+          <Navigate to="/landing" replace />
+        )
+      }
+    />
+  </Routes>
+);
+
 
   if (noLayoutPages.includes(location.pathname)) {
     return (
@@ -774,24 +800,12 @@ const MainAppContent: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-100 text-slate-800">
-      <Navbar />
-      <main className="flex-grow container mx-auto p-4 sm:p-6 lg:p-8">
-        {renderRoutes()}
-      </main>
-      <footer className="bg-slate-100 py-4 text-center text-xs text-slate-500">
-        <p>&copy; {new Date().getFullYear()} {t("appName")}. {t("footer.allRightsReserved", { default: "All Rights Reserved." })}</p>
-        <p className="mt-1">
-          <Link to="/legal" className="hover:text-primary hover:underline">{t("footer.legalLink", { default: "Legal & Documentation" })}</Link>
-          <span className="mx-2 text-slate-400">|</span>
-          <Link to="/manual" className="hover:text-primary hover:underline">{t("footer.userManualLink", { default: "User Manual" })}</Link>
-          <span className="mx-2 text-slate-400">|</span>
-          <Link to="/presentation" className="hover:text-primary hover:underline">{t("footer.promotionalLink", { default: "Presentation" })}</Link>
-        </p>
-      </footer>
-      {!consentGiven && <CookieConsentBanner onAccept={giveConsent} />}
-    </div>
-  );
+  <PageLayout>
+    {renderRoutes()}
+    {!consentGiven && <CookieConsentBanner onAccept={giveConsent} />}
+  </PageLayout>
+);
+
 };
 
 function App() {

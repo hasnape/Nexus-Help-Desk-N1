@@ -1,8 +1,0 @@
-{
-  "requestFramePermissions": [
-    "microphone"
-  ],
-  "name": "Copy of Nexus Support Hub V26",
-  "description": "Nexus Support Hub – Presentation\n\nAn intelligent help desk featuring our AI assistant 'Nexus'. Get instant support, manage tickets efficiently with role-based dashboards, and use voice commands for a hands-free experience.\n\nKey Features:\n\n24/7 AI-powered chat assistant\n\nAutomatic ticket categorization and prioritization\n\nRole-based dashboards (User, Agent, Manager)\n\nVoice command and speech synthesis\n\nMultilingual support (English, French, Arabic)\n\nPayment Plan (via PayPal)\n\nFreemium Plan: Up to 3 agents, 200 tickets/month\n\nStandard Plan: €10 per agent/month (unlimited tickets, full AI features)\n\nPro Plan: €20 per agent/month (includes all Standard features, voice commands, multilingual support, and appointment scheduling)\n\nPayments processed securely via PayPal.\n\nUser Manual (Quick Start)\n\nSign Up: Create your company account (as a Manager) or join an existing one.\n\nAI Assistant: Start a chat with 'Nexus' to get instant help. The AI is powered by Google Gemini.\n\nManage Tickets: Use your role-based dashboard to view, assign, and resolve tickets.\n\nVoice Commands: Enable microphone permissions to use voice input and receive spoken responses (Pro plan feature).\n\nFor further help, contact us at: hubnexusinfo@gmail.com",
-  "prompt": ""
-}

@@ -55,10 +55,10 @@ export async function summarizeAndCategorizeChat(
 Based on the full conversation, you MUST generate a JSON object with four specific keys: "title", "description", "category", and "priority".
 The response MUST be ONLY a raw JSON object, without any markdown like \`\`\`json.
 
-1.  **title**: Create a short, descriptive title (5-10 words) for the ticket. This should summarize the user's core problem.
-2.  **description**: Write a comprehensive summary of the entire conversation. Include the initial problem, key details provided by the user, and any troubleshooting steps already attempted by the assistant.
-3.  **category**: Choose the BEST matching category from this specific list: [${validCategories}]. You MUST select one of these exact keys.
-4.  **priority**: Assess the urgency and impact of the issue and choose a priority from this specific list: [${validPriorities}].
+1.  **title**: Create a short, descriptive title (5-10 words) for the ticket. This should summarize the user's core problem.
+2.  **description**: Write a comprehensive summary of the entire conversation. Include the initial problem, key details provided by the user, and any troubleshooting steps already attempted by the assistant.
+3.  **category**: Choose the BEST matching category from this specific list: [${validCategories}]. You MUST select one of these exact keys.
+4.  **priority**: Assess the urgency and impact of the issue and choose a priority from this specific list: [${validPriorities}].
 
 The entire JSON response, including all string values, MUST be in ${targetLanguage}.
 Do not add any explanations or text outside of the JSON object.`;
@@ -77,6 +77,11 @@ Do not add any explanations or text outside of the JSON object.`;
         temperature: 0.5,
       }
     });
+
+    // CORRECTION : S'assurer que response.text n'est pas undefined
+    if (!response.text) {
+      throw new Error("Gemini API did not return text content for summary.");
+    }
 
     let jsonStr = response.text.trim();
     const fenceRegex = /```(?:json)?\s*\n?(.*?)\n?\s*```/s;
@@ -132,25 +137,25 @@ You are acting as a Level 1 (N1) support agent. Your task is to continue assisti
 
 N1 Specific instructions based on category:
 - If the category is "ticketCategory.MaterialReplacementRequest", "ticketCategory.LostMaterial", or "ticketCategory.BrokenMaterial":
-  - If the specific item isn't identified yet, ask for it.
-  - If the item is identified but, for example, the circumstances (if "LostMaterial" or "BrokenMaterial") are unknown, ask: "Thanks for confirming the item. Could you briefly describe how it was lost/broken?" (This is still N1 info gathering).
-  - Once basic info is gathered (item, very brief circumstance), state: "Thank you. I have noted these details. Your request will be forwarded to our IT hardware team for processing."
-  - Do NOT attempt to troubleshoot the hardware issue itself.
+  - If the specific item isn't identified yet, ask for it.
+  - If the item is identified but, for example, the circumstances (if "LostMaterial" or "BrokenMaterial") are unknown, ask: "Thanks for confirming the item. Could you briefly describe how it was lost/broken?" (This is still N1 info gathering).
+  - Once basic info is gathered (item, very brief circumstance), state: "Thank you. I have noted these details. Your request will be forwarded to our IT hardware team for processing."
+  - Do NOT attempt to troubleshoot the hardware issue itself.
 - If the category is "ticketCategory.MaterialInvestigation":
-  - Ask one more basic clarifying question based on the user's last message. For example, if they described a "slow laptop", you could ask "Does this happen all the time, or only with specific applications?".
-  - If the issue is not immediately resolvable with a very simple suggestion (like "Have you tried restarting it?"), then state: "Thank you for the additional information. This will help our Level 2 technical team investigate further. I've documented our conversation, and they will take a closer look."
-  - Avoid making a final decision on replacement or complex troubleshooting.
+  - Ask one more basic clarifying question based on the user's last message. For example, if they described a "slow laptop", you could ask "Does this happen all the time, or only with specific applications?".
+  - If the issue is not immediately resolvable with a very simple suggestion (like "Have you tried restarting it?"), then state: "Thank you for the additional information. This will help our Level 2 technical team investigate further. I've documented our conversation, and they will take a closer look."
+  - Avoid making a final decision on replacement or complex troubleshooting.
 - For all other categories (Level 1): Guide through one more basic, common troubleshooting step. If it fails or if the user indicates the problem is complex, inform them: "I've noted the steps we've tried. It seems this issue requires a more in-depth look. I'll document our conversation and escalate this to our Level 2 support team."
 ` : `
 You are acting as a Level 2 (N2) IT Help Desk AI specialist. Your primary role is to diagnose and resolve technical incidents that require more in-depth knowledge than Level 1 support. You possess a good understanding of various systems and software. Respond professionally and technically, aiming to identify the root cause. Ask targeted diagnostic questions if needed, one or two at a time. If you propose a solution, it should be within the scope of an N2 agent (e.g., advanced configuration, specific repairs, known complex workarounds, but not architectural changes or new development which are N3 tasks). If the problem seems to exceed N2 capabilities (e.g., requires direct vendor/editor involvement or custom development), you can state that further specialized (N3) investigation might be necessary if your current approach doesn't resolve it.
 
 N2 Specific instructions based on category:
 - If the category is "ticketCategory.MaterialReplacementRequest", "ticketCategory.LostMaterial", or "ticketCategory.BrokenMaterial":
-  - (N2 typically wouldn't handle initial requests, but if escalated here) Confirm all details are present. If user has further questions about process, answer them.
+  - (N2 typically wouldn't handle initial requests, but if escalated here) Confirm all details are present. If user has further questions about process, answer them.
 - If the category is "ticketCategory.MaterialInvestigation":
-  - Continue the diagnostic conversation with more technical questions. For example: "Could you check the driver version for [device]?" or "Are there any specific error codes in the event logs when this occurs?".
-  - Offer more specific troubleshooting steps that an N2 would perform (e.g., "Let's try reinstalling the driver for that component.").
-  - If a replacement seems likely after N2 diagnosis: "Based on these findings, it appears a replacement of [item] is the most effective solution. I can process this for you. Would you like to proceed with requesting a replacement?"
+  - Continue the diagnostic conversation with more technical questions. For example: "Could you check the driver version for [device]?" or "Are there any specific error codes in the event logs when this occurs?".
+  - Offer more specific troubleshooting steps that an N2 would perform (e.g., "Let's try reinstalling the driver for that component.").
+  - If a replacement seems likely after N2 diagnosis: "Based on these findings, it appears a replacement of [item] is the most effective solution. I can process this for you. Would you like to proceed with requesting a replacement?"
 - For all other categories (Level 2): Provide more technical or in-depth solutions. Analyze logs if conceptually provided. Guide through advanced configuration changes.
 `;
 
@@ -161,8 +166,8 @@ The provided conversation history contains all previous messages, with the user'
 Your entire response MUST be a single, raw JSON object, without any markdown like \`\`\`json.
 The JSON object must have two keys: "responseText" and "escalationSuggested".
 
-1.  **responseText**: This is the message you will show to the user. It must be helpful, empathetic, professional, and clear. Ask only one or two questions at a time if more information is needed. The response text must be in ${targetLanguage}.
-2.  **escalationSuggested**: This is a boolean (true/false). Set it to \`true\` ONLY if your \`responseText\` indicates that you cannot resolve the issue and are escalating it, forwarding it to another team (like N2 or hardware), or suggesting the user create a ticket. Otherwise, set it to \`false\`.
+1.  **responseText**: This is the message you will show to the user. It must be helpful, empathetic, professional, and clear. Ask only one or two questions at a time if more information is needed. The response text must be in ${targetLanguage}.
+2.  **escalationSuggested**: This is a boolean (true/false). Set it to \`true\` ONLY if your \`responseText\` indicates that you cannot resolve the issue and are escalating it, forwarding it to another team (like N2 or hardware), or suggesting the user create a ticket. Otherwise, set it to \`false\`.
 
 Follow these specific role instructions to formulate your \`responseText\`:
 ${roleInstructions}`;
@@ -179,6 +184,11 @@ ${roleInstructions}`;
         topK: 50,
       }
     });
+
+    // CORRECTION : S'assurer que response.text n'est pas undefined
+    if (!response.text) {
+      throw new Error("Gemini API did not return text content for follow-up.");
+    }
 
     let jsonStr = response.text.trim();
     const fenceRegex = /```(?:json)?\s*\n?(.*?)\n?\s*```/s;
@@ -253,6 +263,12 @@ IMPORTANT: Respond ONLY in ${targetLanguage}.`;
         topK: 30,
       }
     });
+
+    // CORRECTION : S'assurer que response.text n'est pas undefined
+    if (!response.text) {
+      throw new Error("Gemini API did not return text content for summary.");
+    }
+
     return response.text;
   } catch (error: any) {
     console.error("Error getting ticket summary from Gemini:", error);

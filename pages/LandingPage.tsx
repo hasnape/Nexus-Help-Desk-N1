@@ -135,6 +135,7 @@ const LandingPage: React.FC = () => {
     },
   ];
 
+
   // Avantages suggérés dans la revue
   const advantages = [
     {
@@ -199,6 +200,8 @@ const LandingPage: React.FC = () => {
     },
   ];
 
+  
+
   const pricingTiers = [
     {
       nameKey: "pricing.freemium.name",
@@ -251,7 +254,18 @@ const LandingPage: React.FC = () => {
       <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-700">
         <Navbar />
         <main className="pt-16">
-          {/* 1. Hero Section */}
+          {/* 1. Hero Section */} {/* Bannière centrale */}
+      <div className="bg-gradient-to-r from-yellow-200 via-yellow-100 to-yellow-200 border-l-4 border-yellow-400 rounded-lg p-6 mb-8 shadow-md text-center">
+        <p className="text-yellow-900 font-bold text-lg sm:text-xl">
+          Freemium : <span className="font-semibold">1 €/mois</span> &nbsp;|&nbsp; 
+          Standard : <span className="font-semibold">1er mois 5 €, puis 10 €/mois</span> &nbsp;|&nbsp; 
+          Pro : <span className="font-semibold">12 premiere semaine puis 20 €/mois</span>
+        </p>
+        <p className="text-yellow-800 text-sm mt-2">
+          Choisissez le plan qui correspond le mieux à vos besoins
+        </p>
+      </div>
+
           <section className="py-8 px-4 sm:px-6 lg:px-8 text-white text-center">
             {" "}
             {/* padding vertical réduit */}
@@ -447,76 +461,73 @@ const LandingPage: React.FC = () => {
             </div>
           </section>
 
+          
+          
           {/* 5. Tarification */}
           <section id="pricing" className="py-8 bg-slate-50">
             <div className="container mx-auto px-4 max-w-screen-lg">
+               {/* Bannière centrale */}
+      <div className="bg-gradient-to-r from-yellow-200 via-yellow-100 to-yellow-200 border-l-4 border-yellow-400 rounded-lg p-6 mb-8 shadow-md text-center">
+        <p className="text-yellow-900 font-bold text-lg sm:text-xl">
+          Freemium : <span className="font-semibold">1 €/mois</span> &nbsp;|&nbsp; 
+          Standard : <span className="font-semibold">1er mois 5 €, ensuite 10 €/mois</span> &nbsp;|&nbsp; 
+          Pro : <span className="font-semibold">20 €/mois</span>
+        </p>
+       
+      </div>
+
               <div className="text-center max-w-3xl mx-auto">
                 <h2 className="text-3xl sm:text-4xl font-bold text-slate-800">
                   {t("pricing.title")}
+                  
                 </h2>
                 <p className="mt-4 text-lg text-slate-600">
                   {t("pricing.subtitle")}
                 </p>
               </div>
               <div className="mt-16 grid lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
-                {pricingTiers.map((tier) => (
-                  <div
-                    key={t(tier.nameKey)}
-                    className={`border rounded-xl p-8 flex flex-col text-center transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-2xl ${
-                      tier.isPopular
-                        ? "border-primary shadow-xl"
-                        : "border-slate-200 shadow-lg"
-                    }`}
-                  >
-                    {tier.isPopular && (
-                      <span className="bg-primary text-white text-xs font-semibold px-3 py-1 rounded-full self-center mb-4">
-                        {t("pricing.popular")}
-                      </span>
-                    )}
-                    <div className="mx-auto mb-4">{tier.icon}</div>
-                    <h3 className="text-xl font-bold text-slate-800">
-                      {t(tier.nameKey)}
-                    </h3>
-                    <p className="mt-2 text-slate-500 flex-grow text-sm md:text-base">
-                      {t(tier.descKey)}
-                    </p>
-                    <div className="mt-6">
-                      <span className="text-4xl font-bold">
-                        {t(tier.priceKey)}
-                      </span>
-                      <span className="text-slate-500 ms-1">
-                        {t("pricing.perAgentPerMonth")}
-                      </span>
-                    </div>
-                    <ul className="mt-8 space-y-4 flex-grow">
-                      {tier.features.map((featureKey) => (
-                        <li
-                          key={featureKey}
-                          className="flex items-center justify-center"
-                        >
-                          <div className="flex-shrink-0 text-green-500">
-                            <CheckIcon />
-                          </div>
-                          <span className="ms-3 text-slate-600 text-sm md:text-base">
-                            {t(featureKey)}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                    <div className="mt-8">
-                      <Link to={tier.buttonLink} className="block w-full">
-                        <Button
-                          variant={tier.isPopular ? "primary" : "outline"}
-                          size="lg"
-                          className="w-full"
-                        >
-                          {t(tier.buttonKey)}
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
-                ))}
-              </div>
+  {pricingTiers.map((tier) => (
+    <div
+      key={tier.nameKey}
+      className={`border rounded-xl p-8 flex flex-col justify-between text-center transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-2xl ${
+        tier.isPopular ? "border-primary shadow-xl" : "border-slate-200 shadow-lg"
+      }`}
+    >
+      {tier.isPopular && (
+        <span className="bg-primary text-white text-xs font-semibold px-3 py-1 rounded-full self-center mb-4">
+          {t("pricing.popular")}
+        </span>
+      )}
+
+      <div className="flex flex-col flex-grow items-center">
+        <div className="mb-4">{tier.icon}</div>
+        <h3 className="text-xl font-bold text-slate-800 mb-2">{t(tier.nameKey)}</h3>
+        <p className="mt-2 text-slate-500 flex-grow text-sm md:text-base">{t(tier.descKey)}</p>
+        <ul className="mt-4 space-y-2 text-left w-full max-w-xs">
+          {tier.features.map((featureKey) => (
+            <li key={featureKey} className="flex items-center">
+{React.createElement(CheckIcon, { className: "text-green-500 w-5 h-5 flex-shrink-0" })}
+              <span className="ms-3">{t(featureKey)}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="mt-6 w-full">
+        <Link to={tier.buttonLink} className="block w-full">
+          <Button
+            variant={tier.isPopular ? "primary" : "outline"}
+            size="lg"
+            className="w-full"
+          >
+            {t(tier.buttonKey)}
+          </Button>
+        </Link>
+      </div>
+    </div>
+  ))}
+</div>
+
               <div className="text-center mt-12 text-slate-500 text-sm md:text-base">
                 <p>
                   {t("pricing.enterprise.text")}{" "}

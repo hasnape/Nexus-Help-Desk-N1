@@ -5,8 +5,238 @@ import { Button, Input, Select } from "../components/FormElements";
 import { useLanguage, Locale } from "../contexts/LanguageContext";
 import { UserRole } from "../types";
 import Layout from "../components/Layout";
-// Importation de PayPalButton n'est plus nécessaire si on utilise un lien direct
-// import PayPalButton from "../components/PayPalButton";
+
+
+const paypalLinks = {
+  freemium: "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=VOTRE_PLAN_ID_FREEMIUM",
+  standard: "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-3KG35083B1716942TNBYOA4Q", // ✅ déjà fourni
+  pro: "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=VOTRE_PLAN_ID_PRO",
+};
+
+
+const FreemiumModal = ({
+  showFreemiumModal,
+  setShowFreemiumModal,
+  t,
+}: {
+  showFreemiumModal: boolean;
+  setShowFreemiumModal: (show: boolean) => void;
+  handleFreemiumPurchase: () => void;
+  t: (key: string, options?: { [key: string]: any }) => string; // Passer la fonction de traduction
+}) => {
+  // Si la modale ne doit pas être affichée, retourner null
+  if (!showFreemiumModal) {
+    return null;
+  }
+
+  // URL d'abonnement PayPal direct
+  const paypalSubscriptionUrl =
+    "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-3KG35083B1716942TNBYOA4Q";
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">
+              {t("signupPlans.Freemium.modal.title", {
+                default: "Offre Freemium - Détails",
+              })}
+            </h2>
+            <button
+              onClick={() => setShowFreemiumModal(false)}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+
+          <div className="space-y-6">
+            <div className="text-center">
+              <div className="flex items-baseline justify-center gap-2 mb-2">
+                <span className="text-4xl font-bold text-primary">1€</span>
+                <span className="text-gray-600 text-lg">
+                  {t("signupPlans.Freemium.modal.pricing", {
+                    default: "mois",
+                  })}
+                </span>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold mb-3">
+                {t("signupPlans.Freemium.modal.features.title", {
+                  default: "Fonctionnalités Freemium",
+                })}
+              </h3>
+              <ul className="space-y-2">
+                <li className="flex items-center">
+                  <svg
+                    className="w-5 h-5 text-green-500 mr-2"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  {t("signupPlans.Freemium.modal.features.unlimited", {
+                    default: "3 Agents, 200 Tickets mois",
+                  })}
+                </li>
+                <li className="flex items-center">
+                  <svg
+                    className="w-5 h-5 text-green-500 mr-2"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  {t("signupPlans.Freemium.modal.features.voice", {
+                    default: "Commandes vocales avancées",
+                  })}
+                </li>
+                <li className="flex items-center">
+                  <svg
+                    className="w-5 h-5 text-green-500 mr-2"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  {t("signupPlans.Freemium.modal.features.multilingual", {
+                    default: "Support multilingue (FR/EN)",
+                  })}
+                </li>
+                <li className="flex items-center">
+                  <svg
+                    className="w-5 h-5 text-green-500 mr-2"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  {t("signupPlans.Freemium.modal.features.appointments", {
+                    default: "Planification de rendez-vous",
+                  })}
+                </li>
+                <li className="flex items-center">
+                  <svg
+                    className="w-5 h-5 text-green-500 mr-2"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  {t("signupPlans.Freemium.modal.features.priority", {
+                    default: "Support mail",
+                  })}
+                </li>
+                <li className="flex items-center">
+                  <svg
+                    className="w-5 h-5 text-green-500 mr-2"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  {t("signupPlans.Freemium.modal.features.analytics", {
+                    default: "Statistiques avancées",
+                  })}
+                </li>
+              </ul>
+            </div>
+
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <h4 className="font-semibold text-blue-900 mb-2">
+                {t("signupPlans.Freemium.modal.trial.title", {
+                  default: "1€ par mois", // Texte mis à jour
+                })}
+              </h4>
+              <p className="text-blue-800 text-sm">
+                {t("signupPlans.Freemium.modal.trial.description", {
+                  default:
+                    "Commencez pour seulement 1€ par mois. Annulez à tout moment.", // Texte mis à jour
+                })}
+              </p>
+            </div>
+
+            <div className="bg-yellow-50 p-4 rounded-lg">
+              <h4 className="font-semibold text-yellow-900 mb-2">
+                {t("signupPlans.Freemium.modal.billing.title", {
+                  default: "Facturation et annulation",
+                })}
+              </h4>
+              <p className="text-yellow-800 text-sm">
+                {t("signupPlans.Freemium.modal.billing.description", {
+                  default:
+                    "Facturation mensuelle via PayPal. Annulation simple depuis votre compte PayPal à tout moment. Pas d'engagement à long terme.",
+                })}
+              </p>
+            </div>
+
+            <div className="flex gap-4">
+              <Button
+                onClick={() => setShowFreemiumModal(false)}
+                className="flex-1 bg-gray-500 hover:bg-gray-600"
+              >
+                {t("signupPlans.Freemium.modal.buttons.cancel", {
+                  default: "Annuler",
+                })}
+              </Button>
+              {/* Le bouton S'abonner Freemium dans la modale est maintenant un simple lien */}
+              <a
+                href={paypalSubscriptionUrl}
+                target="_blank" // Ouvre dans un nouvel onglet
+                rel="noopener noreferrer" // Sécurité
+                className="flex-1 inline-flex items-center justify-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                // Appliquer les styles du bouton pour qu'il ressemble à un bouton
+              >
+                {t("signupPlans.Freemium.modal.buttons.subscribe", {
+                  default: "S'abonner Freemium",
+                })}
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 // Définir ProModal EN DEHORS du composant SignUpPage
 const ProModal = ({
@@ -64,7 +294,7 @@ const ProModal = ({
                 <span className="text-4xl font-bold text-primary">20€</span>
                 <span className="text-gray-600 text-lg">
                   {t("signupPlans.pro.modal.pricing", {
-                    default: "/ agent / mois",
+                    default: "mois",
                   })}
                 </span>
               </div>
@@ -129,8 +359,7 @@ const ProModal = ({
                   <svg
                     className="w-5 h-5 text-green-500 mr-2"
                     fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
+                    viewBox="0 0 20 20">
                     <path
                       fillRule="evenodd"
                       d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -237,16 +466,19 @@ const ProModal = ({
 const StandardModal = ({
   showStandardModal,
   setShowStandardModal,
+  handleStandardPurchase, // ✅ ajout ici
   t,
 }: {
   showStandardModal: boolean;
   setShowStandardModal: (show: boolean) => void;
+  handleStandardPurchase: () => void; // ✅ ajout ici
   t: (key: string, options?: { [key: string]: any }) => string;
 }) => {
-  if (!showStandardModal) return null;
 
+  // URL d'abonnement PayPal direct
   const paypalSubscriptionUrl =
     "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-0E515487AE797135CNBTRYKA";
+
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -277,6 +509,7 @@ const StandardModal = ({
               </svg>
             </button>
           </div>
+
           <div className="space-y-6">
             <div className="text-center">
               <div className="flex items-baseline justify-center gap-2 mb-2">
@@ -392,20 +625,19 @@ const StandardModal = ({
                 onClick={() => setShowStandardModal(false)}
                 className="flex-1 bg-gray-500 hover:bg-gray-600"
               >
-                {t("signupPlans.standard.modal.buttons.cancel", {
-                  default: "Annuler",
-                })}
+                {t("signupPlans.standard.modal.buttons.cancel", { default: "Annuler"})
+}
               </Button>
+              {/* Le bouton S'abonner Standard dans la modale est maintenant un simple lien */}
               <a
-                href={paypalSubscriptionUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 inline-flex items-center justify-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-              >
-                {t("signupPlans.standard.modal.buttons.subscribe", {
-                  default: "S'abonner Standard",
-                })}
+              href={paypalSubscriptionUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={handleStandardPurchase} // ✅ ajoute cet appel
+              className="flex-1 inline-flex items-center justify-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                {t("signupPlans.Standard.modal.buttons.subscribe", { default: "S'abonner Standard", })}
               </a>
+              
             </div>
           </div>
         </div>
@@ -541,6 +773,7 @@ const PlanCard = ({
   );
 };
 
+
 const SignUpPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
@@ -554,6 +787,7 @@ const SignUpPage: React.FC = () => {
   const [success, setSuccess] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showProModal, setShowProModal] = useState(false);
+  const [showFreemiumModal, setShowFreemiumModal] = useState(false);
   const [showStandardModal, setShowStandardModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [showPayPal, setShowPayPal] = useState(false); // showPayPal state is no longer strictly needed for the link, but can be kept for future use or conditional messages
@@ -649,25 +883,51 @@ const SignUpPage: React.FC = () => {
     }
   };
 
-  const handlePlanSelect = (plan: string) => {
-    setSelectedPlan(plan);
-    if (plan === "pro") {
-      setShowProModal(true);
-      setShowStandardModal(false);
-    } else if (plan === "standard") {
-      setShowStandardModal(true);
-      setShowProModal(false);
-    } else {
-      setShowProModal(false);
-      setShowStandardModal(false);
-    }
-  };
+const handlePlanSelect = (plan: string) => {
+  setSelectedPlan(plan);
 
-  const handleProPurchase = () => {
+  if (plan === "pro") {
+    setShowProModal(true);
+    setShowStandardModal(false);
+    setShowFreemiumModal(false);
+  } else if (plan === "standard") {
+    setShowStandardModal(true);
     setShowProModal(false);
-    // Définir showPayPal à true ici pour afficher le champ de clé d'activation après la fermeture de la modale
+    setShowFreemiumModal(false);
+  } else if (plan === "freemium") {
+    setShowFreemiumModal(true);
+    setShowProModal(false);
+    setShowStandardModal(false);
+  } else {
+    // aucun plan choisi
+    setShowProModal(false);
+    setShowStandardModal(false);
+    setShowFreemiumModal(false);
+  }
+};
+
+
+  // Pro
+const handleProPurchase = () => {
+  setShowProModal(false);
+  // Action spécifique au Pro (ex: activer PayPal)
+  setShowPayPal(true);
+};
+
+// Freemium
+const handleFreemiumPurchase = () => {
+  setShowFreemiumModal(false);
+  // Action spécifique au Freemium (ex: accès direct sans paiement)
     setShowPayPal(true);
-  };
+};
+
+// Standard
+const handleStandardPurchase = () => {
+  setShowStandardModal(false);
+  // Action spécifique au Standard (ex: activer un abonnement classique)
+    setShowPayPal(true);
+};
+
 
   const offersRef = useRef<HTMLDivElement>(null);
 
@@ -682,23 +942,36 @@ const SignUpPage: React.FC = () => {
 
   return (
     <Layout>
-      {/* Modale Pro */}
-      {showProModal && (
-        <ProModal
-          showProModal={showProModal}
-          setShowProModal={setShowProModal}
-          handleProPurchase={handleProPurchase}
-          t={t}
-        />
-      )}
-      {/* Modale Standard */}
-      {showStandardModal && (
-        <StandardModal
-          showStandardModal={showStandardModal}
-          setShowStandardModal={setShowStandardModal}
-          t={t}
-        />
-      )}
+    {/* Modale Pro */}
+{showProModal && (
+  <ProModal
+    showProModal={showProModal}
+    setShowProModal={setShowProModal}
+    handleProPurchase={handleProPurchase}
+    t={t}
+  />
+)}
+
+{/* Modale Freemium */}
+{showFreemiumModal && (
+  <FreemiumModal
+    showFreemiumModal={showFreemiumModal}
+    setShowFreemiumModal={setShowFreemiumModal}
+    handleFreemiumPurchase={handleFreemiumPurchase}
+    t={t}
+  />
+)}
+
+{/* Modale Standard */}
+{showStandardModal && (
+  <StandardModal
+    showStandardModal={showStandardModal}
+    setShowStandardModal={setShowStandardModal}
+    handleStandardPurchase={handleStandardPurchase} // 👈 ajouté
+    t={t}
+  />
+)}
+
       <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-700 p-4">
         <div className="max-w-6xl mx-auto">
           <div className="bg-surface rounded-xl shadow-2xl overflow-hidden">
@@ -762,6 +1035,16 @@ const SignUpPage: React.FC = () => {
                       })}
                     </p>
                   </div>
+                   {/* Bannière centrale */}
+      <div className="bg-gradient-to-r from-yellow-200 via-yellow-100 to-yellow-200 border-l-4 border-yellow-400 rounded-lg p-6 mb-8 shadow-md text-center">
+        <p className="text-yellow-900 font-bold text-lg sm:text-xl">
+          Freemium : <span className="font-semibold">1 €/mois</span> &nbsp;|&nbsp; 
+          Standard : <span className="font-semibold">1er mois 5 €, ensuite 10 €/mois</span> &nbsp;|&nbsp; 
+          Pro : <span className="font-semibold">20 €/mois</span>
+        </p>
+       
+      </div>
+
 
                   <div className="grid md:grid-cols-3 gap-6 mb-8">
                     <PlanCard

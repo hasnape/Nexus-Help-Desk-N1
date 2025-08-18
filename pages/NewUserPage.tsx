@@ -4,7 +4,6 @@ import { useApp } from "../App";
 import { Button, Input, Select } from "../components/FormElements";
 import { useLanguage, Locale } from "../contexts/LanguageContext";
 import { UserRole } from "../types";
-import { supabase } from "../services/supabaseClient";
 
 const NewUserPage: React.FC = () => {
   const { user } = useApp();
@@ -39,25 +38,28 @@ const NewUserPage: React.FC = () => {
     setIsLoading(true);
     setError("");
 
-    // Invite user via Supabase auth
-    const { error: authError } = await supabase.auth.inviteUserByEmail({
-      email: email.trim(),
-      data: {
-        full_name: fullName.trim(),
-        role,
-        language_preference: language,
-        company_id: user?.company_id,
-      },
-    });
+    try {
+      const response = await fetch("/api/inviteUser", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: email.trim(),
+          full_name: fullName.trim(),
+          role,
+          language,
+          company_id: user?.company_id,
+        }),
+      });
 
-    if (authError) {
-      setError(t("newUser.error.inviteFailed", { default: `Failed to invite user: ${authError.message}` }));
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Failed to invite user");
+
+      navigate("/manager/dashboard");
+    } catch (err: any) {
+      setError(t("newUser.error.inviteFailed", { default: `Failed to invite user: ${err.message}` }));
+    } finally {
       setIsLoading(false);
-      return;
     }
-
-    setIsLoading(false);
-    navigate("/manager/dashboard");
   };
 
   return (
@@ -132,6 +134,7 @@ const NewUserPage: React.FC = () => {
           {t("newUser.inviteButton", { default: "Send Invitation" })}
         </Button>
       </form>
+
       <p className="mt-6 text-sm text-center text-slate-500">
         <Link
           to="/manager/dashboard"

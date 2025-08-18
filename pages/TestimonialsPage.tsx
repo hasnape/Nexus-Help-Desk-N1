@@ -2,14 +2,14 @@ import React from "react";
 
 const testimonials = [
   {
-    name: "Sophie L.",
-    text: "Un support client réactif et une interface très agréable !",
-    company: "Entreprise Alpha",
+    name: "",
+    text: "",
+    company: "",
   },
   {
-    name: "Karim B.",
-    text: "La gestion des tickets est simple et efficace. Je recommande.",
-    company: "Beta Solutions",
+    name: "",
+    text: "",
+    company: "",
   },
 ];
 
