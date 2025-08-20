@@ -466,14 +466,15 @@ const ProModal = ({
 const StandardModal = ({
   showStandardModal,
   setShowStandardModal,
-  handleStandardPurchase, // ✅ ajout ici
+  handleStandardPurchase,
   t,
 }: {
   showStandardModal: boolean;
   setShowStandardModal: (show: boolean) => void;
-  handleStandardPurchase: () => void; // ✅ ajout ici
+  handleStandardPurchase: () => void;
   t: (key: string, options?: { [key: string]: any }) => string;
 }) => {
+  if (!showStandardModal) return null;
 
   // URL d'abonnement PayPal direct
   const paypalSubscriptionUrl =
@@ -633,7 +634,7 @@ const StandardModal = ({
               href={paypalSubscriptionUrl}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={handleStandardPurchase} // ✅ ajoute cet appel
+              onClick={handleStandardPurchase} // 👈 callback pour générer le code
               className="flex-1 inline-flex items-center justify-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
                 {t("signupPlans.Standard.modal.buttons.subscribe", { default: "S'abonner Standard", })}
               </a>
@@ -791,6 +792,8 @@ const SignUpPage: React.FC = () => {
   const [showStandardModal, setShowStandardModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [showPayPal, setShowPayPal] = useState(false); // showPayPal state is no longer strictly needed for the link, but can be kept for future use or conditional messages
+  const MASTER_CODE = "MASTER2025"; // pour tes tests
+
 
   const { signUp, user } = useApp();
   const { t, language: currentAppLang } = useLanguage(); // <-- useLanguage est appelé ici
@@ -823,6 +826,25 @@ const SignUpPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (role === UserRole.MANAGER) {
+  if (selectedPlan === "freemium") {
+    if (secretCode !== MASTER_CODE) {
+      setError("❌ Code d’activation invalide pour Freemium.");
+      return;
+    }
+  }
+
+  if (selectedPlan === "standard") {
+    // Ici tu peux juste valider que l’utilisateur a bien cliqué sur "S’abonner"
+    // et plus tard ton backend pourra vérifier le webhook PayPal
+    if (!secretCode) {
+      setError("⚠️ Merci de renseigner le code reçu après l’abonnement PayPal.");
+      return;
+    }
+  }
+}
+
     // La validation du secretCode est maintenant conditionnelle à showPayPal
     if (
       !email.trim() ||
@@ -924,8 +946,8 @@ const handleFreemiumPurchase = () => {
 // Standard
 const handleStandardPurchase = () => {
   setShowStandardModal(false);
-  // Action spécifique au Standard (ex: activer un abonnement classique)
-    setShowPayPal(true);
+ setSecretCode("STD-TEST-2025");
+  alert("✅ Abonnement Standard : code généré automatiquement !");    setShowPayPal(true);
 };
 
 
