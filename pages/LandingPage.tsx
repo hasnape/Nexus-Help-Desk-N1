@@ -257,9 +257,9 @@ const LandingPage: React.FC = () => {
           {/* 1. Hero Section */} {/* Bannière centrale */}
       <div className="bg-gradient-to-r from-yellow-200 via-yellow-100 to-yellow-200 border-l-4 border-yellow-400 rounded-lg p-6 mb-8 shadow-md text-center">
         <p className="text-yellow-900 font-bold text-lg sm:text-xl">
-          Freemium : <span className="font-semibold">1 €/mois</span> &nbsp;|&nbsp; 
-          Standard : <span className="font-semibold">1er mois 5 €, puis 10 €/mois</span> &nbsp;|&nbsp; 
-          Pro : <span className="font-semibold">12 premiere semaine puis 20 €/mois</span>
+          Freemium : <span className="font-semibold">1€/mois</span> &nbsp;|&nbsp; 
+          Standard : <span className="font-semibold">1er mois à 5€ ensuite 10€/mois</span> &nbsp;|&nbsp; 
+          Pro : <span className="font-semibold">1er mois à 12€ ensuite 20€/mois</span>
         </p>
         <p className="text-yellow-800 text-sm mt-2">
           Choisissez le plan qui correspond le mieux à vos besoins
@@ -471,7 +471,7 @@ const LandingPage: React.FC = () => {
         <p className="text-yellow-900 font-bold text-lg sm:text-xl">
           Freemium : <span className="font-semibold">1€/mois</span> &nbsp;|&nbsp; 
           Standard : <span className="font-semibold">1er mois 5€, ensuite 10€/mois</span> &nbsp;|&nbsp; 
-          Pro :<span className="font-semibold">1er mois à 12€ puis 20€/mois</span>
+          Pro :<span className="font-semibold">1er mois à 12€ ensuite 20€/mois</span>
         </p>
        
       </div>
