@@ -769,12 +769,10 @@ const SignUpPage: React.FC = () => {
   const [showFreemiumModal, setShowFreemiumModal] = useState(false);
   const [showStandardModal, setShowStandardModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
-  const [showPayPal, setShowPayPal] = useState(false);
-  const MASTER_CODE = "MASTER2025";
+
 
   const { signUp, user } = useApp();
   const { t, language: currentAppLang } = useLanguage();
-
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -799,31 +797,12 @@ const SignUpPage: React.FC = () => {
     setSelectedLanguage(currentAppLang);
   }, [currentAppLang]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+
+const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (role === UserRole.MANAGER) {
-      if (selectedPlan === "freemium") {
-        if (secretCode !== MASTER_CODE) {
-          setError("❌ Code d’activation invalide pour Freemium.");
-          return;
-        }
-      } else if (selectedPlan === "standard" || selectedPlan === "pro") {
-        if (!secretCode) {
-          setError("⚠️ Merci de renseigner le code reçu après l’abonnement PayPal.");
-          return;
-        }
-      }
-    }
-
-    if (
-      !email.trim() ||
-      !fullName.trim() ||
-      !password ||
-      !confirmPassword ||
-      !companyName.trim() ||
-      (role === UserRole.MANAGER && showPayPal && !secretCode.trim())
-    ) {
+  // 2. Les validations de base (champs vides, mots de passe) restent ici. C'est une bonne pratique.
+    if (!email.trim() || !fullName.trim() || !password || !confirmPassword || !companyName.trim()) {
       setError(t("signup.error.allFieldsRequired"));
       return;
     }
@@ -835,7 +814,9 @@ const SignUpPage: React.FC = () => {
       setError(t("signup.error.minCharsPassword"));
       return;
     }
-    if (role === UserRole.MANAGER && showPayPal && !secretCode.trim()) {
+    // Si le rôle est Manager, on s'assure que le champ du code n'est pas vide.
+    // La VRAIE validation (si le code est bon) se fera sur le serveur.
+    if (role === UserRole.MANAGER && !secretCode.trim()) {
       setError(t("signup.error.secretCodeRequiredManager"));
       return;
     }
@@ -844,23 +825,28 @@ const SignUpPage: React.FC = () => {
     setSuccess("");
     setIsLoading(true);
 
+    // 3. L'appel à signUp reste le même. C'est parfait.
+    // On envoie toutes les données au serveur, y compris le secretCode.
     const result = await signUp(email.trim(), fullName.trim(), password, {
       lang: selectedLanguage,
       role: role,
       companyName: companyName.trim(),
-      secretCode:
-        role === UserRole.MANAGER && showPayPal ? secretCode.trim() : undefined,
+      // On envoie le code SEULEMENT si le rôle est Manager.
+      secretCode: role === UserRole.MANAGER ? secretCode.trim() : undefined,
     });
 
     setIsLoading(false);
 
+    // 4. On fait confiance à la réponse du serveur.
+    // Si le serveur dit que le code est mauvais, `result` contiendra un message d'erreur.
     if (result !== true) {
-      setError(result);
+      // Le `result` contiendra le message d'erreur renvoyé par le serveur,
+      // par exemple : "Code d'activation invalide ou déjà utilisé."
+      setError(result); 
     } else {
+      // Le serveur a tout validé, l'inscription est réussie !
       if (role === UserRole.MANAGER) {
-        setSuccess(
-          t("signup.success.emailSentManager", { email: email.trim() })
-        );
+        setSuccess(t("signup.success.emailSentManager", { email: email.trim() }));
       } else {
         setSuccess(t("signup.success.emailSent", { email: email.trim() }));
       }
@@ -895,23 +881,17 @@ const SignUpPage: React.FC = () => {
 
   const handleProPurchase = () => {
     setShowProModal(false);
-    setSecretCode("PRO-TEST-2025");
-    alert("✅ Abonnement Pro : code généré automatiquement !");
-    setShowPayPal(true);
+    alert("✅ Abonnement Pro : Code envoyer par mail !");
   };
 
   const handleFreemiumPurchase = () => {
     setShowFreemiumModal(false);
-    setSecretCode("FRE-TEST-2025");
-    alert("✅ Abonnement Freemium : code généré automatiquement !");
-    setShowPayPal(true);
+    alert("✅ Abonnement Freemium : Code envoyer par mail !");
   };
 
   const handleStandardPurchase = () => {
     setShowStandardModal(false);
-    setSecretCode("STD-TEST-2025");
-    alert("✅ Abonnement Standard : code généré automatiquement !");
-    setShowPayPal(true);
+    alert("✅ Abonnement Standard : Code envoyer par mail !");
   };
 
   const offersRef = useRef<HTMLDivElement>(null);
