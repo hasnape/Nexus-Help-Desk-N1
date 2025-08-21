@@ -6,32 +6,26 @@ import { useLanguage, Locale } from "../contexts/LanguageContext";
 import { UserRole } from "../types";
 import Layout from "../components/Layout";
 
-
 const paypalLinks = {
-  freemium: "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=VOTRE_PLAN_ID_FREEMIUM",
-  standard: "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-3KG35083B1716942TNBYOA4Q", // ✅ déjà fourni
-  pro: "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=VOTRE_PLAN_ID_PRO",
+  freemium: "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-3KG35083B1716942TNBYOA4Q",
+  standard: "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-0E515487AE797135CNBTRYKA",
+  pro: "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-7HP75881LB3608938NBTBGUA",
 };
-
 
 const FreemiumModal = ({
   showFreemiumModal,
   setShowFreemiumModal,
+  handleFreemiumPurchase,
   t,
 }: {
   showFreemiumModal: boolean;
   setShowFreemiumModal: (show: boolean) => void;
   handleFreemiumPurchase: () => void;
-  t: (key: string, options?: { [key: string]: any }) => string; // Passer la fonction de traduction
+  t: (key: string, options?: { [key: string]: any }) => string;
 }) => {
-  // Si la modale ne doit pas être affichée, retourner null
   if (!showFreemiumModal) {
     return null;
   }
-
-  // URL d'abonnement PayPal direct
-  const paypalSubscriptionUrl =
-    "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-3KG35083B1716942TNBYOA4Q";
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -184,13 +178,13 @@ const FreemiumModal = ({
             <div className="bg-blue-50 p-4 rounded-lg">
               <h4 className="font-semibold text-blue-900 mb-2">
                 {t("signupPlans.Freemium.modal.trial.title", {
-                  default: "1€ par mois", // Texte mis à jour
+                  default: "1€ par mois",
                 })}
               </h4>
               <p className="text-blue-800 text-sm">
                 {t("signupPlans.Freemium.modal.trial.description", {
                   default:
-                    "Commencez pour seulement 1€ par mois. Annulez à tout moment.", // Texte mis à jour
+                    "Commencez pour seulement 1€ par mois. Annulez à tout moment.",
                 })}
               </p>
             </div>
@@ -218,13 +212,12 @@ const FreemiumModal = ({
                   default: "Annuler",
                 })}
               </Button>
-              {/* Le bouton S'abonner Freemium dans la modale est maintenant un simple lien */}
               <a
-                href={paypalSubscriptionUrl}
-                target="_blank" // Ouvre dans un nouvel onglet
-                rel="noopener noreferrer" // Sécurité
+                href={paypalLinks.freemium}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleFreemiumPurchase}
                 className="flex-1 inline-flex items-center justify-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-                // Appliquer les styles du bouton pour qu'il ressemble à un bouton
               >
                 {t("signupPlans.Freemium.modal.buttons.subscribe", {
                   default: "S'abonner Freemium",
@@ -238,25 +231,20 @@ const FreemiumModal = ({
   );
 };
 
-// Définir ProModal EN DEHORS du composant SignUpPage
 const ProModal = ({
   showProModal,
   setShowProModal,
+  handleProPurchase,
   t,
 }: {
   showProModal: boolean;
   setShowProModal: (show: boolean) => void;
   handleProPurchase: () => void;
-  t: (key: string, options?: { [key: string]: any }) => string; // Passer la fonction de traduction
+  t: (key: string, options?: { [key: string]: any }) => string;
 }) => {
-  // Si la modale ne doit pas être affichée, retourner null
   if (!showProModal) {
     return null;
   }
-
-  // URL d'abonnement PayPal direct
-  const paypalSubscriptionUrl =
-    "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-7HP75881LB3608938NBTBGUA";
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -359,7 +347,8 @@ const ProModal = ({
                   <svg
                     className="w-5 h-5 text-green-500 mr-2"
                     fill="currentColor"
-                    viewBox="0 0 20 20">
+                    viewBox="0 0 20 20"
+                  >
                     <path
                       fillRule="evenodd"
                       d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -408,13 +397,13 @@ const ProModal = ({
             <div className="bg-blue-50 p-4 rounded-lg">
               <h4 className="font-semibold text-blue-900 mb-2">
                 {t("signupPlans.pro.modal.trial.title", {
-                  default: "Essai à 1€ pour une semaine", // Texte mis à jour
+                  default: "Essai à 1€ pour une semaine",
                 })}
               </h4>
               <p className="text-blue-800 text-sm">
                 {t("signupPlans.pro.modal.trial.description", {
                   default:
-                    "Commencez votre essai d'une semaine pour seulement 1€. Annulez à tout moment avant la fin de la semaine pour éviter la facturation complète.", // Texte mis à jour
+                    "Commencez votre essai d'une semaine pour seulement 1€. Annulez à tout moment avant la fin de la semaine pour éviter la facturation complète.",
                 })}
               </p>
             </div>
@@ -442,13 +431,12 @@ const ProModal = ({
                   default: "Annuler",
                 })}
               </Button>
-              {/* Le bouton S'abonner Pro dans la modale est maintenant un simple lien */}
               <a
-                href={paypalSubscriptionUrl}
-                target="_blank" // Ouvre dans un nouvel onglet
-                rel="noopener noreferrer" // Sécurité
+                href={paypalLinks.pro}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleProPurchase}
                 className="flex-1 inline-flex items-center justify-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-                // Appliquer les styles du bouton pour qu'il ressemble à un bouton
               >
                 {t("signupPlans.pro.modal.buttons.subscribe", {
                   default: "S'abonner Pro",
@@ -462,7 +450,6 @@ const ProModal = ({
   );
 };
 
-// Modale Standard (à placer à côté de ProModal)
 const StandardModal = ({
   showStandardModal,
   setShowStandardModal,
@@ -475,11 +462,6 @@ const StandardModal = ({
   t: (key: string, options?: { [key: string]: any }) => string;
 }) => {
   if (!showStandardModal) return null;
-
-  // URL d'abonnement PayPal direct
-  const paypalSubscriptionUrl =
-    "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-0E515487AE797135CNBTRYKA";
-
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -626,19 +608,17 @@ const StandardModal = ({
                 onClick={() => setShowStandardModal(false)}
                 className="flex-1 bg-gray-500 hover:bg-gray-600"
               >
-                {t("signupPlans.standard.modal.buttons.cancel", { default: "Annuler"})
-}
+                {t("signupPlans.standard.modal.buttons.cancel", { default: "Annuler" })}
               </Button>
-              {/* Le bouton S'abonner Standard dans la modale est maintenant un simple lien */}
               <a
-              href={paypalSubscriptionUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={handleStandardPurchase} // 👈 callback pour générer le code
-              className="flex-1 inline-flex items-center justify-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
-                {t("signupPlans.Standard.modal.buttons.subscribe", { default: "S'abonner Standard", })}
+                href={paypalLinks.standard}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleStandardPurchase}
+                className="flex-1 inline-flex items-center justify-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+              >
+                {t("signupPlans.standard.modal.buttons.subscribe", { default: "S'abonner Standard" })}
               </a>
-              
             </div>
           </div>
         </div>
@@ -647,17 +627,16 @@ const StandardModal = ({
   );
 };
 
-// Définir PlanCard EN DEHORS du composant SignUpPage
 const PlanCard = ({
   plan,
   isSelected,
   onSelect,
-  t, // Passer la fonction de traduction
+  t,
 }: {
   plan: string;
   isSelected: boolean;
   onSelect: (plan: string) => void;
-  t: (key: string, options?: { [key: string]: any }) => string; // Ajouter la fonction de traduction aux props
+  t: (key: string, options?: { [key: string]: any }) => string;
 }) => {
   const plans = {
     freemium: {
@@ -774,7 +753,6 @@ const PlanCard = ({
   );
 };
 
-
 const SignUpPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
@@ -791,17 +769,15 @@ const SignUpPage: React.FC = () => {
   const [showFreemiumModal, setShowFreemiumModal] = useState(false);
   const [showStandardModal, setShowStandardModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
-  const [showPayPal, setShowPayPal] = useState(false); // showPayPal state is no longer strictly needed for the link, but can be kept for future use or conditional messages
-  const MASTER_CODE = "MASTER2025"; // pour tes tests
-
+  const [showPayPal, setShowPayPal] = useState(false);
+  const MASTER_CODE = "MASTER2025";
 
   const { signUp, user } = useApp();
-  const { t, language: currentAppLang } = useLanguage(); // <-- useLanguage est appelé ici
+  const { t, language: currentAppLang } = useLanguage();
 
-  const navigate = useNavigate(); // <-- useNavigate est appelé ici
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // <-- useEffect est appelé ici
     if (user) {
       navigate("/dashboard", { replace: true });
     }
@@ -820,7 +796,6 @@ const SignUpPage: React.FC = () => {
   ];
 
   useEffect(() => {
-    // <-- Deuxième useEffect appelé ici
     setSelectedLanguage(currentAppLang);
   }, [currentAppLang]);
 
@@ -828,31 +803,26 @@ const SignUpPage: React.FC = () => {
     e.preventDefault();
 
     if (role === UserRole.MANAGER) {
-  if (selectedPlan === "freemium") {
-    if (secretCode !== MASTER_CODE) {
-      setError("❌ Code d’activation invalide pour Freemium.");
-      return;
+      if (selectedPlan === "freemium") {
+        if (secretCode !== MASTER_CODE) {
+          setError("❌ Code d’activation invalide pour Freemium.");
+          return;
+        }
+      } else if (selectedPlan === "standard" || selectedPlan === "pro") {
+        if (!secretCode) {
+          setError("⚠️ Merci de renseigner le code reçu après l’abonnement PayPal.");
+          return;
+        }
+      }
     }
-  }
 
-  if (selectedPlan === "standard") {
-    // Ici tu peux juste valider que l’utilisateur a bien cliqué sur "S’abonner"
-    // et plus tard ton backend pourra vérifier le webhook PayPal
-    if (!secretCode) {
-      setError("⚠️ Merci de renseigner le code reçu après l’abonnement PayPal.");
-      return;
-    }
-  }
-}
-
-    // La validation du secretCode est maintenant conditionnelle à showPayPal
     if (
       !email.trim() ||
       !fullName.trim() ||
       !password ||
       !confirmPassword ||
       !companyName.trim() ||
-      (role === UserRole.MANAGER && showPayPal && !secretCode.trim()) // Secret code requis seulement pour Manager APRES avoir cliqué sur S'abonner Pro
+      (role === UserRole.MANAGER && showPayPal && !secretCode.trim())
     ) {
       setError(t("signup.error.allFieldsRequired"));
       return;
@@ -865,7 +835,6 @@ const SignUpPage: React.FC = () => {
       setError(t("signup.error.minCharsPassword"));
       return;
     }
-    // La validation spécifique du secretCode est maintenant conditionnelle à showPayPal
     if (role === UserRole.MANAGER && showPayPal && !secretCode.trim()) {
       setError(t("signup.error.secretCodeRequiredManager"));
       return;
@@ -879,7 +848,6 @@ const SignUpPage: React.FC = () => {
       lang: selectedLanguage,
       role: role,
       companyName: companyName.trim(),
-      // Envoyer le secretCode seulement si le rôle est Manager ET qu'il a été affiché (après clic sur S'abonner Pro)
       secretCode:
         role === UserRole.MANAGER && showPayPal ? secretCode.trim() : undefined,
     });
@@ -889,7 +857,6 @@ const SignUpPage: React.FC = () => {
     if (result !== true) {
       setError(result);
     } else {
-      // Afficher un message de succès spécifique pour les managers
       if (role === UserRole.MANAGER) {
         setSuccess(
           t("signup.success.emailSentManager", { email: email.trim() })
@@ -898,101 +865,91 @@ const SignUpPage: React.FC = () => {
         setSuccess(t("signup.success.emailSent", { email: email.trim() }));
       }
 
-      // Rediriger vers la page de connexion après 3 secondes
       setTimeout(() => {
         navigate("/login");
       }, 3000);
     }
   };
 
-const handlePlanSelect = (plan: string) => {
-  setSelectedPlan(plan);
+  const handlePlanSelect = (plan: string) => {
+    setSelectedPlan(plan);
 
-  if (plan === "pro") {
-    setShowProModal(true);
-    setShowStandardModal(false);
-    setShowFreemiumModal(false);
-  } else if (plan === "standard") {
-    setShowStandardModal(true);
+    if (plan === "pro") {
+      setShowProModal(true);
+      setShowStandardModal(false);
+      setShowFreemiumModal(false);
+    } else if (plan === "standard") {
+      setShowStandardModal(true);
+      setShowProModal(false);
+      setShowFreemiumModal(false);
+    } else if (plan === "freemium") {
+      setShowFreemiumModal(true);
+      setShowProModal(false);
+      setShowStandardModal(false);
+    } else {
+      setShowProModal(false);
+      setShowStandardModal(false);
+      setShowFreemiumModal(false);
+    }
+  };
+
+  const handleProPurchase = () => {
     setShowProModal(false);
-    setShowFreemiumModal(false);
-  } else if (plan === "freemium") {
-    setShowFreemiumModal(true);
-    setShowProModal(false);
-    setShowStandardModal(false);
-  } else {
-    // aucun plan choisi
-    setShowProModal(false);
-    setShowStandardModal(false);
-    setShowFreemiumModal(false);
-  }
-};
-
-
-  // Pro
-const handleProPurchase = () => {
-  setShowProModal(false);
-  // Action spécifique au Pro (ex: activer PayPal)
-  setShowPayPal(true);
-};
-
-// Freemium
-const handleFreemiumPurchase = () => {
-  setShowFreemiumModal(false);
-  // Action spécifique au Freemium (ex: accès direct sans paiement)
+    setSecretCode("PRO-TEST-2025");
+    alert("✅ Abonnement Pro : code généré automatiquement !");
     setShowPayPal(true);
-};
+  };
 
-// Standard
-const handleStandardPurchase = () => {
-  setShowStandardModal(false);
- setSecretCode("STD-TEST-2025");
-  alert("✅ Abonnement Standard : code généré automatiquement !");    setShowPayPal(true);
-};
+  const handleFreemiumPurchase = () => {
+    setShowFreemiumModal(false);
+    setSecretCode("FRE-TEST-2025");
+    alert("✅ Abonnement Freemium : code généré automatiquement !");
+    setShowPayPal(true);
+  };
 
+  const handleStandardPurchase = () => {
+    setShowStandardModal(false);
+    setSecretCode("STD-TEST-2025");
+    alert("✅ Abonnement Standard : code généré automatiquement !");
+    setShowPayPal(true);
+  };
 
   const offersRef = useRef<HTMLDivElement>(null);
 
-  // Scroll automatique vers les offres quand le rôle devient MANAGER
   useEffect(() => {
     if (role === UserRole.MANAGER && offersRef.current) {
       offersRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }, [role]);
 
-  // PlanCard est maintenant défini EN DEHORS de SignUpPage
-
   return (
     <Layout>
-    {/* Modale Pro */}
-{showProModal && (
-  <ProModal
-    showProModal={showProModal}
-    setShowProModal={setShowProModal}
-    handleProPurchase={handleProPurchase}
-    t={t}
-  />
-)}
+      {showProModal && (
+        <ProModal
+          showProModal={showProModal}
+          setShowProModal={setShowProModal}
+          handleProPurchase={handleProPurchase}
+          t={t}
+        />
+      )}
 
-{/* Modale Freemium */}
-{showFreemiumModal && (
-  <FreemiumModal
-    showFreemiumModal={showFreemiumModal}
-    setShowFreemiumModal={setShowFreemiumModal}
-    handleFreemiumPurchase={handleFreemiumPurchase}
-    t={t}
-  />
-)}
+      {showFreemiumModal && (
+        <FreemiumModal
+          showFreemiumModal={showFreemiumModal}
+          setShowFreemiumModal={setShowFreemiumModal}
+          handleFreemiumPurchase={handleFreemiumPurchase}
+          t={t}
+        />
+      )}
 
-{/* Modale Standard */}
-{showStandardModal && (
-  <StandardModal
-    showStandardModal={showStandardModal}
-    setShowStandardModal={setShowStandardModal}
-    handleStandardPurchase={handleStandardPurchase} // 👈 ajouté
-    t={t}
-  />
-)}
+      {showStandardModal && (
+        <StandardModal
+          showStandardModal={showStandardModal}
+          setShowStandardModal={setShowStandardModal}
+          handleStandardPurchase={handleStandardPurchase}
+          t={t}
+        />
+      )}
 
       <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-700 p-4">
         <div className="max-w-6xl mx-auto">
@@ -1041,7 +998,6 @@ const handleStandardPurchase = () => {
                 </div>
               )}
 
-              {/* Section plans pour les managers */}
               {role === UserRole.MANAGER && !success && (
                 <div className="mb-8" ref={offersRef}>
                   <div className="text-center mb-6">
@@ -1057,40 +1013,34 @@ const handleStandardPurchase = () => {
                       })}
                     </p>
                   </div>
-                   {/* Bannière centrale */}
-      <div className="bg-gradient-to-r from-yellow-200 via-yellow-100 to-yellow-200 border-l-4 border-yellow-400 rounded-lg p-6 mb-8 shadow-md text-center">
-        <p className="text-yellow-900 font-bold text-lg sm:text-xl">
-          Freemium : <span className="font-semibold">1€/mois</span> &nbsp;|&nbsp; 
-          Standard : <span className="font-semibold">1er mois 5€ ensuite 10€/mois</span> &nbsp;|&nbsp; 
-          Pro : <span className="font-semibold">1er mois 12€ ensuite 20€/mois</span>
-        </p>
-       
-      </div>
-
+                  <div className="bg-gradient-to-r from-yellow-200 via-yellow-100 to-yellow-200 border-l-4 border-yellow-400 rounded-lg p-6 mb-8 shadow-md text-center">
+                    <p className="text-yellow-900 font-bold text-lg sm:text-xl">
+                      Freemium : <span className="font-semibold">1€/mois</span> &nbsp;|&nbsp; 
+                      Standard : <span className="font-semibold">1er mois 5€ ensuite 10€/mois</span> &nbsp;|&nbsp; 
+                      Pro : <span className="font-semibold">1er mois 12€ ensuite 20€/mois</span>
+                    </p>
+                  </div>
 
                   <div className="grid md:grid-cols-3 gap-6 mb-8">
                     <PlanCard
                       plan="freemium"
                       isSelected={selectedPlan === "freemium"}
                       onSelect={handlePlanSelect}
-                      t={t} // Passer la fonction de traduction à PlanCard
+                      t={t}
                     />
                     <PlanCard
                       plan="standard"
                       isSelected={selectedPlan === "standard"}
                       onSelect={handlePlanSelect}
-                      t={t} // Passer la fonction de traduction à PlanCard
+                      t={t}
                     />
                     <PlanCard
                       plan="pro"
                       isSelected={selectedPlan === "pro"}
                       onSelect={handlePlanSelect}
-                      t={t} // Passer la fonction de traduction à PlanCard
+                      t={t}
                     />
                   </div>
-
-                  {/* La section PayPal n'est plus nécessaire avec un lien direct */}
-                  {/* {showPayPal && ( ... )} */}
                 </div>
               )}
 
@@ -1174,7 +1124,6 @@ const handleStandardPurchase = () => {
                             required
                             disabled={isLoading}
                           />
-                          {/* Info-bulle d'aide */}
                           <div className="relative group">
                             <button
                               type="button"
