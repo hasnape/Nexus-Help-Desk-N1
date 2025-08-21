@@ -228,81 +228,82 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
   ): Promise<string | true> => {
     const { lang, role, companyName, secretCode } = options;
 
-    try {
-      if (role === UserRole.MANAGER) {
-        if (secretCode !== "123456") {
-          throw new Error(translateHook("signup.error.invalidSecretCodeManager"));
-        }
+    if (role === UserRole.MANAGER) {
+      if (!secretCode) {
+        return translateHook("signup.error.secretCodeRequiredManager");
+      }
+      
+      const { data, error: rpcError } = await supabase.rpc('inscrire_manager', {
+        email_utilisateur: email,
+        mot_de_passe_utilisateur: password,
+        nom_complet_utilisateur: fullName,
+        nom_entreprise_utilisateur: companyName,
+        code_activation: secretCode
+      });
 
-        const { error: createCompanyError } = await supabase.from("companies").insert({ name: companyName });
-        if (createCompanyError) {
-          console.error("Error creating company:", createCompanyError);
-          if (createCompanyError.code === "23505") {
-            throw new Error(translateHook("signup.error.companyNameTaken"));
-          }
-          throw new Error(translateHook("signup.error.companyCreateFailed"));
+      if (rpcError) {
+        console.error("Erreur lors de l'appel RPC 'inscrire_manager':", rpcError);
+        
+        if (rpcError.message.includes('code_invalide')) {
+          return translateHook("signup.error.invalidSecretCodeManager");
         }
-        setNewlyCreatedCompanyName(companyName);
-      } else {
+        if (rpcError.message.includes('duplicate key value violates unique constraint "companies_name_key"')) {
+            return translateHook("signup.error.companyNameTaken");
+        }
+        return translateHook("signup.error.generic");
+      }
+
+      try {
+        const emailData = {
+          managerName: fullName,
+          managerEmail: email,
+          companyName,
+          secretCode: secretCode || "N/A",
+          registrationDate: formatRegistrationDate(new Date()),
+          loginUrl: generateLoginUrl(),
+        };
+        const emailResult = await sendWelcomeManagerEmail(emailData);
+        if (!emailResult.success) {
+          console.warn("⚠️ L'inscription a réussi, mais l'envoi de l'email de bienvenue a échoué:", emailResult.error);
+        }
+      } catch (emailError) {
+        console.error("❌ Erreur critique lors de l'envoi de l'email de bienvenue:", emailError);
+      }
+      
+      setNewlyCreatedCompanyName(companyName);
+      return true;
+
+    } else {
+      // --- LOGIQUE INCHANGÉE ET INCLUSE POUR LES AUTRES RÔLES (USER, AGENT) ---
+      try {
         const { data: existingCompany, error: findCompanyError } = await supabase
           .from("companies")
           .select("id")
           .eq("name", companyName)
           .limit(1);
 
-        if (findCompanyError) {
-          console.error("Error querying for company:", findCompanyError);
-          throw new Error(translateHook("signup.error.generic"));
-        }
-
-        if (!existingCompany || existingCompany.length === 0) {
-          console.error("Company not found during signup:", companyName);
+        if (findCompanyError || !existingCompany || existingCompany.length === 0) {
           throw new Error(translateHook("signup.error.companyNotFound", { companyName }));
         }
-      }
+        
+        const { error: signUpError } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { data: { full_name: fullName, language_preference: lang, role, company_id: companyName } },
+        });
 
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: { data: { full_name: fullName, language_preference: lang, role, company_id: companyName } },
-      });
-
-      if (signUpError) {
-        console.error("Supabase signup error:", signUpError);
-        if (signUpError.message.toLowerCase().includes("user already registered")) {
-          throw new Error(translateHook("signup.error.emailInUse"));
+        if (signUpError) {
+          throw signUpError;
         }
-        throw new Error(signUpError.message || translateHook("signup.error.generic"));
-      }
 
-      if (!signUpData.user) {
-        throw new Error(translateHook("signup.error.generic"));
-      }
+        return true;
 
-      if (role === UserRole.MANAGER) {
-        try {
-          const emailData = {
-            managerName: fullName,
-            managerEmail: email,
-            companyName,
-            secretCode: secretCode || "123456",
-            registrationDate: formatRegistrationDate(new Date()),
-            loginUrl: generateLoginUrl(),
-          };
-          const emailResult = await sendWelcomeManagerEmail(emailData);
-          if (emailResult.success) {
-            console.log("✅ Email de bienvenue envoyé avec succès au manager");
-          } else {
-            console.warn("⚠️ Échec de l'envoi de l'email de bienvenue:", emailResult.error);
-          }
-        } catch (emailError) {
-          console.error("❌ Erreur lors de l'envoi de l'email de bienvenue:", emailError);
+      } catch (e: any) {
+        if (e.message.toLowerCase().includes("user already registered")) {
+          return translateHook("signup.error.emailInUse");
         }
+        return e.message || translateHook("signup.error.generic");
       }
-
-      return true;
-    } catch (e: any) {
-      return e.message || translateHook("signup.error.generic");
     }
   };
 
