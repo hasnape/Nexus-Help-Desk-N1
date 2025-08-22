@@ -234,27 +234,58 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
       
       // ===================================================================
-      // CORRECTION FINALE : On appelle la NOUVELLE fonction serveur avec le NOUVEAU nom
+      // CORRECTION FINALE : Nouvelle logique en 2 étapes
       // ===================================================================
-      const { data, error: rpcError } = await supabase.rpc('creer_manager_avec_code', {
+
+      // ÉTAPE 1: Valider le code d'activation via une fonction serveur.
+      // Nous utiliserons la fonction 'creer_manager_avec_code' pour cette validation.
+      // Assurez-vous que cette fonction existe bien sur Supabase avec le bon code.
+      const { data: validation, error: rpcError } = await supabase.rpc('creer_manager_avec_code', {
         email_utilisateur: email,
-        mot_de_passe_utilisateur: password,
+        mot_de_passe_utilisateur: password, // envoyé mais non utilisé pour le signup
         nom_complet_utilisateur: fullName,
         nom_entreprise_utilisateur: companyName,
         code_activation: secretCode
       });
 
-      if (rpcError) {
-        console.error("Erreur lors de l'appel RPC 'creer_manager_avec_code':", rpcError);
-        
-        // On vérifie le nouveau message d'erreur clair de notre fonction.
-        if (rpcError.message.includes('activation_code_not_found')) {
+      if (rpcError || validation?.error) {
+        const errorMessage = rpcError?.message || validation?.error;
+        console.error("Erreur lors de la validation du manager :", errorMessage);
+        if (errorMessage && errorMessage.includes('activation_code_not_found')) {
           return "Le code d'activation est invalide ou a déjà été utilisé.";
         }
-        return "Une erreur de serveur est survenue. Veuillez réessayer.";
+         if (errorMessage && errorMessage.includes('user_already_exists')) {
+          return "Un utilisateur avec cet email existe déjà.";
+        }
+        return "Une erreur de serveur est survenue lors de la validation. Veuillez réessayer.";
+      }
+      
+      if (!validation?.success || !validation.plan_name) {
+          return "La validation a échoué sans message d'erreur clair.";
       }
 
-      // Le reste de la logique (email de bienvenue, etc.) reste identique
+      // ÉTAPE 2: Si la validation réussit, on crée l'utilisateur avec la méthode native de Supabase.
+      // Le trigger 'handle_new_user' s'occupera de créer le profil dans public.users.
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+            language_preference: lang,
+            role: UserRole.MANAGER, 
+            company_id: companyName, // Passe le nom de l'entreprise
+            plan_name: validation.plan_name // Passe le nom du plan validé par la fonction RPC
+          }
+        }
+      });
+      
+      if (signUpError) {
+        console.error("Erreur lors du Supabase signUp final:", signUpError);
+        return signUpError.message;
+      }
+      
+      // Si l'inscription réussit, on peut envoyer l'email de bienvenue
       try {
         const emailData = {
           managerName: fullName,
