@@ -234,7 +234,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
       
       // ===================================================================
-      // CORRECTION FINALE : On appelle la NOUVELLE fonction serveur avec le NOUVEAU nom.
+      // CORRECTION FINALE : On appelle la NOUVELLE fonction serveur avec le NOUVEAU nom
       // ===================================================================
       const { data, error: rpcError } = await supabase.rpc('creer_manager_avec_code', {
         email_utilisateur: email,
