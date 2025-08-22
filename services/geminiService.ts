@@ -17,9 +17,6 @@ if (API_KEY) {
 // CORRECTION ICI : Le nom du modèle a été mis à jour vers la version stable.
 const MODEL_NAME = 'gemini-2.5-flash';
 
-console.log('API_KY:', API_KEY);
-
-
 function formatChatHistoryForGemini(appChatHistory: ChatMessage[]): Content[] {
   // Filter out system summaries before sending to Gemini, unless it's for a summary request itself
   return appChatHistory
