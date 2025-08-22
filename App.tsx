@@ -233,7 +233,10 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         return translateHook("signup.error.secretCodeRequiredManager");
       }
       
-      const { data, error: rpcError } = await supabase.rpc('inscrire_manager', {
+      // ===================================================================
+      // CORRECTION FINALE : On appelle la NOUVELLE fonction serveur avec le NOUVEAU nom.
+      // ===================================================================
+      const { data, error: rpcError } = await supabase.rpc('creer_manager_avec_code', {
         email_utilisateur: email,
         mot_de_passe_utilisateur: password,
         nom_complet_utilisateur: fullName,
@@ -242,17 +245,16 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       });
 
       if (rpcError) {
-        console.error("Erreur lors de l'appel RPC 'inscrire_manager':", rpcError);
+        console.error("Erreur lors de l'appel RPC 'creer_manager_avec_code':", rpcError);
         
-        if (rpcError.message.includes('code_invalide')) {
-          return translateHook("signup.error.invalidSecretCodeManager");
+        // On vérifie le nouveau message d'erreur clair de notre fonction.
+        if (rpcError.message.includes('activation_code_not_found')) {
+          return "Le code d'activation est invalide ou a déjà été utilisé.";
         }
-        if (rpcError.message.includes('duplicate key value violates unique constraint "companies_name_key"')) {
-            return translateHook("signup.error.companyNameTaken");
-        }
-        return translateHook("signup.error.generic");
+        return "Une erreur de serveur est survenue. Veuillez réessayer.";
       }
 
+      // Le reste de la logique (email de bienvenue, etc.) reste identique
       try {
         const emailData = {
           managerName: fullName,
@@ -274,7 +276,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       return true;
 
     } else {
-      // --- LOGIQUE INCHANGÉE ET INCLUSE POUR LES AUTRES RÔLES (USER, AGENT) ---
+      // --- LOGIQUE INCHANGÉE POUR LES AUTRES RÔLES (USER, AGENT) ---
       try {
         const { data: existingCompany, error: findCompanyError } = await supabase
           .from("companies")
