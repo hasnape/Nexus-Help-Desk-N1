@@ -47,7 +47,13 @@ interface AppContextType {
     email: string,
     fullName: string,
     password: string,
-    options: { lang: AppLocale; role: UserRole; companyName: string; secretCode?: string }
+    options: {
+      lang: AppLocale;
+      role: UserRole;
+      companyName: string;
+      secretCode?: string;
+      plan?: "freemium" | "standard" | "pro";
+    }
   ) => Promise<string | true>;
   tickets: Ticket[];
   addTicket: (
@@ -285,11 +291,61 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     email: string,
     fullName: string,
     password: string,
-    options: { lang: AppLocale; role: UserRole; companyName: string; secretCode?: string }
+    options: {
+      lang: AppLocale;
+      role: UserRole;
+      companyName: string;
+      secretCode?: string;
+      plan?: "freemium" | "standard" | "pro";
+    }
   ): Promise<string | true> => {
-    const { lang, role, companyName, secretCode } = options;
+    const { lang, role, companyName, secretCode, plan } = options;
 
     if (role === UserRole.MANAGER) {
+      if (!plan) {
+        return translateHook("signup.error.planSelectionRequired");
+      }
+
+      if (plan === "freemium") {
+        const { error: signUpError } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: fullName,
+              language_preference: lang,
+              role: UserRole.MANAGER,
+              company_id: companyName,
+              plan_name: "freemium",
+            },
+          },
+        });
+
+        if (signUpError) {
+          console.error("Erreur lors du Supabase signUp freemium:", signUpError);
+          return signUpError.message;
+        }
+
+        try {
+          const emailData = {
+            managerName: fullName,
+            managerEmail: email,
+            companyName,
+            secretCode: "Freemium (aucun code requis)", // Informationnel uniquement
+            registrationDate: formatRegistrationDate(new Date()),
+            loginUrl: generateLoginUrl(),
+          };
+          const emailResult = await sendWelcomeManagerEmail(emailData);
+          if (!emailResult.success) {
+            console.warn("Failed to send welcome email for freemium manager:", emailResult.error);
+          }
+        } catch (emailError) {
+          console.warn("Unexpected error sending freemium welcome email:", emailError);
+        }
+
+        return true;
+      }
+
       if (!secretCode) {
         return translateHook("signup.error.secretCodeRequiredManager");
       }

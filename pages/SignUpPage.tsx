@@ -795,15 +795,19 @@ const handleSubmit = async (e: React.FormEvent) => {
     setIsLoading(true);
 
     // 3. L'appel à signUp reste le même. C'est parfait.
-    // On envoie toutes les données au serveur, y compris le secretCode.
+    // On envoie toutes les données au serveur, y compris le plan et, si besoin, le secretCode.
     const result = await signUp(email.trim(), fullName.trim(), password, {
       lang: selectedLanguage,
       role: role,
       companyName: companyName.trim(),
-      // On envoie le code SEULEMENT si le rôle est Manager.
+      // On envoie le code SEULEMENT si le rôle est Manager sur un plan payant.
       secretCode:
         role === UserRole.MANAGER && selectedPlan !== "freemium"
           ? secretCode.trim()
+          : undefined,
+      plan:
+        role === UserRole.MANAGER && selectedPlan
+          ? (selectedPlan as "freemium" | "standard" | "pro")
           : undefined,
     });
 
