@@ -752,7 +752,11 @@ const handleSubmit = async (e: React.FormEvent) => {
     }
     // Si le rôle est Manager, on s'assure que le champ du code n'est pas vide.
     // La VRAIE validation (si le code est bon) se fera sur le serveur.
-    if (role === UserRole.MANAGER && !secretCode.trim()) {
+    if (
+      role === UserRole.MANAGER &&
+      selectedPlan !== "freemium" &&
+      !secretCode.trim()
+    ) {
       setError(t("signup.error.secretCodeRequiredManager"));
       return;
     }
@@ -797,7 +801,10 @@ const handleSubmit = async (e: React.FormEvent) => {
       role: role,
       companyName: companyName.trim(),
       // On envoie le code SEULEMENT si le rôle est Manager.
-      secretCode: role === UserRole.MANAGER ? secretCode.trim() : undefined,
+      secretCode:
+        role === UserRole.MANAGER && selectedPlan !== "freemium"
+          ? secretCode.trim()
+          : undefined,
     });
 
     setIsLoading(false);
@@ -1059,7 +1066,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                       disabled={isLoading}
                     />
 
-                    {role === UserRole.MANAGER && (
+                    {role === UserRole.MANAGER && selectedPlan !== "freemium" && (
                       <div>
                         <div className="flex items-center gap-2">
                           <Input
