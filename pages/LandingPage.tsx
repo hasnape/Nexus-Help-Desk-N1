@@ -255,16 +255,16 @@ const LandingPage: React.FC = () => {
         <Navbar />
         <main className="pt-16">
           {/* 1. Hero Section */} {/* Bannière centrale */}
-      <div className="bg-gradient-to-r from-yellow-200 via-yellow-100 to-yellow-200 border-l-4 border-yellow-400 rounded-lg p-6 mb-8 shadow-md text-center">
-        <p className="text-yellow-900 font-bold text-lg sm:text-xl">
-          Freemium : <span className="font-semibold">1€/mois</span> &nbsp;|&nbsp; 
-          Standard : <span className="font-semibold">1er mois à 5€ ensuite 10€/mois</span> &nbsp;|&nbsp; 
-          Pro : <span className="font-semibold">1er mois à 12€ ensuite 20€/mois</span>
-        </p>
-        <p className="text-yellow-800 text-sm mt-2">
-          Choisissez le plan qui correspond le mieux à vos besoins
-        </p>
-      </div>
+        <div className="bg-gradient-to-r from-yellow-200 via-yellow-100 to-yellow-200 border-l-4 border-yellow-400 rounded-lg p-6 mb-8 shadow-md text-center">
+          <p className="text-yellow-900 font-bold text-lg sm:text-xl">
+            Freemium : <span className="font-semibold">Gratuit (stockage local inclus)</span> &nbsp;|&nbsp;
+            Standard : <span className="font-semibold">1er mois à 5€ ensuite 10€/mois</span> &nbsp;|&nbsp;
+            Pro : <span className="font-semibold">1er mois à 12€ ensuite 20€/mois</span>
+          </p>
+          <p className="text-yellow-800 text-sm mt-2">
+            Choisissez le plan qui correspond le mieux à vos besoins
+          </p>
+        </div>
 
           <section className="py-8 px-4 sm:px-6 lg:px-8 text-white text-center">
             {" "}
@@ -467,14 +467,14 @@ const LandingPage: React.FC = () => {
           <section id="pricing" className="py-8 bg-slate-50">
             <div className="container mx-auto px-4 max-w-screen-lg">
                {/* Bannière centrale */}
-      <div className="bg-gradient-to-r from-yellow-200 via-yellow-100 to-yellow-200 border-l-4 border-yellow-400 rounded-lg p-6 mb-8 shadow-md text-center">
-        <p className="text-yellow-900 font-bold text-lg sm:text-xl">
-          Freemium : <span className="font-semibold">1€/mois</span> &nbsp;|&nbsp; 
-          Standard : <span className="font-semibold">1er mois 5€, ensuite 10€/mois</span> &nbsp;|&nbsp; 
-          Pro :<span className="font-semibold">1er mois à 12€ ensuite 20€/mois</span>
-        </p>
-       
-      </div>
+        <div className="bg-gradient-to-r from-yellow-200 via-yellow-100 to-yellow-200 border-l-4 border-yellow-400 rounded-lg p-6 mb-8 shadow-md text-center">
+          <p className="text-yellow-900 font-bold text-lg sm:text-xl">
+            Freemium : <span className="font-semibold">Gratuit (stockage local inclus)</span> &nbsp;|&nbsp;
+            Standard : <span className="font-semibold">1er mois 5€, ensuite 10€/mois</span> &nbsp;|&nbsp;
+            Pro :<span className="font-semibold">1er mois à 12€ ensuite 20€/mois</span>
+          </p>
+
+        </div>
 
               <div className="text-center max-w-3xl mx-auto">
                 <h2 className="text-3xl sm:text-4xl font-bold text-slate-800">
