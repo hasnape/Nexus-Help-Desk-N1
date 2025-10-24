@@ -704,7 +704,7 @@ const SignUpPage: React.FC = () => {
   const [showProModal, setShowProModal] = useState(false);
   const [showFreemiumModal, setShowFreemiumModal] = useState(false);
   const [showStandardModal, setShowStandardModal] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<string | null>("freemium");
 
 
   const { signUp, user } = useApp();
@@ -733,11 +733,21 @@ const SignUpPage: React.FC = () => {
     setSelectedLanguage(currentAppLang);
   }, [currentAppLang]);
 
+  const handleRoleChange = (nextRole: UserRole) => {
+    setRole(nextRole);
 
-const handleSubmit = async (e: React.FormEvent) => {
+    if (nextRole === UserRole.MANAGER) {
+      setSelectedPlan((current) => current ?? "freemium");
+    } else {
+      setSelectedPlan(null);
+      setSecretCode("");
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-  // 2. Les validations de base (champs vides, mots de passe) restent ici. C'est une bonne pratique.
+    // 2. Les validations de base (champs vides, mots de passe) restent ici. C'est une bonne pratique.
     if (!email.trim() || !fullName.trim() || !password || !confirmPassword || !companyName.trim()) {
       setError(t("signup.error.allFieldsRequired"));
       return;
@@ -750,11 +760,13 @@ const handleSubmit = async (e: React.FormEvent) => {
       setError(t("signup.error.minCharsPassword"));
       return;
     }
+    const effectivePlan =
+      role === UserRole.MANAGER ? selectedPlan ?? "freemium" : undefined;
     // Si le rôle est Manager, on s'assure que le champ du code n'est pas vide.
     // La VRAIE validation (si le code est bon) se fera sur le serveur.
     if (
       role === UserRole.MANAGER &&
-      selectedPlan !== "freemium" &&
+      effectivePlan !== "freemium" &&
       !secretCode.trim()
     ) {
       setError(t("signup.error.secretCodeRequiredManager"));
@@ -762,7 +774,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     }
 
     if (role === UserRole.MANAGER) {
-      if (!selectedPlan) {
+      if (!effectivePlan) {
         setError(
           t("signup.error.planSelectionRequired", {
             default: "Veuillez sélectionner une offre pour votre entreprise.",
@@ -771,7 +783,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         return;
       }
 
-      if (selectedPlan === "freemium") {
+      if (effectivePlan === "freemium") {
         const storedCompany = getStoredFreemiumCompany();
         if (
           storedCompany &&
@@ -802,12 +814,12 @@ const handleSubmit = async (e: React.FormEvent) => {
       companyName: companyName.trim(),
       // On envoie le code SEULEMENT si le rôle est Manager sur un plan payant.
       secretCode:
-        role === UserRole.MANAGER && selectedPlan !== "freemium"
+        role === UserRole.MANAGER && effectivePlan !== "freemium"
           ? secretCode.trim()
           : undefined,
       plan:
-        role === UserRole.MANAGER && selectedPlan
-          ? (selectedPlan as "freemium" | "standard" | "pro")
+        role === UserRole.MANAGER && effectivePlan
+          ? (effectivePlan as "freemium" | "standard" | "pro")
           : undefined,
     });
 
@@ -823,7 +835,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       // Le serveur a tout validé, l'inscription est réussie !
       if (role === UserRole.MANAGER) {
         setSuccess(t("signup.success.emailSentManager", { email: email.trim() }));
-        if (selectedPlan === "freemium") {
+        if (effectivePlan === "freemium") {
           setStoredFreemiumCompany(companyName.trim());
         }
       } else {
@@ -848,6 +860,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       setShowProModal(false);
       setShowFreemiumModal(false);
     } else if (plan === "freemium") {
+      setSecretCode("");
       setShowFreemiumModal(true);
       setShowProModal(false);
       setShowStandardModal(false);
@@ -1002,6 +1015,28 @@ const handleSubmit = async (e: React.FormEvent) => {
                       t={t}
                     />
                   </div>
+
+                  {selectedPlan === "freemium" && (
+                    <div className="mb-8 rounded-lg border border-green-300 bg-green-50 p-5 text-left">
+                      <h3 className="text-lg font-semibold text-green-900">
+                        {t("signupPlans.freemium.autoSelected.title", {
+                          default: "Freemium sélectionné automatiquement",
+                        })}
+                      </h3>
+                      <p className="mt-2 text-sm text-green-800">
+                        {t("signupPlans.freemium.autoSelected.description", {
+                          default:
+                            "Cette inscription s'effectue entièrement en local : vos utilisateurs, tickets et préférences sont sauvegardés dans le navigateur (clé unique 'nsh_freemium_session').",
+                        })}
+                      </p>
+                      <p className="mt-2 text-xs text-green-700">
+                        {t("signupPlans.freemium.autoSelected.storageNotice", {
+                          default:
+                            "Rappel : une seule entreprise Freemium peut être associée à cet ordinateur. Exportez une sauvegarde JSON avant de changer d'appareil.",
+                        })}
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -1063,7 +1098,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                       id="role"
                       value={role}
                       onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                        setRole(e.target.value as UserRole)
+                        handleRoleChange(e.target.value as UserRole)
                       }
                       options={roleOptions}
                       required

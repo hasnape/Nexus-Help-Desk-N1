@@ -35,6 +35,13 @@ import {
   recordFreemiumSession,
   getStoredFreemiumCompany,
   setStoredFreemiumCompany,
+  createFreemiumManagerAccount,
+  validateFreemiumCredentials,
+  convertFreemiumAccountToUser,
+  findFreemiumAccountByEmail,
+  findFreemiumAccountById,
+  getFreemiumSessionMeta,
+  clearFreemiumSessionMeta,
 } from "./services/freemiumStorage";
 import PageLayout from './components/PageLayout';
 
@@ -99,6 +106,24 @@ const reviveTicketDates = (data: any): Ticket => ({
   current_appointment: data.current_appointment || undefined,
 });
 
+const isOfflineNetworkError = (error: any): boolean => {
+  if (!error) return false;
+  const message =
+    typeof error === "string"
+      ? error
+      : typeof error?.message === "string"
+      ? error.message
+      : "";
+
+  const lower = message.toLowerCase();
+  return (
+    lower.includes("failed to fetch") ||
+    lower.includes("networkerror") ||
+    lower.includes("network error") ||
+    lower.includes("fetch failed")
+  );
+};
+
 const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [user, setUser] = useState<User | null>(null);
@@ -108,6 +133,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingAi, setIsLoadingAi] = useState(false);
   const [isFreemiumDevice, setIsFreemiumDevice] = useState<boolean>(false);
+  const [isLocalFreemiumSession, setIsLocalFreemiumSession] = useState<boolean>(false);
   const [isAutoReadEnabled, setIsAutoReadEnabled] = useState<boolean>(() => {
     const storedAutoRead = localStorage.getItem("aiHelpDeskAutoRead");
     return storedAutoRead ? JSON.parse(storedAutoRead) : true;
@@ -143,6 +169,34 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     },
     [isFreemiumDevice, user]
   );
+
+  const hydrateLocalFreemiumSession = useCallback(() => {
+    const sessionMeta = getFreemiumSessionMeta();
+    if (!sessionMeta) {
+      return false;
+    }
+
+    const account =
+      (sessionMeta.userId && findFreemiumAccountById(sessionMeta.userId)) ||
+      findFreemiumAccountByEmail(sessionMeta.email);
+
+    if (!account) {
+      return false;
+    }
+
+    const localUser = convertFreemiumAccountToUser(account);
+    setUser(localUser);
+    setAllUsers([localUser]);
+    setIsFreemiumDevice(true);
+    setIsLocalFreemiumSession(true);
+
+    const localTickets = loadFreemiumTickets();
+    const normalizedTickets = localTickets ?? [];
+    setTicketsDirect(normalizedTickets, true);
+    recordFreemiumSession(localUser.id, localUser.email, localUser.company_id);
+
+    return true;
+  }, [setTicketsDirect]);
 
   useEffect(() => {
     const storedConsent = localStorage.getItem("cookieConsent");
@@ -192,7 +246,13 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
           } else {
             setTicketsDirect(fetchedTickets);
           }
+          setIsLocalFreemiumSession(false);
         } else {
+          const restored = hydrateLocalFreemiumSession();
+          if (restored) {
+            return;
+          }
+          setIsLocalFreemiumSession(false);
           setUser(null);
           setTicketsDirect([]);
           setAllUsers([]);
@@ -203,6 +263,11 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         if (error.message.includes("Invalid Refresh Token")) {
           await supabase.auth.signOut();
         }
+        const restored = hydrateLocalFreemiumSession();
+        if (restored) {
+          return;
+        }
+        setIsLocalFreemiumSession(false);
         setUser(null);
         setTicketsDirect([]);
         setAllUsers([]);
@@ -211,10 +276,11 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         setIsLoading(false);
       }
     },
-    [setTicketsDirect]
+    [setTicketsDirect, hydrateLocalFreemiumSession]
   );
 
   useEffect(() => {
+    hydrateLocalFreemiumSession();
     supabase.auth.getSession().then(({ data: { session }, error }) => {
       if (error) {
         console.error("Error fetching session:", error);
@@ -235,7 +301,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     return () => {
       subscription.unsubscribe();
     };
-  }, [loadUserData, user?.id]);
+  }, [hydrateLocalFreemiumSession, loadUserData, user?.id]);
 
   useEffect(() => {
     if (user?.language_preference && user.language_preference !== language) {
@@ -257,34 +323,75 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const login = async (email: string, password: string, companyName: string): Promise<string | true> => {
-    const { data: authData, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      console.error("Supabase login error:", error.message);
-      return translateHook("login.error.invalidCredentials");
-    }
-
-    if (authData.user) {
-      const { data: userProfile, error: profileError } = await supabase
-        .from("users")
-        .select("company_id")
-        .eq("id", authData.user.id)
-        .single();
-
-      if (profileError || !userProfile) {
-        console.error("Could not fetch user profile for company verification:", profileError);
-        await supabase.auth.signOut();
-        return translateHook("login.error.profileFetchFailed");
+    const applyLocalLogin = (account: ReturnType<typeof validateFreemiumCredentials>): string | true => {
+      if (!account) {
+        return translateHook("login.error.invalidCredentials");
       }
 
-      if (userProfile.company_id !== companyName) {
-        await supabase.auth.signOut();
-        return translateHook("login.error.companyIdMismatch");
-      }
-    } else {
-      return translateHook("login.error.invalidCredentials");
+      const localUser = convertFreemiumAccountToUser(account);
+      setUser(localUser);
+      setAllUsers([localUser]);
+      setIsFreemiumDevice(true);
+      setIsLocalFreemiumSession(true);
+
+      const localTickets = loadFreemiumTickets();
+      const normalizedTickets = localTickets ?? [];
+      setTicketsDirect(normalizedTickets, true);
+      recordFreemiumSession(localUser.id, localUser.email, localUser.company_id);
+
+      return true;
+    };
+
+    const localAccount = validateFreemiumCredentials(email, password, companyName);
+    if (localAccount) {
+      return applyLocalLogin(localAccount);
     }
 
-    return true;
+    const attemptLocalLogin = (): string | true => {
+      const fallbackAccount = validateFreemiumCredentials(email, password, companyName);
+      return applyLocalLogin(fallbackAccount);
+    };
+
+    try {
+      const { data: authData, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        if (isOfflineNetworkError(error)) {
+          return attemptLocalLogin();
+        }
+        console.error("Supabase login error:", error.message);
+        return translateHook("login.error.invalidCredentials");
+      }
+
+      if (authData.user) {
+        const { data: userProfile, error: profileError } = await supabase
+          .from("users")
+          .select("company_id")
+          .eq("id", authData.user.id)
+          .single();
+
+        if (profileError || !userProfile) {
+          console.error("Could not fetch user profile for company verification:", profileError);
+          await supabase.auth.signOut();
+          return translateHook("login.error.profileFetchFailed");
+        }
+
+        if (userProfile.company_id !== companyName) {
+          await supabase.auth.signOut();
+          return translateHook("login.error.companyIdMismatch");
+        }
+      } else {
+        return translateHook("login.error.invalidCredentials");
+      }
+
+      setIsLocalFreemiumSession(false);
+      return true;
+    } catch (authError: any) {
+      if (isOfflineNetworkError(authError)) {
+        return attemptLocalLogin();
+      }
+      console.error("Unexpected login error:", authError);
+      return translateHook("login.error.invalidCredentials");
+    }
   };
 
   const signUp = async (
@@ -307,23 +414,25 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
 
       if (plan === "freemium") {
-        const { error: signUpError } = await supabase.auth.signUp({
+        const creation = createFreemiumManagerAccount({
           email,
           password,
-          options: {
-            data: {
-              full_name: fullName,
-              language_preference: lang,
-              role: UserRole.MANAGER,
-              company_id: companyName,
-              plan_name: "freemium",
-            },
-          },
+          fullName,
+          language: lang,
+          companyName,
         });
 
-        if (signUpError) {
-          console.error("Erreur lors du Supabase signUp freemium:", signUpError);
-          return signUpError.message;
+        if (!creation.success) {
+          if (creation.error === "DEVICE_LOCKED") {
+            const storedCompany = getStoredFreemiumCompany();
+            return translateHook("signup.error.freemiumDeviceLocked", {
+              company: storedCompany || companyName,
+            });
+          }
+          if (creation.error === "EMAIL_EXISTS") {
+            return translateHook("signup.error.emailInUse");
+          }
+          return creation.error || translateHook("signup.error.generic");
         }
 
         try {
@@ -343,6 +452,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
           console.warn("Unexpected error sending freemium welcome email:", emailError);
         }
 
+        setNewlyCreatedCompanyName(companyName);
         return true;
       }
 
@@ -458,12 +568,21 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const logout = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setNewlyCreatedCompanyName(null);
-    setTickets([]);
-    setAllUsers([]);
-    setIsFreemiumDevice(false);
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      if (!isOfflineNetworkError(error)) {
+        console.error("Supabase logout error:", error);
+      }
+    } finally {
+      clearFreemiumSessionMeta();
+      setUser(null);
+      setNewlyCreatedCompanyName(null);
+      setTickets([]);
+      setAllUsers([]);
+      setIsFreemiumDevice(false);
+      setIsLocalFreemiumSession(false);
+    }
   };
 
   const updateUserRole = async (userIdToUpdate: string, newRole: UserRole): Promise<boolean> => {
