@@ -49,7 +49,7 @@ import PageLayout from './components/PageLayout';
 interface AppContextType {
   user: User | null;
   login: (email: string, password: string, companyName: string) => Promise<string | true>;
-  logout: () => void;
+  logout: () => Promise<void>;
   signUp: (
     email: string,
     fullName: string,
@@ -124,6 +124,12 @@ const isOfflineNetworkError = (error: any): boolean => {
   );
 };
 
+const isOnlineRequiredService = (fnName: string) =>
+  fnName === "getFollowUpHelpResponse" || fnName === "getTicketSummary";
+
+const isAbortError = (e: any) =>
+  !!e && ((e.name === "AbortError") || String(e).includes("AbortError"));
+
 const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [user, setUser] = useState<User | null>(null);
@@ -140,6 +146,11 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
   });
 
   const { language, setLanguage: setAppLanguage, t: translateHook } = useLanguage();
+
+  const shouldShortCircuitNetwork = useCallback(
+    (serviceName: string) => isLocalFreemiumSession && !isOnlineRequiredService(serviceName),
+    [isLocalFreemiumSession]
+  );
 
   const updateTicketsState = useCallback(
     (updater: (prevTickets: Ticket[]) => Ticket[], forceLocalSync = false) => {
@@ -280,17 +291,41 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
   );
 
   useEffect(() => {
-    hydrateLocalFreemiumSession();
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
-      if (error) {
-        console.error("Error fetching session:", error);
+    const restored = hydrateLocalFreemiumSession();
+    if (restored) {
+      setIsLoading(false);
+      return;
+    }
+
+    let isMounted = true;
+
+    supabase.auth
+      .getSession()
+      .then(({ data: { session }, error }) => {
+        if (!isMounted) {
+          return;
+        }
+        if (error) {
+          console.error("Error fetching session:", error);
+          loadUserData(null);
+          return;
+        }
+        loadUserData(session);
+      })
+      .catch((error) => {
+        if (!isMounted || isAbortError(error)) {
+          return;
+        }
+        console.error("Unexpected session fetch error:", error);
         loadUserData(null);
+      });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!isMounted) {
         return;
       }
-      loadUserData(session);
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "TOKEN_REFRESHED" && !session) {
         loadUserData(null);
       } else if (session?.user?.id !== user?.id) {
@@ -299,6 +334,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     });
 
     return () => {
+      isMounted = false;
       subscription.unsubscribe();
     };
   }, [hydrateLocalFreemiumSession, loadUserData, user?.id]);
@@ -569,7 +605,9 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const logout = async () => {
     try {
-      await supabase.auth.signOut();
+      if (!shouldShortCircuitNetwork("supabase.auth.signOut")) {
+        await supabase.auth.signOut();
+      }
     } catch (error) {
       if (!isOfflineNetworkError(error)) {
         console.error("Supabase logout error:", error);
@@ -578,7 +616,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       clearFreemiumSessionMeta();
       setUser(null);
       setNewlyCreatedCompanyName(null);
-      setTickets([]);
+      setTicketsDirect([], true);
       setAllUsers([]);
       setIsFreemiumDevice(false);
       setIsLocalFreemiumSession(false);
@@ -587,6 +625,10 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const updateUserRole = async (userIdToUpdate: string, newRole: UserRole): Promise<boolean> => {
     if (user?.role !== UserRole.MANAGER) return false;
+    if (shouldShortCircuitNetwork("supabase.users.update")) {
+      setAllUsers((prev) => prev.map((u) => (u.id === userIdToUpdate ? { ...u, role: newRole } : u)));
+      return true;
+    }
     const { error } = await supabase.from("users").update({ role: newRole }).eq("id", userIdToUpdate);
     if (error) {
       console.error("Error updating user role:", error);
@@ -598,6 +640,19 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const deleteUserById = async (userId: string): Promise<void> => {
     if (user?.role !== UserRole.MANAGER) return;
+    if (shouldShortCircuitNetwork("supabase.rpc.delete_user_by_manager")) {
+      setAllUsers((prev) => prev.filter((u) => u.id !== userId));
+      updateTicketsState(
+        (prev) => {
+          const ticketsAfterUserRemoval = prev.filter((t) => t.user_id !== userId);
+          return ticketsAfterUserRemoval.map((t) =>
+            t.assigned_agent_id === userId ? { ...t, assigned_agent_id: undefined } : t
+          );
+        },
+        true
+      );
+      return;
+    }
     try {
       const { error } = await supabase.rpc("delete_user_by_manager", { user_id_to_delete: userId });
       if (error) {
@@ -625,10 +680,33 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     setIsLoading(true);
     try {
       const now = new Date();
+      const normalizedChatHistory = initialChatHistory.map((message) => ({
+        ...message,
+        id: message.id || crypto.randomUUID(),
+        timestamp: message.timestamp instanceof Date ? message.timestamp : new Date(message.timestamp),
+      }));
+
+      if (shouldShortCircuitNetwork("supabase.tickets.insert")) {
+        const createdTicket: Ticket = {
+          ...ticketData,
+          id: crypto.randomUUID(),
+          user_id: creatorUserId,
+          chat_history: normalizedChatHistory,
+          assigned_ai_level: DEFAULT_AI_LEVEL,
+          assigned_agent_id: undefined,
+          internal_notes: [],
+          current_appointment: undefined,
+          created_at: now,
+          updated_at: now,
+        };
+        updateTicketsState((prevTickets) => [...prevTickets, createdTicket], true);
+        return createdTicket;
+      }
+
       const newTicketData = {
         ...ticketData,
         user_id: creatorUserId,
-        chat_history: initialChatHistory,
+        chat_history: normalizedChatHistory,
         assigned_ai_level: DEFAULT_AI_LEVEL,
         assigned_agent_id: undefined,
         internal_notes: [],
@@ -650,6 +728,17 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const updateTicketStatus = async (ticketId: string, status: TicketStatus) => {
+    if (shouldShortCircuitNetwork("supabase.tickets.update")) {
+      const updatedAtDate = new Date();
+      updateTicketsState(
+        (prev) =>
+          prev.map((t) =>
+            t.id === ticketId ? { ...t, status, updated_at: updatedAtDate } : t
+          ),
+        true
+      );
+      return;
+    }
     const updated_at = new Date().toISOString();
     const { data, error } = await supabase.from("tickets").update({ status, updated_at }).eq("id", ticketId).select().single();
     if (error) console.error("Error updating ticket status:", error);
@@ -658,6 +747,10 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const deleteTicket = async (ticketId: string): Promise<void> => {
+    if (shouldShortCircuitNetwork("supabase.tickets.delete")) {
+      updateTicketsState((prev) => prev.filter((t) => t.id !== ticketId), true);
+      return;
+    }
     try {
       const { error } = await supabase.from("tickets").delete().eq("id", ticketId);
       if (error) {
@@ -694,6 +787,24 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
     }
     const updatedChatHistory = summaryMessage ? [...ticketToUpdate.chat_history, summaryMessage] : ticketToUpdate.chat_history;
+    if (shouldShortCircuitNetwork("supabase.tickets.update")) {
+      const updatedAtDate = new Date();
+      updateTicketsState(
+        (prev) =>
+          prev.map((t) =>
+            t.id === ticketId
+              ? {
+                  ...t,
+                  assigned_agent_id: agentId || undefined,
+                  chat_history: updatedChatHistory,
+                  updated_at: updatedAtDate,
+                }
+              : t
+          ),
+        true
+      );
+      return;
+    }
     const { data, error } = await supabase
       .from("tickets")
       .update({ assigned_agent_id: agentId || null, updated_at: new Date().toISOString(), chat_history: updatedChatHistory })
@@ -707,6 +818,19 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const agentTakeTicket = async (ticketId: string): Promise<void> => {
     if (!user || user.role !== UserRole.AGENT) return;
+    if (shouldShortCircuitNetwork("supabase.tickets.update")) {
+      const updatedAtDate = new Date();
+      updateTicketsState(
+        (prev) =>
+          prev.map((t) =>
+            t.id === ticketId
+              ? { ...t, assigned_agent_id: user.id, updated_at: updatedAtDate }
+              : t
+          ),
+        true
+      );
+      return;
+    }
     const { data, error } = await supabase
       .from("tickets")
       .update({ assigned_agent_id: user.id, updated_at: new Date().toISOString() })
@@ -739,6 +863,24 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       ticket.status === TICKET_STATUS_KEYS.OPEN || ticket.status === TICKET_STATUS_KEYS.RESOLVED
         ? TICKET_STATUS_KEYS.IN_PROGRESS
         : ticket.status;
+    if (shouldShortCircuitNetwork("supabase.tickets.update")) {
+      const updatedAtDate = new Date();
+      updateTicketsState(
+        (prev) =>
+          prev.map((t) =>
+            t.id === ticketId
+              ? {
+                  ...t,
+                  chat_history: updated_chat_history,
+                  status: newStatus,
+                  updated_at: updatedAtDate,
+                }
+              : t
+          ),
+        true
+      );
+      return;
+    }
     const { data, error } = await supabase
       .from("tickets")
       .update({ chat_history: updated_chat_history, status: newStatus, updated_at: new Date().toISOString() })
@@ -754,35 +896,68 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     if (!user) return;
     const ticket = tickets.find((t) => t.id === ticketId);
     if (!ticket) return;
-    const userMessage: ChatMessage = { id: crypto.randomUUID(), sender: "user", text: userMessageText, timestamp: new Date() };
+    const timestamp = new Date();
+    const userMessage: ChatMessage = { id: crypto.randomUUID(), sender: "user", text: userMessageText, timestamp };
     const newStatus =
       ticket.status === TICKET_STATUS_KEYS.RESOLVED || ticket.status === TICKET_STATUS_KEYS.CLOSED
         ? TICKET_STATUS_KEYS.IN_PROGRESS
         : ticket.status;
-    let tempUpdatedChatHistory = [...ticket.chat_history, userMessage];
-    updateTicketsState((prev) =>
-      prev.map((t) =>
-        t.id === ticketId ? { ...t, chat_history: tempUpdatedChatHistory, status: newStatus, updated_at: new Date() } : t
-      )
+    const tempUpdatedChatHistory = [...ticket.chat_history, userMessage];
+    updateTicketsState(
+      (prev) =>
+        prev.map((t) =>
+          t.id === ticketId
+            ? { ...t, chat_history: tempUpdatedChatHistory, status: newStatus, updated_at: timestamp }
+            : t
+        ),
+      isLocalFreemiumSession
     );
     if (ticket.assigned_agent_id) {
-      await supabase.from("tickets").update({ chat_history: tempUpdatedChatHistory, status: newStatus, updated_at: new Date().toISOString() }).eq("id", ticketId);
+      if (shouldShortCircuitNetwork("supabase.tickets.update")) {
+        return;
+      }
+      await supabase
+        .from("tickets")
+        .update({ chat_history: tempUpdatedChatHistory, status: newStatus, updated_at: new Date().toISOString() })
+        .eq("id", ticketId);
       return;
     }
     setIsLoadingAi(true);
-    let finalChatHistory;
+    let finalChatHistory = tempUpdatedChatHistory;
     try {
-      const aiResponse = await getFollowUpHelpResponse(ticket.title, ticket.category, tempUpdatedChatHistory, ticket.assigned_ai_level, user.language_preference);
+      const aiResponse = await getFollowUpHelpResponse(
+        ticket.title,
+        ticket.category,
+        tempUpdatedChatHistory,
+        ticket.assigned_ai_level,
+        user.language_preference
+      );
       const aiResponseMessage: ChatMessage = { id: crypto.randomUUID(), sender: "ai", text: aiResponse.text, timestamp: new Date() };
       finalChatHistory = [...tempUpdatedChatHistory, aiResponseMessage];
       if (onAiMessageAdded) onAiMessageAdded(aiResponseMessage);
     } catch (error: any) {
       console.error("Error getting AI follow-up response:", error);
-      finalChatHistory = [
-        ...tempUpdatedChatHistory,
-        { id: crypto.randomUUID(), sender: "ai", text: translateHook("appContext.error.aiFollowUpFailed", { error: error.message || "Unknown" }), timestamp: new Date() },
-      ];
+      const fallbackMessage: ChatMessage = {
+        id: crypto.randomUUID(),
+        sender: "ai",
+        text: translateHook("appContext.error.aiFollowUpFailed", { error: error?.message || "Unknown" }),
+        timestamp: new Date(),
+      };
+      finalChatHistory = [...tempUpdatedChatHistory, fallbackMessage];
     } finally {
+      if (shouldShortCircuitNetwork("supabase.tickets.update")) {
+        updateTicketsState(
+          (prev) =>
+            prev.map((t) =>
+              t.id === ticketId
+                ? { ...t, chat_history: finalChatHistory, status: newStatus, updated_at: new Date() }
+                : t
+            ),
+          true
+        );
+        setIsLoadingAi(false);
+        return;
+      }
       const { data, error } = await supabase
         .from("tickets")
         .update({ chat_history: finalChatHistory, status: newStatus, updated_at: new Date().toISOString() })
@@ -829,6 +1004,24 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       timestamp: new Date(),
     };
     const updatedChatHistory = chatMessageText ? [...ticket.chat_history, systemMessage] : ticket.chat_history;
+    if (shouldShortCircuitNetwork("supabase.tickets.update")) {
+      const updatedAtDate = new Date();
+      updateTicketsState(
+        (prev) =>
+          prev.map((t) =>
+            t.id === ticketId
+              ? {
+                  ...t,
+                  current_appointment: newAppointment,
+                  chat_history: updatedChatHistory,
+                  updated_at: updatedAtDate,
+                }
+              : t
+          ),
+        true
+      );
+      return;
+    }
     const { data, error } = await supabase
       .from("tickets")
       .update({ current_appointment: newAppointment, chat_history: updatedChatHistory, updated_at: new Date().toISOString() })
@@ -844,6 +1037,13 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const updateCompanyName = async (newName: string): Promise<boolean> => {
     if (!user || user.role !== UserRole.MANAGER || !user.company_id) return false;
+    if (shouldShortCircuitNetwork("supabase.companies.update")) {
+      setUser((prevUser) => (prevUser ? { ...prevUser, company_id: newName } : null));
+      setAllUsers((prevUsers) => prevUsers.map((u) => (u.id === user.id ? { ...u, company_id: newName } : u)));
+      setStoredFreemiumCompany(newName);
+      recordFreemiumSession(user.id, user.email, newName);
+      return true;
+    }
     const oldName = user.company_id;
     const { data: companyResults, error: findError } = await supabase.from("companies").select("id").eq("name", oldName).limit(1);
     if (findError) {
