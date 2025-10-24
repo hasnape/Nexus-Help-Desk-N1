@@ -28,6 +28,21 @@ import LoadingSpinner from "./components/LoadingSpinner";
 import CookieConsentBanner from "./components/CookieConsentBanner";
 import type { Session } from "@supabase/supabase-js";
 import { sendWelcomeManagerEmail, generateLoginUrl, formatRegistrationDate } from "./services/emailService";
+import {
+  isFreemiumCompanyOnDevice,
+  loadFreemiumTickets,
+  saveFreemiumTickets,
+  recordFreemiumSession,
+  getStoredFreemiumCompany,
+  setStoredFreemiumCompany,
+  createFreemiumManagerAccount,
+  validateFreemiumCredentials,
+  convertFreemiumAccountToUser,
+  findFreemiumAccountByEmail,
+  findFreemiumAccountById,
+  getFreemiumSessionMeta,
+  clearFreemiumSessionMeta,
+} from "./services/freemiumStorage";
 import PageLayout from './components/PageLayout';
 
 
@@ -39,7 +54,13 @@ interface AppContextType {
     email: string,
     fullName: string,
     password: string,
-    options: { lang: AppLocale; role: UserRole; companyName: string; secretCode?: string }
+    options: {
+      lang: AppLocale;
+      role: UserRole;
+      companyName: string;
+      secretCode?: string;
+      plan?: "freemium" | "standard" | "pro";
+    }
   ) => Promise<string | true>;
   tickets: Ticket[];
   addTicket: (
@@ -85,6 +106,24 @@ const reviveTicketDates = (data: any): Ticket => ({
   current_appointment: data.current_appointment || undefined,
 });
 
+const isOfflineNetworkError = (error: any): boolean => {
+  if (!error) return false;
+  const message =
+    typeof error === "string"
+      ? error
+      : typeof error?.message === "string"
+      ? error.message
+      : "";
+
+  const lower = message.toLowerCase();
+  return (
+    lower.includes("failed to fetch") ||
+    lower.includes("networkerror") ||
+    lower.includes("network error") ||
+    lower.includes("fetch failed")
+  );
+};
+
 const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [user, setUser] = useState<User | null>(null);
@@ -93,12 +132,71 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [consentGiven, setConsentGiven] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingAi, setIsLoadingAi] = useState(false);
+  const [isFreemiumDevice, setIsFreemiumDevice] = useState<boolean>(false);
+  const [isLocalFreemiumSession, setIsLocalFreemiumSession] = useState<boolean>(false);
   const [isAutoReadEnabled, setIsAutoReadEnabled] = useState<boolean>(() => {
     const storedAutoRead = localStorage.getItem("aiHelpDeskAutoRead");
     return storedAutoRead ? JSON.parse(storedAutoRead) : true;
   });
 
   const { language, setLanguage: setAppLanguage, t: translateHook } = useLanguage();
+
+  const updateTicketsState = useCallback(
+    (updater: (prevTickets: Ticket[]) => Ticket[], forceLocalSync = false) => {
+      setTickets((prevTickets) => {
+        const updatedTickets = updater(prevTickets);
+        if (isFreemiumDevice || forceLocalSync) {
+          saveFreemiumTickets(updatedTickets);
+          if (user) {
+            recordFreemiumSession(user.id, user.email, user.company_id);
+          }
+        }
+        return updatedTickets;
+      });
+    },
+    [isFreemiumDevice, user]
+  );
+
+  const setTicketsDirect = useCallback(
+    (nextTickets: Ticket[], forceLocalSync = false) => {
+      setTickets(nextTickets);
+      if (isFreemiumDevice || forceLocalSync) {
+        saveFreemiumTickets(nextTickets);
+        if (user) {
+          recordFreemiumSession(user.id, user.email, user.company_id);
+        }
+      }
+    },
+    [isFreemiumDevice, user]
+  );
+
+  const hydrateLocalFreemiumSession = useCallback(() => {
+    const sessionMeta = getFreemiumSessionMeta();
+    if (!sessionMeta) {
+      return false;
+    }
+
+    const account =
+      (sessionMeta.userId && findFreemiumAccountById(sessionMeta.userId)) ||
+      findFreemiumAccountByEmail(sessionMeta.email);
+
+    if (!account) {
+      return false;
+    }
+
+    const localUser = convertFreemiumAccountToUser(account);
+    setUser(localUser);
+    setAllUsers([localUser]);
+    setIsFreemiumDevice(true);
+    setIsLocalFreemiumSession(true);
+
+    const localTickets = loadFreemiumTickets();
+    const normalizedTickets = localTickets ?? [];
+    setTicketsDirect(normalizedTickets, true);
+    recordFreemiumSession(localUser.id, localUser.email, localUser.company_id);
+
+    return true;
+  }, [setTicketsDirect]);
 
   useEffect(() => {
     const storedConsent = localStorage.getItem("cookieConsent");
@@ -107,47 +205,82 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   }, []);
 
-  const loadUserData = useCallback(async (session: Session | null) => {
-    try {
-      if (session?.user) {
-        setIsLoading(true);
-        const { data: userProfile, error: profileError } = await supabase
-          .from("users")
-          .select("*")
-          .eq("id", session.user.id)
-          .single();
+  const loadUserData = useCallback(
+    async (session: Session | null) => {
+      try {
+        if (session?.user) {
+          setIsLoading(true);
+          const { data: userProfile, error: profileError } = await supabase
+            .from("users")
+            .select("*")
+            .eq("id", session.user.id)
+            .single();
 
-        if (profileError || !userProfile) {
-          throw profileError || new Error("User profile not found");
+          if (profileError || !userProfile) {
+            throw profileError || new Error("User profile not found");
+          }
+          setUser(userProfile);
+
+          const storedFreemiumCompany = getStoredFreemiumCompany();
+          let freemiumOnDevice = isFreemiumCompanyOnDevice(userProfile.company_id);
+          if (!storedFreemiumCompany && userProfile.role !== UserRole.MANAGER && userProfile.company_id) {
+            setStoredFreemiumCompany(userProfile.company_id);
+            freemiumOnDevice = true;
+          }
+          setIsFreemiumDevice(freemiumOnDevice);
+
+          const [usersResponse, ticketsResponse] = await Promise.all([
+            supabase.from("users").select("*"),
+            supabase.from("tickets").select("*"),
+          ]);
+
+          setAllUsers(usersResponse.data || []);
+
+          const fetchedTickets = ticketsResponse.data ? ticketsResponse.data.map(reviveTicketDates) : [];
+
+          if (freemiumOnDevice) {
+            const localTickets = loadFreemiumTickets();
+            const initialTickets = localTickets && localTickets.length > 0 ? localTickets : fetchedTickets;
+            setTicketsDirect(initialTickets, true);
+            recordFreemiumSession(userProfile.id, userProfile.email, userProfile.company_id);
+          } else {
+            setTicketsDirect(fetchedTickets);
+          }
+          setIsLocalFreemiumSession(false);
+        } else {
+          const restored = hydrateLocalFreemiumSession();
+          if (restored) {
+            return;
+          }
+          setIsLocalFreemiumSession(false);
+          setUser(null);
+          setTicketsDirect([]);
+          setAllUsers([]);
+          setIsFreemiumDevice(false);
         }
-        setUser(userProfile);
-
-        const [usersResponse, ticketsResponse] = await Promise.all([
-          supabase.from("users").select("*"),
-          supabase.from("tickets").select("*"),
-        ]);
-
-        setAllUsers(usersResponse.data || []);
-        setTickets(ticketsResponse.data ? ticketsResponse.data.map(reviveTicketDates) : []);
-      } else {
+      } catch (error: any) {
+        console.error("Error loading user data:", error);
+        if (error.message.includes("Invalid Refresh Token")) {
+          await supabase.auth.signOut();
+        }
+        const restored = hydrateLocalFreemiumSession();
+        if (restored) {
+          return;
+        }
+        setIsLocalFreemiumSession(false);
         setUser(null);
-        setTickets([]);
+        setTicketsDirect([]);
         setAllUsers([]);
+        setIsFreemiumDevice(false);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error: any) {
-      console.error("Error loading user data:", error);
-      if (error.message.includes("Invalid Refresh Token")) {
-        await supabase.auth.signOut();
-      }
-      setUser(null);
-      setTickets([]);
-      setAllUsers([]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+    },
+    [setTicketsDirect, hydrateLocalFreemiumSession]
+  );
 
   useEffect(() => {
+    hydrateLocalFreemiumSession();
     supabase.auth.getSession().then(({ data: { session }, error }) => {
       if (error) {
         console.error("Error fetching session:", error);
@@ -168,7 +301,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     return () => {
       subscription.unsubscribe();
     };
-  }, [loadUserData, user?.id]);
+  }, [hydrateLocalFreemiumSession, loadUserData, user?.id]);
 
   useEffect(() => {
     if (user?.language_preference && user.language_preference !== language) {
@@ -190,45 +323,139 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const login = async (email: string, password: string, companyName: string): Promise<string | true> => {
-    const { data: authData, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      console.error("Supabase login error:", error.message);
-      return translateHook("login.error.invalidCredentials");
-    }
-
-    if (authData.user) {
-      const { data: userProfile, error: profileError } = await supabase
-        .from("users")
-        .select("company_id")
-        .eq("id", authData.user.id)
-        .single();
-
-      if (profileError || !userProfile) {
-        console.error("Could not fetch user profile for company verification:", profileError);
-        await supabase.auth.signOut();
-        return translateHook("login.error.profileFetchFailed");
+    const applyLocalLogin = (account: ReturnType<typeof validateFreemiumCredentials>): string | true => {
+      if (!account) {
+        return translateHook("login.error.invalidCredentials");
       }
 
-      if (userProfile.company_id !== companyName) {
-        await supabase.auth.signOut();
-        return translateHook("login.error.companyIdMismatch");
-      }
-    } else {
-      return translateHook("login.error.invalidCredentials");
+      const localUser = convertFreemiumAccountToUser(account);
+      setUser(localUser);
+      setAllUsers([localUser]);
+      setIsFreemiumDevice(true);
+      setIsLocalFreemiumSession(true);
+
+      const localTickets = loadFreemiumTickets();
+      const normalizedTickets = localTickets ?? [];
+      setTicketsDirect(normalizedTickets, true);
+      recordFreemiumSession(localUser.id, localUser.email, localUser.company_id);
+
+      return true;
+    };
+
+    const localAccount = validateFreemiumCredentials(email, password, companyName);
+    if (localAccount) {
+      return applyLocalLogin(localAccount);
     }
 
-    return true;
+    const attemptLocalLogin = (): string | true => {
+      const fallbackAccount = validateFreemiumCredentials(email, password, companyName);
+      return applyLocalLogin(fallbackAccount);
+    };
+
+    try {
+      const { data: authData, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        if (isOfflineNetworkError(error)) {
+          return attemptLocalLogin();
+        }
+        console.error("Supabase login error:", error.message);
+        return translateHook("login.error.invalidCredentials");
+      }
+
+      if (authData.user) {
+        const { data: userProfile, error: profileError } = await supabase
+          .from("users")
+          .select("company_id")
+          .eq("id", authData.user.id)
+          .single();
+
+        if (profileError || !userProfile) {
+          console.error("Could not fetch user profile for company verification:", profileError);
+          await supabase.auth.signOut();
+          return translateHook("login.error.profileFetchFailed");
+        }
+
+        if (userProfile.company_id !== companyName) {
+          await supabase.auth.signOut();
+          return translateHook("login.error.companyIdMismatch");
+        }
+      } else {
+        return translateHook("login.error.invalidCredentials");
+      }
+
+      setIsLocalFreemiumSession(false);
+      return true;
+    } catch (authError: any) {
+      if (isOfflineNetworkError(authError)) {
+        return attemptLocalLogin();
+      }
+      console.error("Unexpected login error:", authError);
+      return translateHook("login.error.invalidCredentials");
+    }
   };
 
   const signUp = async (
     email: string,
     fullName: string,
     password: string,
-    options: { lang: AppLocale; role: UserRole; companyName: string; secretCode?: string }
+    options: {
+      lang: AppLocale;
+      role: UserRole;
+      companyName: string;
+      secretCode?: string;
+      plan?: "freemium" | "standard" | "pro";
+    }
   ): Promise<string | true> => {
-    const { lang, role, companyName, secretCode } = options;
+    const { lang, role, companyName, secretCode, plan } = options;
 
     if (role === UserRole.MANAGER) {
+      if (!plan) {
+        return translateHook("signup.error.planSelectionRequired");
+      }
+
+      if (plan === "freemium") {
+        const creation = createFreemiumManagerAccount({
+          email,
+          password,
+          fullName,
+          language: lang,
+          companyName,
+        });
+
+        if (!creation.success) {
+          if (creation.error === "DEVICE_LOCKED") {
+            const storedCompany = getStoredFreemiumCompany();
+            return translateHook("signup.error.freemiumDeviceLocked", {
+              company: storedCompany || companyName,
+            });
+          }
+          if (creation.error === "EMAIL_EXISTS") {
+            return translateHook("signup.error.emailInUse");
+          }
+          return creation.error || translateHook("signup.error.generic");
+        }
+
+        try {
+          const emailData = {
+            managerName: fullName,
+            managerEmail: email,
+            companyName,
+            secretCode: "Freemium (aucun code requis)", // Informationnel uniquement
+            registrationDate: formatRegistrationDate(new Date()),
+            loginUrl: generateLoginUrl(),
+          };
+          const emailResult = await sendWelcomeManagerEmail(emailData);
+          if (!emailResult.success) {
+            console.warn("Failed to send welcome email for freemium manager:", emailResult.error);
+          }
+        } catch (emailError) {
+          console.warn("Unexpected error sending freemium welcome email:", emailError);
+        }
+
+        setNewlyCreatedCompanyName(companyName);
+        return true;
+      }
+
       if (!secretCode) {
         return translateHook("signup.error.secretCodeRequiredManager");
       }
@@ -341,9 +568,21 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const logout = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setNewlyCreatedCompanyName(null);
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      if (!isOfflineNetworkError(error)) {
+        console.error("Supabase logout error:", error);
+      }
+    } finally {
+      clearFreemiumSessionMeta();
+      setUser(null);
+      setNewlyCreatedCompanyName(null);
+      setTickets([]);
+      setAllUsers([]);
+      setIsFreemiumDevice(false);
+      setIsLocalFreemiumSession(false);
+    }
   };
 
   const updateUserRole = async (userIdToUpdate: string, newRole: UserRole): Promise<boolean> => {
@@ -366,7 +605,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         alert(translateHook("managerDashboard.deleteUserError.rpc", { message: error.message }));
       } else {
         setAllUsers((prev) => prev.filter((u) => u.id !== userId));
-        setTickets((prev) => {
+        updateTicketsState((prev) => {
           const ticketsAfterUserRemoval = prev.filter((t) => t.user_id !== userId);
           return ticketsAfterUserRemoval.map((t) => (t.assigned_agent_id === userId ? { ...t, assigned_agent_id: undefined } : t));
         });
@@ -400,7 +639,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       const { data, error } = await supabase.from("tickets").insert(newTicketData).select().single();
       if (error) throw error;
       const createdTicket = reviveTicketDates(data);
-      setTickets((prevTickets) => [...prevTickets, createdTicket]);
+      updateTicketsState((prevTickets) => [...prevTickets, createdTicket]);
       return createdTicket;
     } catch (error) {
       console.error("Error creating ticket:", error);
@@ -414,7 +653,8 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     const updated_at = new Date().toISOString();
     const { data, error } = await supabase.from("tickets").update({ status, updated_at }).eq("id", ticketId).select().single();
     if (error) console.error("Error updating ticket status:", error);
-    else setTickets((prev) => prev.map((t) => (t.id === ticketId ? reviveTicketDates(data) : t)));
+    else
+      updateTicketsState((prev) => prev.map((t) => (t.id === ticketId ? reviveTicketDates(data) : t)));
   };
 
   const deleteTicket = async (ticketId: string): Promise<void> => {
@@ -424,7 +664,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         console.error("Error deleting ticket:", error);
         alert(translateHook("managerDashboard.deleteTicketError.rpc", { message: error.message }));
       } else {
-        setTickets((prev) => prev.filter((t) => t.id !== ticketId));
+        updateTicketsState((prev) => prev.filter((t) => t.id !== ticketId));
       }
     } catch (e: any) {
       console.error("Critical error deleting ticket:", e);
@@ -461,7 +701,8 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       .select()
       .single();
     if (error) console.error("Error assigning ticket:", error);
-    else setTickets((prev) => prev.map((t) => (t.id === ticketId ? reviveTicketDates(data) : t)));
+    else
+      updateTicketsState((prev) => prev.map((t) => (t.id === ticketId ? reviveTicketDates(data) : t)));
   };
 
   const agentTakeTicket = async (ticketId: string): Promise<void> => {
@@ -475,7 +716,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     if (error) {
       console.error("Agent could not take charge:", error);
     } else {
-      setTickets((prev) => prev.map((t) => (t.id === ticketId ? reviveTicketDates(data) : t)));
+      updateTicketsState((prev) => prev.map((t) => (t.id === ticketId ? reviveTicketDates(data) : t)));
     }
   };
 
@@ -505,7 +746,8 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       .select()
       .single();
     if (error) console.error("Error sending agent message:", error);
-    else setTickets((prev) => prev.map((t) => (t.id === ticketId ? reviveTicketDates(data) : t)));
+    else
+      updateTicketsState((prev) => prev.map((t) => (t.id === ticketId ? reviveTicketDates(data) : t)));
   };
 
   const addChatMessage = async (ticketId: string, userMessageText: string, onAiMessageAdded?: (aiMessage: ChatMessage) => void) => {
@@ -518,7 +760,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         ? TICKET_STATUS_KEYS.IN_PROGRESS
         : ticket.status;
     let tempUpdatedChatHistory = [...ticket.chat_history, userMessage];
-    setTickets((prev) =>
+    updateTicketsState((prev) =>
       prev.map((t) =>
         t.id === ticketId ? { ...t, chat_history: tempUpdatedChatHistory, status: newStatus, updated_at: new Date() } : t
       )
@@ -548,7 +790,8 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         .select()
         .single();
       if (error) console.error("Error saving AI response:", error);
-      else setTickets((prev) => prev.map((t) => (t.id === ticketId ? reviveTicketDates(data) : t)));
+      else
+        updateTicketsState((prev) => prev.map((t) => (t.id === ticketId ? reviveTicketDates(data) : t)));
       setIsLoadingAi(false);
     }
   };
@@ -593,7 +836,8 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       .select()
       .single();
     if (error) console.error("Error proposing appointment:", error);
-    else setTickets((prev) => prev.map((t) => (t.id === ticketId ? reviveTicketDates(data) : t)));
+    else
+      updateTicketsState((prev) => prev.map((t) => (t.id === ticketId ? reviveTicketDates(data) : t)));
   };
 
   const getTicketById = useCallback((ticketId: string) => tickets.find((t) => t.id === ticketId), [tickets]);
