@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, ReactNode, useCallback, useEffect } from "react";
-import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation, Link } from "react-router-dom";
+import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import { Ticket, User, ChatMessage, TicketStatus, UserRole, Locale as AppLocale, AppointmentDetails } from "./types";
 import { getFollowUpHelpResponse, getTicketSummary } from "./services/geminiService";
 import { supabase } from "./services/supabaseClient";
@@ -242,8 +242,14 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
           setIsFreemiumDevice(freemiumOnDevice);
 
           const [usersResponse, ticketsResponse] = await Promise.all([
-            supabase.from("users").select("*"),
-            supabase.from("tickets").select("*"),
+            supabase
+              .from("users")
+              .select("id, auth_uid, email, full_name, role, language_preference, company_id"),
+            supabase
+              .from("tickets")
+              .select(
+                "id, user_id, title, description, category, priority, status, assigned_ai_level, assigned_agent_id, workstation_id, created_at, updated_at, chat_history, current_appointment"
+              ),
           ]);
 
           setAllUsers(usersResponse.data || []);
@@ -335,7 +341,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
       if (event === "TOKEN_REFRESHED" && !session) {
         loadUserData(null);
-      } else if (session?.user?.id !== user?.id) {
+      } else if (session?.user?.id !== user?.auth_uid) {
         loadUserData(session);
       }
     });
