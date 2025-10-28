@@ -1,8 +1,9 @@
 import React, { createContext, useState, useContext, ReactNode, useCallback, useEffect } from "react";
-import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation, Link } from "react-router-dom";
+import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import { Ticket, User, ChatMessage, TicketStatus, UserRole, Locale as AppLocale, AppointmentDetails } from "./types";
 import { getFollowUpHelpResponse, getTicketSummary } from "./services/geminiService";
 import { supabase } from "./services/supabaseClient";
+import { ensureUserProfile } from "./services/authService";
 import PricingPage from "./pages/PricingPage";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
@@ -224,7 +225,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
           const { data: userProfile, error: profileError } = await supabase
             .from("users")
             .select("*")
-            .eq("id", session.user.id)
+            .eq("auth_uid", session.user.id)
             .single();
 
           if (profileError || !userProfile) {
@@ -241,8 +242,14 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
           setIsFreemiumDevice(freemiumOnDevice);
 
           const [usersResponse, ticketsResponse] = await Promise.all([
-            supabase.from("users").select("*"),
-            supabase.from("tickets").select("*"),
+            supabase
+              .from("users")
+              .select("id, auth_uid, email, full_name, role, language_preference, company_id"),
+            supabase
+              .from("tickets")
+              .select(
+                "id, user_id, title, description, category, priority, status, assigned_ai_level, assigned_agent_id, workstation_id, created_at, updated_at, chat_history, current_appointment"
+              ),
           ]);
 
           setAllUsers(usersResponse.data || []);
@@ -301,7 +308,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     supabase.auth
       .getSession()
-      .then(({ data: { session }, error }) => {
+      .then(async ({ data: { session }, error }) => {
         if (!isMounted) {
           return;
         }
@@ -309,6 +316,9 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
           console.error("Error fetching session:", error);
           loadUserData(null);
           return;
+        }
+        if (session) {
+          await ensureUserProfile().catch(console.warn);
         }
         loadUserData(session);
       })
@@ -326,9 +336,12 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       if (!isMounted) {
         return;
       }
+      if (session) {
+        ensureUserProfile().catch(console.warn);
+      }
       if (event === "TOKEN_REFRESHED" && !session) {
         loadUserData(null);
-      } else if (session?.user?.id !== user?.id) {
+      } else if (session?.user?.id !== user?.auth_uid) {
         loadUserData(session);
       }
     });
@@ -398,26 +411,11 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         return translateHook("login.error.invalidCredentials");
       }
 
-      if (authData.user) {
-        const { data: userProfile, error: profileError } = await supabase
-          .from("users")
-          .select("company_id")
-          .eq("id", authData.user.id)
-          .single();
-
-        if (profileError || !userProfile) {
-          console.error("Could not fetch user profile for company verification:", profileError);
-          await supabase.auth.signOut();
-          return translateHook("login.error.profileFetchFailed");
-        }
-
-        if (userProfile.company_id !== companyName) {
-          await supabase.auth.signOut();
-          return translateHook("login.error.companyIdMismatch");
-        }
-      } else {
+      if (!authData.user) {
         return translateHook("login.error.invalidCredentials");
       }
+
+      // Company isolation is enforced by RLS via users.company_id (UUID). Avoid comparing with frontend strings.
 
       setIsLocalFreemiumSession(false);
       return true;
@@ -536,8 +534,8 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
           data: {
             full_name: fullName,
             language_preference: lang,
-            role: UserRole.MANAGER, 
-            company_id: companyName, // Passe le nom de l'entreprise
+            role: UserRole.MANAGER,
+            company_name: companyName, // Passe le nom de l'entreprise
             plan_name: validation.plan_name // Passe le nom du plan validé par la fonction RPC
           }
         }
@@ -585,7 +583,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         const { error: signUpError } = await supabase.auth.signUp({
           email,
           password,
-          options: { data: { full_name: fullName, language_preference: lang, role, company_id: companyName } },
+          options: { data: { full_name: fullName, language_preference: lang, role, company_name: companyName } },
         });
 
         if (signUpError) {
@@ -1037,41 +1035,32 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const updateCompanyName = async (newName: string): Promise<boolean> => {
     if (!user || user.role !== UserRole.MANAGER || !user.company_id) return false;
-    if (shouldShortCircuitNetwork("supabase.companies.update")) {
-      setUser((prevUser) => (prevUser ? { ...prevUser, company_id: newName } : null));
-      setAllUsers((prevUsers) => prevUsers.map((u) => (u.id === user.id ? { ...u, company_id: newName } : u)));
-      setStoredFreemiumCompany(newName);
-      recordFreemiumSession(user.id, user.email, newName);
-      return true;
-    }
-    const oldName = user.company_id;
-    const { data: companyResults, error: findError } = await supabase.from("companies").select("id").eq("name", oldName).limit(1);
-    if (findError) {
-      console.error("Error finding company to update:", findError);
+
+    const { data: companyRow, error: findError } = await supabase
+      .from("companies")
+      .select("id,name")
+      .eq("id", user.company_id)  // UUID
+      .single();
+
+    if (findError || !companyRow) {
+      console.error("Company not found (by id)", findError);
       alert(translateHook("managerDashboard.companyInfo.updateError", { default: "Could not find the company to update." }));
       return false;
     }
-    if (!companyResults || companyResults.length === 0) {
-      console.error("Data integrity error: company not found with name", oldName);
-      alert(translateHook("managerDashboard.companyInfo.updateError", { default: "Could not find the company to update." }));
-      return false;
-    }
-    const companyData = companyResults[0];
-    const { error: updateCompanyError } = await supabase.from("companies").update({ name: newName }).eq("id", companyData.id);
+
+    const { error: updateCompanyError } = await supabase
+      .from("companies")
+      .update({ name: newName })
+      .eq("id", companyRow.id);
+
     if (updateCompanyError) {
       console.error("Error updating company name:", updateCompanyError);
       alert(translateHook("managerDashboard.companyInfo.updateError", { default: "Failed to update company name. The new name might be taken." }));
       return false;
     }
-    const { error: updateUserError } = await supabase.from("users").update({ company_id: newName }).eq("company_id", oldName);
-    if (updateUserError) {
-      console.error("CRITICAL: Failed to update users' company_id. Data is now inconsistent.", updateUserError);
-      await supabase.from("companies").update({ name: oldName }).eq("id", companyData.id);
-      alert(translateHook("managerDashboard.companyInfo.updateError", { default: "Failed to update company name for all users. The change has been rolled back." }));
-      return false;
-    }
-    setUser((prevUser) => (prevUser ? { ...prevUser, company_id: newName } : null));
-    setAllUsers((prevUsers) => prevUsers.map((u) => (u.company_id === oldName ? { ...u, company_id: newName } : u)));
+
+    // lightweight UI refresh
+    setAllUsers((prev) => [...prev]);
     return true;
   };
 
