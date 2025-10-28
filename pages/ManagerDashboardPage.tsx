@@ -9,6 +9,22 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import FloatingActionButton from '../components/FloatingActionButton';
 import { supabase } from '../services/supabaseClient';
 
+const isAbortFetchError = (error: unknown): boolean => {
+  if (!error) return false;
+  if (typeof error === 'string') {
+    return error.toLowerCase().includes('abort');
+  }
+
+  const anyError = error as { name?: unknown; message?: unknown };
+  if (typeof anyError.name === 'string' && anyError.name.toLowerCase() === 'aborterror') {
+    return true;
+  }
+  if (typeof anyError.message === 'string' && anyError.message.toLowerCase().includes('abort')) {
+    return true;
+  }
+  return false;
+};
+
 // --- ICONS ---
 const PlusIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" {...props}>
@@ -270,12 +286,12 @@ const ManagerDashboardPage: React.FC = () => {
                     const { data: companies, error } = await supabase
                         .from('companies')
                         .select('id, name')
-                        .eq('name', user.company_id)
+                        .eq('id', user.company_id)
                         .abortSignal(controller.signal)
                         .limit(1);
 
                     if (error) {
-                        if (error.name !== 'AbortError') {
+                        if (!isAbortFetchError(error)) {
                             console.error("Error fetching company details:", JSON.stringify(error, null, 2));
                         }
                     } else if (companies && companies.length > 0) {
@@ -283,10 +299,10 @@ const ManagerDashboardPage: React.FC = () => {
                         setCompany(companyData);
                         setNewCompanyName(companyData.name);
                     } else {
-                        console.error(`Data integrity issue: No company found with name "${user.company_id}" for manager ${user.id}`);
+                        console.error(`Data integrity issue: No company found with id "${user.company_id}" for manager ${user.id}`);
                     }
                 } catch (e: any) {
-                    if (e.name !== 'AbortError') {
+                    if (!isAbortFetchError(e)) {
                         console.error("Critical error fetching company details:", JSON.stringify(e, null, 2));
                     }
                 }
