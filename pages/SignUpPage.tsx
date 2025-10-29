@@ -5,7 +5,6 @@ import { Button, Input, Select } from "../components/FormElements";
 import { useLanguage, Locale } from "../contexts/LanguageContext";
 import { UserRole } from "../types";
 import Layout from "../components/Layout";
-import { getStoredFreemiumCompany, setStoredFreemiumCompany } from "../services/freemiumStorage";
 
 const paypalLinks = {
   standard: "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-0E515487AE797135CNBTRYKA",
@@ -783,23 +782,6 @@ const SignUpPage: React.FC = () => {
         return;
       }
 
-      if (effectivePlan === "freemium") {
-        const storedCompany = getStoredFreemiumCompany();
-        if (
-          storedCompany &&
-          storedCompany.trim().length > 0 &&
-          storedCompany.trim().toLowerCase() !== companyName.trim().toLowerCase()
-        ) {
-          setError(
-            t("signup.error.freemiumDeviceLocked", {
-              company: storedCompany,
-              default:
-                "Cet ordinateur a déjà été associé à une entreprise Freemium différente. Veuillez utiliser l'entreprise enregistrée ou un autre appareil.",
-            })
-          );
-          return;
-        }
-      }
     }
 
     setError("");
@@ -835,9 +817,6 @@ const SignUpPage: React.FC = () => {
       // Le serveur a tout validé, l'inscription est réussie !
       if (role === UserRole.MANAGER) {
         setSuccess(t("signup.success.emailSentManager", { email: email.trim() }));
-        if (effectivePlan === "freemium") {
-          setStoredFreemiumCompany(companyName.trim());
-        }
       } else {
         setSuccess(t("signup.success.emailSent", { email: email.trim() }));
       }
@@ -879,7 +858,7 @@ const SignUpPage: React.FC = () => {
   const handleFreemiumPurchase = () => {
     setShowFreemiumModal(false);
     alert(
-      "✅ Offre Freemium activée : vos tickets et sauvegardes seront stockés localement sur cet ordinateur. Conservez ce poste pour cette entreprise."
+      "✅ Offre Freemium activée : votre compte sera créé sur nos serveurs et un email de bienvenue vous guidera pour la suite."
     );
   };
 
@@ -1026,13 +1005,13 @@ const SignUpPage: React.FC = () => {
                       <p className="mt-2 text-sm text-green-800">
                         {t("signupPlans.freemium.autoSelected.description", {
                           default:
-                            "Cette inscription s'effectue entièrement en local : vos utilisateurs, tickets et préférences sont sauvegardés dans le navigateur (clé unique 'nsh_freemium_session').",
+                            "Cette inscription active immédiatement votre espace Freemium hébergé sur le cloud Nexus.",
                         })}
                       </p>
                       <p className="mt-2 text-xs text-green-700">
                         {t("signupPlans.freemium.autoSelected.storageNotice", {
                           default:
-                            "Rappel : une seule entreprise Freemium peut être associée à cet ordinateur. Exportez une sauvegarde JSON avant de changer d'appareil.",
+                            "Accédez à vos utilisateurs et tickets depuis n'importe quel appareil connecté.",
                         })}
                       </p>
                     </div>
