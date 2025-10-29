@@ -29,21 +29,6 @@ import LoadingSpinner from "./components/LoadingSpinner";
 import CookieConsentBanner from "./components/CookieConsentBanner";
 import type { Session } from "@supabase/supabase-js";
 import { sendWelcomeManagerEmail, generateLoginUrl, formatRegistrationDate } from "./services/emailService";
-import {
-  isFreemiumCompanyOnDevice,
-  loadFreemiumTickets,
-  saveFreemiumTickets,
-  recordFreemiumSession,
-  getStoredFreemiumCompany,
-  setStoredFreemiumCompany,
-  createFreemiumManagerAccount,
-  validateFreemiumCredentials,
-  convertFreemiumAccountToUser,
-  findFreemiumAccountByEmail,
-  findFreemiumAccountById,
-  getFreemiumSessionMeta,
-  clearFreemiumSessionMeta,
-} from "./services/freemiumStorage";
 import PageLayout from './components/PageLayout';
 
 
@@ -125,9 +110,6 @@ const isOfflineNetworkError = (error: any): boolean => {
   );
 };
 
-const isOnlineRequiredService = (fnName: string) =>
-  fnName === "getFollowUpHelpResponse" || fnName === "getTicketSummary";
-
 const isAbortError = (e: any) =>
   !!e && ((e.name === "AbortError") || String(e).includes("AbortError"));
 
@@ -139,8 +121,6 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [consentGiven, setConsentGiven] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingAi, setIsLoadingAi] = useState(false);
-  const [isFreemiumDevice, setIsFreemiumDevice] = useState<boolean>(false);
-  const [isLocalFreemiumSession, setIsLocalFreemiumSession] = useState<boolean>(false);
   const [isAutoReadEnabled, setIsAutoReadEnabled] = useState<boolean>(() => {
     const storedAutoRead = localStorage.getItem("aiHelpDeskAutoRead");
     return storedAutoRead ? JSON.parse(storedAutoRead) : true;
@@ -148,67 +128,15 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const { language, setLanguage: setAppLanguage, t: translateHook } = useLanguage();
 
-  const shouldShortCircuitNetwork = useCallback(
-    (serviceName: string) => isLocalFreemiumSession && !isOnlineRequiredService(serviceName),
-    [isLocalFreemiumSession]
-  );
+  const shouldShortCircuitNetwork = useCallback(() => false, []);
 
-  const updateTicketsState = useCallback(
-    (updater: (prevTickets: Ticket[]) => Ticket[], forceLocalSync = false) => {
-      setTickets((prevTickets) => {
-        const updatedTickets = updater(prevTickets);
-        if (isFreemiumDevice || forceLocalSync) {
-          saveFreemiumTickets(updatedTickets);
-          if (user) {
-            recordFreemiumSession(user.id, user.email, user.company_id);
-          }
-        }
-        return updatedTickets;
-      });
-    },
-    [isFreemiumDevice, user]
-  );
+  const updateTicketsState = useCallback((updater: (prevTickets: Ticket[]) => Ticket[]) => {
+    setTickets((prevTickets) => updater(prevTickets));
+  }, []);
 
-  const setTicketsDirect = useCallback(
-    (nextTickets: Ticket[], forceLocalSync = false) => {
-      setTickets(nextTickets);
-      if (isFreemiumDevice || forceLocalSync) {
-        saveFreemiumTickets(nextTickets);
-        if (user) {
-          recordFreemiumSession(user.id, user.email, user.company_id);
-        }
-      }
-    },
-    [isFreemiumDevice, user]
-  );
-
-  const hydrateLocalFreemiumSession = useCallback(() => {
-    const sessionMeta = getFreemiumSessionMeta();
-    if (!sessionMeta) {
-      return false;
-    }
-
-    const account =
-      (sessionMeta.userId && findFreemiumAccountById(sessionMeta.userId)) ||
-      findFreemiumAccountByEmail(sessionMeta.email);
-
-    if (!account) {
-      return false;
-    }
-
-    const localUser = convertFreemiumAccountToUser(account);
-    setUser(localUser);
-    setAllUsers([localUser]);
-    setIsFreemiumDevice(true);
-    setIsLocalFreemiumSession(true);
-
-    const localTickets = loadFreemiumTickets();
-    const normalizedTickets = localTickets ?? [];
-    setTicketsDirect(normalizedTickets, true);
-    recordFreemiumSession(localUser.id, localUser.email, localUser.company_id);
-
-    return true;
-  }, [setTicketsDirect]);
+  const setTicketsDirect = useCallback((nextTickets: Ticket[]) => {
+    setTickets(nextTickets);
+  }, []);
 
   useEffect(() => {
     const storedConsent = localStorage.getItem("cookieConsent");
@@ -233,14 +161,6 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
           }
           setUser(userProfile);
 
-          const storedFreemiumCompany = getStoredFreemiumCompany();
-          let freemiumOnDevice = isFreemiumCompanyOnDevice(userProfile.company_id);
-          if (!storedFreemiumCompany && userProfile.role !== UserRole.MANAGER && userProfile.company_id) {
-            setStoredFreemiumCompany(userProfile.company_id);
-            freemiumOnDevice = true;
-          }
-          setIsFreemiumDevice(freemiumOnDevice);
-
           const [usersResponse, ticketsResponse] = await Promise.all([
             supabase
               .from("users")
@@ -255,55 +175,28 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
           setAllUsers(usersResponse.data || []);
 
           const fetchedTickets = ticketsResponse.data ? ticketsResponse.data.map(reviveTicketDates) : [];
-
-          if (freemiumOnDevice) {
-            const localTickets = loadFreemiumTickets();
-            const initialTickets = localTickets && localTickets.length > 0 ? localTickets : fetchedTickets;
-            setTicketsDirect(initialTickets, true);
-            recordFreemiumSession(userProfile.id, userProfile.email, userProfile.company_id);
-          } else {
-            setTicketsDirect(fetchedTickets);
-          }
-          setIsLocalFreemiumSession(false);
+          setTicketsDirect(fetchedTickets);
         } else {
-          const restored = hydrateLocalFreemiumSession();
-          if (restored) {
-            return;
-          }
-          setIsLocalFreemiumSession(false);
           setUser(null);
           setTicketsDirect([]);
           setAllUsers([]);
-          setIsFreemiumDevice(false);
         }
       } catch (error: any) {
         console.error("Error loading user data:", error);
         if (error.message.includes("Invalid Refresh Token")) {
           await supabase.auth.signOut();
         }
-        const restored = hydrateLocalFreemiumSession();
-        if (restored) {
-          return;
-        }
-        setIsLocalFreemiumSession(false);
         setUser(null);
         setTicketsDirect([]);
         setAllUsers([]);
-        setIsFreemiumDevice(false);
       } finally {
         setIsLoading(false);
       }
     },
-    [setTicketsDirect, hydrateLocalFreemiumSession]
+    [setTicketsDirect]
   );
 
   useEffect(() => {
-    const restored = hydrateLocalFreemiumSession();
-    if (restored) {
-      setIsLoading(false);
-      return;
-    }
-
     let isMounted = true;
 
     supabase.auth
@@ -350,7 +243,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       isMounted = false;
       subscription.unsubscribe();
     };
-  }, [hydrateLocalFreemiumSession, loadUserData, user?.id]);
+  }, [loadUserData, user?.id]);
 
   useEffect(() => {
     if (user?.language_preference && user.language_preference !== language) {
@@ -371,58 +264,16 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     setConsentGiven(true);
   };
 
-  const login = async (email: string, password: string, companyName: string): Promise<string | true> => {
-    const applyLocalLogin = (account: ReturnType<typeof validateFreemiumCredentials>): string | true => {
-      if (!account) {
-        return translateHook("login.error.invalidCredentials");
-      }
-
-      const localUser = convertFreemiumAccountToUser(account);
-      setUser(localUser);
-      setAllUsers([localUser]);
-      setIsFreemiumDevice(true);
-      setIsLocalFreemiumSession(true);
-
-      const localTickets = loadFreemiumTickets();
-      const normalizedTickets = localTickets ?? [];
-      setTicketsDirect(normalizedTickets, true);
-      recordFreemiumSession(localUser.id, localUser.email, localUser.company_id);
-
-      return true;
-    };
-
-    const localAccount = validateFreemiumCredentials(email, password, companyName);
-    if (localAccount) {
-      return applyLocalLogin(localAccount);
-    }
-
-    const attemptLocalLogin = (): string | true => {
-      const fallbackAccount = validateFreemiumCredentials(email, password, companyName);
-      return applyLocalLogin(fallbackAccount);
-    };
-
+  const login = async (email: string, password: string, _companyName: string): Promise<string | true> => {
     try {
       const { data: authData, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) {
-        if (isOfflineNetworkError(error)) {
-          return attemptLocalLogin();
-        }
-        console.error("Supabase login error:", error.message);
+      if (error || !authData.user) {
+        console.error("Supabase login error:", error?.message || "Unknown error");
         return translateHook("login.error.invalidCredentials");
       }
 
-      if (!authData.user) {
-        return translateHook("login.error.invalidCredentials");
-      }
-
-      // Company isolation is enforced by RLS via users.company_id (UUID). Avoid comparing with frontend strings.
-
-      setIsLocalFreemiumSession(false);
       return true;
     } catch (authError: any) {
-      if (isOfflineNetworkError(authError)) {
-        return attemptLocalLogin();
-      }
       console.error("Unexpected login error:", authError);
       return translateHook("login.error.invalidCredentials");
     }
@@ -448,25 +299,26 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
 
       if (plan === "freemium") {
-        const creation = createFreemiumManagerAccount({
+        const { error: signUpError } = await supabase.auth.signUp({
           email,
           password,
-          fullName,
-          language: lang,
-          companyName,
+          options: {
+            data: {
+              full_name: fullName,
+              language_preference: lang,
+              role: UserRole.MANAGER,
+              company_name: companyName,
+              plan_name: plan,
+            },
+          },
         });
 
-        if (!creation.success) {
-          if (creation.error === "DEVICE_LOCKED") {
-            const storedCompany = getStoredFreemiumCompany();
-            return translateHook("signup.error.freemiumDeviceLocked", {
-              company: storedCompany || companyName,
-            });
-          }
-          if (creation.error === "EMAIL_EXISTS") {
+        if (signUpError) {
+          console.error("Erreur lors de l'inscription Freemium:", signUpError);
+          if (signUpError.message && signUpError.message.toLowerCase().includes("user already registered")) {
             return translateHook("signup.error.emailInUse");
           }
-          return creation.error || translateHook("signup.error.generic");
+          return signUpError.message || translateHook("signup.error.generic");
         }
 
         try {
@@ -474,7 +326,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
             managerName: fullName,
             managerEmail: email,
             companyName,
-            secretCode: "Freemium (aucun code requis)", // Informationnel uniquement
+            secretCode: "Freemium",
             registrationDate: formatRegistrationDate(new Date()),
             loginUrl: generateLoginUrl(),
           };
@@ -611,13 +463,10 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         console.error("Supabase logout error:", error);
       }
     } finally {
-      clearFreemiumSessionMeta();
       setUser(null);
       setNewlyCreatedCompanyName(null);
-      setTicketsDirect([], true);
+      setTicketsDirect([]);
       setAllUsers([]);
-      setIsFreemiumDevice(false);
-      setIsLocalFreemiumSession(false);
     }
   };
 
@@ -640,15 +489,12 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     if (user?.role !== UserRole.MANAGER) return;
     if (shouldShortCircuitNetwork("supabase.rpc.delete_user_by_manager")) {
       setAllUsers((prev) => prev.filter((u) => u.id !== userId));
-      updateTicketsState(
-        (prev) => {
-          const ticketsAfterUserRemoval = prev.filter((t) => t.user_id !== userId);
-          return ticketsAfterUserRemoval.map((t) =>
-            t.assigned_agent_id === userId ? { ...t, assigned_agent_id: undefined } : t
-          );
-        },
-        true
-      );
+      updateTicketsState((prev) => {
+        const ticketsAfterUserRemoval = prev.filter((t) => t.user_id !== userId);
+        return ticketsAfterUserRemoval.map((t) =>
+          t.assigned_agent_id === userId ? { ...t, assigned_agent_id: undefined } : t
+        );
+      });
       return;
     }
     try {
@@ -697,7 +543,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
           created_at: now,
           updated_at: now,
         };
-        updateTicketsState((prevTickets) => [...prevTickets, createdTicket], true);
+        updateTicketsState((prevTickets) => [...prevTickets, createdTicket]);
         return createdTicket;
       }
 
@@ -728,12 +574,8 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
   const updateTicketStatus = async (ticketId: string, status: TicketStatus) => {
     if (shouldShortCircuitNetwork("supabase.tickets.update")) {
       const updatedAtDate = new Date();
-      updateTicketsState(
-        (prev) =>
-          prev.map((t) =>
-            t.id === ticketId ? { ...t, status, updated_at: updatedAtDate } : t
-          ),
-        true
+      updateTicketsState((prev) =>
+        prev.map((t) => (t.id === ticketId ? { ...t, status, updated_at: updatedAtDate } : t))
       );
       return;
     }
@@ -746,7 +588,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const deleteTicket = async (ticketId: string): Promise<void> => {
     if (shouldShortCircuitNetwork("supabase.tickets.delete")) {
-      updateTicketsState((prev) => prev.filter((t) => t.id !== ticketId), true);
+      updateTicketsState((prev) => prev.filter((t) => t.id !== ticketId));
       return;
     }
     try {
@@ -787,19 +629,17 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     const updatedChatHistory = summaryMessage ? [...ticketToUpdate.chat_history, summaryMessage] : ticketToUpdate.chat_history;
     if (shouldShortCircuitNetwork("supabase.tickets.update")) {
       const updatedAtDate = new Date();
-      updateTicketsState(
-        (prev) =>
-          prev.map((t) =>
-            t.id === ticketId
-              ? {
-                  ...t,
-                  assigned_agent_id: agentId || undefined,
-                  chat_history: updatedChatHistory,
-                  updated_at: updatedAtDate,
-                }
-              : t
-          ),
-        true
+      updateTicketsState((prev) =>
+        prev.map((t) =>
+          t.id === ticketId
+            ? {
+                ...t,
+                assigned_agent_id: agentId || undefined,
+                chat_history: updatedChatHistory,
+                updated_at: updatedAtDate,
+              }
+            : t
+        )
       );
       return;
     }
@@ -818,14 +658,8 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     if (!user || user.role !== UserRole.AGENT) return;
     if (shouldShortCircuitNetwork("supabase.tickets.update")) {
       const updatedAtDate = new Date();
-      updateTicketsState(
-        (prev) =>
-          prev.map((t) =>
-            t.id === ticketId
-              ? { ...t, assigned_agent_id: user.id, updated_at: updatedAtDate }
-              : t
-          ),
-        true
+      updateTicketsState((prev) =>
+        prev.map((t) => (t.id === ticketId ? { ...t, assigned_agent_id: user.id, updated_at: updatedAtDate } : t))
       );
       return;
     }
@@ -901,14 +735,12 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         ? TICKET_STATUS_KEYS.IN_PROGRESS
         : ticket.status;
     const tempUpdatedChatHistory = [...ticket.chat_history, userMessage];
-    updateTicketsState(
-      (prev) =>
-        prev.map((t) =>
-          t.id === ticketId
-            ? { ...t, chat_history: tempUpdatedChatHistory, status: newStatus, updated_at: timestamp }
-            : t
-        ),
-      isLocalFreemiumSession
+    updateTicketsState((prev) =>
+      prev.map((t) =>
+        t.id === ticketId
+          ? { ...t, chat_history: tempUpdatedChatHistory, status: newStatus, updated_at: timestamp }
+          : t
+      )
     );
     if (ticket.assigned_agent_id) {
       if (shouldShortCircuitNetwork("supabase.tickets.update")) {
@@ -944,14 +776,12 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       finalChatHistory = [...tempUpdatedChatHistory, fallbackMessage];
     } finally {
       if (shouldShortCircuitNetwork("supabase.tickets.update")) {
-        updateTicketsState(
-          (prev) =>
-            prev.map((t) =>
-              t.id === ticketId
-                ? { ...t, chat_history: finalChatHistory, status: newStatus, updated_at: new Date() }
-                : t
-            ),
-          true
+        updateTicketsState((prev) =>
+          prev.map((t) =>
+            t.id === ticketId
+              ? { ...t, chat_history: finalChatHistory, status: newStatus, updated_at: new Date() }
+              : t
+          )
         );
         setIsLoadingAi(false);
         return;
@@ -1004,19 +834,17 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     const updatedChatHistory = chatMessageText ? [...ticket.chat_history, systemMessage] : ticket.chat_history;
     if (shouldShortCircuitNetwork("supabase.tickets.update")) {
       const updatedAtDate = new Date();
-      updateTicketsState(
-        (prev) =>
-          prev.map((t) =>
-            t.id === ticketId
-              ? {
-                  ...t,
-                  current_appointment: newAppointment,
-                  chat_history: updatedChatHistory,
-                  updated_at: updatedAtDate,
-                }
-              : t
-          ),
-        true
+      updateTicketsState((prev) =>
+        prev.map((t) =>
+          t.id === ticketId
+            ? {
+                ...t,
+                current_appointment: newAppointment,
+                chat_history: updatedChatHistory,
+                updated_at: updatedAtDate,
+              }
+            : t
+        )
       );
       return;
     }
