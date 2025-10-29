@@ -7,7 +7,6 @@ import { Link, useLocation } from "react-router-dom";
 import FreemiumPlanIcon from "../components/plan_images/FreemiumPlanIcon";
 import StandardPlanIcon from "../components/plan_images/StandardPlanIcon";
 import ProPlanIcon from "../components/plan_images/ProPlanIcon";
-import { getFreemiumBackupMeta, getFreemiumSessionMeta } from "../services/freemiumStorage";
 
 const ArrowLeftIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg
@@ -53,16 +52,6 @@ const SubscriptionPage: React.FC = () => {
   // For this demo, we assume all non-managers are on Freemium.
   const currentUserPlan = user?.role === UserRole.MANAGER ? "Pro" : "Freemium";
   const currentUserPlanKey = `pricing.${currentUserPlan.toLowerCase()}.name`;
-
-  const [freemiumBackupMeta, setFreemiumBackupMeta] = useState<ReturnType<typeof getFreemiumBackupMeta>>(null);
-  const [freemiumSessionMeta, setFreemiumSessionMeta] = useState<ReturnType<typeof getFreemiumSessionMeta>>(null);
-
-  useEffect(() => {
-    if (currentUserPlan === "Freemium") {
-      setFreemiumBackupMeta(getFreemiumBackupMeta());
-      setFreemiumSessionMeta(getFreemiumSessionMeta());
-    }
-  }, [currentUserPlan]);
 
   const plans = [
     {
@@ -135,31 +124,13 @@ const SubscriptionPage: React.FC = () => {
               {t(currentUserPlanKey)}
             </p>
             {currentUserPlan === "Freemium" && (
-              <div className="text-slate-500 mt-1 text-sm space-y-1">
+              <div className="text-slate-500 mt-1 text-sm">
                 <p>
                   {t("subscription.currentPlan.freemiumDesc", {
                     default:
-                      "Vous êtes actuellement sur l'offre Freemium. Les tickets et sauvegardes sont stockés localement sur cet ordinateur.",
+                      "Vous êtes actuellement sur l'offre Freemium. Vos données sont synchronisées sur le cloud Nexus et accessibles depuis n'importe quel appareil.",
                   })}
                 </p>
-                {freemiumSessionMeta && freemiumSessionMeta.lastUpdated && (
-                  <p>
-                    {t("subscription.currentPlan.freemiumSessionInfo", {
-                      default: "Dernière session locale synchronisée le {{date}} pour l'entreprise {{company}}.",
-                      date: new Date(freemiumSessionMeta.lastUpdated).toLocaleString(currentLanguage),
-                      company: freemiumSessionMeta.companyName,
-                    })}
-                  </p>
-                )}
-                {freemiumBackupMeta && freemiumBackupMeta.lastSynced && (
-                  <p>
-                    {t("subscription.currentPlan.freemiumBackupInfo", {
-                      default: "Dernière sauvegarde locale : {{date}} ({{count}} tickets).",
-                      date: new Date(freemiumBackupMeta.lastSynced).toLocaleString(currentLanguage),
-                      count: freemiumBackupMeta.ticketCount ?? 0,
-                    })}
-                  </p>
-                )}
               </div>
             )}
           </div>
