@@ -187,6 +187,11 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
   useEffect(() => {
     ticketMessageAgentColumnRef.current = ticketMessageAgentColumn;
   }, [ticketMessageAgentColumn]);
+  const [hasInternalNotesColumn, setHasInternalNotesColumn] = useState<boolean | null>(null);
+  const hasInternalNotesColumnRef = useRef<boolean | null>(hasInternalNotesColumn);
+  useEffect(() => {
+    hasInternalNotesColumnRef.current = hasInternalNotesColumn;
+  }, [hasInternalNotesColumn]);
 
   const { language, setLanguage: setAppLanguage, t: translateHook } = useLanguage();
 
@@ -316,6 +321,40 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   }, []);
 
+  const ensureInternalNotesColumn = useCallback(async (): Promise<boolean> => {
+    if (hasInternalNotesColumnRef.current !== null) {
+      return Boolean(hasInternalNotesColumnRef.current);
+    }
+    try {
+      const { error } = await supabase.from("tickets").select("internal_notes").limit(1);
+      if (!error) {
+        hasInternalNotesColumnRef.current = true;
+        setHasInternalNotesColumn(true);
+        return true;
+      }
+      const message = (error.message || "").toLowerCase();
+      if (
+        error.code === "42703" ||
+        error.code === "PGRST204" ||
+        message.includes("internal_notes") ||
+        message.includes("column")
+      ) {
+        hasInternalNotesColumnRef.current = false;
+        setHasInternalNotesColumn(false);
+        return false;
+      }
+      console.warn("Unexpected error probing tickets.internal_notes:", error);
+      hasInternalNotesColumnRef.current = false;
+      setHasInternalNotesColumn(false);
+      return false;
+    } catch (err) {
+      console.warn("Failed to probe tickets.internal_notes:", err);
+      hasInternalNotesColumnRef.current = false;
+      setHasInternalNotesColumn(false);
+      return false;
+    }
+  }, []);
+
   const persistTicketMessages = useCallback(
     async (ticketId: string, messages: ChatMessage[]) => {
       if (!messages.length) {
@@ -366,11 +405,32 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
           }
           setUser(userProfile);
 
-          const storageMode = await ensureChatStorageMode();
-          const ticketColumns =
-            storageMode === "embedded"
-              ? "id, user_id, title, description, category, priority, status, assigned_ai_level, assigned_agent_id, workstation_id, created_at, updated_at, chat_history, current_appointment"
-              : "id, user_id, title, description, category, priority, status, assigned_ai_level, assigned_agent_id, workstation_id, created_at, updated_at, current_appointment";
+          const [storageMode, internalNotesAvailable] = await Promise.all([
+            ensureChatStorageMode(),
+            ensureInternalNotesColumn(),
+          ]);
+          const baseTicketColumns = [
+            "id",
+            "user_id",
+            "title",
+            "description",
+            "category",
+            "priority",
+            "status",
+            "assigned_ai_level",
+            "assigned_agent_id",
+            "workstation_id",
+            "created_at",
+            "updated_at",
+          ];
+          if (internalNotesAvailable) {
+            baseTicketColumns.push("internal_notes");
+          }
+          if (storageMode === "embedded") {
+            baseTicketColumns.push("chat_history");
+          }
+          baseTicketColumns.push("current_appointment");
+          const ticketColumns = baseTicketColumns.join(", ");
 
           const [usersResponse, ticketsResponse] = await Promise.all([
             supabase
@@ -446,7 +506,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         setIsLoading(false);
       }
     },
-    [ensureChatStorageMode, setTicketsDirect]
+    [ensureChatStorageMode, ensureInternalNotesColumn, setTicketsDirect]
   );
 
   useEffect(() => {
@@ -800,17 +860,22 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         return createdTicket;
       }
 
-      const storageMode = await ensureChatStorageMode();
+      const [storageMode, internalNotesAvailable] = await Promise.all([
+        ensureChatStorageMode(),
+        ensureInternalNotesColumn(),
+      ]);
       const newTicketDataBase: Record<string, any> = {
         ...ticketData,
         user_id: creatorUserId,
         assigned_ai_level: DEFAULT_AI_LEVEL,
         assigned_agent_id: undefined,
-        internal_notes: [],
         current_appointment: undefined,
         created_at: now.toISOString(),
         updated_at: now.toISOString(),
       };
+      if (internalNotesAvailable) {
+        newTicketDataBase.internal_notes = [];
+      }
       if (storageMode === "embedded") {
         newTicketDataBase.chat_history = normalizedChatHistory;
       }
