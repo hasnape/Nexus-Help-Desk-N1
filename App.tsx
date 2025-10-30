@@ -187,6 +187,16 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
   useEffect(() => {
     ticketMessageAgentColumnRef.current = ticketMessageAgentColumn;
   }, [ticketMessageAgentColumn]);
+  const [hasInternalNotesColumn, setHasInternalNotesColumn] = useState<boolean | null>(null);
+  const hasInternalNotesColumnRef = useRef<boolean | null>(hasInternalNotesColumn);
+  useEffect(() => {
+    hasInternalNotesColumnRef.current = hasInternalNotesColumn;
+  }, [hasInternalNotesColumn]);
+  const [hasCurrentAppointmentColumn, setHasCurrentAppointmentColumn] = useState<boolean | null>(null);
+  const hasCurrentAppointmentColumnRef = useRef<boolean | null>(hasCurrentAppointmentColumn);
+  useEffect(() => {
+    hasCurrentAppointmentColumnRef.current = hasCurrentAppointmentColumn;
+  }, [hasCurrentAppointmentColumn]);
 
   const { language, setLanguage: setAppLanguage, t: translateHook } = useLanguage();
 
@@ -316,6 +326,74 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   }, []);
 
+  const ensureInternalNotesColumn = useCallback(async (): Promise<boolean> => {
+    if (hasInternalNotesColumnRef.current !== null) {
+      return Boolean(hasInternalNotesColumnRef.current);
+    }
+    try {
+      const { error } = await supabase.from("tickets").select("internal_notes").limit(1);
+      if (!error) {
+        hasInternalNotesColumnRef.current = true;
+        setHasInternalNotesColumn(true);
+        return true;
+      }
+      const message = (error.message || "").toLowerCase();
+      if (
+        error.code === "42703" ||
+        error.code === "PGRST204" ||
+        message.includes("internal_notes") ||
+        message.includes("column")
+      ) {
+        hasInternalNotesColumnRef.current = false;
+        setHasInternalNotesColumn(false);
+        return false;
+      }
+      console.warn("Unexpected error probing tickets.internal_notes:", error);
+      hasInternalNotesColumnRef.current = false;
+      setHasInternalNotesColumn(false);
+      return false;
+    } catch (err) {
+      console.warn("Failed to probe tickets.internal_notes:", err);
+      hasInternalNotesColumnRef.current = false;
+      setHasInternalNotesColumn(false);
+      return false;
+    }
+  }, []);
+
+  const ensureCurrentAppointmentColumn = useCallback(async (): Promise<boolean> => {
+    if (hasCurrentAppointmentColumnRef.current !== null) {
+      return Boolean(hasCurrentAppointmentColumnRef.current);
+    }
+    try {
+      const { error } = await supabase.from("tickets").select("current_appointment").limit(1);
+      if (!error) {
+        hasCurrentAppointmentColumnRef.current = true;
+        setHasCurrentAppointmentColumn(true);
+        return true;
+      }
+      const message = (error.message || "").toLowerCase();
+      if (
+        error.code === "42703" ||
+        error.code === "PGRST204" ||
+        message.includes("current_appointment") ||
+        message.includes("column")
+      ) {
+        hasCurrentAppointmentColumnRef.current = false;
+        setHasCurrentAppointmentColumn(false);
+        return false;
+      }
+      console.warn("Unexpected error probing tickets.current_appointment:", error);
+      hasCurrentAppointmentColumnRef.current = false;
+      setHasCurrentAppointmentColumn(false);
+      return false;
+    } catch (err) {
+      console.warn("Failed to probe tickets.current_appointment:", err);
+      hasCurrentAppointmentColumnRef.current = false;
+      setHasCurrentAppointmentColumn(false);
+      return false;
+    }
+  }, []);
+
   const persistTicketMessages = useCallback(
     async (ticketId: string, messages: ChatMessage[]) => {
       if (!messages.length) {
@@ -366,11 +444,35 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
           }
           setUser(userProfile);
 
-          const storageMode = await ensureChatStorageMode();
-          const ticketColumns =
-            storageMode === "embedded"
-              ? "id, user_id, title, description, category, priority, status, assigned_ai_level, assigned_agent_id, workstation_id, created_at, updated_at, chat_history, current_appointment"
-              : "id, user_id, title, description, category, priority, status, assigned_ai_level, assigned_agent_id, workstation_id, created_at, updated_at, current_appointment";
+          const [storageMode, internalNotesAvailable, currentAppointmentAvailable] = await Promise.all([
+            ensureChatStorageMode(),
+            ensureInternalNotesColumn(),
+            ensureCurrentAppointmentColumn(),
+          ]);
+          const baseTicketColumns = [
+            "id",
+            "user_id",
+            "title",
+            "description",
+            "category",
+            "priority",
+            "status",
+            "assigned_ai_level",
+            "assigned_agent_id",
+            "workstation_id",
+            "created_at",
+            "updated_at",
+          ];
+          if (internalNotesAvailable) {
+            baseTicketColumns.push("internal_notes");
+          }
+          if (storageMode === "embedded") {
+            baseTicketColumns.push("chat_history");
+          }
+          if (currentAppointmentAvailable) {
+            baseTicketColumns.push("current_appointment");
+          }
+          const ticketColumns = baseTicketColumns.join(", ");
 
           const [usersResponse, ticketsResponse] = await Promise.all([
             supabase
@@ -446,7 +548,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         setIsLoading(false);
       }
     },
-    [ensureChatStorageMode, setTicketsDirect]
+    [ensureChatStorageMode, ensureInternalNotesColumn, ensureCurrentAppointmentColumn, setTicketsDirect]
   );
 
   useEffect(() => {
@@ -800,17 +902,25 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         return createdTicket;
       }
 
-      const storageMode = await ensureChatStorageMode();
+      const [storageMode, internalNotesAvailable, currentAppointmentAvailable] = await Promise.all([
+        ensureChatStorageMode(),
+        ensureInternalNotesColumn(),
+        ensureCurrentAppointmentColumn(),
+      ]);
       const newTicketDataBase: Record<string, any> = {
         ...ticketData,
         user_id: creatorUserId,
         assigned_ai_level: DEFAULT_AI_LEVEL,
         assigned_agent_id: undefined,
-        internal_notes: [],
-        current_appointment: undefined,
         created_at: now.toISOString(),
         updated_at: now.toISOString(),
       };
+      if (internalNotesAvailable) {
+        newTicketDataBase.internal_notes = [];
+      }
+      if (currentAppointmentAvailable) {
+        newTicketDataBase.current_appointment = null;
+      }
       if (storageMode === "embedded") {
         newTicketDataBase.chat_history = normalizedChatHistory;
       }
@@ -1197,10 +1307,18 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       return;
     }
     const storageMode = chatStorageModeRef.current === "unknown" ? await ensureChatStorageMode() : chatStorageModeRef.current;
+    const currentAppointmentAvailable =
+      hasCurrentAppointmentColumnRef.current !== null
+        ? Boolean(hasCurrentAppointmentColumnRef.current)
+        : await ensureCurrentAppointmentColumn();
     const updatePayload: Record<string, any> = {
-      current_appointment: newAppointment,
       updated_at: new Date().toISOString(),
     };
+    if (currentAppointmentAvailable) {
+      updatePayload.current_appointment = newAppointment;
+    } else {
+      console.warn("tickets.current_appointment column unavailable; skipping persistence of appointment details.");
+    }
     if (storageMode === "embedded") {
       updatePayload.chat_history = updatedChatHistory;
     }
@@ -1217,11 +1335,20 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         await persistTicketMessages(ticketId, [systemMessage]);
       }
       updateTicketsState((prev) =>
-        prev.map((t) =>
-          t.id === ticketId
-            ? reviveTicketDates(data, storageMode === "embedded" ? undefined : updatedChatHistory)
-            : t
-        )
+        prev.map((t) => {
+          if (t.id !== ticketId) {
+            return t;
+          }
+          if (currentAppointmentAvailable) {
+            return reviveTicketDates(data, storageMode === "embedded" ? undefined : updatedChatHistory);
+          }
+          return {
+            ...t,
+            chat_history: updatedChatHistory,
+            updated_at: new Date(updatePayload.updated_at),
+            current_appointment: newAppointment,
+          };
+        })
       );
     }
   };
