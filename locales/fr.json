@@ -286,6 +286,12 @@
   "appointment.chat.agentProposed": "J'ai proposé un rendez-vous pour le {{date}} à {{time}}, Méthode/Lieu : {{location}}. Veuillez m'indiquer si cela vous convient ou si vous souhaitez suggérer une alternative.",
   "appointment.chat.userConfirmed": "Parfait, j'ai confirmé le rendez-vous pour le {{date}} à {{time}}, Méthode/Lieu : {{location}}.",
   "appointment.chat.userWantsToReschedule": "Concernant le rendez-vous du {{date}} à {{time}} ({{location}}), je souhaiterais proposer une autre date ou un autre horaire.",
+  "appointment.confirm_title": "Confirmer la suppression",
+  "appointment.confirm_body": "Voulez-vous vraiment supprimer ce rendez-vous ?",
+  "appointment.delete": "Supprimer le RDV",
+  "appointment.deleting": "Suppression...",
+  "appointment.deleted_banner": "Rendez-vous supprimé.",
+  "appointment.undo": "Annuler",
   "appointment.currentStatusLabel": "Rendez-vous",
   "appointment.detailsLabel": "{{date}} à {{time}} - {{location}}",
   "appointment.status.pending_user_approval": "En attente d'approbation utilisateur",
@@ -295,6 +301,8 @@
   "appointment.status.cancelled_by_agent": "Annulé par l'agent",
   "appointment.status.rescheduled_by_user": "Utilisateur demande report",
   "appointment.status.rescheduled_by_agent": "Agent demande report",
+  "appointments.delete_success": "Rendez-vous supprimé.",
+  "appointments.delete_error": "Échec de la suppression du rendez-vous.",
   "helpChat.title": "Chat de Support IA",
   "helpChat.subtitle": "Décrivez votre problème ci-dessous pour commencer.",
   "helpChat.initialMessage": "Bonjour ! Je suis Nexus, votre Assistant IA. Comment puis-je vous aider aujourd'hui ?",
@@ -533,5 +541,8 @@
   "landing.hero.watchDemo": "Voir la démonstration",
   "landing.video.title": "Découvrez Nexus Support Hub",
   "landing.video.watchOnYouTube": "Regarder sur YouTube",
-  "activationKey.help": "Pour obtenir le code d’activation, contactez le support Nexus ou consultez votre email de bienvenue après l’achat du plan."
+  "activationKey.help": "Pour obtenir le code d’activation, contactez le support Nexus ou consultez votre email de bienvenue après l’achat du plan.",
+  "common.cancel": "Annuler",
+  "common.confirm": "Confirmer",
+  "common.close": "Fermer"
 }
