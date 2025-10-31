@@ -56,16 +56,17 @@ const CalendarIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 const TicketDetailPage: React.FC = () => {
   const { ticketId } = useParams<{ ticketId: string }>();
   const navigate = useNavigate();
-  const { 
-    getTicketById, 
-    user, 
-    addChatMessage, 
-    sendAgentMessage, 
-    isLoadingAi, 
+  const {
+    getTicketById,
+    user,
+    addChatMessage,
+    sendAgentMessage,
+    isLoadingAi,
     updateTicketStatus,
     isAutoReadEnabled,
     toggleAutoRead,
-    proposeOrUpdateAppointment
+    proposeOrUpdateAppointment,
+    deleteAppointment
   } = useApp();
   const { t, getBCP47Locale, language } = useLanguage();
   
@@ -81,6 +82,7 @@ const TicketDetailPage: React.FC = () => {
   const [apptTime, setApptTime] = useState('');
   const [apptLocationMethod, setApptLocationMethod] = useState('');
   const [showAppointmentForm, setShowAppointmentForm] = useState(false);
+  const [isDeletingAppointment, setIsDeletingAppointment] = useState(false);
 
 
   const {
@@ -193,6 +195,16 @@ const TicketDetailPage: React.FC = () => {
 
   const handleContactAgent = () => {
     alert(t('ticketDetail.contactAgent.alertMessage'));
+  };
+
+  const handleDeleteAppointment = async () => {
+    const currentAppointmentId = ticket.current_appointment?.id;
+    if (!currentAppointmentId) {
+      return;
+    }
+    setIsDeletingAppointment(true);
+    await deleteAppointment(currentAppointmentId, ticket.id);
+    setIsDeletingAppointment(false);
   };
 
   const handleProposeAppointment = async () => {
@@ -316,6 +328,23 @@ const TicketDetailPage: React.FC = () => {
             <span className={statusColor}>{statusText}</span>
             <br />
             {t('appointment.detailsLabel', { date: formattedDate, time: proposedTime, location: locationOrMethod })}
+            {isAgentOrManager && (
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <Button
+                  variant="danger"
+                  size="sm"
+                  onClick={handleDeleteAppointment}
+                  isLoading={isDeletingAppointment}
+                  disabled={isDeletingAppointment}
+                  aria-label={t('appointment.deleteButtonLabel', { default: 'Delete appointment' })}
+                  title={t('appointment.deleteButtonLabel', { default: 'Delete appointment' })}
+                >
+                  {isDeletingAppointment
+                    ? t('appointment.deletingButtonLabel', { default: 'Deleting…' })
+                    : t('appointment.deleteButtonLabel', { default: 'Delete appointment' })}
+                </Button>
+              </div>
+            )}
         </div>
     );
   };
