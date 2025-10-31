@@ -312,6 +312,10 @@
   "appointment.chat.agentProposed": "I've proposed an appointment for {{date}} at {{time}}, Method/Location: {{location}}. Please let me know if this works for you or if you'd like to suggest an alternative.",
   "appointment.chat.userConfirmed": "Great, I've confirmed the appointment for {{date}} at {{time}}, Method/Location: {{location}}.",
   "appointment.chat.userWantsToReschedule": "Regarding the appointment for {{date}} at {{time}} ({{location}}), I'd like to propose a different time or arrangement. Please let me know what works for you.",
+  "appointment.delete": "Delete appointment",
+  "appointment.deleting": "Deleting...",
+  "appointment.deleted_banner": "Appointment deleted.",
+  "appointment.undo": "Undo",
   "appointment.currentStatusLabel": "Appointment",
   "appointment.detailsLabel": "{{date}} at {{time}} - {{location}}",
   "appointment.status.pending_user_approval": "Pending User Approval",
@@ -321,6 +325,8 @@
   "appointment.status.cancelled_by_agent": "Cancelled by Agent",
   "appointment.status.rescheduled_by_user": "User Requesting Reschedule",
   "appointment.status.rescheduled_by_agent": "Agent Requesting Reschedule",
+  "appointments.delete_success": "Appointment deleted.",
+  "appointments.delete_error": "Failed to delete appointment.",
   "helpChat.title": "AI Support Chat",
   "helpChat.subtitle": "Describe your issue below to get started.",
   "helpChat.initialMessage": "Hello! I'm Nexus, your AI Assistant. How can I help you today?",
@@ -453,5 +459,6 @@
   "promotional.section.future.title": "5. Scalability & Future",
   "promotional.section.future.content": "<p>Nexus Support Hub is constantly evolving: CRM integration, advanced automations, and premium support coming soon.</p>",
   "signupPlans.pro.payment.payButton": "Pay with PayPal",
-  "landing.video.watchOnYouTube": "Watch on YouTube"
+  "landing.video.watchOnYouTube": "Watch on YouTube",
+  "common.close": "Close"
 }
