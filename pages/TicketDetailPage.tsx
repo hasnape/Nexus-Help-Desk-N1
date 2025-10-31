@@ -102,6 +102,7 @@ const TicketDetailPage: React.FC = () => {
   const [undoAppt, setUndoAppt] = useState<AppointmentDetail | null>(null);
   const [showUndo, setShowUndo] = useState(false);
   const undoTimerRef = useRef<number | null>(null);
+  const undoBtnRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     if (!toast) return;
@@ -408,6 +409,9 @@ const TicketDetailPage: React.FC = () => {
 
                     if (ok) {
                       setShowUndo(true);
+                      setTimeout(() => {
+                        undoBtnRef.current?.focus();
+                      }, 0);
                       if (undoTimerRef.current) {
                         window.clearTimeout(undoTimerRef.current);
                       }
@@ -461,20 +465,24 @@ const TicketDetailPage: React.FC = () => {
         {ticket.assigned_agent_id && isAgentOrManager && <div className="mt-2 text-xs"><span className="font-semibold text-slate-300">{t('managerDashboard.tableHeader.assignedAgent')}: </span><span className="text-slate-100">{ticket.assigned_agent_id}</span></div>}
         {renderCurrentAppointmentInfo()}
         {showUndo && undoAppt && (
-          <div className="mt-2 rounded-md border px-3 py-2 text-sm flex items-center justify-between">
+          <div
+            className="mt-2 rounded-md border px-3 py-2 text-sm flex items-center justify-between"
+            role="status"
+            aria-live="polite"
+          >
             <span>{i18nT('appointment.deleted_banner', { defaultValue: 'Rendez-vous supprimé.' }) || 'Rendez-vous supprimé.'}</span>
             <div className="flex items-center gap-2">
               <button
+                ref={undoBtnRef}
                 className="px-3 py-1 rounded-md border"
                 onClick={async () => {
-                  const appt = undoAppt;
                   if (undoTimerRef.current) {
                     window.clearTimeout(undoTimerRef.current);
                     undoTimerRef.current = null;
                   }
                   setShowUndo(false);
-                  if (!appt) return;
-                  const ok = await restoreAppointment(appt, appt.ticket_id);
+                  if (!undoAppt) return;
+                  const ok = await restoreAppointment(undoAppt, undoAppt.ticket_id);
                   if (!ok) {
                     console.error('Failed to restore appointment');
                     const restoreErrorMsg = i18nT('appointments.restore_error', { defaultValue: 'Échec de la restauration du rendez-vous.' }) || 'Échec de la restauration du rendez-vous.';
