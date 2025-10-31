@@ -71,7 +71,7 @@ const TicketDetailPage: React.FC = () => {
     restoreAppointment
   } = useApp();
   const { t, getBCP47Locale, language } = useLanguage();
-  const { t: i18nT } = useTranslation();
+  const { t: i18nT } = useTranslation(['appointment', 'common']);
 
   const ticket = ticketId ? getTicketById(ticketId) : undefined;
 
@@ -79,8 +79,8 @@ const TicketDetailPage: React.FC = () => {
   const chatEndRef = useRef<HTMLDivElement>(null);
   const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
   const [lastSpokenAiMessage, setLastSpokenAiMessage] = useState<{ text: string; id: string } | null>(null);
-  const [toast, setToast] = useState<null | { type: 'success' | 'error'; msg: string }>(null);
   const [deleting, setDeleting] = useState(false);
+  const [feedback, setFeedback] = useState<null | { type: 'success' | 'error'; msg: string }>(null);
 
   type AppointmentDetail = {
     id: string;
@@ -103,15 +103,11 @@ const TicketDetailPage: React.FC = () => {
   const [showUndo, setShowUndo] = useState(false);
   const undoTimerRef = useRef<number | null>(null);
   const undoBtnRef = useRef<HTMLButtonElement | null>(null);
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const [pendingApptId, setPendingApptId] = useState<string | null>(null);
-  const confirmBtnRef = useRef<HTMLButtonElement | null>(null);
-
   useEffect(() => {
-    if (!toast) return;
-    const timeoutId = setTimeout(() => setToast(null), 2500);
-    return () => clearTimeout(timeoutId);
-  }, [toast]);
+    if (!feedback) return;
+    const timeoutId = window.setTimeout(() => setFeedback(null), 3000);
+    return () => window.clearTimeout(timeoutId);
+  }, [feedback]);
 
   useEffect(() => {
     return () => {
@@ -121,40 +117,6 @@ const TicketDetailPage: React.FC = () => {
       }
     };
   }, []);
-
-  useEffect(() => {
-    if (!confirmOpen) return;
-    const focusTimer = window.setTimeout(() => {
-      confirmBtnRef.current?.focus();
-    }, 0);
-    return () => {
-      window.clearTimeout(focusTimer);
-    };
-  }, [confirmOpen]);
-
-  useEffect(() => {
-    if (!confirmOpen) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setConfirmOpen(false);
-        setPendingApptId(null);
-      }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => {
-      window.removeEventListener('keydown', onKey);
-    };
-  }, [confirmOpen]);
-
-  const handleAppointmentDeleteResult = (ok: boolean) => {
-    const successMsg =
-      i18nT('appointment.delete_success', { defaultValue: 'Rendez-vous supprimé.' }) ||
-      'Rendez-vous supprimé.';
-    const errorMsg =
-      i18nT('appointment.delete_error', { defaultValue: 'Échec de la suppression du rendez-vous.' }) ||
-      'Échec de la suppression du rendez-vous.';
-    setToast(ok ? { type: 'success', msg: successMsg } : { type: 'error', msg: errorMsg });
-  };
 
   // Appointment proposal state for agents/managers
   const [apptDate, setApptDate] = useState('');
@@ -402,132 +364,90 @@ const TicketDetailPage: React.FC = () => {
     else if (status.includes('cancelled')) statusColor = 'text-red-700';
 
     return (
-        <div className={`mt-2 p-2 rounded text-xs border ${status === 'confirmed' ? 'bg-green-50 border-green-300' : 'bg-slate-50 border-slate-300'}`}>
-            <span className="font-semibold">{t('appointment.currentStatusLabel')}: </span>
-            <span className={statusColor}>{statusText}</span>
-            <br />
-            {t('appointment.detailsLabel', { date: formattedDate, time: proposedTime, location: locationOrMethod })}
-            {isAgentOrManager && (
-              <div className="mt-2 flex flex-wrap items-center gap-2">
-                <button
-                  type="button"
-                  className="px-3 py-1 rounded-md border text-sm disabled:opacity-50 shrink-0"
-                  disabled={deleting}
-                  aria-label={i18nT('appointment.delete_button')}
-                  title={i18nT('appointment.delete_button')}
-                  onClick={() => {
-                    if (deleting) return;
-                    const appt = ticket.current_appointment;
-                    if (!appt?.id) return;
-                    setPendingApptId(appt.id);
-                    setConfirmOpen(true);
-                  }}
-                >
-                  {deleting
-                    ? i18nT('common.deleting')
-                    : i18nT('appointment.delete_button')}
-                </button>
-                {confirmOpen && (
-                  <div
-                    className="fixed inset-0 z-50 flex items-center justify-center px-4"
-                    role="dialog"
-                    aria-modal="true"
-                    aria-labelledby="confirm-del-title"
-                  >
-                    <div
-                      className="absolute inset-0 bg-black/40"
-                      onClick={() => {
-                        setConfirmOpen(false);
-                        setPendingApptId(null);
-                      }}
-                      aria-hidden="true"
-                    />
-                    <div className="relative w-full max-w-sm rounded-lg bg-white p-4 shadow-lg focus:outline-none">
-                      <h2 id="confirm-del-title" className="text-base font-semibold">
-                        {i18nT('appointment.confirm_title')}
-                      </h2>
-                      <p className="mt-2 text-sm">
-                        {i18nT('appointment.confirm_body')}
-                      </p>
-                      <div className="mt-4 flex items-center justify-end gap-2">
-                        <button
-                          className="px-3 py-1 rounded-md border"
-                          onClick={() => {
-                            setConfirmOpen(false);
-                            setPendingApptId(null);
-                          }}
-                        >
-                          {i18nT('common.cancel')}
-                        </button>
-                        <button
-                          ref={confirmBtnRef}
-                          className="px-3 py-1 rounded-md border bg-red-600 text-white disabled:opacity-70"
-                          disabled={deleting}
-                          onClick={async () => {
-                            if (!pendingApptId || deleting) return;
-                            const appt = ticket.current_appointment;
-                            if (!appt?.id || appt.id !== pendingApptId) {
-                              setConfirmOpen(false);
-                              setPendingApptId(null);
-                              return;
-                            }
+      <div className={`mt-2 p-2 rounded text-xs border ${status === 'confirmed' ? 'bg-green-50 border-green-300' : 'bg-slate-50 border-slate-300'}`}>
+          <span className="font-semibold">{t('appointment.currentStatusLabel')}: </span>
+          <span className={statusColor}>{statusText}</span>
+          <br />
+          {t('appointment.detailsLabel', { date: formattedDate, time: proposedTime, location: locationOrMethod })}
+          {isAgentOrManager && (
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                className="px-3 py-1 rounded-md border text-sm disabled:opacity-50 shrink-0"
+                disabled={deleting}
+                aria-label={i18nT('appointment.delete_button')}
+                title={i18nT('appointment.delete_button')}
+                onClick={async () => {
+                  if (deleting) return;
+                  const appt = ticket.current_appointment;
+                  if (!appt?.id) return;
 
-                            const normalizedTime = appt.proposedTime?.length === 5
-                              ? `${appt.proposedTime}:00`
-                              : appt.proposedTime;
+                  const confirmed = window.confirm(
+                    `${i18nT('appointment.confirm_title')}\n\n${i18nT('appointment.confirm_body')}`
+                  );
+                  if (!confirmed) return;
 
-                            const appointmentSnapshot: AppointmentDetail = {
-                              id: appt.id,
-                              ticket_id: ticket.id,
-                              proposed_by: appt.proposedBy,
-                              status: appt.status,
-                              proposed_date: appt.proposedDate,
-                              proposed_time: normalizedTime,
-                              location_or_method: appt.locationOrMethod,
-                            };
+                  const normalizedTime = appt.proposedTime?.length === 5
+                    ? `${appt.proposedTime}:00`
+                    : appt.proposedTime;
 
-                            setUndoAppt(appointmentSnapshot);
-                            setDeleting(true);
-                            const ok = await deleteAppointment(pendingApptId, ticket.id);
-                            setDeleting(false);
-                            setConfirmOpen(false);
-                            setPendingApptId(null);
+                  const appointmentSnapshot: AppointmentDetail = {
+                    id: appt.id,
+                    ticket_id: ticket.id,
+                    proposed_by: appt.proposedBy,
+                    status: appt.status,
+                    proposed_date: appt.proposedDate,
+                    proposed_time: normalizedTime,
+                    location_or_method: appt.locationOrMethod,
+                  };
 
-                            if (ok) {
-                              setShowUndo(true);
-                              window.setTimeout(() => {
-                                undoBtnRef.current?.focus();
-                              }, 0);
-                              if (undoTimerRef.current) {
-                                window.clearTimeout(undoTimerRef.current);
-                              }
-                              undoTimerRef.current = window.setTimeout(() => {
-                                setShowUndo(false);
-                                setUndoAppt(null);
-                                undoTimerRef.current = null;
-                              }, 10000);
-                            } else {
-                              if (undoTimerRef.current) {
-                                window.clearTimeout(undoTimerRef.current);
-                                undoTimerRef.current = null;
-                              }
-                              setShowUndo(false);
-                              setUndoAppt(null);
-                            }
+                  setUndoAppt(appointmentSnapshot);
 
-                            handleAppointmentDeleteResult(ok);
-                          }}
-                        >
-                          {i18nT('common.confirm')}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
+                  setDeleting(true);
+                  const ok = await deleteAppointment(appt.id, ticket.id);
+                  setDeleting(false);
+
+                  if (ok) {
+                    setShowUndo(true);
+                    window.setTimeout(() => {
+                      undoBtnRef.current?.focus();
+                    }, 0);
+                    if (undoTimerRef.current) {
+                      window.clearTimeout(undoTimerRef.current);
+                    }
+                    undoTimerRef.current = window.setTimeout(() => {
+                      setShowUndo(false);
+                      setUndoAppt(null);
+                      undoTimerRef.current = null;
+                    }, 10000);
+                  } else {
+                    if (undoTimerRef.current) {
+                      window.clearTimeout(undoTimerRef.current);
+                      undoTimerRef.current = null;
+                    }
+                    setShowUndo(false);
+                    setUndoAppt(null);
+                  }
+
+                  const successMsg =
+                    i18nT('appointment.delete_success', { defaultValue: 'Rendez-vous supprimé.' }) ||
+                    'Rendez-vous supprimé.';
+                  const errorMsg =
+                    i18nT('appointment.delete_error', {
+                      defaultValue: 'Échec de la suppression du rendez-vous.',
+                    }) || 'Échec de la suppression du rendez-vous.';
+
+                  setFeedback(ok ? { type: 'success', msg: successMsg } : { type: 'error', msg: errorMsg });
+                }}
+              >
+                {deleting
+                  ? i18nT('common.deleting')
+                  : i18nT('appointment.delete_button')}
+              </button>
+            </div>
+          )}
         </div>
-    );
+      );
   };
 
 
@@ -552,6 +472,20 @@ const TicketDetailPage: React.FC = () => {
         {ticket.workstation_id && <div className="mt-2 text-xs"><span className="font-semibold text-slate-300">{t('newTicket.form.workstationIdLabel')}: </span><span className="text-slate-100">{ticket.workstation_id}</span></div>}
         {ticket.assigned_agent_id && isAgentOrManager && <div className="mt-2 text-xs"><span className="font-semibold text-slate-300">{t('managerDashboard.tableHeader.assignedAgent')}: </span><span className="text-slate-100">{ticket.assigned_agent_id}</span></div>}
         {renderCurrentAppointmentInfo()}
+        {feedback && (
+          <div
+            role="status"
+            aria-live="polite"
+            className={
+              'mt-2 rounded-md px-3 py-2 text-sm ' +
+              (feedback.type === 'success'
+                ? 'bg-green-50 text-green-700 border border-green-200'
+                : 'bg-red-50 text-red-700 border border-red-200')
+            }
+          >
+            {feedback.msg}
+          </div>
+        )}
         {showUndo && undoAppt && (
           <div
             className="mt-2 rounded-md border px-3 py-2 text-sm flex items-center justify-between"
@@ -573,11 +507,17 @@ const TicketDetailPage: React.FC = () => {
                   const ok = await restoreAppointment(undoAppt, undoAppt.ticket_id);
                   if (!ok) {
                     console.error('Failed to restore appointment');
-                    const restoreErrorMsg = i18nT('appointments.restore_error', { defaultValue: 'Échec de la restauration du rendez-vous.' }) || 'Échec de la restauration du rendez-vous.';
-                    setToast({ type: 'error', msg: restoreErrorMsg });
+                    const restoreErrorMsg =
+                      i18nT('appointments.restore_error', {
+                        defaultValue: 'Échec de la restauration du rendez-vous.',
+                      }) || 'Échec de la restauration du rendez-vous.';
+                    setFeedback({ type: 'error', msg: restoreErrorMsg });
                   } else {
-                    const restoreSuccessMsg = i18nT('appointments.restore_success', { defaultValue: 'Rendez-vous restauré.' }) || 'Rendez-vous restauré.';
-                    setToast({ type: 'success', msg: restoreSuccessMsg });
+                    const restoreSuccessMsg =
+                      i18nT('appointments.restore_success', {
+                        defaultValue: 'Rendez-vous restauré.',
+                      }) || 'Rendez-vous restauré.';
+                    setFeedback({ type: 'success', msg: restoreSuccessMsg });
                   }
                   setUndoAppt(null);
                 }}
@@ -638,17 +578,6 @@ const TicketDetailPage: React.FC = () => {
         {!browserSupportsSpeechRecognition && !speechErrorText && (<p className="text-xs text-slate-500 mt-2 text-center">{t('ticketDetail.voiceInputForChatNotSupported')}</p>)}
       </form>
       </div>
-      {toast && (
-        <div
-          role="status"
-          aria-live="polite"
-          className={`fixed bottom-4 right-4 z-50 rounded-xl px-4 py-3 shadow-lg text-sm ${
-            toast.type === 'success' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'
-          }`}
-        >
-          {toast.msg}
-        </div>
-      )}
     </>
   );
 };
