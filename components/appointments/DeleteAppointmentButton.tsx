@@ -23,12 +23,21 @@ export default function DeleteAppointmentButton({
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
 
-  const deleteLabel = label ?? (t("appointment.delete", { defaultValue: "Supprimer le RDV" }) || "Supprimer le RDV");
-  const deletingLabel = t("appointment.deleting", { defaultValue: "Suppression..." }) || "Suppression...";
+  const deleteLabel =
+    label ??
+    (t("appointment.delete_button", { defaultValue: "Supprimer le RDV" }) || "Supprimer le RDV");
+  const deletingLabel =
+    t("common.deleting", { defaultValue: "Suppression..." }) || "Suppression...";
+  const confirmMessage =
+    t("appointment.confirm_body", {
+      defaultValue:
+        "Voulez-vous vraiment supprimer ce rendez-vous ? Cette action est irréversible.",
+    }) ||
+    "Voulez-vous vraiment supprimer ce rendez-vous ? Cette action est irréversible.";
 
   const onDelete = async () => {
     if (!appointmentId || !ticketId) return;
-    if (confirm && !window.confirm("Confirmer la suppression du rendez-vous ?")) return;
+    if (confirm && !window.confirm(confirmMessage)) return;
     setLoading(true);
     const ok = await deleteAppointment(appointmentId, ticketId);
     setLoading(false);

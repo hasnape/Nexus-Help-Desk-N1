@@ -603,6 +603,8 @@
   "appointment": {
     "confirm_title": "Confirm deletion",
     "confirm_body": "Do you really want to delete this appointment? This action cannot be undone.",
-    "delete_button": "Delete appointment"
+    "delete_button": "Delete appointment",
+    "delete_success": "Appointment deleted.",
+    "delete_error": "Failed to delete appointment."
   }
 }

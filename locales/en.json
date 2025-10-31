@@ -313,8 +313,11 @@
   "appointment.chat.userConfirmed": "Great, I've confirmed the appointment for {{date}} at {{time}}, Method/Location: {{location}}.",
   "appointment.chat.userWantsToReschedule": "Regarding the appointment for {{date}} at {{time}} ({{location}}), I'd like to propose a different time or arrangement. Please let me know what works for you.",
   "appointment.confirm_title": "Confirm deletion",
-  "appointment.confirm_body": "Do you really want to delete this appointment?",
+  "appointment.confirm_body": "Are you sure you want to delete this appointment? This action cannot be undone.",
   "appointment.delete": "Delete appointment",
+  "appointment.delete_button": "Delete appointment",
+  "appointment.delete_success": "Appointment deleted.",
+  "appointment.delete_error": "Failed to delete appointment.",
   "appointment.deleting": "Deleting...",
   "appointment.deleted_banner": "Appointment deleted.",
   "appointment.undo": "Undo",
@@ -464,5 +467,6 @@
   "landing.video.watchOnYouTube": "Watch on YouTube",
   "common.cancel": "Cancel",
   "common.confirm": "Confirm",
+  "common.deleting": "Deleting...",
   "common.close": "Close"
 }

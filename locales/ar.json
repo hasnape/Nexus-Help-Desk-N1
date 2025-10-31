@@ -287,8 +287,11 @@
   "appointment.chat.userConfirmed": "رائع، لقد أكدتُ الموعد في {{date}} الساعة {{time}}، الطريقة/الموقع: {{location}}.",
   "appointment.chat.userWantsToReschedule": "بخصوص الموعد المحدد في {{date}} الساعة {{time}} ({{location}})، أود اقتراح وقت أو ترتيب مختلف. يرجى إخباري بما يناسبك.",
   "appointment.confirm_title": "تأكيد الحذف",
-  "appointment.confirm_body": "هل تريد حقًا حذف هذا الموعد؟",
+  "appointment.confirm_body": "هل أنت متأكد أنك تريد حذف هذا الموعد؟ لا يمكن التراجع عن هذا الإجراء.",
   "appointment.delete": "حذف الموعد",
+  "appointment.delete_button": "حذف الموعد",
+  "appointment.delete_success": "تم حذف الموعد.",
+  "appointment.delete_error": "فشل حذف الموعد.",
   "appointment.deleting": "جارٍ الحذف...",
   "appointment.deleted_banner": "تم حذف الموعد.",
   "appointment.undo": "تراجع",
@@ -396,5 +399,6 @@
   "signupPlans.pro.payment.note": "يمكنك إلغاء اشتراكك في أي وقت من حساب PayPal الخاص بك.",
   "common.cancel": "إلغاء",
   "common.confirm": "تأكيد",
+  "common.deleting": "جارٍ الحذف...",
   "common.close": "إغلاق"
 }

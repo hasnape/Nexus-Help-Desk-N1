@@ -147,8 +147,12 @@ const TicketDetailPage: React.FC = () => {
   }, [confirmOpen]);
 
   const handleAppointmentDeleteResult = (ok: boolean) => {
-    const successMsg = i18nT('appointment.deleted_banner', { defaultValue: 'Rendez-vous supprimé.' }) || 'Rendez-vous supprimé.';
-    const errorMsg = i18nT('appointments.delete_error', { defaultValue: 'Échec de la suppression du rendez-vous.' }) || 'Échec de la suppression du rendez-vous.';
+    const successMsg =
+      i18nT('appointment.delete_success', { defaultValue: 'Rendez-vous supprimé.' }) ||
+      'Rendez-vous supprimé.';
+    const errorMsg =
+      i18nT('appointment.delete_error', { defaultValue: 'Échec de la suppression du rendez-vous.' }) ||
+      'Échec de la suppression du rendez-vous.';
     setToast(ok ? { type: 'success', msg: successMsg } : { type: 'error', msg: errorMsg });
   };
 
