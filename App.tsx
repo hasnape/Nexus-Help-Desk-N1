@@ -214,6 +214,27 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     setTickets(nextTickets);
   }, []);
 
+  const pruneApptInState = (ticketId: string, appointmentId: string) => {
+    updateTicketsState((prev) =>
+      prev.map((t) => {
+        if (t.id !== ticketId) return t;
+
+        const nextCurrent =
+          t.current_appointment?.id === appointmentId ? undefined : t.current_appointment;
+
+        const nextAppointments = Array.isArray((t as any).appointments)
+          ? (t as any).appointments.filter((a: any) => a?.id !== appointmentId)
+          : (t as any).appointments;
+
+        return {
+          ...t,
+          current_appointment: nextCurrent,
+          ...(nextAppointments !== undefined ? { appointments: nextAppointments } : {}),
+        };
+      })
+    );
+  };
+
   useEffect(() => {
     const storedConsent = localStorage.getItem("cookieConsent");
     if (storedConsent === "true") {
@@ -1359,19 +1380,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const deleteAppointment = async (appointmentId: string, ticketId: string): Promise<boolean> => {
     if (shouldShortCircuitNetwork("supabase.appointment_details.delete")) {
-      updateTicketsState(
-        (prev) =>
-          prev.map((t) =>
-            t.id === ticketId
-              ? {
-                  ...t,
-                  current_appointment:
-                    t.current_appointment?.id === appointmentId ? undefined : t.current_appointment,
-                }
-              : t
-          ),
-        true
-      );
+      pruneApptInState(ticketId, appointmentId);
       return true;
     }
 
@@ -1385,18 +1394,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       return false;
     }
 
-    updateTicketsState((prev) =>
-      prev.map((t) =>
-        t.id === ticketId
-          ? {
-              ...t,
-              current_appointment:
-                t.current_appointment?.id === appointmentId ? undefined : t.current_appointment,
-            }
-          : t
-      )
-    );
-
+    pruneApptInState(ticketId, appointmentId);
     return true;
   };
 

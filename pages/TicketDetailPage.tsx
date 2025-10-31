@@ -10,6 +10,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import useSpeechRecognition from '../hooks/useSpeechRecognition';
 import useTextToSpeech from '../hooks/useTextToSpeech';
 import { useLanguage } from '../contexts/LanguageContext';
+import DeleteAppointmentButton from '@/components/appointments/DeleteAppointmentButton';
 
 
 
@@ -330,19 +331,12 @@ const TicketDetailPage: React.FC = () => {
             {t('appointment.detailsLabel', { date: formattedDate, time: proposedTime, location: locationOrMethod })}
             {isAgentOrManager && (
               <div className="mt-2 flex flex-wrap items-center gap-2">
-                <Button
-                  variant="danger"
-                  size="sm"
-                  onClick={handleDeleteAppointment}
-                  isLoading={isDeletingAppointment}
-                  disabled={isDeletingAppointment}
-                  aria-label={t('appointment.deleteButtonLabel', { default: 'Delete appointment' })}
-                  title={t('appointment.deleteButtonLabel', { default: 'Delete appointment' })}
-                >
-                  {isDeletingAppointment
-                    ? t('appointment.deletingButtonLabel', { default: 'Deleting…' })
-                    : t('appointment.deleteButtonLabel', { default: 'Delete appointment' })}
-                </Button>
+                <DeleteAppointmentButton
+                  appointmentId={ticket.current_appointment.id}
+                  ticketId={ticket.id}
+                  className="shrink-0"
+                  label={t('appointment.deleteButtonLabel', { default: 'Delete appointment' })}
+                />
               </div>
             )}
         </div>
