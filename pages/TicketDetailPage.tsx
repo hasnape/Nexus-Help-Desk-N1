@@ -119,7 +119,7 @@ const TicketDetailPage: React.FC = () => {
   }, []);
 
   const handleAppointmentDeleteResult = (ok: boolean) => {
-    const successMsg = i18nT('appointments.delete_success', { defaultValue: 'Rendez-vous supprimé.' }) || 'Rendez-vous supprimé.';
+    const successMsg = i18nT('appointment.deleted_banner', { defaultValue: 'Rendez-vous supprimé.' }) || 'Rendez-vous supprimé.';
     const errorMsg = i18nT('appointments.delete_error', { defaultValue: 'Échec de la suppression du rendez-vous.' }) || 'Échec de la suppression du rendez-vous.';
     setToast(ok ? { type: 'success', msg: successMsg } : { type: 'error', msg: errorMsg });
   };
@@ -381,6 +381,8 @@ const TicketDetailPage: React.FC = () => {
                   type="button"
                   className="px-3 py-1 rounded-md border text-sm disabled:opacity-50 shrink-0"
                   disabled={deleting}
+                  aria-label={i18nT('appointment.delete', { defaultValue: 'Supprimer le RDV' })}
+                  title={i18nT('appointment.delete', { defaultValue: 'Supprimer le RDV' })}
                   onClick={async () => {
                     if (deleting) return;
                     const appt = ticket.current_appointment;
@@ -427,8 +429,8 @@ const TicketDetailPage: React.FC = () => {
                   }}
                 >
                   {deleting
-                    ? t('appointment.deletingLabel', { default: 'Suppression...' })
-                    : t('appointment.deleteButtonLabel', { default: 'Delete appointment' })}
+                    ? i18nT('appointment.deleting', { defaultValue: 'Suppression...' })
+                    : i18nT('appointment.delete', { defaultValue: 'Supprimer le RDV' })}
                 </button>
               </div>
             )}
@@ -460,7 +462,7 @@ const TicketDetailPage: React.FC = () => {
         {renderCurrentAppointmentInfo()}
         {showUndo && undoAppt && (
           <div className="mt-2 rounded-md border px-3 py-2 text-sm flex items-center justify-between">
-            <span>{i18nT('appointments.delete_success', { defaultValue: 'Rendez-vous supprimé.' }) || 'Rendez-vous supprimé.'}</span>
+            <span>{i18nT('appointment.deleted_banner', { defaultValue: 'Rendez-vous supprimé.' }) || 'Rendez-vous supprimé.'}</span>
             <div className="flex items-center gap-2">
               <button
                 className="px-3 py-1 rounded-md border"
@@ -484,7 +486,7 @@ const TicketDetailPage: React.FC = () => {
                   setUndoAppt(null);
                 }}
               >
-                {i18nT('common.undo', { defaultValue: 'Annuler' }) || 'Annuler'}
+                {i18nT('appointment.undo', { defaultValue: 'Annuler' }) || 'Annuler'}
               </button>
               <button
                 className="px-2 py-1 text-xs opacity-70 hover:opacity-100"
@@ -496,8 +498,8 @@ const TicketDetailPage: React.FC = () => {
                   setShowUndo(false);
                   setUndoAppt(null);
                 }}
-                aria-label="Fermer"
-                title="Fermer"
+                aria-label={i18nT('common.close', { defaultValue: 'Fermer' }) || 'Fermer'}
+                title={i18nT('common.close', { defaultValue: 'Fermer' }) || 'Fermer'}
               >
                 {i18nT('common.close', { defaultValue: 'Fermer' }) || 'Fermer'}
               </button>
