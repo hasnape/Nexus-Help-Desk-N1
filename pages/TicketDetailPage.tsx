@@ -10,6 +10,8 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import useSpeechRecognition from '../hooks/useSpeechRecognition';
 import useTextToSpeech from '../hooks/useTextToSpeech';
 import { useLanguage } from '../contexts/LanguageContext';
+import DeleteAppointmentButton from '@/components/appointments/DeleteAppointmentButton';
+import { useTranslation } from 'react-i18next';
 
 
 
@@ -56,25 +58,39 @@ const CalendarIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 const TicketDetailPage: React.FC = () => {
   const { ticketId } = useParams<{ ticketId: string }>();
   const navigate = useNavigate();
-  const { 
-    getTicketById, 
-    user, 
-    addChatMessage, 
-    sendAgentMessage, 
-    isLoadingAi, 
+  const {
+    getTicketById,
+    user,
+    addChatMessage,
+    sendAgentMessage,
+    isLoadingAi,
     updateTicketStatus,
     isAutoReadEnabled,
     toggleAutoRead,
     proposeOrUpdateAppointment
   } = useApp();
   const { t, getBCP47Locale, language } = useLanguage();
-  
+  const { t: i18nT } = useTranslation();
+
   const ticket = ticketId ? getTicketById(ticketId) : undefined;
 
   const [newMessage, setNewMessage] = useState('');
   const chatEndRef = useRef<HTMLDivElement>(null);
   const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
   const [lastSpokenAiMessage, setLastSpokenAiMessage] = useState<{ text: string; id: string } | null>(null);
+  const [toast, setToast] = useState<null | { type: 'success' | 'error'; msg: string }>(null);
+
+  useEffect(() => {
+    if (!toast) return;
+    const timeoutId = setTimeout(() => setToast(null), 2500);
+    return () => clearTimeout(timeoutId);
+  }, [toast]);
+
+  const handleAppointmentDeleteResult = (ok: boolean) => {
+    const successMsg = i18nT('appointments.delete_success', { defaultValue: 'Rendez-vous supprimé.' }) || 'Rendez-vous supprimé.';
+    const errorMsg = i18nT('appointments.delete_error', { defaultValue: 'Échec de la suppression du rendez-vous.' }) || 'Échec de la suppression du rendez-vous.';
+    setToast(ok ? { type: 'success', msg: successMsg } : { type: 'error', msg: errorMsg });
+  };
 
   // Appointment proposal state for agents/managers
   const [apptDate, setApptDate] = useState('');
@@ -316,13 +332,25 @@ const TicketDetailPage: React.FC = () => {
             <span className={statusColor}>{statusText}</span>
             <br />
             {t('appointment.detailsLabel', { date: formattedDate, time: proposedTime, location: locationOrMethod })}
+            {isAgentOrManager && (
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <DeleteAppointmentButton
+                  appointmentId={ticket.current_appointment.id}
+                  ticketId={ticket.id}
+                  className="shrink-0"
+                  label={t('appointment.deleteButtonLabel', { default: 'Delete appointment' })}
+                  onResult={handleAppointmentDeleteResult}
+                />
+              </div>
+            )}
         </div>
     );
   };
 
 
   return (
-    <div className="max-w-4xl mx-auto bg-surface shadow-xl rounded-lg overflow-hidden flex flex-col h-[calc(100vh-10rem)] sm:h-[calc(100vh-8rem)]">
+    <>
+      <div className="max-w-4xl mx-auto bg-surface shadow-xl rounded-lg overflow-hidden flex flex-col h-[calc(100vh-10rem)] sm:h-[calc(100vh-8rem)]">
       <header className="bg-slate-700 text-white p-4 sm:p-6">
         <div className="flex justify-between items-center mb-3">
           <h1 className="text-xl sm:text-2xl font-bold truncate" title={ticket.title}>{ticket.title}</h1>
@@ -376,7 +404,19 @@ const TicketDetailPage: React.FC = () => {
         {isTicketClosedOrResolved && <p className="text-xs text-center text-orange-600 mt-2">{t('ticketDetail.ticketClosedWarning', {status: t(`ticketStatus.${ticket.status}`)})}</p>}
         {!browserSupportsSpeechRecognition && !speechErrorText && (<p className="text-xs text-slate-500 mt-2 text-center">{t('ticketDetail.voiceInputForChatNotSupported')}</p>)}
       </form>
-    </div>
+      </div>
+      {toast && (
+        <div
+          role="status"
+          aria-live="polite"
+          className={`fixed bottom-4 right-4 z-50 rounded-xl px-4 py-3 shadow-lg text-sm ${
+            toast.type === 'success' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'
+          }`}
+        >
+          {toast.msg}
+        </div>
+      )}
+    </>
   );
 };
 
