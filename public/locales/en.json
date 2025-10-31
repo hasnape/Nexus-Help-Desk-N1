@@ -593,5 +593,16 @@
   "landing.advantages.cost.title": "Cost optimization",
   "landing.advantages.cost.desc": "Automate repetitive tasks: focus your resources on what matters and reduce your expenses.",
   "footer.termsOfUse": "Terms of use",
-  "activationKey.help": "To get the activation code, contact Nexus support or check your welcome email after purchasing the plan."
+  "activationKey.help": "To get the activation code, contact Nexus support or check your welcome email after purchasing the plan.",
+  "common": {
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "deleting": "Deleting..."
+  },
+  "appointment": {
+    "confirm_title": "Confirm deletion",
+    "confirm_body": "Do you really want to delete this appointment? This action cannot be undone.",
+    "delete_button": "Delete appointment"
+  }
 }

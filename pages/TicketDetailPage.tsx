@@ -409,8 +409,8 @@ const TicketDetailPage: React.FC = () => {
                   type="button"
                   className="px-3 py-1 rounded-md border text-sm disabled:opacity-50 shrink-0"
                   disabled={deleting}
-                  aria-label={i18nT('appointment.delete', { defaultValue: 'Supprimer le RDV' })}
-                  title={i18nT('appointment.delete', { defaultValue: 'Supprimer le RDV' })}
+                  aria-label={i18nT('appointment.delete_button')}
+                  title={i18nT('appointment.delete_button')}
                   onClick={() => {
                     if (deleting) return;
                     const appt = ticket.current_appointment;
@@ -420,8 +420,8 @@ const TicketDetailPage: React.FC = () => {
                   }}
                 >
                   {deleting
-                    ? i18nT('appointment.deleting', { defaultValue: 'Suppression...' })
-                    : i18nT('appointment.delete', { defaultValue: 'Supprimer le RDV' })}
+                    ? i18nT('common.deleting')
+                    : i18nT('appointment.delete_button')}
                 </button>
                 {confirmOpen && (
                   <div
@@ -440,10 +440,10 @@ const TicketDetailPage: React.FC = () => {
                     />
                     <div className="relative w-full max-w-sm rounded-lg bg-white p-4 shadow-lg focus:outline-none">
                       <h2 id="confirm-del-title" className="text-base font-semibold">
-                        {i18nT('appointment.confirm_title', { defaultValue: 'Confirmer la suppression' }) || 'Confirmer la suppression'}
+                        {i18nT('appointment.confirm_title')}
                       </h2>
                       <p className="mt-2 text-sm">
-                        {i18nT('appointment.confirm_body', { defaultValue: 'Voulez-vous vraiment supprimer ce rendez-vous ?' }) || 'Voulez-vous vraiment supprimer ce rendez-vous ?'}
+                        {i18nT('appointment.confirm_body')}
                       </p>
                       <div className="mt-4 flex items-center justify-end gap-2">
                         <button
@@ -453,7 +453,7 @@ const TicketDetailPage: React.FC = () => {
                             setPendingApptId(null);
                           }}
                         >
-                          {i18nT('common.cancel', { defaultValue: 'Annuler' }) || 'Annuler'}
+                          {i18nT('common.cancel')}
                         </button>
                         <button
                           ref={confirmBtnRef}
@@ -514,7 +514,7 @@ const TicketDetailPage: React.FC = () => {
                             handleAppointmentDeleteResult(ok);
                           }}
                         >
-                          {i18nT('common.confirm', { defaultValue: 'Confirmer' }) || 'Confirmer'}
+                          {i18nT('common.confirm')}
                         </button>
                       </div>
                     </div>
