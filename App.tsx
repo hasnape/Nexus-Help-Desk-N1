@@ -71,6 +71,25 @@ interface AppContextType {
     proposedBy: "agent" | "user",
     newStatus: AppointmentDetails["status"]
   ) => Promise<void>;
+  restoreAppointment: (
+    appointment: {
+      id: string;
+      ticket_id: string;
+      proposed_by: "agent" | "user";
+      status:
+        | "pending_user_approval"
+        | "pending_agent_approval"
+        | "confirmed"
+        | "cancelled_by_user"
+        | "cancelled_by_agent"
+        | "rescheduled_by_user"
+        | "rescheduled_by_agent";
+      proposed_date: string;
+      proposed_time: string;
+      location_or_method: string;
+    },
+    ticketId: string
+  ) => Promise<boolean>;
   deleteAppointment: (appointmentId: string, ticketId: string) => Promise<boolean>;
   deleteTicket: (ticketId: string) => Promise<void>;
   updateUserRole: (userIdToUpdate: string, newRole: UserRole) => Promise<boolean>;
@@ -233,6 +252,70 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         };
       })
     );
+  };
+
+  const restoreAppointment: AppContextType["restoreAppointment"] = async (appointment, ticketId) => {
+    const applyRestore = (prev: Ticket[]) =>
+      prev.map((t) => {
+        if (t.id !== ticketId) return t;
+
+        const restoredAppointment = {
+          id: appointment.id,
+          proposedBy: appointment.proposed_by,
+          proposedDate: appointment.proposed_date,
+          proposedTime: appointment.proposed_time,
+          locationOrMethod: appointment.location_or_method,
+          status: appointment.status,
+        } as AppointmentDetails & Record<string, any>;
+
+        (restoredAppointment as any).proposed_by = appointment.proposed_by;
+        (restoredAppointment as any).proposed_date = appointment.proposed_date;
+        (restoredAppointment as any).proposed_time = appointment.proposed_time;
+        (restoredAppointment as any).location_or_method = appointment.location_or_method;
+
+        const existingAppointments = Array.isArray((t as any).appointments)
+          ? (t as any).appointments
+          : undefined;
+
+        const nextAppointments = existingAppointments
+          ? [...existingAppointments.filter((a: any) => a?.id !== appointment.id), restoredAppointment]
+          : existingAppointments;
+
+        return {
+          ...t,
+          current_appointment: restoredAppointment,
+          ...(nextAppointments !== undefined ? { appointments: nextAppointments } : {}),
+        };
+      });
+
+    if (shouldShortCircuitNetwork("supabase.appointment_details.insert")) {
+      updateTicketsState(applyRestore, true);
+      return true;
+    }
+
+    const { id, ticket_id, proposed_by, status, proposed_date, proposed_time, location_or_method } = appointment;
+
+    const { error } = await supabase
+      .from("appointment_details")
+      .insert([
+        {
+          id,
+          ticket_id,
+          proposed_by,
+          status,
+          proposed_date,
+          proposed_time,
+          location_or_method,
+        },
+      ]);
+
+    if (error) {
+      console.error("Error restoring appointment:", error);
+      return false;
+    }
+
+    updateTicketsState(applyRestore);
+    return true;
   };
 
   useEffect(() => {
@@ -1452,6 +1535,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         getAgents,
         getAllUsers,
         proposeOrUpdateAppointment,
+        restoreAppointment,
         deleteAppointment,
         deleteTicket,
         updateUserRole,
