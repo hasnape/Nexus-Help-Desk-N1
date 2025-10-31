@@ -295,6 +295,8 @@
   "appointment.status.cancelled_by_agent": "Annulé par l'agent",
   "appointment.status.rescheduled_by_user": "Utilisateur demande report",
   "appointment.status.rescheduled_by_agent": "Agent demande report",
+  "appointments.delete_success": "Rendez-vous supprimé.",
+  "appointments.delete_error": "Échec de la suppression du rendez-vous.",
   "helpChat.title": "Chat de Support IA",
   "helpChat.subtitle": "Décrivez votre problème ci-dessous pour commencer.",
   "helpChat.initialMessage": "Bonjour ! Je suis Nexus, votre Assistant IA. Comment puis-je vous aider aujourd'hui ?",

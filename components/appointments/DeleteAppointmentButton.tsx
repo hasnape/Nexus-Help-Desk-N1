@@ -7,6 +7,7 @@ type Props = {
   className?: string;
   label?: string;
   confirm?: boolean;
+  onResult?: (ok: boolean) => void;
 };
 
 export default function DeleteAppointmentButton({
@@ -15,6 +16,7 @@ export default function DeleteAppointmentButton({
   className,
   label = "Supprimer",
   confirm = true,
+  onResult,
 }: Props) {
   const { deleteAppointment } = useApp();
   const [loading, setLoading] = useState(false);
@@ -25,9 +27,12 @@ export default function DeleteAppointmentButton({
     setLoading(true);
     const ok = await deleteAppointment(appointmentId, ticketId);
     setLoading(false);
+    onResult?.(ok);
     if (!ok) {
       console.error("[DeleteAppointmentButton] suppression échouée");
-      alert("Échec de la suppression.");
+      if (!onResult) {
+        alert("Échec de la suppression.");
+      }
     }
   };
 
