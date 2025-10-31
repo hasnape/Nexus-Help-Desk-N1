@@ -10,6 +10,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import useSpeechRecognition from '../hooks/useSpeechRecognition';
 import useTextToSpeech from '../hooks/useTextToSpeech';
 import { useLanguage } from '../contexts/LanguageContext';
+import DeleteAppointmentButton from '@/components/appointments/DeleteAppointmentButton';
 
 
 
@@ -56,12 +57,12 @@ const CalendarIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 const TicketDetailPage: React.FC = () => {
   const { ticketId } = useParams<{ ticketId: string }>();
   const navigate = useNavigate();
-  const { 
-    getTicketById, 
-    user, 
-    addChatMessage, 
-    sendAgentMessage, 
-    isLoadingAi, 
+  const {
+    getTicketById,
+    user,
+    addChatMessage,
+    sendAgentMessage,
+    isLoadingAi,
     updateTicketStatus,
     isAutoReadEnabled,
     toggleAutoRead,
@@ -316,6 +317,16 @@ const TicketDetailPage: React.FC = () => {
             <span className={statusColor}>{statusText}</span>
             <br />
             {t('appointment.detailsLabel', { date: formattedDate, time: proposedTime, location: locationOrMethod })}
+            {isAgentOrManager && (
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <DeleteAppointmentButton
+                  appointmentId={ticket.current_appointment.id}
+                  ticketId={ticket.id}
+                  className="shrink-0"
+                  label={t('appointment.deleteButtonLabel', { default: 'Delete appointment' })}
+                />
+              </div>
+            )}
         </div>
     );
   };

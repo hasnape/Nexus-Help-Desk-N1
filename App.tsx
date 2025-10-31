@@ -71,6 +71,7 @@ interface AppContextType {
     proposedBy: "agent" | "user",
     newStatus: AppointmentDetails["status"]
   ) => Promise<void>;
+  deleteAppointment: (appointmentId: string, ticketId: string) => Promise<boolean>;
   deleteTicket: (ticketId: string) => Promise<void>;
   updateUserRole: (userIdToUpdate: string, newRole: UserRole) => Promise<boolean>;
   deleteUserById: (userId: string) => Promise<void>;
@@ -200,11 +201,14 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const { language, setLanguage: setAppLanguage, t: translateHook } = useLanguage();
 
-  const shouldShortCircuitNetwork = useCallback(() => false, []);
+  const shouldShortCircuitNetwork = useCallback((operation?: string) => false, []);
 
-  const updateTicketsState = useCallback((updater: (prevTickets: Ticket[]) => Ticket[]) => {
-    setTickets((prevTickets) => updater(prevTickets));
-  }, []);
+  const updateTicketsState = useCallback(
+    (updater: (prevTickets: Ticket[]) => Ticket[], _forceLocalOnly?: boolean) => {
+      setTickets((prevTickets) => updater(prevTickets));
+    },
+    []
+  );
 
   const setTicketsDirect = useCallback((nextTickets: Ticket[]) => {
     setTickets(nextTickets);
@@ -1353,6 +1357,49 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
+  const deleteAppointment = async (appointmentId: string, ticketId: string): Promise<boolean> => {
+    if (shouldShortCircuitNetwork("supabase.appointment_details.delete")) {
+      updateTicketsState(
+        (prev) =>
+          prev.map((t) =>
+            t.id === ticketId
+              ? {
+                  ...t,
+                  current_appointment:
+                    t.current_appointment?.id === appointmentId ? undefined : t.current_appointment,
+                }
+              : t
+          ),
+        true
+      );
+      return true;
+    }
+
+    const { error } = await supabase
+      .from("appointment_details")
+      .delete()
+      .eq("id", appointmentId);
+
+    if (error) {
+      console.error("Error deleting appointment:", error);
+      return false;
+    }
+
+    updateTicketsState((prev) =>
+      prev.map((t) =>
+        t.id === ticketId
+          ? {
+              ...t,
+              current_appointment:
+                t.current_appointment?.id === appointmentId ? undefined : t.current_appointment,
+            }
+          : t
+      )
+    );
+
+    return true;
+  };
+
   const getTicketById = useCallback((ticketId: string) => tickets.find((t) => t.id === ticketId), [tickets]);
 
   const updateCompanyName = async (newName: string): Promise<boolean> => {
@@ -1407,6 +1454,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         getAgents,
         getAllUsers,
         proposeOrUpdateAppointment,
+        deleteAppointment,
         deleteTicket,
         updateUserRole,
         agentTakeTicket,
