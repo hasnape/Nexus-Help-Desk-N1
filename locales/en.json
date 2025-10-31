@@ -321,6 +321,8 @@
   "appointment.status.cancelled_by_agent": "Cancelled by Agent",
   "appointment.status.rescheduled_by_user": "User Requesting Reschedule",
   "appointment.status.rescheduled_by_agent": "Agent Requesting Reschedule",
+  "appointments.delete_success": "Appointment deleted.",
+  "appointments.delete_error": "Failed to delete appointment.",
   "helpChat.title": "AI Support Chat",
   "helpChat.subtitle": "Describe your issue below to get started.",
   "helpChat.initialMessage": "Hello! I'm Nexus, your AI Assistant. How can I help you today?",
