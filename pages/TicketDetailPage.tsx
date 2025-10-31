@@ -157,6 +157,7 @@ const TicketDetailPage: React.FC = () => {
   const [apptTime, setApptTime] = useState('');
   const [apptLocationMethod, setApptLocationMethod] = useState('');
   const [showAppointmentForm, setShowAppointmentForm] = useState(false);
+  const [isDeletingAppointment, setIsDeletingAppointment] = useState(false);
 
 
   const {
@@ -269,6 +270,16 @@ const TicketDetailPage: React.FC = () => {
 
   const handleContactAgent = () => {
     alert(t('ticketDetail.contactAgent.alertMessage'));
+  };
+
+  const handleDeleteAppointment = async () => {
+    const currentAppointmentId = ticket.current_appointment?.id;
+    if (!currentAppointmentId) {
+      return;
+    }
+    setIsDeletingAppointment(true);
+    await deleteAppointment(currentAppointmentId, ticket.id);
+    setIsDeletingAppointment(false);
   };
 
   const handleProposeAppointment = async () => {
