@@ -103,6 +103,9 @@ const TicketDetailPage: React.FC = () => {
   const [showUndo, setShowUndo] = useState(false);
   const undoTimerRef = useRef<number | null>(null);
   const undoBtnRef = useRef<HTMLButtonElement | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingApptId, setPendingApptId] = useState<string | null>(null);
+  const confirmBtnRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     if (!toast) return;
@@ -118,6 +121,30 @@ const TicketDetailPage: React.FC = () => {
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (!confirmOpen) return;
+    const focusTimer = window.setTimeout(() => {
+      confirmBtnRef.current?.focus();
+    }, 0);
+    return () => {
+      window.clearTimeout(focusTimer);
+    };
+  }, [confirmOpen]);
+
+  useEffect(() => {
+    if (!confirmOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setConfirmOpen(false);
+        setPendingApptId(null);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [confirmOpen]);
 
   const handleAppointmentDeleteResult = (ok: boolean) => {
     const successMsg = i18nT('appointment.deleted_banner', { defaultValue: 'Rendez-vous supprimé.' }) || 'Rendez-vous supprimé.';
@@ -384,58 +411,115 @@ const TicketDetailPage: React.FC = () => {
                   disabled={deleting}
                   aria-label={i18nT('appointment.delete', { defaultValue: 'Supprimer le RDV' })}
                   title={i18nT('appointment.delete', { defaultValue: 'Supprimer le RDV' })}
-                  onClick={async () => {
+                  onClick={() => {
                     if (deleting) return;
                     const appt = ticket.current_appointment;
                     if (!appt?.id) return;
-
-                    const normalizedTime = appt.proposedTime?.length === 5
-                      ? `${appt.proposedTime}:00`
-                      : appt.proposedTime;
-
-                    setUndoAppt({
-                      id: appt.id,
-                      ticket_id: ticket.id,
-                      proposed_by: appt.proposedBy,
-                      status: appt.status,
-                      proposed_date: appt.proposedDate,
-                      proposed_time: normalizedTime,
-                      location_or_method: appt.locationOrMethod,
-                    });
-
-                    setDeleting(true);
-                    const ok = await deleteAppointment(appt.id, ticket.id);
-                    setDeleting(false);
-
-                    if (ok) {
-                      setShowUndo(true);
-                      setTimeout(() => {
-                        undoBtnRef.current?.focus();
-                      }, 0);
-                      if (undoTimerRef.current) {
-                        window.clearTimeout(undoTimerRef.current);
-                      }
-                      undoTimerRef.current = window.setTimeout(() => {
-                        setShowUndo(false);
-                        setUndoAppt(null);
-                        undoTimerRef.current = null;
-                      }, 10000);
-                    } else {
-                      if (undoTimerRef.current) {
-                        window.clearTimeout(undoTimerRef.current);
-                        undoTimerRef.current = null;
-                      }
-                      setShowUndo(false);
-                      setUndoAppt(null);
-                    }
-
-                    handleAppointmentDeleteResult(ok);
+                    setPendingApptId(appt.id);
+                    setConfirmOpen(true);
                   }}
                 >
                   {deleting
                     ? i18nT('appointment.deleting', { defaultValue: 'Suppression...' })
                     : i18nT('appointment.delete', { defaultValue: 'Supprimer le RDV' })}
                 </button>
+                {confirmOpen && (
+                  <div
+                    className="fixed inset-0 z-50 flex items-center justify-center px-4"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="confirm-del-title"
+                  >
+                    <div
+                      className="absolute inset-0 bg-black/40"
+                      onClick={() => {
+                        setConfirmOpen(false);
+                        setPendingApptId(null);
+                      }}
+                      aria-hidden="true"
+                    />
+                    <div className="relative w-full max-w-sm rounded-lg bg-white p-4 shadow-lg focus:outline-none">
+                      <h2 id="confirm-del-title" className="text-base font-semibold">
+                        {i18nT('appointment.confirm_title', { defaultValue: 'Confirmer la suppression' }) || 'Confirmer la suppression'}
+                      </h2>
+                      <p className="mt-2 text-sm">
+                        {i18nT('appointment.confirm_body', { defaultValue: 'Voulez-vous vraiment supprimer ce rendez-vous ?' }) || 'Voulez-vous vraiment supprimer ce rendez-vous ?'}
+                      </p>
+                      <div className="mt-4 flex items-center justify-end gap-2">
+                        <button
+                          className="px-3 py-1 rounded-md border"
+                          onClick={() => {
+                            setConfirmOpen(false);
+                            setPendingApptId(null);
+                          }}
+                        >
+                          {i18nT('common.cancel', { defaultValue: 'Annuler' }) || 'Annuler'}
+                        </button>
+                        <button
+                          ref={confirmBtnRef}
+                          className="px-3 py-1 rounded-md border bg-red-600 text-white disabled:opacity-70"
+                          disabled={deleting}
+                          onClick={async () => {
+                            if (!pendingApptId || deleting) return;
+                            const appt = ticket.current_appointment;
+                            if (!appt?.id || appt.id !== pendingApptId) {
+                              setConfirmOpen(false);
+                              setPendingApptId(null);
+                              return;
+                            }
+
+                            const normalizedTime = appt.proposedTime?.length === 5
+                              ? `${appt.proposedTime}:00`
+                              : appt.proposedTime;
+
+                            const appointmentSnapshot: AppointmentDetail = {
+                              id: appt.id,
+                              ticket_id: ticket.id,
+                              proposed_by: appt.proposedBy,
+                              status: appt.status,
+                              proposed_date: appt.proposedDate,
+                              proposed_time: normalizedTime,
+                              location_or_method: appt.locationOrMethod,
+                            };
+
+                            setUndoAppt(appointmentSnapshot);
+                            setDeleting(true);
+                            const ok = await deleteAppointment(pendingApptId, ticket.id);
+                            setDeleting(false);
+                            setConfirmOpen(false);
+                            setPendingApptId(null);
+
+                            if (ok) {
+                              setShowUndo(true);
+                              window.setTimeout(() => {
+                                undoBtnRef.current?.focus();
+                              }, 0);
+                              if (undoTimerRef.current) {
+                                window.clearTimeout(undoTimerRef.current);
+                              }
+                              undoTimerRef.current = window.setTimeout(() => {
+                                setShowUndo(false);
+                                setUndoAppt(null);
+                                undoTimerRef.current = null;
+                              }, 10000);
+                            } else {
+                              if (undoTimerRef.current) {
+                                window.clearTimeout(undoTimerRef.current);
+                                undoTimerRef.current = null;
+                              }
+                              setShowUndo(false);
+                              setUndoAppt(null);
+                            }
+
+                            handleAppointmentDeleteResult(ok);
+                          }}
+                        >
+                          {i18nT('common.confirm', { defaultValue: 'Confirmer' }) || 'Confirmer'}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
         </div>

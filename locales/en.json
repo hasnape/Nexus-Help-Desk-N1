@@ -312,6 +312,8 @@
   "appointment.chat.agentProposed": "I've proposed an appointment for {{date}} at {{time}}, Method/Location: {{location}}. Please let me know if this works for you or if you'd like to suggest an alternative.",
   "appointment.chat.userConfirmed": "Great, I've confirmed the appointment for {{date}} at {{time}}, Method/Location: {{location}}.",
   "appointment.chat.userWantsToReschedule": "Regarding the appointment for {{date}} at {{time}} ({{location}}), I'd like to propose a different time or arrangement. Please let me know what works for you.",
+  "appointment.confirm_title": "Confirm deletion",
+  "appointment.confirm_body": "Do you really want to delete this appointment?",
   "appointment.delete": "Delete appointment",
   "appointment.deleting": "Deleting...",
   "appointment.deleted_banner": "Appointment deleted.",
@@ -460,5 +462,7 @@
   "promotional.section.future.content": "<p>Nexus Support Hub is constantly evolving: CRM integration, advanced automations, and premium support coming soon.</p>",
   "signupPlans.pro.payment.payButton": "Pay with PayPal",
   "landing.video.watchOnYouTube": "Watch on YouTube",
+  "common.cancel": "Cancel",
+  "common.confirm": "Confirm",
   "common.close": "Close"
 }
