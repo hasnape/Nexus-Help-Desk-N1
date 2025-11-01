@@ -763,20 +763,24 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
   );
 
   const login = useCallback(
-    async (email: string, password: string, companyName: string): Promise<string | true> => {
-      try {
-        const { session, profile } = await guardedLogin(email, password, companyName);
-        setUser(profile);
-        await loadUserData(session);
-        return true;
-      } catch (authError: unknown) {
-        if (authError instanceof GuardedLoginError) {
-          return translateGuardError(authError.translationKey);
-        }
-        console.error("Unexpected login error:", authError);
-        return translateGuardError("login.error.invalidCompanyCredentials");
-      }
-    },
+    (email: string, password: string, companyName: string): Promise<string | true> =>
+      guardedLogin(email, password, companyName)
+        .then(({ session, profile }) => {
+          setUser(profile);
+          return loadUserData(session)
+            .then(() => true)
+            .catch((loadError) => {
+              console.error("Unexpected error while loading user data after login:", loadError);
+              return translateGuardError("login.error.profileFetchFailed");
+            });
+        })
+        .catch((authError: unknown) => {
+          if (authError instanceof GuardedLoginError) {
+            return translateGuardError(authError.translationKey);
+          }
+          console.error("Unexpected login error:", authError);
+          return translateGuardError("login.error.invalidCompanyCredentials");
+        }),
     [loadUserData, translateGuardError]
   );
 
