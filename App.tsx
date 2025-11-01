@@ -4,7 +4,8 @@ import { Ticket, User, ChatMessage, TicketStatus, UserRole, Locale as AppLocale,
 import { getFollowUpHelpResponse, getTicketSummary } from "./services/geminiService";
 import { supabase } from "./services/supabaseClient";
 import { ensureUserProfile } from "./services/authService";
-import { guardedLogin } from "./services/guardedLogin";
+import { guardedLogin, GuardedLoginError } from "./services/guardedLogin";
+import type { GuardedLoginErrorKey } from "./services/guardedLogin";
 import PricingPage from "./pages/PricingPage";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
@@ -728,36 +729,51 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     setConsentGiven(true);
   };
 
+  const translateGuardError = useCallback(
+    (key: GuardedLoginErrorKey): string => {
+      switch (key) {
+        case "login.error.companyIdMismatch":
+          return translateHook("login.error.companyIdMismatch", {
+            default: "La compagnie ne correspond pas à votre compte.",
+          });
+        case "login.error.companyNotFound":
+          return translateHook("login.error.companyNotFound", {
+            default: "Cette compagnie n'existe pas.",
+          });
+        case "login.error.unknownEmail":
+          return translateHook("login.error.unknownEmail", {
+            default: "Cet email n'est pas reconnu.",
+          });
+        case "login.error.invalidCredentials":
+          return translateHook("login.error.invalidCredentials", {
+            default: "Invalid email or password. Please try again.",
+          });
+        case "login.error.profileFetchFailed":
+          return translateHook("login.error.profileFetchFailed", {
+            default: "Impossible de récupérer votre profil utilisateur pour la vérification.",
+          });
+        case "login.error.invalidCompanyCredentials":
+        default:
+          return translateHook("login.error.invalidCompanyCredentials", {
+            default: "Identifiants invalides (email/compagnie).",
+          });
+      }
+    },
+    [translateHook]
+  );
+
   const login = async (email: string, password: string, companyName: string): Promise<string | true> => {
     try {
-      const result = await guardedLogin(email, password, companyName);
-
-      if (result.ok) {
-        return true;
+      const { session, profile } = await guardedLogin(email, password, companyName);
+      setUser(profile);
+      await loadUserData(session);
+      return true;
+    } catch (authError: unknown) {
+      if (authError instanceof GuardedLoginError) {
+        return translateGuardError(authError.translationKey);
       }
-
-      const reason = result.reason;
-      if (reason === "company_mismatch") {
-        return translateHook("login.error.companyIdMismatch");
-      }
-      if (reason === "company_not_found") {
-        return translateHook("login.error.companyNotFound");
-      }
-      if (reason === "unknown_email") {
-        return translateHook("login.error.unknownEmail", { default: "Cet email n'est pas reconnu." });
-      }
-      if (reason === "invalid_login") {
-        return translateHook("login.error.invalidCredentials");
-      }
-
-      return translateHook("login.error.invalidCompanyCredentials", {
-        default: "Identifiants invalides (email/compagnie).",
-      });
-    } catch (authError: any) {
       console.error("Unexpected login error:", authError);
-      return translateHook("login.error.invalidCompanyCredentials", {
-        default: "Identifiants invalides (email/compagnie).",
-      });
+      return translateGuardError("login.error.invalidCompanyCredentials");
     }
   };
 

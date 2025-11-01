@@ -1,2 +1,2 @@
-export { guardedLogin } from "../src/services/guardedLogin";
-export type { GuardedLoginResult, GuardedLoginFailureReason } from "../src/services/guardedLogin";
+export { guardedLogin, GuardedLoginError } from "../src/services/guardedLogin";
+export type { GuardedLoginSuccess, GuardedLoginErrorKey } from "../src/services/guardedLogin";

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useApp } from "../App";
 import { Button, Input } from "../components/FormElements";
@@ -11,6 +11,8 @@ const LoginPage: React.FC = () => {
   const [companyName, setCompanyName] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { login, user } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
@@ -24,10 +26,31 @@ const LoginPage: React.FC = () => {
     }
   }, [user, navigate, from]);
 
+  useEffect(() => {
+    return () => {
+      if (toastTimeoutRef.current) {
+        clearTimeout(toastTimeoutRef.current);
+        toastTimeoutRef.current = null;
+      }
+    };
+  }, []);
+
+  const showErrorToast = (message: string) => {
+    setToastMessage(message);
+    setError(message);
+    if (toastTimeoutRef.current) {
+      clearTimeout(toastTimeoutRef.current);
+    }
+    toastTimeoutRef.current = setTimeout(() => {
+      setToastMessage(null);
+      toastTimeoutRef.current = null;
+    }, 4000);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (email.trim() === "" || password === "" || companyName.trim() === "") {
-      setError(t("login.error.allFieldsRequired"));
+      showErrorToast(t("login.error.allFieldsRequired"));
       return;
     }
 
@@ -37,12 +60,24 @@ const LoginPage: React.FC = () => {
 
     setIsLoading(false);
     if (loginResult !== true) {
-      setError(loginResult);
+      showErrorToast(loginResult);
+    } else {
+      setToastMessage(null);
     }
   };
 
   return (
     <Layout>
+      {toastMessage && (
+        <div className="fixed top-4 left-0 right-0 z-50 flex justify-center pointer-events-none">
+          <div
+            className="pointer-events-auto rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-lg"
+            role="alert"
+          >
+            {toastMessage}
+          </div>
+        </div>
+      )}
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-700 p-4">
         <div className="bg-surface p-6 sm:p-8 rounded-xl shadow-2xl w-full max-w-md">
           <div className="text-center mb-6">
