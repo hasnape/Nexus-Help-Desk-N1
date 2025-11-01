@@ -13,8 +13,10 @@ export interface GuardedLoginResult {
 }
 
 interface GuardResponseBody {
+  ok?: boolean;
   allowed?: boolean;
   reason?: string | null;
+  error?: string | null;
 }
 
 const parseJsonSafely = async (response: Response): Promise<GuardResponseBody | null> => {
@@ -31,7 +33,9 @@ const parseJsonSafely = async (response: Response): Promise<GuardResponseBody | 
   }
 };
 
-const normalizeReason = (reason: string | null | undefined): GuardedLoginFailureReason | undefined => {
+const normalizeReason = (
+  reason: string | null | undefined
+): GuardedLoginFailureReason | undefined => {
   if (!reason) {
     return undefined;
   }
@@ -46,6 +50,10 @@ const normalizeReason = (reason: string | null | undefined): GuardedLoginFailure
 
   if (reason === "invalid_login") {
     return "invalid_login";
+  }
+
+  if (reason === "unknown") {
+    return "unknown";
   }
 
   return undefined;
@@ -65,11 +73,12 @@ export const guardedLogin = async (
       body: JSON.stringify({ email, company }),
     });
 
-    if (guardResponse.status === 403) {
-      return { ok: false, reason: "company_mismatch" };
-    }
-
     const guardBody = await parseJsonSafely(guardResponse);
+
+    if (guardResponse.status === 403) {
+      const parsedReason = normalizeReason(guardBody?.reason) ?? "company_mismatch";
+      return { ok: false, reason: parsedReason };
+    }
 
     if (!guardResponse.ok) {
       const parsedReason = normalizeReason(guardBody?.reason);
