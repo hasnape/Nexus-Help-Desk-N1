@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, ReactNode, useCallback, useEffect, useRef } from "react";
+import i18next from "i18next";
 import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import { Ticket, User, ChatMessage, TicketStatus, UserRole, Locale as AppLocale, AppointmentDetails } from "./types";
 import { getFollowUpHelpResponse, getTicketSummary } from "./services/geminiService";
@@ -101,6 +102,8 @@ interface AppContextType {
   updateCompanyName: (newName: string) => Promise<boolean>;
   consentGiven: boolean;
   giveConsent: () => void;
+  quotaUsagePercent: number | null;
+  refreshQuotaUsage: (companyId?: string | null) => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -188,6 +191,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [newlyCreatedCompanyName, setNewlyCreatedCompanyName] = useState<string | null>(null);
   const [consentGiven, setConsentGiven] = useState<boolean>(false);
+  const [quotaUsagePercent, setQuotaUsagePercent] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingAi, setIsLoadingAi] = useState(false);
   const [isAutoReadEnabled, setIsAutoReadEnabled] = useState<boolean>(() => {
@@ -553,6 +557,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
             throw profileError || new Error("User profile not found");
           }
           setUser(userProfile);
+          await refreshQuotaUsage(userProfile.company_id ?? null);
 
           const [storageMode, internalNotesAvailable, currentAppointmentAvailable] = await Promise.all([
             ensureChatStorageMode(),
@@ -645,6 +650,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
           setUser(null);
           setTicketsDirect([]);
           setAllUsers([]);
+          setQuotaUsagePercent(null);
         }
       } catch (error: any) {
         console.error("Error loading user data:", error);
@@ -654,11 +660,18 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         setUser(null);
         setTicketsDirect([]);
         setAllUsers([]);
+        setQuotaUsagePercent(null);
       } finally {
         setIsLoading(false);
       }
     },
-    [ensureChatStorageMode, ensureInternalNotesColumn, ensureCurrentAppointmentColumn, setTicketsDirect]
+    [
+      ensureChatStorageMode,
+      ensureInternalNotesColumn,
+      ensureCurrentAppointmentColumn,
+      setTicketsDirect,
+      refreshQuotaUsage,
+    ]
   );
 
   useEffect(() => {
@@ -729,6 +742,83 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     setConsentGiven(true);
   };
 
+  const refreshQuotaUsage = useCallback(
+    async (companyId?: string | null) => {
+      const targetCompanyId = companyId ?? user?.company_id ?? null;
+      if (!targetCompanyId) {
+        setQuotaUsagePercent(null);
+        return;
+      }
+    },
+    [translateHook]
+  );
+
+      const attemptRpc = async () => {
+        if (targetCompanyId) {
+          const firstTry = await supabase.rpc("company_quota_status", { p_company_id: targetCompanyId });
+          if (!firstTry.error || !firstTry.error.code || firstTry.error.code === "PGRST302" || firstTry.error.code === "42883") {
+            return firstTry;
+          }
+          return supabase.rpc("company_quota_status");
+        }
+        return supabase.rpc("company_quota_status");
+      };
+
+      try {
+        const { data, error } = await attemptRpc();
+        if (error) {
+          if (error.code !== "PGRST302" && error.code !== "42883") {
+            console.debug("company_quota_status RPC unavailable:", error);
+          }
+          setQuotaUsagePercent(null);
+          return;
+        }
+
+        const extractPercent = (value: unknown): number | null => {
+          if (typeof value === "number" && Number.isFinite(value)) {
+            return value;
+          }
+          if (value && typeof value === "object") {
+            const record = value as Record<string, unknown>;
+            const candidates = ["percent", "usage_percent", "usagePercent", "quota_percent"] as const;
+            for (const key of candidates) {
+              const raw = record[key];
+              if (typeof raw === "number" && Number.isFinite(raw)) {
+                return raw;
+              }
+              if (typeof raw === "string") {
+                const parsed = Number.parseFloat(raw);
+                if (!Number.isNaN(parsed)) {
+                  return parsed;
+                }
+              }
+            }
+          }
+          return null;
+        };
+
+        let percentValue: number | null = null;
+        if (Array.isArray(data)) {
+          for (const entry of data) {
+            const candidate = extractPercent(entry);
+            if (candidate !== null) {
+              percentValue = candidate;
+              break;
+            }
+          }
+        } else {
+          percentValue = extractPercent(data);
+        }
+
+        setQuotaUsagePercent(percentValue !== null ? percentValue : null);
+      } catch (rpcError) {
+        console.debug("Failed to fetch company quota status:", rpcError);
+        setQuotaUsagePercent(null);
+      }
+    },
+    [user?.company_id]
+  );
+
   const translateGuardError = useCallback(
     (key: GuardedLoginErrorKey): string => {
       switch (key) {
@@ -766,6 +856,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     try {
       const { session, profile } = await guardedLogin(email, password, companyName);
       setUser(profile);
+      await refreshQuotaUsage(profile.company_id ?? null);
       await loadUserData(session);
       return true;
     } catch (authError: unknown) {
@@ -1581,6 +1672,8 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         updateCompanyName,
         consentGiven,
         giveConsent,
+        quotaUsagePercent,
+        refreshQuotaUsage,
       }}
     >
       {children}
@@ -1763,6 +1856,20 @@ const MainAppContent: React.FC = () => {
 };
 
 function App() {
+  useEffect(() => {
+    const apply = () => {
+      const lng = i18next.language;
+      document.documentElement.lang = lng;
+      document.documentElement.dir = lng === "ar" ? "rtl" : "ltr";
+    };
+    apply();
+    const handler = () => apply();
+    i18next.on("languageChanged", handler);
+    return () => {
+      i18next.off("languageChanged", handler);
+    };
+  }, []);
+
   return (
     <LanguageProvider>
       <AppProvider>
