@@ -749,6 +749,9 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         setQuotaUsagePercent(null);
         return;
       }
+    },
+    [translateHook]
+  );
 
       const attemptRpc = async () => {
         if (targetCompanyId) {
