@@ -286,6 +286,15 @@
   "appointment.chat.agentProposed": "لقد اقترحتُ موعدًا في {{date}} الساعة {{time}}، الطريقة/الموقع: {{location}}. يرجى إعلامي إذا كان هذا مناسبًا لك أو إذا كنت ترغب في اقتراح بديل.",
   "appointment.chat.userConfirmed": "رائع، لقد أكدتُ الموعد في {{date}} الساعة {{time}}، الطريقة/الموقع: {{location}}.",
   "appointment.chat.userWantsToReschedule": "بخصوص الموعد المحدد في {{date}} الساعة {{time}} ({{location}})، أود اقتراح وقت أو ترتيب مختلف. يرجى إخباري بما يناسبك.",
+  "appointment.confirm_title": "تأكيد الحذف",
+  "appointment.confirm_body": "هل أنت متأكد أنك تريد حذف هذا الموعد؟ لا يمكن التراجع عن هذا الإجراء.",
+  "appointment.delete": "حذف الموعد",
+  "appointment.delete_button": "حذف الموعد",
+  "appointment.delete_success": "تم حذف الموعد.",
+  "appointment.delete_error": "فشل حذف الموعد.",
+  "appointment.deleting": "جارٍ الحذف...",
+  "appointment.deleted_banner": "تم حذف الموعد.",
+  "appointment.undo": "تراجع",
   "appointment.currentStatusLabel": "الموعد",
   "appointment.detailsLabel": "{{date}} في {{time}} - {{location}}",
   "appointment.status.pending_user_approval": "بانتظار موافقة المستخدم",
@@ -387,5 +396,9 @@
 
   "signupPlans.pro.payment.title": "إنهاء الاشتراك الاحترافي",
   "signupPlans.pro.payment.description": "انقر على زر PayPal أدناه لتفعيل اشتراكك الاحترافي. ستتلقى مفتاح التفعيل عبر البريد الإلكتروني بعد الدفع.",
-  "signupPlans.pro.payment.note": "يمكنك إلغاء اشتراكك في أي وقت من حساب PayPal الخاص بك."
+  "signupPlans.pro.payment.note": "يمكنك إلغاء اشتراكك في أي وقت من حساب PayPal الخاص بك.",
+  "common.cancel": "إلغاء",
+  "common.confirm": "تأكيد",
+  "common.deleting": "جارٍ الحذف...",
+  "common.close": "إغلاق"
 }

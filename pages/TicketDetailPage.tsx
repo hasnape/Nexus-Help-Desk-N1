@@ -10,6 +10,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import useSpeechRecognition from '../hooks/useSpeechRecognition';
 import useTextToSpeech from '../hooks/useTextToSpeech';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
 
 
 
@@ -56,25 +57,74 @@ const CalendarIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 const TicketDetailPage: React.FC = () => {
   const { ticketId } = useParams<{ ticketId: string }>();
   const navigate = useNavigate();
-  const { 
-    getTicketById, 
-    user, 
-    addChatMessage, 
-    sendAgentMessage, 
-    isLoadingAi, 
+  const {
+    getTicketById,
+    user,
+    addChatMessage,
+    sendAgentMessage,
+    isLoadingAi,
     updateTicketStatus,
     isAutoReadEnabled,
     toggleAutoRead,
-    proposeOrUpdateAppointment
+    proposeOrUpdateAppointment,
+    deleteAppointment,
+    restoreAppointment
   } = useApp();
   const { t, getBCP47Locale, language } = useLanguage();
-  
+  const { t: i18nT } = useTranslation(['appointment', 'common']);
+
   const ticket = ticketId ? getTicketById(ticketId) : undefined;
 
   const [newMessage, setNewMessage] = useState('');
   const chatEndRef = useRef<HTMLDivElement>(null);
   const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
   const [lastSpokenAiMessage, setLastSpokenAiMessage] = useState<{ text: string; id: string } | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [feedback, setFeedback] = useState<null | { type: 'success' | 'error'; msg: string }>(null);
+  const feedbackRef = useRef<HTMLDivElement | null>(null);
+
+  type AppointmentDetail = {
+    id: string;
+    ticket_id: string;
+    proposed_by: 'agent' | 'user';
+    status:
+      | 'pending_user_approval'
+      | 'pending_agent_approval'
+      | 'confirmed'
+      | 'cancelled_by_user'
+      | 'cancelled_by_agent'
+      | 'rescheduled_by_user'
+      | 'rescheduled_by_agent';
+    proposed_date: string;
+    proposed_time: string;
+    location_or_method: string;
+  };
+
+  const [undoAppt, setUndoAppt] = useState<AppointmentDetail | null>(null);
+  const [showUndo, setShowUndo] = useState(false);
+  const undoTimerRef = useRef<number | null>(null);
+  const undoBtnRef = useRef<HTMLButtonElement | null>(null);
+  const deleteBtnRef = useRef<HTMLButtonElement | null>(null);
+  useEffect(() => {
+    if (!feedback) return;
+    const focusTimeout = window.setTimeout(() => {
+      feedbackRef.current?.focus();
+    }, 0);
+    const dismissTimeout = window.setTimeout(() => setFeedback(null), 3000);
+    return () => {
+      window.clearTimeout(focusTimeout);
+      window.clearTimeout(dismissTimeout);
+    };
+  }, [feedback]);
+
+  useEffect(() => {
+    return () => {
+      if (undoTimerRef.current) {
+        window.clearTimeout(undoTimerRef.current);
+        undoTimerRef.current = null;
+      }
+    };
+  }, []);
 
   // Appointment proposal state for agents/managers
   const [apptDate, setApptDate] = useState('');
@@ -311,18 +361,104 @@ const TicketDetailPage: React.FC = () => {
     else if (status.includes('cancelled')) statusColor = 'text-red-700';
 
     return (
-        <div className={`mt-2 p-2 rounded text-xs border ${status === 'confirmed' ? 'bg-green-50 border-green-300' : 'bg-slate-50 border-slate-300'}`}>
-            <span className="font-semibold">{t('appointment.currentStatusLabel')}: </span>
-            <span className={statusColor}>{statusText}</span>
-            <br />
-            {t('appointment.detailsLabel', { date: formattedDate, time: proposedTime, location: locationOrMethod })}
+      <div className={`mt-2 p-2 rounded text-xs border ${status === 'confirmed' ? 'bg-green-50 border-green-300' : 'bg-slate-50 border-slate-300'}`}>
+          <span className="font-semibold">{t('appointment.currentStatusLabel')}: </span>
+          <span className={statusColor}>{statusText}</span>
+          <br />
+          {t('appointment.detailsLabel', { date: formattedDate, time: proposedTime, location: locationOrMethod })}
+          {isAgentOrManager && (
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <button
+                ref={deleteBtnRef}
+                type="button"
+                className="px-3 py-1 rounded-md border text-sm disabled:opacity-50 shrink-0"
+                disabled={deleting}
+                aria-label={i18nT('appointment.delete_button')}
+                title={i18nT('appointment.delete_button')}
+                onClick={async () => {
+                  if (deleting) return;
+                  const appt = ticket.current_appointment;
+                  if (!appt?.id) return;
+
+                  const confirmed = window.confirm(
+                    `${i18nT('appointment.confirm_title')}\n\n${i18nT('appointment.confirm_body')}`
+                  );
+                  if (!confirmed) return;
+
+                  const normalizedTime = appt.proposedTime?.length === 5
+                    ? `${appt.proposedTime}:00`
+                    : appt.proposedTime;
+
+                  const appointmentSnapshot: AppointmentDetail = {
+                    id: appt.id,
+                    ticket_id: ticket.id,
+                    proposed_by: appt.proposedBy,
+                    status: appt.status,
+                    proposed_date: appt.proposedDate,
+                    proposed_time: normalizedTime,
+                    location_or_method: appt.locationOrMethod,
+                  };
+
+                  setUndoAppt(appointmentSnapshot);
+
+                  setDeleting(true);
+                  const ok = await deleteAppointment(appt.id, ticket.id);
+                  setDeleting(false);
+
+                  if (ok) {
+                    setShowUndo(true);
+                    window.setTimeout(() => {
+                      undoBtnRef.current?.focus();
+                    }, 0);
+                    if (undoTimerRef.current) {
+                      window.clearTimeout(undoTimerRef.current);
+                    }
+                    undoTimerRef.current = window.setTimeout(() => {
+                      setShowUndo(false);
+                      setUndoAppt(null);
+                      undoTimerRef.current = null;
+                    }, 10000);
+                  } else {
+                    if (undoTimerRef.current) {
+                      window.clearTimeout(undoTimerRef.current);
+                      undoTimerRef.current = null;
+                    }
+                    setShowUndo(false);
+                    setUndoAppt(null);
+                  }
+
+                  const successMsg =
+                    i18nT('appointment.delete_success', { defaultValue: 'Rendez-vous supprimé.' }) ||
+                    'Rendez-vous supprimé.';
+                  const errorMsg =
+                    i18nT('appointment.delete_error', {
+                      defaultValue: 'Échec de la suppression du rendez-vous.',
+                    }) || 'Échec de la suppression du rendez-vous.';
+
+                  if (ok) {
+                    setFeedback({ type: 'success', msg: successMsg });
+                  } else {
+                    setFeedback({ type: 'error', msg: errorMsg });
+                    window.setTimeout(() => {
+                      deleteBtnRef.current?.focus();
+                    }, 300);
+                  }
+                }}
+              >
+                {deleting
+                  ? i18nT('common.deleting')
+                  : i18nT('appointment.delete_button')}
+              </button>
+            </div>
+          )}
         </div>
-    );
+      );
   };
 
 
   return (
-    <div className="max-w-4xl mx-auto bg-surface shadow-xl rounded-lg overflow-hidden flex flex-col h-[calc(100vh-10rem)] sm:h-[calc(100vh-8rem)]">
+    <>
+      <div className="max-w-4xl mx-auto bg-surface shadow-xl rounded-lg overflow-hidden flex flex-col h-[calc(100vh-10rem)] sm:h-[calc(100vh-8rem)]">
       <header className="bg-slate-700 text-white p-4 sm:p-6">
         <div className="flex justify-between items-center mb-3">
           <h1 className="text-xl sm:text-2xl font-bold truncate" title={ticket.title}>{ticket.title}</h1>
@@ -341,6 +477,117 @@ const TicketDetailPage: React.FC = () => {
         {ticket.workstation_id && <div className="mt-2 text-xs"><span className="font-semibold text-slate-300">{t('newTicket.form.workstationIdLabel')}: </span><span className="text-slate-100">{ticket.workstation_id}</span></div>}
         {ticket.assigned_agent_id && isAgentOrManager && <div className="mt-2 text-xs"><span className="font-semibold text-slate-300">{t('managerDashboard.tableHeader.assignedAgent')}: </span><span className="text-slate-100">{ticket.assigned_agent_id}</span></div>}
         {renderCurrentAppointmentInfo()}
+        {feedback && (
+          <div
+            ref={feedbackRef}
+            tabIndex={-1}
+            role={feedback.type === 'error' ? 'alert' : 'status'}
+            aria-live={feedback.type === 'error' ? 'assertive' : 'polite'}
+            className={
+              'mt-2 rounded-md px-3 py-2 text-sm outline-none ' +
+              (feedback.type === 'success'
+                ? 'bg-green-50 text-green-700 border border-green-200'
+                : 'bg-red-50 text-red-700 border border-red-200')
+            }
+          >
+            <div className="flex items-start gap-2">
+              {feedback.type === 'success' ? (
+                <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5 flex-shrink-0">
+                  <path
+                    d="M9 12l2 2 4-4"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="9"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  />
+                </svg>
+              ) : (
+                <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5 flex-shrink-0">
+                  <path
+                    d="M10.29 3.86l-8.4 14.58A2 2 0 003.53 22h16.94a2 2 0 001.74-3.56L13.82 3.86a2 2 0 00-3.53 0z"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M12 9v4m0 4h.01"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              )}
+              <span>{feedback.msg}</span>
+            </div>
+          </div>
+        )}
+        {showUndo && undoAppt && (
+          <div
+            className="mt-2 rounded-md border px-3 py-2 text-sm flex items-center justify-between"
+            role="status"
+            aria-live="polite"
+          >
+            <span>{i18nT('appointment.deleted_banner', { defaultValue: 'Rendez-vous supprimé.' }) || 'Rendez-vous supprimé.'}</span>
+            <div className="flex items-center gap-2">
+              <button
+                ref={undoBtnRef}
+                className="px-3 py-1 rounded-md border"
+                onClick={async () => {
+                  if (undoTimerRef.current) {
+                    window.clearTimeout(undoTimerRef.current);
+                    undoTimerRef.current = null;
+                  }
+                  setShowUndo(false);
+                  if (!undoAppt) return;
+                  const ok = await restoreAppointment(undoAppt, undoAppt.ticket_id);
+                  if (!ok) {
+                    console.error('Failed to restore appointment');
+                    const restoreErrorMsg =
+                      i18nT('appointments.restore_error', {
+                        defaultValue: 'Échec de la restauration du rendez-vous.',
+                      }) || 'Échec de la restauration du rendez-vous.';
+                    setFeedback({ type: 'error', msg: restoreErrorMsg });
+                  } else {
+                    const restoreSuccessMsg =
+                      i18nT('appointments.restore_success', {
+                        defaultValue: 'Rendez-vous restauré.',
+                      }) || 'Rendez-vous restauré.';
+                    setFeedback({ type: 'success', msg: restoreSuccessMsg });
+                  }
+                  setUndoAppt(null);
+                }}
+              >
+                {i18nT('appointment.undo', { defaultValue: 'Annuler' }) || 'Annuler'}
+              </button>
+              <button
+                className="px-2 py-1 text-xs opacity-70 hover:opacity-100"
+                onClick={() => {
+                  if (undoTimerRef.current) {
+                    window.clearTimeout(undoTimerRef.current);
+                    undoTimerRef.current = null;
+                  }
+                  setShowUndo(false);
+                  setUndoAppt(null);
+                }}
+                aria-label={i18nT('common.close', { defaultValue: 'Fermer' }) || 'Fermer'}
+                title={i18nT('common.close', { defaultValue: 'Fermer' }) || 'Fermer'}
+              >
+                {i18nT('common.close', { defaultValue: 'Fermer' }) || 'Fermer'}
+              </button>
+            </div>
+          </div>
+        )}
         <div className="mt-3">
             <Select label={t('ticketDetail.updateStatusLabel')} id="ticketStatus" value={ticket.status} onChange={(e) => handleStatusChange(e.target.value)} options={statusOptions} className="bg-slate-600 border-slate-500 text-white focus:ring-sky-500 focus:border-sky-500 text-sm py-1.5 w-full sm:w-auto"/>
         </div>
@@ -376,7 +623,8 @@ const TicketDetailPage: React.FC = () => {
         {isTicketClosedOrResolved && <p className="text-xs text-center text-orange-600 mt-2">{t('ticketDetail.ticketClosedWarning', {status: t(`ticketStatus.${ticket.status}`)})}</p>}
         {!browserSupportsSpeechRecognition && !speechErrorText && (<p className="text-xs text-slate-500 mt-2 text-center">{t('ticketDetail.voiceInputForChatNotSupported')}</p>)}
       </form>
-    </div>
+      </div>
+    </>
   );
 };
 

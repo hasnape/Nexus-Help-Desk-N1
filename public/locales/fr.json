@@ -564,6 +564,19 @@
     "futureTitle": "Roadmap and Future Developments",
     "futureContent": "<ul><li><strong>Advanced Integrations:</strong> We plan to integrate with popular CRM and messaging platforms for a smoother workflow.</li><li><strong>AI Customization:</strong> Future developments will allow businesses to train the AI with their own knowledge bases for even more accurate and specific responses.</li><li><strong>Appointment Module:</strong> An integrated system for scheduling appointments with agents will be added for more efficient management of complex interactions.</li></ul>",
     "conclusionTitle": "Conclusion: Your Partner for Excellence",
-    "conclusionContent": "<p>Nexus Support Hub is not just a tool; it's your strategic partner for revolutionizing customer support. By adopting our platform, you invest in efficiency, security, and customer satisfaction, positioning your business for sustainable growth. Join the intelligent customer support revolution today.</p>"
+    "conclusionContent": "<p>Nexus Support Hub is not just a tool; it's your strategic partner for revolutionizing customer support. By adopting our platform, you invest in efficiency, security, and customer satisfaction, positioning your business for sustainable growth. Join the intelligent customer support revolution today.</p>",
+  "common": {
+    "cancel": "Annuler",
+    "confirm": "Confirmer",
+    "delete": "Supprimer",
+    "deleting": "Suppression..."
+  },
+  "appointment": {
+    "confirm_title": "Confirmer la suppression",
+    "confirm_body": "Voulez-vous vraiment supprimer ce rendez-vous ? Cette action est irréversible.",
+    "delete_button": "Supprimer le RDV",
+    "delete_success": "Rendez-vous supprimé.",
+    "delete_error": "Échec de la suppression du rendez-vous."
+  }
 }
 
