@@ -1,6 +1,7 @@
-import React from "react";
-import { useTranslation } from "react-i18next";
+import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+
+import { useLanguage } from "../contexts/LanguageContext";
 
 type Plan = {
   name: string;
@@ -14,27 +15,6 @@ type Plans = {
   freemium: Plan;
   standard: Plan;
   pro: Plan;
-};
-
-const defaultPlans: Plans = {
-  freemium: {
-    name: "",
-    price: "",
-    features: [],
-    cta: "",
-  },
-  standard: {
-    name: "",
-    price: "",
-    features: [],
-    cta: "",
-  },
-  pro: {
-    name: "",
-    price: "",
-    features: [],
-    cta: "",
-  },
 };
 
 const Badge: React.FC<{ children: React.ReactNode }> = ({ children }) => (
@@ -75,17 +55,85 @@ const Card: React.FC<{ plan: Plan; badgeText?: string; onClick: () => void }> = 
   );
 };
 
+const planFeatureKeys: Record<keyof Plans, readonly string[]> = {
+  freemium: [
+    "pricing.freemium.feature1",
+    "pricing.freemium.feature2",
+    "pricing.freemium.feature3",
+    "pricing.freemium.feature4",
+  ],
+  standard: [
+    "pricing.standard.feature1",
+    "pricing.standard.feature2",
+    "pricing.standard.feature3",
+    "pricing.standard.feature4",
+  ],
+  pro: [
+    "pricing.pro.feature1",
+    "pricing.pro.feature2",
+    "pricing.pro.feature3",
+    "pricing.pro.feature4",
+  ],
+};
+
+const planYearlyKeys: Partial<Record<keyof Plans, string>> = {
+  freemium: "pricing.freemium.yearly",
+  standard: "pricing.standard.yearly",
+  pro: "pricing.pro.yearly",
+};
+
 const PricingSection: React.FC = () => {
-  const { t } = useTranslation();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
-  const plans = t<Plans>("pricing.plans", {
-    returnObjects: true,
-    defaultValue: defaultPlans,
-  });
-  const title = t("pricing.title");
-  const disclaimer = t("pricing.disclaimer");
-  const popular = t("pricing.badges.popular");
+  const resolveTranslation = (key: string, fallbackKey?: string): string => {
+    const value = t(key);
+    if (value !== key && value.trim().length > 0) {
+      return value;
+    }
+
+    if (!fallbackKey) {
+      return "";
+    }
+
+    const fallbackValue = t(fallbackKey);
+    return fallbackValue !== fallbackKey ? fallbackValue : "";
+  };
+
+  const resolveOptionalTranslation = (key: string | undefined): string | undefined => {
+    if (!key) {
+      return undefined;
+    }
+    const value = resolveTranslation(key);
+    return value.length > 0 ? value : undefined;
+  };
+
+  const plans = useMemo<Plans>(() => {
+    const buildPlan = (planKey: keyof Plans): Plan => {
+      const yearly = resolveOptionalTranslation(planYearlyKeys[planKey]);
+      const features = planFeatureKeys[planKey]
+        .map((featureKey) => resolveTranslation(featureKey))
+        .filter((feature): feature is string => feature.length > 0);
+
+      return {
+        name: resolveTranslation(`pricing.${planKey}.name`),
+        price: resolveTranslation(`pricing.${planKey}.price`),
+        yearly,
+        features,
+        cta: resolveTranslation(`pricing.${planKey}.cta`, "pricing.button.signUp"),
+      };
+    };
+
+    return {
+      freemium: buildPlan("freemium"),
+      standard: buildPlan("standard"),
+      pro: buildPlan("pro"),
+    };
+  }, [t]);
+
+  const title = resolveTranslation("pricing.title");
+  const disclaimer = resolveTranslation("pricing.disclaimer");
+  const popular = resolveTranslation("pricing.badges.popular", "pricing.popular");
 
   const goSignup = () => navigate("/signup");
 

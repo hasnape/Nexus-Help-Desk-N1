@@ -489,47 +489,11 @@
   "pricing.title": "Une tarification simple et transparente",
   "pricing.subtitle": "Choisissez le plan qui correspond aux besoins de votre équipe. Pas de frais cachés.",
   "pricing.popular": "Le plus populaire",
-  "pricing.badges": {
-    "popular": "Le plus populaire"
-  },
+  "pricing.badges.popular": "Le plus populaire",
   "pricing.disclaimer": "Choisissez le plan adapté aux besoins de votre équipe. Changez d'offre à tout moment.",
-  "pricing.plans": {
-    "freemium": {
-      "name": "Freemium",
-      "price": "0 € / mois",
-      "yearly": "0 € facturés annuellement",
-      "features": [
-        "Jusqu'à 3 agents inclus",
-        "200 tickets par mois",
-        "Assistant IA avec automatisations essentielles"
-      ],
-      "cta": "Commencer gratuitement"
-    },
-    "standard": {
-      "name": "Standard",
-      "price": "10 € / agent / mois",
-      "yearly": "108 € facturés annuellement (10 % d'économie)",
-      "features": [
-        "Tickets illimités",
-        "Workflows IA avancés",
-        "Tableaux de bord de performance d'équipe",
-        "Support SLA standard"
-      ],
-      "cta": "Commencer"
-    },
-    "pro": {
-      "name": "Pro",
-      "price": "20 € / agent / mois",
-      "yearly": "216 € facturés annuellement (10 % d'économie)",
-      "features": [
-        "Toutes les fonctionnalités Standard",
-        "Assistants vocaux et multilingues",
-        "Planification de rendez-vous",
-        "Support prioritaire"
-      ],
-      "cta": "Passer au plan Pro"
-    }
-  },
+  "pricing.freemium.yearly": "0 € facturés annuellement",
+  "pricing.standard.yearly": "108 € facturés annuellement (10 % d'économie)",
+  "pricing.pro.yearly": "216 € facturés annuellement (10 % d'économie)",
   "pricing.perAgentPerMonth": "mois",
   "pricing.button.signUp": "S'inscrire",
   "pricing.button.getStarted": "Commencer",
