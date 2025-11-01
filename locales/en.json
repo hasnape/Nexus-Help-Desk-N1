@@ -40,7 +40,6 @@
   "signupPlans.standard.modal.buttons.subscribe": "Subscribe Standard",
   "landing.advantages.cost.desc": "Automate repetitive tasks: focus your resources on what matters and reduce your expenses.",
   "login.signInButton": "Sign In",
-  "landing.video.subtitle": "A quick overview of our services and added value.",
   "login.demoNotes.supabase.production": "This application uses secure Supabase Authentication.",
   "login.error.allFieldsRequired": "Email, password, and Company Name are required.",
   "login.error.invalidCredentials": "Invalid email or password. Please try again.",
@@ -470,5 +469,135 @@
   "common.cancel": "Cancel",
   "common.confirm": "Confirm",
   "common.deleting": "Deleting...",
-  "common.close": "Close"
+  "common.close": "Close",
+  "pricing": {
+    "title": "Pricing",
+    "disclaimer": "Hosted on Supabase (RLS). No local storage.",
+    "additionalNote": "Hosted on Supabase (RLS). No local storage.",
+    "badges": {
+      "popular": "Most popular"
+    },
+    "ctaDemo": "Request a demo",
+    "plans": {
+      "freemium": {
+        "name": "Freemium (sandbox)",
+        "price": "Free",
+        "yearly": "",
+        "features": [
+          "1 agent",
+          "50 tickets/month",
+          "7-day read-only history",
+          "Basic AI replies",
+          "No scheduling",
+          "No export",
+          "Upgrade nudge at 80%",
+          "Creation blocked at 100%"
+        ],
+        "cta": "Request a demo"
+      },
+      "standard": {
+        "name": "Standard",
+        "price": "€19/mo",
+        "yearly": "or €190/year",
+        "features": [
+          "5 agents",
+          "500 tickets/month",
+          "6-month history",
+          "Full AI + auto categorization",
+          "Internal notes",
+          "CSV export",
+          "Simple scheduling (no reminders)",
+          "Standard SLA",
+          "Manager activation code included"
+        ],
+        "cta": "Request a demo"
+      },
+      "pro": {
+        "name": "Pro",
+        "price": "€39/mo",
+        "yearly": "or €390/year",
+        "features": [
+          "10 agents",
+          "1000 tickets/month",
+          "24-month history",
+          "Voice commands",
+          "Multilingual FR/EN (AR later)",
+          "Scheduling with reminders",
+          "Advanced reports",
+          "Webhooks",
+          "Priority SLA"
+        ],
+        "cta": "Request a demo"
+      }
+    },
+    "freemium": {
+      "name": "Freemium (sandbox)",
+      "price": "Free",
+      "cta": "Request a demo",
+      "feature1": "1 agent",
+      "feature2": "50 tickets/month",
+      "feature3": "7-day read-only history",
+      "feature4": "Basic AI replies",
+      "feature5": "No scheduling",
+      "feature6": "No export",
+      "feature7": "Upgrade nudge at 80%",
+      "feature8": "Creation blocked at 100%"
+    },
+    "standard": {
+      "name": "Standard",
+      "price": "€19/mo",
+      "yearly": "or €190/year",
+      "cta": "Request a demo",
+      "feature1": "5 agents",
+      "feature2": "500 tickets/month",
+      "feature3": "6-month history",
+      "feature4": "Full AI + auto categorization",
+      "feature5": "Internal notes",
+      "feature6": "CSV export",
+      "feature7": "Simple scheduling (no reminders)",
+      "feature8": "Standard SLA",
+      "feature9": "Manager activation code included"
+    },
+    "pro": {
+      "name": "Pro",
+      "price": "€39/mo",
+      "yearly": "or €390/year",
+      "cta": "Request a demo",
+      "feature1": "10 agents",
+      "feature2": "1000 tickets/month",
+      "feature3": "24-month history",
+      "feature4": "Voice commands",
+      "feature5": "Multilingual FR/EN (AR later)",
+      "feature6": "Scheduling with reminders",
+      "feature7": "Advanced reports",
+      "feature8": "Webhooks",
+      "feature9": "Priority SLA"
+    },
+    "popular": "Most popular",
+    "banner": {
+      "freemiumFree": "Freemium: Free | Standard: €19/mo | Pro: €39/mo",
+      "choosePlan": "Freemium: Free | Standard: €19/mo | Pro: €39/mo"
+    },
+    "bannerText": "Freemium: Free | Standard: €19/mo | Pro: €39/mo"
+  },
+  "footer.demo": "Request a demo",
+  "footer.infographie": "Infographic",
+  "navbar.demo": "Request a demo",
+  "demo": {
+    "title": "Request a 15-min demo",
+    "subtitle": "Show your context; we’ll show how to cut response time by 25–35%.",
+    "name": "Name",
+    "email": "Work email",
+    "company": "Company name",
+    "message": "Context (optional)",
+    "send": "Send request",
+    "success": "Thanks! We’ll get back to you shortly.",
+    "error": "Something went wrong. Please try again."
+  },
+  "signupPlans.Freemium.modal.features.unlimited": "1 agent and 50 tickets/month",
+  "signupPlans.Freemium.modal.features.localStorage": "7-day read-only history",
+  "signupPlans.Freemium.modal.features.singleCompany": "Basic AI responses",
+  "signupPlans.Freemium.modal.storageNotice.title": "Quota management",
+  "signupPlans.Freemium.modal.storageNotice.description": "Upgrade nudges at 80% and creation blocked at 100%.",
+  "navbar.pricingpage": "Pricing"
 }

@@ -424,89 +424,6 @@
   "landing.features.secure.desc": "بيانات كل شركة معزولة تمامًا، مما يضمن الخصوصية والأمان مع تحكم قوي في الوصول القائم على الأدوار.",
   "landing.features.voice.title": "مفعل بالصوت",
   "landing.features.voice.desc": "عزز إمكانية الوصول باستخدام الأوامر الصوتية للدردشة وتحويل النص إلى كلام تلقائيًا لردود الذكاء الاصطناعي.",
-  "pricing": {
-    "title": "تسعير بسيط وشفاف",
-    "disclaimer": "اختر الخطة التي تناسب احتياجات فريق الدعم لديك. يمكنك الترقية أو التخفيض في أي وقت.",
-    "badges": {
-      "popular": "الأكثر شيوعاً"
-    },
-    "plans": {
-      "freemium": {
-        "name": "فريميوم",
-        "price": "0 € / شهر",
-        "yearly": "0 € يتم دفعها سنويًا",
-        "features": [
-          "يشمل حتى 3 وكلاء",
-          "200 تذكرة شهريًا",
-          "مساعد ذكاء اصطناعي مع أتمتة أساسية"
-        ],
-        "cta": "ابدأ مجانًا"
-      },
-      "standard": {
-        "name": "ستاندرد",
-        "price": "10 € / وكيل / شهر",
-        "yearly": "108 € يتم دفعها سنويًا (وفر 10%)",
-        "features": [
-          "تذاكر غير محدودة",
-          "تدفقات عمل متقدمة للذكاء الاصطناعي",
-          "لوحات أداء للفريق",
-          "دعم وفق اتفاقية مستوى خدمة قياسية"
-        ],
-        "cta": "ابدأ الآن"
-      },
-      "pro": {
-        "name": "برو",
-        "price": "20 € / وكيل / شهر",
-        "yearly": "216 € يتم دفعها سنويًا (وفر 10%)",
-        "features": [
-          "جميع ميزات Standard",
-          "مساعدون صوتيون ومتعددوا اللغات",
-          "جدولة المواعيد",
-          "دعم أولوية"
-        ],
-        "cta": "الترقية إلى برو"
-      }
-    }
-  },
-  "pricing.title": "تسعير بسيط وشفاف",
-  "pricing.subtitle": "اختر الخطة التي تناسب احتياجات فريقك. لا توجد رسوم خفية.",
-  "pricing.popular": "الأكثر شيوعًا",
-  "pricing.badges.popular": "الأكثر شيوعاً",
-  "pricing.disclaimer": "اختر الخطة التي تناسب احتياجات فريق الدعم لديك. يمكنك الترقية أو التخفيض في أي وقت.",
-  "pricing.freemium.yearly": "€0 يتم فوترة سنويًا",
-  "pricing.standard.yearly": "108 € يتم فوترة سنوية (وفر 10%)",
-  "pricing.pro.yearly": "216 € يتم فوترة سنوية (وفر 10%)",
-  "pricing.perAgentPerMonth": "/ وكيل / شهر",
-  "pricing.button.signUp": "انشئ حساب",
-  "pricing.button.getStarted": "ابدأ",
-  "pricing.subscribe": "اشترك",
-  "pricing.freemium.name": "فريميوم",
-  "pricing.freemium.price": "مجاني",
-  "pricing.freemium.desc": "خطة مجانية مع استضافة سحابية آمنة على بنية Nexus.",
-  "pricing.freemium.feature1": "حتى 3 وكلاء",
-  "pricing.freemium.feature2": "200 تذكرة شهريًا",
-  "pricing.freemium.feature3": "تخزين سحابي للتذاكر والجلسات عبر Nexus",
-  "pricing.freemium.feature4": "إمكانية الوصول من أي عدد من الأجهزة",
-  "pricing.freemium.cta": "ابدأ مجانًا",
-  "pricing.freemium.storageNotice": "في عرض Freemium تتم مزامنة التذاكر والجلسات والنسخ الاحتياطية عبر سحابة Nexus ويمكن الوصول إليها من أي جهاز.",
-  "pricing.banner.freemiumFree": "Freemium: مجاني | Standard: الشهر الأول 5€ ثم 10€/شهر | Pro: 20€/شهر",
-  "pricing.banner.choosePlan": "اختر الخطة التي تناسبك",
-  "pricing.standard.name": "ستاندرد",
-  "pricing.standard.price": "10 €",
-  "pricing.standard.desc": "للفرق المتنامية التي تحتاج إلى القوة الكاملة لذكائنا الاصطناعي.",
-  "pricing.standard.feature1": "تذاكر غير محدودة",
-  "pricing.standard.feature2": "ميزات الذكاء الاصطناعي الكاملة",
-  "pricing.standard.feature3": "تصنيف تلقائي",
-  "pricing.standard.feature4": "اتفاقية مستوى خدمة قياسية",
-  "pricing.pro.name": "برو",
-  "pricing.pro.price": "20 €",
-  "pricing.pro.desc": "للفرق التي تتطلب الأفضل، مع ميزات متقدمة.",
-  "pricing.pro.feature1": "جميع ميزات Standard",
-  "pricing.pro.feature2": "أوامر صوتية",
-  "pricing.pro.feature3": "دعم متعدد اللغات",
-  "pricing.pro.feature4": "جدولة المواعيد",
-  "pricing.enterprise.text": "هل تحتاج إلى تكاملات مخصصة أو دعم متميز؟",
-  "pricing.enterprise.link": "اتصل بنا للحصول على أسعار الشركات.",
   "subscription.pageTitle": "إدارة اشتراكك",
   "subscription.pageSubtitle": "اختر الخطة المناسبة لفريقك.",
   "subscription.currentPlan.title": "خطتك الحالية",
@@ -540,11 +457,11 @@
   "signupPlans.Freemium.modal.title": "خطة فريميوم - التفاصيل",
   "signupPlans.Freemium.modal.pricing": "مجاني",
   "signupPlans.Freemium.modal.features.title": "ما يتضمنه فريميوم",
-  "signupPlans.Freemium.modal.features.unlimited": "حتى 3 وكلاء و200 تذكرة/شهر",
-  "signupPlans.Freemium.modal.features.localStorage": "تخزين سحابي آمن للتذاكر والجلسات عبر Nexus",
-  "signupPlans.Freemium.modal.features.singleCompany": "وصول متعدد الأجهزة دون قيود",
-  "signupPlans.Freemium.modal.storageNotice.title": "يتم مزامنة بياناتك في السحابة",
-  "signupPlans.Freemium.modal.storageNotice.description": "تستضيف سحابة Nexus تذاكر فريميوم وسجل المحادثة والنسخ الاحتياطية. سجّل الدخول من أي جهاز للمتابعة.",
+  "signupPlans.Freemium.modal.features.unlimited": "وكيل واحد و50 تذكرة/شهر",
+  "signupPlans.Freemium.modal.features.localStorage": "أرشيف قراءة فقط لمدة 7 أيام",
+  "signupPlans.Freemium.modal.features.singleCompany": "ذكاء اصطناعي أساسي",
+  "signupPlans.Freemium.modal.storageNotice.title": "إدارة الحصة",
+  "signupPlans.Freemium.modal.storageNotice.description": "تنبيه ترقية عند 80% وإيقاف إنشاء التذاكر عند 100%.",
   "signupPlans.Freemium.modal.buttons.cancel": "إلغاء",
   "signupPlans.Freemium.modal.buttons.subscribe": "تفعيل فريميوم",
   "signupPlans.freemium.autoSelected.title": "تم اختيار فريميوم تلقائيًا",
@@ -601,12 +518,6 @@
   "footer.followUs": "تابعنا",
   "footer.whyChooseNexus": "لماذا تختار محور دعم نيكسوس؟",
   "footer.whyChooseNexusSubtitle": "اكتشف مزايا مكتب المساعدة الذكي لدينا.",
-  "pricing.freemium.title": "خطة فريميوم",
-  "pricing.standard.title": "خطة ستاندرد",
-  "pricing.pro.title": "خطة برو",
-  "pricing.freemium.shortDesc": "مجاني للفرق الصغيرة",
-  "pricing.standard.shortDesc": "ذكاء اصطناعي كامل للفرق المتنامية",
-  "pricing.pro.shortDesc": "ميزات متقدمة للفرق المتطلبة",
   "landing.whyChoose.title": "لماذا تختار محور دعم نيكسوس؟",
   "landing.whyChoose.subtitle": "اكتشف مزايا مكتب المساعدة الذكي لدينا.",
   "landing.whyChoose.feature1.title": "دعم مدعوم بالذكاء الاصطناعي",
@@ -660,5 +571,130 @@
     "delete_button": "حذف الموعد",
     "delete_success": "تم حذف الموعد.",
     "delete_error": "فشل حذف الموعد."
-  }
+  },
+  "pricing": {
+    "title": "الأسعار",
+    "disclaimer": "مستضاف على Supabase (RLS). بدون تخزين محلي.",
+    "additionalNote": "مستضاف على Supabase (RLS). بدون تخزين محلي.",
+    "badges": {
+      "popular": "الأكثر شيوعاً"
+    },
+    "ctaDemo": "اطلب عرضاً",
+    "plans": {
+      "freemium": {
+        "name": "فريميوم (تجريبي)",
+        "price": "مجاني",
+        "yearly": "",
+        "features": [
+          "وكيل واحد",
+          "50 تذكرة/شهر",
+          "أرشيف قراءة فقط 7 أيام",
+          "ذكاء اصطناعي أساسي",
+          "لا مواعيد",
+          "لا تصدير",
+          "تنبيه ترقية عند 80%",
+          "إيقاف الإنشاء عند 100%"
+        ],
+        "cta": "اطلب عرضاً"
+      },
+      "standard": {
+        "name": "ستاندرد",
+        "price": "€19/شهر",
+        "yearly": "أو €190/سنة",
+        "features": [
+          "5 وكلاء",
+          "500 تذكرة/شهر",
+          "أرشيف 6 أشهر",
+          "ذكاء كامل + تصنيف تلقائي",
+          "ملاحظات داخلية",
+          "تصدير CSV",
+          "مواعيد بسيطة (بدون تذكير)",
+          "SLA قياسي",
+          "رمز تفعيل المدير"
+        ],
+        "cta": "اطلب عرضاً"
+      },
+      "pro": {
+        "name": "برو",
+        "price": "€39/شهر",
+        "yearly": "أو €390/سنة",
+        "features": [
+          "10 وكلاء",
+          "1000 تذكرة/شهر",
+          "أرشيف 24 شهراً",
+          "أوامر صوتية",
+          "فرنسية/إنجليزية (العربية لاحقاً)",
+          "مواعيد + تذكير",
+          "تقارير متقدمة",
+          "Webhook",
+          "SLA أولوية"
+        ],
+        "cta": "اطلب عرضاً"
+      }
+    },
+    "freemium": {
+      "name": "فريميوم (تجريبي)",
+      "price": "مجاني",
+      "cta": "اطلب عرضاً",
+      "feature1": "وكيل واحد",
+      "feature2": "50 تذكرة/شهر",
+      "feature3": "أرشيف قراءة فقط 7 أيام",
+      "feature4": "ذكاء اصطناعي أساسي",
+      "feature5": "لا مواعيد",
+      "feature6": "لا تصدير",
+      "feature7": "تنبيه ترقية عند 80%",
+      "feature8": "إيقاف الإنشاء عند 100%"
+    },
+    "standard": {
+      "name": "ستاندرد",
+      "price": "€19/شهر",
+      "yearly": "أو €190/سنة",
+      "cta": "اطلب عرضاً",
+      "feature1": "5 وكلاء",
+      "feature2": "500 تذكرة/شهر",
+      "feature3": "أرشيف 6 أشهر",
+      "feature4": "ذكاء كامل + تصنيف تلقائي",
+      "feature5": "ملاحظات داخلية",
+      "feature6": "تصدير CSV",
+      "feature7": "مواعيد بسيطة (بدون تذكير)",
+      "feature8": "SLA قياسي",
+      "feature9": "رمز تفعيل المدير"
+    },
+    "pro": {
+      "name": "برو",
+      "price": "€39/شهر",
+      "yearly": "أو €390/سنة",
+      "cta": "اطلب عرضاً",
+      "feature1": "10 وكلاء",
+      "feature2": "1000 تذكرة/شهر",
+      "feature3": "أرشيف 24 شهراً",
+      "feature4": "أوامر صوتية",
+      "feature5": "فرنسية/إنجليزية (العربية لاحقاً)",
+      "feature6": "مواعيد + تذكير",
+      "feature7": "تقارير متقدمة",
+      "feature8": "Webhook",
+      "feature9": "SLA أولوية"
+    },
+    "popular": "الأكثر شيوعاً",
+    "banner": {
+      "freemiumFree": "فريميوم: مجاني | ستاندرد: 19 €/شهر | برو: 39 €/شهر",
+      "choosePlan": "فريميوم: مجاني | ستاندرد: 19 €/شهر | برو: 39 €/شهر"
+    },
+    "bannerText": "فريميوم: مجاني | ستاندرد: 19 €/شهر | برو: 39 €/شهر"
+  },
+  "footer.demo": "اطلب عرضاً",
+  "footer.infographie": "إنفوجرافيك",
+  "navbar.demo": "اطلب عرضاً",
+  "demo": {
+    "title": "اطلب عرضاً (15 دقيقة)",
+    "subtitle": "قدّم سياقك ونوضح كيف نخفض زمن الاستجابة 25–35%.",
+    "name": "الاسم",
+    "email": "البريد الوظيفي",
+    "company": "اسم الشركة",
+    "message": "السياق (اختياري)",
+    "send": "إرسال الطلب",
+    "success": "شكراً! سنعاود الاتصال لتحديد الموعد.",
+    "error": "حدث خطأ. يرجى المحاولة مرة أخرى."
+  },
+  "navbar.pricingpage": "الأسعار"
 }

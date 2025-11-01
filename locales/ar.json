@@ -348,7 +348,6 @@
   "landing.videoSection.subtitle": "شاهد كيف تُحدث الذكاء الاصطناعي ثورة في دعم العملاء مع الاستجابات الفورية وإدارة التذاكر الذكية.",
   "landing.stats.availability": "دعم الذكاء الاصطناعي متاح",
   "landing.stats.languages": "فرنسي، إنجليزي، عربي",
-  "landing.video.subtitle": "نظرة سريعة على خدماتنا وقيمتنا المضافة.",
   "landing.video.watchOnYouTube": "شاهد على يوتيوب",
   "landing.stats.company": "تم تطويره من قبل",
   "contact.video.title": "اكتشف حلولنا",
@@ -370,13 +369,11 @@
   "email.service.sendSuccess": "تم إرسال رسالة الترحيب بنجاح إلى {{email}}",
   "email.service.sendError": "فشل في إرسال البريد الإلكتروني الترحيبي: {{error}}",
   "email.service.fallbackMode": "التبديل إلى وضع المحاكاة بسبب خطأ في خدمة البريد الإلكتروني",
-
   "signupPlans.title": "اختر خطتك",
   "signupPlans.subtitle": "اختر الخطة التي تناسب احتياجات فريقك.",
   "signupPlans.freemium.select": "اختر المجاني",
   "signupPlans.standard.select": "اختر المعياري",
   "signupPlans.pro.select": "عرض تفاصيل الاحترافي",
-
   "signupPlans.pro.modal.title": "الخطة الاحترافية - التفاصيل الكاملة",
   "signupPlans.pro.modal.pricing": "/ وكيل / شهر",
   "signupPlans.pro.modal.features.title": "الميزات الاحترافية المتضمنة",
@@ -386,21 +383,147 @@
   "signupPlans.pro.modal.features.appointments": "جدولة المواعيد",
   "signupPlans.pro.modal.features.priority": "دعم أولوية",
   "signupPlans.pro.modal.features.analytics": "تحليلات متقدمة",
-
   "signupPlans.pro.modal.trial.title": "تجربة مجانية لمدة 7 أيام",
   "signupPlans.pro.modal.trial.description": "ابدأ تجربتك المجانية لمدة 7 أيام الآن. لا حاجة لبطاقة ائتمان للبدء. ألغِ في أي وقت.",
-
   "signupPlans.pro.modal.billing.title": "الفوترة والإلغاء",
   "signupPlans.pro.modal.billing.description": "فوترة شهرية عبر PayPal. إلغاء سهل من حساب PayPal الخاص بك في أي وقت. لا يوجد التزام طويل الأمد.",
-
   "signupPlans.pro.modal.buttons.cancel": "إلغاء",
   "signupPlans.pro.modal.buttons.subscribe": "اشترك احترافي",
-
   "signupPlans.pro.payment.title": "إنهاء الاشتراك الاحترافي",
   "signupPlans.pro.payment.description": "انقر على زر PayPal أدناه لتفعيل اشتراكك الاحترافي. ستتلقى مفتاح التفعيل عبر البريد الإلكتروني بعد الدفع.",
   "signupPlans.pro.payment.note": "يمكنك إلغاء اشتراكك في أي وقت من حساب PayPal الخاص بك.",
   "common.cancel": "إلغاء",
   "common.confirm": "تأكيد",
   "common.deleting": "جارٍ الحذف...",
-  "common.close": "إغلاق"
+  "common.close": "إغلاق",
+  "pricing": {
+    "title": "الأسعار",
+    "disclaimer": "مستضاف على Supabase (RLS). بدون تخزين محلي.",
+    "additionalNote": "مستضاف على Supabase (RLS). بدون تخزين محلي.",
+    "badges": {
+      "popular": "الأكثر شيوعاً"
+    },
+    "ctaDemo": "اطلب عرضاً",
+    "plans": {
+      "freemium": {
+        "name": "فريميوم (تجريبي)",
+        "price": "مجاني",
+        "yearly": "",
+        "features": [
+          "وكيل واحد",
+          "50 تذكرة/شهر",
+          "أرشيف قراءة فقط 7 أيام",
+          "ذكاء اصطناعي أساسي",
+          "لا مواعيد",
+          "لا تصدير",
+          "تنبيه ترقية عند 80%",
+          "إيقاف الإنشاء عند 100%"
+        ],
+        "cta": "اطلب عرضاً"
+      },
+      "standard": {
+        "name": "ستاندرد",
+        "price": "€19/شهر",
+        "yearly": "أو €190/سنة",
+        "features": [
+          "5 وكلاء",
+          "500 تذكرة/شهر",
+          "أرشيف 6 أشهر",
+          "ذكاء كامل + تصنيف تلقائي",
+          "ملاحظات داخلية",
+          "تصدير CSV",
+          "مواعيد بسيطة (بدون تذكير)",
+          "SLA قياسي",
+          "رمز تفعيل المدير"
+        ],
+        "cta": "اطلب عرضاً"
+      },
+      "pro": {
+        "name": "برو",
+        "price": "€39/شهر",
+        "yearly": "أو €390/سنة",
+        "features": [
+          "10 وكلاء",
+          "1000 تذكرة/شهر",
+          "أرشيف 24 شهراً",
+          "أوامر صوتية",
+          "فرنسية/إنجليزية (العربية لاحقاً)",
+          "مواعيد + تذكير",
+          "تقارير متقدمة",
+          "Webhook",
+          "SLA أولوية"
+        ],
+        "cta": "اطلب عرضاً"
+      }
+    },
+    "freemium": {
+      "name": "فريميوم (تجريبي)",
+      "price": "مجاني",
+      "cta": "اطلب عرضاً",
+      "feature1": "وكيل واحد",
+      "feature2": "50 تذكرة/شهر",
+      "feature3": "أرشيف قراءة فقط 7 أيام",
+      "feature4": "ذكاء اصطناعي أساسي",
+      "feature5": "لا مواعيد",
+      "feature6": "لا تصدير",
+      "feature7": "تنبيه ترقية عند 80%",
+      "feature8": "إيقاف الإنشاء عند 100%"
+    },
+    "standard": {
+      "name": "ستاندرد",
+      "price": "€19/شهر",
+      "yearly": "أو €190/سنة",
+      "cta": "اطلب عرضاً",
+      "feature1": "5 وكلاء",
+      "feature2": "500 تذكرة/شهر",
+      "feature3": "أرشيف 6 أشهر",
+      "feature4": "ذكاء كامل + تصنيف تلقائي",
+      "feature5": "ملاحظات داخلية",
+      "feature6": "تصدير CSV",
+      "feature7": "مواعيد بسيطة (بدون تذكير)",
+      "feature8": "SLA قياسي",
+      "feature9": "رمز تفعيل المدير"
+    },
+    "pro": {
+      "name": "برو",
+      "price": "€39/شهر",
+      "yearly": "أو €390/سنة",
+      "cta": "اطلب عرضاً",
+      "feature1": "10 وكلاء",
+      "feature2": "1000 تذكرة/شهر",
+      "feature3": "أرشيف 24 شهراً",
+      "feature4": "أوامر صوتية",
+      "feature5": "فرنسية/إنجليزية (العربية لاحقاً)",
+      "feature6": "مواعيد + تذكير",
+      "feature7": "تقارير متقدمة",
+      "feature8": "Webhook",
+      "feature9": "SLA أولوية"
+    },
+    "popular": "الأكثر شيوعاً",
+    "banner": {
+      "freemiumFree": "فريميوم: مجاني | ستاندرد: 19 €/شهر | برو: 39 €/شهر",
+      "choosePlan": "فريميوم: مجاني | ستاندرد: 19 €/شهر | برو: 39 €/شهر"
+    },
+    "bannerText": "فريميوم: مجاني | ستاندرد: 19 €/شهر | برو: 39 €/شهر"
+  },
+  "footer.demo": "اطلب عرضاً",
+  "footer.infographie": "إنفوجرافيك",
+  "navbar.demo": "اطلب عرضاً",
+  "demo": {
+    "title": "اطلب عرضاً (15 دقيقة)",
+    "subtitle": "قدّم سياقك ونوضح كيف نخفض زمن الاستجابة 25–35%.",
+    "name": "الاسم",
+    "email": "البريد الوظيفي",
+    "company": "اسم الشركة",
+    "message": "السياق (اختياري)",
+    "send": "إرسال الطلب",
+    "success": "شكراً! سنعاود الاتصال لتحديد الموعد.",
+    "error": "حدث خطأ. يرجى المحاولة مرة أخرى."
+  },
+  "signupPlans.Freemium.modal.features.unlimited": "وكيل واحد و50 تذكرة/شهر",
+  "signupPlans.Freemium.modal.features.localStorage": "أرشيف قراءة فقط لمدة 7 أيام",
+  "signupPlans.Freemium.modal.features.singleCompany": "ذكاء اصطناعي أساسي",
+  "signupPlans.Freemium.modal.storageNotice.title": "إدارة الحصة",
+  "signupPlans.Freemium.modal.storageNotice.description": "تنبيه ترقية عند 80% وإيقاف إنشاء التذاكر عند 100%.",
+  "navbar.pricingpage": "الأسعار"
 }

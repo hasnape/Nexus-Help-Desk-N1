@@ -25,6 +25,7 @@ import AboutPage from "./pages/AboutPage";
 import TestimonialsPage from "./pages/TestimonialsPage";
 import PartnersPage from "./pages/PartnersPage";
 import InfographiePage from "./pages/InfographiePage";
+import DemoPage from "./pages/DemoPage";
 import { DEFAULT_AI_LEVEL, DEFAULT_USER_ROLE, TICKET_STATUS_KEYS } from "./constants";
 import { LanguageProvider, useLanguage } from "./contexts/LanguageContext";
 import LoadingSpinner from "./components/LoadingSpinner";
@@ -1661,6 +1662,7 @@ const MainAppContent: React.FC = () => {
     <Route path="/testimonials" element={<TestimonialsPage />} />
     <Route path="/partners" element={<PartnersPage />} />
     <Route path="/infographie" element={<InfographiePage />} />
+    <Route path="/demo" element={<DemoPage />} />
 
     {/* PricingPage */}
     <Route path="/pricing" element={<PricingPage />} />

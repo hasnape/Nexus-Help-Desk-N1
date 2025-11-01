@@ -322,8 +322,8 @@
   "legal.tabs.pricing": "Tarification & facturation",
   "legal.tabs.sla": "SLA & support",
   "infographie.title": "Infographie technique",
-"infographie.subtitle": "Découvrez l’architecture et les technologies clés de Nexus Support Hub.",
-"infographie.seeMore": "Voir l’infographie complète",
+  "infographie.subtitle": "Découvrez l’architecture et les technologies clés de Nexus Support Hub.",
+  "infographie.seeMore": "Voir l’infographie complète",
   "legal.tabs.ip": "Propriété intellectuelle",
   "legal.integration.title": "Guide d’intégration simple",
   "navbar.infographie": "Infographie",
@@ -442,89 +442,6 @@
   "landing.features.secure.desc": "Les données de chaque entreprise sont complètement isolées, garantissant la confidentialité et la sécurité avec un contrôle d'accès robuste basé sur les rôles.",
   "landing.features.voice.title": "Activé par la voix",
   "landing.features.voice.desc": "Améliorez l'accessibilité avec les commandes vocales pour le chat et la synthèse vocale automatique pour les réponses de l'IA.",
-  "pricing": {
-    "title": "Une tarification simple et transparente",
-    "disclaimer": "Choisissez l'offre qui correspond aux besoins de votre équipe support. Changez de formule quand vous le souhaitez.",
-    "badges": {
-      "popular": "Le plus populaire"
-    },
-    "plans": {
-      "freemium": {
-        "name": "Freemium",
-        "price": "0 € / mois",
-        "yearly": "0 € facturés à l'année",
-        "features": [
-          "Jusqu'à 3 agents inclus",
-          "200 tickets par mois",
-          "Assistant IA avec automatisations essentielles"
-        ],
-        "cta": "Commencer gratuitement"
-      },
-      "standard": {
-        "name": "Standard",
-        "price": "10 € / agent / mois",
-        "yearly": "108 € facturés à l'année (10 % d'économie)",
-        "features": [
-          "Tickets illimités",
-          "Workflows IA avancés",
-          "Tableaux de bord de performance",
-          "Support SLA standard"
-        ],
-        "cta": "Démarrer"
-      },
-      "pro": {
-        "name": "Pro",
-        "price": "20 € / agent / mois",
-        "yearly": "216 € facturés à l'année (10 % d'économie)",
-        "features": [
-          "Toutes les fonctionnalités Standard",
-          "Assistants vocaux et multilingues",
-          "Planification de rendez-vous",
-          "Support prioritaire"
-        ],
-        "cta": "Passer au plan Pro"
-      }
-    }
-  },
-  "pricing.title": "Une tarification simple et transparente",
-  "pricing.subtitle": "Choisissez le plan qui correspond aux besoins de votre équipe. Pas de frais cachés.",
-  "pricing.popular": "Le plus populaire",
-  "pricing.badges.popular": "Le plus populaire",
-  "pricing.disclaimer": "Choisissez le plan adapté aux besoins de votre équipe. Changez d'offre à tout moment.",
-  "pricing.freemium.yearly": "0 € facturés annuellement",
-  "pricing.standard.yearly": "108 € facturés annuellement (10 % d'économie)",
-  "pricing.pro.yearly": "216 € facturés annuellement (10 % d'économie)",
-  "pricing.perAgentPerMonth": "mois",
-  "pricing.button.signUp": "S'inscrire",
-  "pricing.button.getStarted": "Commencer",
-  "pricing.subscribe": "Souscrire",
-  "pricing.freemium.name": "Freemium",
-  "pricing.freemium.price": "Gratuit",
-  "pricing.freemium.desc": "Offre gratuite avec hébergement sécurisé dans le cloud Nexus.",
-  "pricing.freemium.feature1": "Jusqu'à 3 agents",
-  "pricing.freemium.feature2": "200 tickets par mois",
-  "pricing.freemium.feature3": "Stockage sécurisé des tickets sur l'infrastructure Nexus",
-  "pricing.freemium.feature4": "Accès possible depuis un nombre illimité d'appareils",
-  "pricing.freemium.cta": "Commencer gratuitement",
-  "pricing.freemium.storageNotice": "Avec l'offre Freemium, les tickets, sessions et sauvegardes sont synchronisés dans le cloud Nexus et accessibles depuis n'importe quel appareil.",
-  "pricing.banner.freemiumFree": "Freemium : Gratuit | Standard : 1er mois 5€, ensuite 10€/mois | Pro : 20€/mois",
-  "pricing.banner.choosePlan": "Choisissez le plan qui correspond le mieux à vos besoins",
-  "pricing.standard.name": "Standard",
-  "pricing.standard.price": "10€",
-  "pricing.standard.desc": "Pour les équipes en croissance qui ont besoin de toute la puissance de notre IA.",
-  "pricing.standard.feature1": "500 Tickets mois, 5 Agents",
-  "pricing.standard.feature2": "Fonctionnalités IA complètes",
-  "pricing.standard.feature3": "Catégorisation automatique",
-  "pricing.standard.feature4": "SLA standard",
-  "pricing.pro.name": "Pro",
-  "pricing.pro.price": "20€",
-  "pricing.pro.desc": "Pour les équipes qui exigent le meilleur, avec des fonctionnalités avancées.",
-  "pricing.pro.feature1": "Toutes les fonctionnalités Standard jusqu’à 10 Agents, 1000 Tickets mois",
-  "pricing.pro.feature2": "Commandes vocales",
-  "pricing.pro.feature3": "Support multilingue",
-  "pricing.pro.feature4": "Planification de rendez-vous",
-  "pricing.enterprise.text": "Besoin d'intégrations personnalisées ou d'un support premium ?",
-  "pricing.enterprise.link": "Contactez-nous pour un tarif Entreprise.",
   "subscription.pageTitle": "Gérez votre abonnement",
   "subscription.pageSubtitle": "Choisissez le plan qui convient le mieux à votre équipe.",
   "subscription.currentPlan.title": "Votre plan actuel",
@@ -551,11 +468,11 @@
   "signupPlans.Freemium.modal.title": "Plan Freemium - Détails",
   "signupPlans.Freemium.modal.pricing": "Gratuit",
   "signupPlans.Freemium.modal.features.title": "Fonctionnalités Freemium",
-  "signupPlans.Freemium.modal.features.unlimited": "Jusqu'à 3 agents et 200 tickets/mois",
-  "signupPlans.Freemium.modal.features.localStorage": "Stockage cloud sécurisé géré par Nexus",
-  "signupPlans.Freemium.modal.features.singleCompany": "Accès multi-appareils sans verrouillage",
-  "signupPlans.Freemium.modal.storageNotice.title": "Vos données sont synchronisées dans le cloud",
-  "signupPlans.Freemium.modal.storageNotice.description": "Les tickets, historiques et sauvegardes Freemium sont hébergés sur Nexus. Connectez-vous depuis l'appareil de votre choix.",
+  "signupPlans.Freemium.modal.features.unlimited": "1 agent et 50 tickets/mois",
+  "signupPlans.Freemium.modal.features.localStorage": "Historique lecture seule 7 jours",
+  "signupPlans.Freemium.modal.features.singleCompany": "IA basique (réponses courtes)",
+  "signupPlans.Freemium.modal.storageNotice.title": "Gestion de quota",
+  "signupPlans.Freemium.modal.storageNotice.description": "Nudge d’upgrade à 80 % et blocage de création à 100 %.",
   "signupPlans.Freemium.modal.buttons.cancel": "Annuler",
   "signupPlans.Freemium.modal.buttons.subscribe": "Activer le Freemium",
   "signupPlans.freemium.autoSelected.title": "Freemium sélectionné automatiquement",
@@ -601,21 +518,21 @@
   "signupPlans.standard.modal.features.slaStandard": "SLA standard",
   "signupPlans.standard.modal.features.billing": "Facturation mensuelle via PayPal",
   "signupPlans.standard.modal.features.cancelAnytime": "Annulation à tout moment depuis votre compte PayPal",
-   "backToApp": "Back to Application",
-    "mainTitle": "Nexus Support Hub – The Revolution in Intelligent Customer Support",
-    "mainSubtitle": "Promotional Document | October 26, 2025",
-    "introTitle": "Introduction: A Revolution in Customer Support",
-    "introContent": "<p>In a world where customers demand fast and personalized responses, <strong>Nexus Support Hub</strong> stands as the innovative solution. Our platform combines a powerful ticketing system with cutting-edge artificial intelligence to transform your customer support management. It automates repetitive tasks, enhances productivity, and guarantees unparalleled customer satisfaction, all while offering professional-grade security and a multi-tenant architecture.</p>",
-    "featuresTitle": "Key Features of Nexus Support Hub",
-    "featuresContent": "<ul><li><strong>Instant AI Assistance:</strong> Our AI, Nexus, provides 24/7 support, capable of categorizing, summarizing, and responding to common queries. It automatically creates clear tickets for human agents when needed.</li><li><strong>Secure & Multi-Tenant:</strong> Each company has a completely isolated data environment, ensuring confidentiality and security. Our role-based access control ensures that data is seen only by authorized personnel.</li><li><strong>Voice Enabled:</strong> Enhance accessibility with voice commands for chat and automatic text-to-speech for AI responses, making support more inclusive.</li></ul>",
-    "advantagesTitle": "The Advantages That Set You Apart",
-    "advantagesContent": "<ul><li><strong>Instant Resolution:</strong> The AI handles requests in real-time, drastically reducing response times and boosting customer satisfaction.</li><li><strong>Enterprise-Grade Security:</strong> Protect your data with an isolated architecture, strictly controlled access, and GDPR compliance.</li><li><strong>Advanced Analytics:</strong> Track your support performance with detailed dashboards and key metrics for informed decision-making.</li></ul>",
-    "limitsTitle": "Current Version Limitations",
-    "limitsContent": "<p>While powerful, the current system is optimized for small to medium-sized businesses. Advanced integrations with third-party CRMs or ERP systems are not yet available in the standard plans. AI customization beyond basic categorization capabilities requires a custom offer.</p>",
-    "futureTitle": "Roadmap and Future Developments",
-    "futureContent": "<ul><li><strong>Advanced Integrations:</strong> We plan to integrate with popular CRM and messaging platforms for a smoother workflow.</li><li><strong>AI Customization:</strong> Future developments will allow businesses to train the AI with their own knowledge bases for even more accurate and specific responses.</li><li><strong>Appointment Module:</strong> An integrated system for scheduling appointments with agents will be added for more efficient management of complex interactions.</li></ul>",
-    "conclusionTitle": "Conclusion: Your Partner for Excellence",
-    "conclusionContent": "<p>Nexus Support Hub is not just a tool; it's your strategic partner for revolutionizing customer support. By adopting our platform, you invest in efficiency, security, and customer satisfaction, positioning your business for sustainable growth. Join the intelligent customer support revolution today.</p>",
+  "backToApp": "Back to Application",
+  "mainTitle": "Nexus Support Hub – The Revolution in Intelligent Customer Support",
+  "mainSubtitle": "Promotional Document | October 26, 2025",
+  "introTitle": "Introduction: A Revolution in Customer Support",
+  "introContent": "<p>In a world where customers demand fast and personalized responses, <strong>Nexus Support Hub</strong> stands as the innovative solution. Our platform combines a powerful ticketing system with cutting-edge artificial intelligence to transform your customer support management. It automates repetitive tasks, enhances productivity, and guarantees unparalleled customer satisfaction, all while offering professional-grade security and a multi-tenant architecture.</p>",
+  "featuresTitle": "Key Features of Nexus Support Hub",
+  "featuresContent": "<ul><li><strong>Instant AI Assistance:</strong> Our AI, Nexus, provides 24/7 support, capable of categorizing, summarizing, and responding to common queries. It automatically creates clear tickets for human agents when needed.</li><li><strong>Secure & Multi-Tenant:</strong> Each company has a completely isolated data environment, ensuring confidentiality and security. Our role-based access control ensures that data is seen only by authorized personnel.</li><li><strong>Voice Enabled:</strong> Enhance accessibility with voice commands for chat and automatic text-to-speech for AI responses, making support more inclusive.</li></ul>",
+  "advantagesTitle": "The Advantages That Set You Apart",
+  "advantagesContent": "<ul><li><strong>Instant Resolution:</strong> The AI handles requests in real-time, drastically reducing response times and boosting customer satisfaction.</li><li><strong>Enterprise-Grade Security:</strong> Protect your data with an isolated architecture, strictly controlled access, and GDPR compliance.</li><li><strong>Advanced Analytics:</strong> Track your support performance with detailed dashboards and key metrics for informed decision-making.</li></ul>",
+  "limitsTitle": "Current Version Limitations",
+  "limitsContent": "<p>While powerful, the current system is optimized for small to medium-sized businesses. Advanced integrations with third-party CRMs or ERP systems are not yet available in the standard plans. AI customization beyond basic categorization capabilities requires a custom offer.</p>",
+  "futureTitle": "Roadmap and Future Developments",
+  "futureContent": "<ul><li><strong>Advanced Integrations:</strong> We plan to integrate with popular CRM and messaging platforms for a smoother workflow.</li><li><strong>AI Customization:</strong> Future developments will allow businesses to train the AI with their own knowledge bases for even more accurate and specific responses.</li><li><strong>Appointment Module:</strong> An integrated system for scheduling appointments with agents will be added for more efficient management of complex interactions.</li></ul>",
+  "conclusionTitle": "Conclusion: Your Partner for Excellence",
+  "conclusionContent": "<p>Nexus Support Hub is not just a tool; it's your strategic partner for revolutionizing customer support. By adopting our platform, you invest in efficiency, security, and customer satisfaction, positioning your business for sustainable growth. Join the intelligent customer support revolution today.</p>",
   "common": {
     "cancel": "Annuler",
     "confirm": "Confirmer",
@@ -628,6 +545,130 @@
     "delete_button": "Supprimer le RDV",
     "delete_success": "Rendez-vous supprimé.",
     "delete_error": "Échec de la suppression du rendez-vous."
-  }
+  },
+  "pricing": {
+    "title": "Tarifs",
+    "disclaimer": "Tout hébergé sur Supabase (RLS). Aucun stockage local.",
+    "additionalNote": "Tout hébergé sur Supabase (RLS). Aucun stockage local.",
+    "badges": {
+      "popular": "Le plus populaire"
+    },
+    "ctaDemo": "Demander une démo",
+    "plans": {
+      "freemium": {
+        "name": "Freemium (bac à sable)",
+        "price": "Gratuit",
+        "yearly": "",
+        "features": [
+          "1 agent",
+          "50 tickets/mois",
+          "Historique lecture seule 7 jours",
+          "IA basique (réponses courtes)",
+          "Pas de RDV",
+          "Pas d’export",
+          "Nudge d’upgrade à 80% du quota",
+          "Blocage création à 100%"
+        ],
+        "cta": "Demander une démo"
+      },
+      "standard": {
+        "name": "Standard",
+        "price": "19 €/mois",
+        "yearly": "ou 190 €/an",
+        "features": [
+          "5 agents",
+          "500 tickets/mois",
+          "Historique 6 mois",
+          "IA complète + catégorisation auto",
+          "Notes internes",
+          "Export CSV",
+          "RDV simples (sans rappels automatiques)",
+          "SLA standard",
+          "Code d’activation manager inclus"
+        ],
+        "cta": "Demander une démo"
+      },
+      "pro": {
+        "name": "Pro",
+        "price": "39 €/mois",
+        "yearly": "ou 390 €/an",
+        "features": [
+          "10 agents",
+          "1000 tickets/mois",
+          "Historique 24 mois",
+          "Commandes vocales",
+          "Multilingue FR/EN (AR plus tard)",
+          "RDV + rappels",
+          "Rapports avancés",
+          "Webhooks",
+          "SLA prioritaire"
+        ],
+        "cta": "Demander une démo"
+      }
+    },
+    "freemium": {
+      "name": "Freemium (bac à sable)",
+      "price": "Gratuit",
+      "cta": "Demander une démo",
+      "feature1": "1 agent",
+      "feature2": "50 tickets/mois",
+      "feature3": "Historique lecture seule 7 jours",
+      "feature4": "IA basique (réponses courtes)",
+      "feature5": "Pas de RDV",
+      "feature6": "Pas d’export",
+      "feature7": "Nudge d’upgrade à 80% du quota",
+      "feature8": "Blocage création à 100%"
+    },
+    "standard": {
+      "name": "Standard",
+      "price": "19 €/mois",
+      "yearly": "ou 190 €/an",
+      "cta": "Demander une démo",
+      "feature1": "5 agents",
+      "feature2": "500 tickets/mois",
+      "feature3": "Historique 6 mois",
+      "feature4": "IA complète + catégorisation auto",
+      "feature5": "Notes internes",
+      "feature6": "Export CSV",
+      "feature7": "RDV simples (sans rappels automatiques)",
+      "feature8": "SLA standard",
+      "feature9": "Code d’activation manager inclus"
+    },
+    "pro": {
+      "name": "Pro",
+      "price": "39 €/mois",
+      "yearly": "ou 390 €/an",
+      "cta": "Demander une démo",
+      "feature1": "10 agents",
+      "feature2": "1000 tickets/mois",
+      "feature3": "Historique 24 mois",
+      "feature4": "Commandes vocales",
+      "feature5": "Multilingue FR/EN (AR plus tard)",
+      "feature6": "RDV + rappels",
+      "feature7": "Rapports avancés",
+      "feature8": "Webhooks",
+      "feature9": "SLA prioritaire"
+    },
+    "popular": "Le plus populaire",
+    "banner": {
+      "freemiumFree": "Freemium : Gratuit | Standard : 19 €/mois | Pro : 39 €/mois",
+      "choosePlan": "Freemium : Gratuit | Standard : 19 €/mois | Pro : 39 €/mois"
+    },
+    "bannerText": "Freemium : Gratuit | Standard : 19 €/mois | Pro : 39 €/mois"
+  },
+  "footer.demo": "Demander une démo",
+  "footer.infographie": "Infographie",
+  "navbar.demo": "Demander une démo",
+  "demo": {
+    "title": "Demander une démo (15 min)",
+    "subtitle": "Montrez-moi votre contexte, je vous montre comment réduire 25–35% le temps de réponse.",
+    "name": "Nom",
+    "email": "Email professionnel",
+    "company": "Nom de l’entreprise",
+    "message": "Contexte (optionnel)",
+    "send": "Envoyer la demande",
+    "success": "Merci ! Nous revenons vers vous rapidement pour fixer le créneau.",
+    "error": "Une erreur est survenue. Merci de réessayer."
+  },
+  "navbar.pricingpage": "Tarifs"
 }
-

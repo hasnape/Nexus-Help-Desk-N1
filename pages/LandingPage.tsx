@@ -4,7 +4,7 @@ import { useLanguage } from "../contexts/LanguageContext";
 import { Button } from "../components/FormElements";
 import Navbar from "../components/Navbar";
 import Layout from "../components/Layout";
-import PricingSection from "@/components/PricingSection";
+import PricingSection from "../components/PricingSection";
 // import TestimonialsSection from "../components/TestimonialsSection";
 import { useTranslation } from "react-i18next";
 import InfographieNexus from "../InfographieNexus";

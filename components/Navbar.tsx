@@ -69,6 +69,11 @@ const Navbar: React.FC = () => {
         label: t("navbar.pricingpage", { default: "Tarifes" }),
         },
 
+        {
+          to: "/demo",
+          label: t("navbar.demo", { default: "Demander une démo" }),
+        },
+
         
         
         {
@@ -98,9 +103,10 @@ const Navbar: React.FC = () => {
         {
           to: "/presentation-video",
           label: t("navbar.demoVideo", { default: "Démonstration vidéo" }),
-        },{
-          to: "/SubscriptionPage",
-          label: t("navbar.pricing", { default: "Abonnés" })
+        },
+        {
+          to: "/subscribe",
+          label: t("navbar.pricing", { default: "Abonnement" })
         },
       ],
     },
