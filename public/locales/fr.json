@@ -442,6 +442,50 @@
   "landing.features.secure.desc": "Les données de chaque entreprise sont complètement isolées, garantissant la confidentialité et la sécurité avec un contrôle d'accès robuste basé sur les rôles.",
   "landing.features.voice.title": "Activé par la voix",
   "landing.features.voice.desc": "Améliorez l'accessibilité avec les commandes vocales pour le chat et la synthèse vocale automatique pour les réponses de l'IA.",
+  "pricing": {
+    "title": "Une tarification simple et transparente",
+    "disclaimer": "Choisissez l'offre qui correspond aux besoins de votre équipe support. Changez de formule quand vous le souhaitez.",
+    "badges": {
+      "popular": "Le plus populaire"
+    },
+    "plans": {
+      "freemium": {
+        "name": "Freemium",
+        "price": "0 € / mois",
+        "yearly": "0 € facturés à l'année",
+        "features": [
+          "Jusqu'à 3 agents inclus",
+          "200 tickets par mois",
+          "Assistant IA avec automatisations essentielles"
+        ],
+        "cta": "Commencer gratuitement"
+      },
+      "standard": {
+        "name": "Standard",
+        "price": "10 € / agent / mois",
+        "yearly": "108 € facturés à l'année (10 % d'économie)",
+        "features": [
+          "Tickets illimités",
+          "Workflows IA avancés",
+          "Tableaux de bord de performance",
+          "Support SLA standard"
+        ],
+        "cta": "Démarrer"
+      },
+      "pro": {
+        "name": "Pro",
+        "price": "20 € / agent / mois",
+        "yearly": "216 € facturés à l'année (10 % d'économie)",
+        "features": [
+          "Toutes les fonctionnalités Standard",
+          "Assistants vocaux et multilingues",
+          "Planification de rendez-vous",
+          "Support prioritaire"
+        ],
+        "cta": "Passer au plan Pro"
+      }
+    }
+  },
   "pricing.title": "Une tarification simple et transparente",
   "pricing.subtitle": "Choisissez le plan qui correspond aux besoins de votre équipe. Pas de frais cachés.",
   "pricing.popular": "Le plus populaire",
