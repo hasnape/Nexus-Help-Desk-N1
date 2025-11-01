@@ -81,6 +81,7 @@ const TicketDetailPage: React.FC = () => {
   const [lastSpokenAiMessage, setLastSpokenAiMessage] = useState<{ text: string; id: string } | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [feedback, setFeedback] = useState<null | { type: 'success' | 'error'; msg: string }>(null);
+  const feedbackRef = useRef<HTMLDivElement | null>(null);
 
   type AppointmentDetail = {
     id: string;
@@ -103,10 +104,17 @@ const TicketDetailPage: React.FC = () => {
   const [showUndo, setShowUndo] = useState(false);
   const undoTimerRef = useRef<number | null>(null);
   const undoBtnRef = useRef<HTMLButtonElement | null>(null);
+  const deleteBtnRef = useRef<HTMLButtonElement | null>(null);
   useEffect(() => {
     if (!feedback) return;
-    const timeoutId = window.setTimeout(() => setFeedback(null), 3000);
-    return () => window.clearTimeout(timeoutId);
+    const focusTimeout = window.setTimeout(() => {
+      feedbackRef.current?.focus();
+    }, 0);
+    const dismissTimeout = window.setTimeout(() => setFeedback(null), 3000);
+    return () => {
+      window.clearTimeout(focusTimeout);
+      window.clearTimeout(dismissTimeout);
+    };
   }, [feedback]);
 
   useEffect(() => {
@@ -372,6 +380,7 @@ const TicketDetailPage: React.FC = () => {
           {isAgentOrManager && (
             <div className="mt-2 flex flex-wrap items-center gap-2">
               <button
+                ref={deleteBtnRef}
                 type="button"
                 className="px-3 py-1 rounded-md border text-sm disabled:opacity-50 shrink-0"
                 disabled={deleting}
@@ -437,7 +446,14 @@ const TicketDetailPage: React.FC = () => {
                       defaultValue: 'Échec de la suppression du rendez-vous.',
                     }) || 'Échec de la suppression du rendez-vous.';
 
-                  setFeedback(ok ? { type: 'success', msg: successMsg } : { type: 'error', msg: errorMsg });
+                  if (ok) {
+                    setFeedback({ type: 'success', msg: successMsg });
+                  } else {
+                    setFeedback({ type: 'error', msg: errorMsg });
+                    window.setTimeout(() => {
+                      deleteBtnRef.current?.focus();
+                    }, 300);
+                  }
                 }}
               >
                 {deleting
@@ -474,16 +490,57 @@ const TicketDetailPage: React.FC = () => {
         {renderCurrentAppointmentInfo()}
         {feedback && (
           <div
-            role="status"
-            aria-live="polite"
+            ref={feedbackRef}
+            tabIndex={-1}
+            role={feedback.type === 'error' ? 'alert' : 'status'}
+            aria-live={feedback.type === 'error' ? 'assertive' : 'polite'}
             className={
-              'mt-2 rounded-md px-3 py-2 text-sm ' +
+              'mt-2 rounded-md px-3 py-2 text-sm outline-none ' +
               (feedback.type === 'success'
                 ? 'bg-green-50 text-green-700 border border-green-200'
                 : 'bg-red-50 text-red-700 border border-red-200')
             }
           >
-            {feedback.msg}
+            <div className="flex items-start gap-2">
+              {feedback.type === 'success' ? (
+                <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5 flex-shrink-0">
+                  <path
+                    d="M9 12l2 2 4-4"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="9"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  />
+                </svg>
+              ) : (
+                <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5 flex-shrink-0">
+                  <path
+                    d="M10.29 3.86l-8.4 14.58A2 2 0 003.53 22h16.94a2 2 0 001.74-3.56L13.82 3.86a2 2 0 00-3.53 0z"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M12 9v4m0 4h.01"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              )}
+              <span>{feedback.msg}</span>
+            </div>
           </div>
         )}
         {showUndo && undoAppt && (
