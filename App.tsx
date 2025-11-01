@@ -4,6 +4,8 @@ import { Ticket, User, ChatMessage, TicketStatus, UserRole, Locale as AppLocale,
 import { getFollowUpHelpResponse, getTicketSummary } from "./services/geminiService";
 import { supabase } from "./services/supabaseClient";
 import { ensureUserProfile } from "./services/authService";
+import { guardedLogin, GuardedLoginError } from "./services/guardedLogin";
+import type { GuardedLoginErrorKey } from "./services/guardedLogin";
 import PricingPage from "./pages/PricingPage";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
@@ -727,18 +729,51 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     setConsentGiven(true);
   };
 
-  const login = async (email: string, password: string, _companyName: string): Promise<string | true> => {
-    try {
-      const { data: authData, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error || !authData.user) {
-        console.error("Supabase login error:", error?.message || "Unknown error");
-        return translateHook("login.error.invalidCredentials");
+  const translateGuardError = useCallback(
+    (key: GuardedLoginErrorKey): string => {
+      switch (key) {
+        case "login.error.companyIdMismatch":
+          return translateHook("login.error.companyIdMismatch", {
+            default: "La compagnie ne correspond pas à votre compte.",
+          });
+        case "login.error.companyNotFound":
+          return translateHook("login.error.companyNotFound", {
+            default: "Cette compagnie n'existe pas.",
+          });
+        case "login.error.unknownEmail":
+          return translateHook("login.error.unknownEmail", {
+            default: "Cet email n'est pas reconnu.",
+          });
+        case "login.error.invalidCredentials":
+          return translateHook("login.error.invalidCredentials", {
+            default: "Invalid email or password. Please try again.",
+          });
+        case "login.error.profileFetchFailed":
+          return translateHook("login.error.profileFetchFailed", {
+            default: "Impossible de récupérer votre profil utilisateur pour la vérification.",
+          });
+        case "login.error.invalidCompanyCredentials":
+        default:
+          return translateHook("login.error.invalidCompanyCredentials", {
+            default: "Identifiants invalides (email/compagnie).",
+          });
       }
+    },
+    [translateHook]
+  );
 
+  const login = async (email: string, password: string, companyName: string): Promise<string | true> => {
+    try {
+      const { session, profile } = await guardedLogin(email, password, companyName);
+      setUser(profile);
+      await loadUserData(session);
       return true;
-    } catch (authError: any) {
+    } catch (authError: unknown) {
+      if (authError instanceof GuardedLoginError) {
+        return translateGuardError(authError.translationKey);
+      }
       console.error("Unexpected login error:", authError);
-      return translateHook("login.error.invalidCredentials");
+      return translateGuardError("login.error.invalidCompanyCredentials");
     }
   };
 
