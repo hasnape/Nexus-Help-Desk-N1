@@ -118,6 +118,74 @@ const LandingPage: React.FC = () => {
     },
   ];
 
+  const requestDemoLabel = t("pricingBanner.cta", {
+    default: "Demander une démo",
+  });
+
+  const pricingPlans = [
+    {
+      id: "freemium",
+      name: "Freemium (bac à sable)",
+      monthly: "Gratuit",
+      yearly: "Plan annuel identique : 0 €",
+      badge: null,
+      description:
+        "Gratuit avec hébergement sécurisé Supabase RLS. 1 environnement de tests inclus.",
+      features: [
+        "1 agent",
+        "50 tickets/mois",
+        "Historique lecture seule 7 jours",
+        "IA basique (réponses courtes)",
+        "Pas de RDV",
+        "Pas d’export",
+        "Nudge d’upgrade à 80 % du quota",
+        "Blocage création à 100 %",
+      ],
+      ctaLabel: requestDemoLabel,
+    },
+    {
+      id: "standard",
+      name: "Standard",
+      monthly: "19 €/mois",
+      yearly: "ou 190 €/an",
+      badge: "Le plus populaire",
+      description:
+        "Idéal pour une équipe support structurée avec automatisations essentielles.",
+      features: [
+        "5 agents",
+        "500 tickets/mois",
+        "Historique 6 mois",
+        "IA complète + catégorisation auto",
+        "Notes internes",
+        "Export CSV",
+        "RDV simples (sans rappels automatiques)",
+        "SLA standard",
+        "Code d’activation manager inclus",
+      ],
+      ctaLabel: requestDemoLabel,
+    },
+    {
+      id: "pro",
+      name: "Pro",
+      monthly: "39 €/mois",
+      yearly: "ou 390 €/an",
+      badge: null,
+      description: "Pensé pour les équipes avancées multi-sites et omnicanales.",
+      features: [
+        "10 agents",
+        "1000 tickets/mois",
+        "Historique 24 mois",
+        "Commandes vocales",
+        "Multilingue FR/EN (AR plus tard)",
+        "RDV + rappels",
+        "Rapports avancés",
+        "Webhooks",
+        "SLA prioritaire",
+      ],
+      ctaLabel: requestDemoLabel,
+    },
+  ];
+
 
   // Avantages suggérés dans la revue
   const advantages = [
@@ -200,16 +268,99 @@ const LandingPage: React.FC = () => {
         <Navbar />
         <main className="pt-16">
           {/* 1. Hero Section */} {/* Bannière centrale */}
-        <div className="bg-gradient-to-r from-yellow-200 via-yellow-100 to-yellow-200 border-l-4 border-yellow-400 rounded-lg p-6 mb-8 shadow-md text-center">
-          <p className="text-yellow-900 font-bold text-lg sm:text-xl">
-            Freemium : <span className="font-semibold">Gratuit (stockage local inclus)</span> &nbsp;|&nbsp;
-            Standard : <span className="font-semibold">1er mois à 5€ ensuite 10€/mois</span> &nbsp;|&nbsp;
-            Pro : <span className="font-semibold">1er mois à 12€ ensuite 20€/mois</span>
-          </p>
-          <p className="text-yellow-800 text-sm mt-2">
-            Choisissez le plan qui correspond le mieux à vos besoins
-          </p>
-        </div>
+          <section
+            aria-labelledby="pricing-banner-heading"
+            className="px-4 sm:px-6 lg:px-8"
+          >
+            <div className="max-w-6xl mx-auto">
+              <div className="rounded-2xl border border-slate-200 bg-white text-slate-900 shadow-lg">
+                <div className="border-b border-slate-200 px-6 py-6 sm:px-8">
+                  <p
+                    id="pricing-banner-heading"
+                    className="text-xs font-semibold uppercase tracking-wider text-slate-600"
+                  >
+                    {t("pricingBanner.heading", { default: "Plans & Tarifs" })}
+                  </p>
+                  <p className="mt-3 text-base font-semibold leading-6 sm:text-lg md:text-xl">
+                    {t("pricingBanner.summary", {
+                      default:
+                        "Freemium : Gratuit (stockage local inclus) | Standard : 1er mois à 5€ ensuite 10€/mois | Pro : 1er mois à 12€ ensuite 20€/mois",
+                    })}
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-slate-700">
+                    {t("pricingBanner.hostingNotice", {
+                      default: "Tout hébergé sur Supabase (RLS). Aucun stockage local.",
+                    })}
+                  </p>
+                </div>
+                <div className="grid gap-6 px-6 py-6 sm:px-8 lg:grid-cols-3" role="list">
+                  {pricingPlans.map((plan) => (
+                    <article
+                      key={plan.id}
+                      className="flex h-full flex-col justify-between rounded-xl border border-transparent bg-slate-50 p-6 shadow-sm transition focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-primary hover:border-primary"
+                      aria-labelledby={`pricing-${plan.id}-title`}
+                      role="listitem"
+                    >
+                      <div>
+                        <div className="flex items-center gap-3">
+                          <h3
+                            id={`pricing-${plan.id}-title`}
+                            className="text-lg font-semibold text-slate-900"
+                          >
+                            {plan.name}
+                          </h3>
+                          {plan.badge && (
+                            <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                              {plan.badge}
+                            </span>
+                          )}
+                        </div>
+                        <p className="mt-2 text-2xl font-bold text-slate-900">
+                          {plan.monthly}
+                        </p>
+                        <p className="mt-1 text-sm text-slate-600">{plan.yearly}</p>
+                        <p className="mt-3 text-sm leading-6 text-slate-700">
+                          {plan.description}
+                        </p>
+                        <ul className="mt-4 space-y-2 text-sm leading-6 text-slate-800">
+                          {plan.features.map((feature) => (
+                            <li key={feature} className="flex items-start gap-2">
+                              <span
+                                aria-hidden="true"
+                                className="mt-1 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary"
+                              >
+                                <svg
+                                  className="h-3.5 w-3.5"
+                                  viewBox="0 0 20 20"
+                                  fill="currentColor"
+                                  aria-hidden="true"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M16.704 5.29a.75.75 0 0 1 .006 1.06l-7.25 7.5a.75.75 0 0 1-1.08.02l-3.25-3.25a.75.75 0 1 1 1.06-1.06l2.72 2.72 6.72-6.95a.75.75 0 0 1 1.064-.04z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                              </span>
+                              <span>{feature}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div className="mt-6 pt-4">
+                        <Button
+                          variant="outline"
+                          className="w-full justify-center border-slate-300 bg-white text-slate-900 hover:border-primary hover:text-primary focus:ring-primary"
+                        >
+                          {plan.ctaLabel}
+                        </Button>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
 
           <section className="py-8 px-4 sm:px-6 lg:px-8 text-white text-center">
             {" "}
