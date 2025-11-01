@@ -1,113 +1,113 @@
 import React, { createContext, useState, useContext, ReactNode, useEffect, useCallback } from 'react';
 
-export type Locale = 'en' | 'fr' | 'ar';
-export type Translations = Record<string, string | Record<string, string>>; // Allow nested for plurals etc. later
+import i18n from '@/config/i18n';
 
+export type Locale = 'en' | 'fr' | 'ar';
 interface LanguageContextType {
   language: Locale;
   setLanguage: (language: Locale) => void;
-  t: (key: string, replacementsOrOptions?: Record<string, string | number> | { default: string }) => string;
+  t: (key: string, replacementsOrOptions?: Record<string, string | number> | { default: string } | (Record<string, string | number> & { default?: string })) => string;
   getBCP47Locale: () => string;
-  isLoadingLang: boolean; 
+  isLoadingLang: boolean;
 }
-
-const emptyTranslations: Translations = {};
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [language, setLanguageState] = useState<Locale>(() => {
-    const storedLang = typeof window !== 'undefined' ? localStorage.getItem('aiHelpDeskLang') as Locale : 'en';
-    return ['en', 'fr', 'ar'].includes(storedLang) ? storedLang : 'en';
+    if (typeof window === 'undefined') {
+      return 'en';
+    }
+
+    const storedLang = localStorage.getItem('aiHelpDeskLang') as Locale | null;
+    return storedLang && ['en', 'fr', 'ar'].includes(storedLang) ? storedLang : 'en';
   });
 
-  const [translations, setTranslations] = useState<Translations>(emptyTranslations);
   const [isLoadingLang, setIsLoadingLang] = useState<boolean>(true);
 
   useEffect(() => {
-    const fetchTranslations = async (lang: Locale) => {
+    let isMounted = true;
+
+    const applyLanguage = async (lang: Locale) => {
       setIsLoadingLang(true);
       try {
-        const response = await fetch(`./locales/${lang}.json`); // Relative to public/index.html
-        if (!response.ok) {
-          throw new Error(`Failed to load ${lang}.json: ${response.statusText}`);
-        }
-        const data: Translations = await response.json();
-        setTranslations(data);
-      } catch (error) {
-        console.error("Error loading translation file:", error);
-        // Attempt to load English as a fallback if the selected language fails
-        if (lang !== 'en') {
-            try {
-                const fallbackResponse = await fetch('./locales/en.json');
-                if (fallbackResponse.ok) {
-                    setTranslations(await fallbackResponse.json());
-                } else {
-                    setTranslations(emptyTranslations);
-                }
-            } catch (fallbackError) {
-                console.error("Error loading fallback English translation:", fallbackError);
-                setTranslations(emptyTranslations);
-            }
-        } else {
-             setTranslations(emptyTranslations);
-        }
+        await i18n.changeLanguage(lang);
       } finally {
-        setIsLoadingLang(false);
+        if (isMounted) {
+          setIsLoadingLang(false);
+        }
       }
     };
 
-    fetchTranslations(language);
+    applyLanguage(language).catch((error) => {
+      console.error('Failed to change language', error);
+      setIsLoadingLang(false);
+    });
 
     if (typeof window !== 'undefined') {
-        localStorage.setItem('aiHelpDeskLang', language);
-        document.documentElement.lang = language;
-        document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
+      localStorage.setItem('aiHelpDeskLang', language);
+      document.documentElement.lang = language;
+      document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
     }
+
+    return () => {
+      isMounted = false;
+    };
   }, [language]);
 
   const setLanguage = (lang: Locale) => {
-    // This function is called by components (Navbar, SignUpPage, App.tsx) to change language.
-    // The useEffect above will handle fetching and updating document attributes.
-    if (lang !== language) { // Only update if different
-        setLanguageState(lang);
+    if (lang !== language) {
+      setLanguageState(lang);
     }
   };
 
-  const t = useCallback((key: string, replacementsOrOptions?: Record<string, string | number> | { default: string }): string => {
-    let defaultValue: string | undefined = undefined;
-    let replacements: Record<string, string | number> | undefined = undefined;
-
-    if (replacementsOrOptions) {
-        if (typeof (replacementsOrOptions as { default: string }).default === 'string') {
-            defaultValue = (replacementsOrOptions as { default: string }).default;
-        } else {
-            replacements = replacementsOrOptions as Record<string, string | number>;
-        }
+  const mapOptions = (options?: Record<string, string | number> | { default: string } | (Record<string, string | number> & { default?: string })) => {
+    if (!options) {
+      return { defaultValue: undefined, interpolation: undefined as Record<string, string | number> | undefined };
     }
 
-    if (isLoadingLang && !translations[key]) {
-        return defaultValue !== undefined ? defaultValue : key;
+    if ('default' in options) {
+      const { default: defaultValue, ...rest } = options;
+      return { defaultValue, interpolation: Object.keys(rest).length > 0 ? (rest as Record<string, string | number>) : undefined };
     }
-    
-    let translation = (translations[key] as string) || defaultValue || key;
-    
-    if (replacements) {
-      Object.entries(replacements).forEach(([placeholder, value]) => {
-        translation = translation.replace(new RegExp(`{{${placeholder}}}`, 'g'), String(value));
+
+    return { defaultValue: undefined, interpolation: options as Record<string, string | number> };
+  };
+
+  const translate = useCallback(
+    (key: string, replacementsOrOptions?: Record<string, string | number> | { default: string } | (Record<string, string | number> & { default?: string })) => {
+      const { defaultValue, interpolation } = mapOptions(replacementsOrOptions);
+
+      if (isLoadingLang) {
+        return defaultValue ?? key;
+      }
+
+      const translation = i18n.t(key, {
+        defaultValue,
+        ...(interpolation ?? {}),
       });
-    }
-    return translation;
-  }, [translations, isLoadingLang]);
-  
+
+      if (typeof translation === 'string') {
+        return translation;
+      }
+
+      if (Array.isArray(translation)) {
+        return translation.join(', ');
+      }
+
+      return defaultValue ?? key;
+    },
+    [isLoadingLang]
+  );
+
   const getBCP47Locale = useCallback((): string => {
     if (language === 'fr') return 'fr-FR';
-    if (language === 'ar') return 'ar-SA'; 
+    if (language === 'ar') return 'ar-SA';
     return 'en-US';
   }, [language]);
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t, getBCP47Locale, isLoadingLang }}>
+    <LanguageContext.Provider value={{ language, setLanguage, t: translate, getBCP47Locale, isLoadingLang }}>
       {children}
     </LanguageContext.Provider>
   );

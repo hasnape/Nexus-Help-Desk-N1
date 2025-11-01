@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useApp } from "../App";
 import PayPalButton from "../components/PayPalButton";
@@ -7,6 +8,7 @@ import { Link, useLocation } from "react-router-dom";
 import FreemiumPlanIcon from "../components/plan_images/FreemiumPlanIcon";
 import StandardPlanIcon from "../components/plan_images/StandardPlanIcon";
 import ProPlanIcon from "../components/plan_images/ProPlanIcon";
+import { getPricingPlans, type PricingPlanKey } from "@/utils/pricing";
 
 const ArrowLeftIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg
@@ -31,13 +33,13 @@ const CheckIcon = () => (
   />
 );
 
-const PlanIcon: React.FC<{ planNameKey: string }> = ({ planNameKey }) => {
-  switch (planNameKey) {
-    case "pricing.standard.name":
+const PlanIcon: React.FC<{ planKey: PricingPlanKey }> = ({ planKey }) => {
+  switch (planKey) {
+    case "standard":
       return <StandardPlanIcon className="w-12 h-12 text-primary" />;
-    case "pricing.pro.name":
+    case "pro":
       return <ProPlanIcon className="w-12 h-12 text-amber-500" />;
-    case "pricing.freemium.name":
+    case "freemium":
     default:
       return <FreemiumPlanIcon className="w-12 h-12 text-slate-400" />;
   }
@@ -45,39 +47,18 @@ const PlanIcon: React.FC<{ planNameKey: string }> = ({ planNameKey }) => {
 
 const SubscriptionPage: React.FC = () => {
   const { t, language: currentLanguage } = useLanguage();
+  const { t: translate } = useTranslation();
   const { user } = useApp();
   const location = useLocation();
+  const pricingPlans = getPricingPlans(translate);
 
   // In a real app, this would come from the user's profile or subscription status in the DB.
   // For this demo, we assume all non-managers are on Freemium.
-  const currentUserPlan = user?.role === UserRole.MANAGER ? "Pro" : "Freemium";
-  const currentUserPlanKey = `pricing.${currentUserPlan.toLowerCase()}.name`;
+  const currentUserPlanKey: PricingPlanKey = (user?.role === UserRole.MANAGER ? "pro" : "freemium") as PricingPlanKey;
 
-  const plans = [
-    {
-      nameKey: "pricing.standard.name",
-      priceKey: "pricing.standard.price",
-      descKey: "pricing.standard.desc",
-      features: [
-        "pricing.standard.feature1",
-        "pricing.standard.feature2",
-        "pricing.standard.feature3",
-        "pricing.standard.feature4",
-      ],
-      paypalPlanId: "P-3TE12345AB678901CDE2FGHI",
-    },
-    {
-      nameKey: "pricing.pro.name",
-      priceKey: "pricing.pro.price",
-      descKey: "pricing.pro.desc",
-      features: [
-        "pricing.pro.feature1",
-        "pricing.pro.feature2",
-        "pricing.pro.feature3",
-        "pricing.pro.feature4",
-      ],
-      paypalPlanId: "P-9JI87654LK3210FEDCBA",
-    },
+  const plans: Array<{ key: PricingPlanKey; paypalPlanId: string }> = [
+    { key: "standard", paypalPlanId: "P-3TE12345AB678901CDE2FGHI" },
+    { key: "pro", paypalPlanId: "P-9JI87654LK3210FEDCBA" },
   ];
 
   const backLinkDestination =
@@ -118,12 +99,12 @@ const SubscriptionPage: React.FC = () => {
           })}
         </h2>
         <div className="flex items-center gap-4 mt-2">
-          <PlanIcon planNameKey={currentUserPlanKey} />
+          <PlanIcon planKey={currentUserPlanKey} />
           <div className="text-start">
             <p className="text-3xl font-bold text-primary">
-              {t(currentUserPlanKey)}
+              {pricingPlans[currentUserPlanKey].name}
             </p>
-            {currentUserPlan === "Freemium" && (
+            {currentUserPlanKey === "freemium" && (
               <div className="text-slate-500 mt-1 text-sm">
                 <p>
                   {t("subscription.currentPlan.freemiumDesc", {
@@ -138,40 +119,41 @@ const SubscriptionPage: React.FC = () => {
       </div>
 
       <div className="grid lg:grid-cols-2 gap-8">
-        {plans.map((plan) => (
-          <div
-            key={t(plan.nameKey)}
-            className={`border rounded-xl p-8 flex flex-col shadow-lg text-center ${
-              currentUserPlan === t(plan.nameKey, { default: plan.nameKey })
+        {plans.map((plan) => {
+          const planData = pricingPlans[plan.key];
+          return (
+            <div
+              key={planData.name}
+              className={`border rounded-xl p-8 flex flex-col shadow-lg text-center ${
+              currentUserPlanKey === plan.key
                 ? "bg-slate-50"
                 : "bg-white"
             }`}
           >
             <div className="mx-auto mb-4">
-              <PlanIcon planNameKey={plan.nameKey} />
+              <PlanIcon planKey={plan.key} />
             </div>
             <h3 className="text-2xl font-bold text-slate-800">
-              {t(plan.nameKey)}
+              {planData.name}
             </h3>
-            <p className="mt-2 text-slate-500 flex-grow">{t(plan.descKey)}</p>
             <div className="mt-6">
-              <span className="text-4xl font-bold">{t(plan.priceKey)}</span>
-              <span className="text-slate-500 ms-1">
-                {t("pricing.perAgentPerMonth")}
-              </span>
+              <span className="text-4xl font-bold">{planData.price}</span>
+              {planData.yearly ? (
+                <div className="text-slate-500 text-sm">{planData.yearly}</div>
+              ) : null}
             </div>
             <ul className="mt-8 space-y-4 text-start flex-grow">
-              {plan.features.map((featureKey) => (
-                <li key={featureKey} className="flex items-start">
+              {planData.features.map((feature) => (
+                <li key={`${planData.name}-${feature}`} className="flex items-start">
                   <div className="flex-shrink-0 mt-1">
                     <CheckIcon />
                   </div>
-                  <span className="ms-3 text-slate-600">{t(featureKey)}</span>
+                  <span className="ms-3 text-slate-600">{feature}</span>
                 </li>
               ))}
             </ul>
             <div className="mt-8">
-              {t(currentUserPlanKey) === t(plan.nameKey) ? (
+              {currentUserPlanKey === plan.key ? (
                 <div className="text-center py-3 px-4 bg-green-100 text-green-700 font-semibold rounded-md">
                   {t("subscription.currentPlan.label", {
                     default: "Current Plan",
@@ -182,7 +164,8 @@ const SubscriptionPage: React.FC = () => {
               )}
             </div>
           </div>
-        ))}
+        );
+        })}
       </div>
       <div className="text-center mt-8 text-xs text-slate-500">
         <p>

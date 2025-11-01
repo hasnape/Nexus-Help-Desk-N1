@@ -4,9 +4,7 @@ import { useLanguage } from "../contexts/LanguageContext";
 import { Button } from "../components/FormElements";
 import Navbar from "../components/Navbar";
 import Layout from "../components/Layout";
-import FreemiumPlanIcon from "../components/plan_images/FreemiumPlanIcon";
-import StandardPlanIcon from "../components/plan_images/StandardPlanIcon";
-import ProPlanIcon from "../components/plan_images/ProPlanIcon";
+import PricingSection from "../components/PricingSection";
 // import TestimonialsSection from "../components/TestimonialsSection";
 import { useTranslation } from "react-i18next";
 import InfographieNexus from "../InfographieNexus";
@@ -75,21 +73,6 @@ const VoiceIcon = () => (
       strokeLinecap="round"
       strokeLinejoin="round"
       d="M12 12.75a3 3 0 0 0 3-3v-1.5a3 3 0 0 0-6 0v1.5a3 3 0 0 0 3 3Z"
-    />
-  </svg>
-);
-
-const CheckIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 20 20"
-    fill="currentColor"
-    className="w-5 h-5"
-  >
-    <path
-      fillRule="evenodd"
-      d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.052-.143z"
-      clipRule="evenodd"
     />
   </svg>
 );
@@ -211,54 +194,6 @@ const LandingPage: React.FC = () => {
   ];
 
   
-
-  const pricingTiers = [
-    {
-      nameKey: "pricing.freemium.name",
-      icon: <FreemiumPlanIcon className="w-10 h-10 text-slate-400" />,
-      priceKey: "pricing.freemium.price",
-      descKey: "pricing.freemium.desc",
-      features: [
-        "pricing.freemium.feature1",
-        "pricing.freemium.feature2",
-        "pricing.freemium.feature3",
-      ],
-      buttonKey: "pricing.button.signUp",
-      buttonLink: "/signup",
-      isPopular: false,
-    },
-    {
-      nameKey: "pricing.standard.name",
-      icon: <StandardPlanIcon className="w-10 h-10 text-primary" />,
-      priceKey: "pricing.standard.price",
-      descKey: "pricing.standard.desc",
-      features: [
-        "pricing.standard.feature1",
-        "pricing.standard.feature2",
-        "pricing.standard.feature3",
-        "pricing.standard.feature4",
-      ],
-      buttonKey: "pricing.button.getStarted",
-      buttonLink: "/signup",
-      isPopular: true,
-    },
-    {
-      nameKey: "pricing.pro.name",
-      icon: <ProPlanIcon className="w-10 h-10 text-amber-500" />,
-      priceKey: "pricing.pro.price",
-      descKey: "pricing.pro.desc",
-      features: [
-        "pricing.pro.feature1",
-        "pricing.pro.feature2",
-        "pricing.pro.feature3",
-        "pricing.pro.feature4",
-      ],
-      buttonKey: "pricing.button.getStarted",
-      buttonLink: "/signup",
-      isPopular: false,
-    },
-  ];
-
   return (
     <Layout>
       <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-700">
@@ -473,84 +408,7 @@ const LandingPage: React.FC = () => {
 
           
           
-          {/* 5. Tarification */}
-          <section id="pricing" className="py-8 bg-slate-50">
-            <div className="container mx-auto px-4 max-w-screen-lg">
-               {/* Bannière centrale */}
-        <div className="bg-gradient-to-r from-yellow-200 via-yellow-100 to-yellow-200 border-l-4 border-yellow-400 rounded-lg p-6 mb-8 shadow-md text-center">
-          <p className="text-yellow-900 font-bold text-lg sm:text-xl">
-            Freemium : <span className="font-semibold">Gratuit (stockage local inclus)</span> &nbsp;|&nbsp;
-            Standard : <span className="font-semibold">1er mois 5€, ensuite 10€/mois</span> &nbsp;|&nbsp;
-            Pro :<span className="font-semibold">1er mois à 12€ ensuite 20€/mois</span>
-          </p>
-
-        </div>
-
-              <div className="text-center max-w-3xl mx-auto">
-                <h2 className="text-3xl sm:text-4xl font-bold text-slate-800">
-                  {t("pricing.title")}
-                  
-                </h2>
-                <p className="mt-4 text-lg text-slate-600">
-                  {t("pricing.subtitle")}
-                </p>
-              </div>
-              <div className="mt-16 grid lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
-  {pricingTiers.map((tier) => (
-    <div
-      key={tier.nameKey}
-      className={`border rounded-xl p-8 flex flex-col justify-between text-center transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-2xl ${
-        tier.isPopular ? "border-primary shadow-xl" : "border-slate-200 shadow-lg"
-      }`}
-    >
-      {tier.isPopular && (
-        <span className="bg-primary text-white text-xs font-semibold px-3 py-1 rounded-full self-center mb-4">
-          {t("pricing.popular")}
-        </span>
-      )}
-
-      <div className="flex flex-col flex-grow items-center">
-        <div className="mb-4">{tier.icon}</div>
-        <h3 className="text-xl font-bold text-slate-800 mb-2">{t(tier.nameKey)}</h3>
-        <p className="mt-2 text-slate-500 flex-grow text-sm md:text-base">{t(tier.descKey)}</p>
-        <ul className="mt-4 space-y-2 text-left w-full max-w-xs">
-          {tier.features.map((featureKey) => (
-            <li key={featureKey} className="flex items-center">
-{React.createElement(CheckIcon, { className: "text-green-500 w-5 h-5 flex-shrink-0" })}
-              <span className="ms-3">{t(featureKey)}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div className="mt-6 w-full">
-        <Link to={tier.buttonLink} className="block w-full">
-          <Button
-            variant={tier.isPopular ? "primary" : "outline"}
-            size="lg"
-            className="w-full"
-          >
-            {t(tier.buttonKey)}
-          </Button>
-        </Link>
-      </div>
-    </div>
-  ))}
-</div>
-
-              <div className="text-center mt-12 text-slate-500 text-sm md:text-base">
-                <p>
-                  {t("pricing.enterprise.text")}{" "}
-                  <Link
-                    to="/contact"
-                    className="text-primary hover:underline font-semibold"
-                  >
-                    {t("pricing.enterprise.link")}
-                  </Link>
-                </p>
-              </div>
-            </div>
-          </section>
+          <PricingSection />
 
           {/* 6. Infographie Technique */}
           <section id="infographie" className="py-8 bg-white">
