@@ -400,6 +400,50 @@
   "landing.features.secure.desc": "Each company's data is completely isolated, ensuring privacy and security with robust role-based access control.",
   "landing.features.voice.title": "Voice Enabled",
   "landing.features.voice.desc": "Enhance accessibility with voice commands for chat and automatic text-to-speech for AI responses.",
+  "pricing": {
+    "title": "Simple, Transparent Pricing",
+    "disclaimer": "Choose the plan that fits your support team's needs. Upgrade or downgrade at any time.",
+    "badges": {
+      "popular": "Most popular"
+    },
+    "plans": {
+      "freemium": {
+        "name": "Freemium",
+        "price": "€0 / month",
+        "yearly": "€0 billed yearly",
+        "features": [
+          "Up to 3 agents included",
+          "200 tickets per month",
+          "AI assistant with essential automations"
+        ],
+        "cta": "Start for free"
+      },
+      "standard": {
+        "name": "Standard",
+        "price": "€10 / agent / month",
+        "yearly": "€108 billed yearly (save 10%)",
+        "features": [
+          "Unlimited tickets",
+          "Advanced AI workflows",
+          "Team performance dashboards",
+          "Standard SLA support"
+        ],
+        "cta": "Get started"
+      },
+      "pro": {
+        "name": "Pro",
+        "price": "€20 / agent / month",
+        "yearly": "€216 billed yearly (save 10%)",
+        "features": [
+          "All Standard features",
+          "Voice and multilingual assistants",
+          "Appointment scheduling",
+          "Priority support"
+        ],
+        "cta": "Upgrade to Pro"
+      }
+    }
+  },
   "pricing.title": "Simple, Transparent Pricing",
   "pricing.subtitle": "Choose the plan that fits your team's needs. No hidden fees.",
   "pricing.popular": "Most Popular",
