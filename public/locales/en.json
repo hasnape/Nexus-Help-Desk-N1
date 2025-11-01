@@ -447,6 +447,47 @@
   "pricing.title": "Simple, Transparent Pricing",
   "pricing.subtitle": "Choose the plan that fits your team's needs. No hidden fees.",
   "pricing.popular": "Most Popular",
+  "pricing.badges": {
+    "popular": "Most popular"
+  },
+  "pricing.disclaimer": "Choose the plan that fits your support team's needs. Upgrade or downgrade at any time.",
+  "pricing.plans": {
+    "freemium": {
+      "name": "Freemium",
+      "price": "€0 / month",
+      "yearly": "€0 billed yearly",
+      "features": [
+        "Up to 3 agents included",
+        "200 tickets per month",
+        "AI assistant with essential automations"
+      ],
+      "cta": "Start for free"
+    },
+    "standard": {
+      "name": "Standard",
+      "price": "€10 / agent / month",
+      "yearly": "€108 billed yearly (save 10%)",
+      "features": [
+        "Unlimited tickets",
+        "Advanced AI workflows",
+        "Team performance dashboards",
+        "Standard SLA support"
+      ],
+      "cta": "Get started"
+    },
+    "pro": {
+      "name": "Pro",
+      "price": "€20 / agent / month",
+      "yearly": "€216 billed yearly (save 10%)",
+      "features": [
+        "All Standard features",
+        "Voice and multilingual assistants",
+        "Appointment scheduling",
+        "Priority support"
+      ],
+      "cta": "Upgrade to Pro"
+    }
+  },
   "pricing.perAgentPerMonth": "/ agent / month",
   "pricing.button.signUp": "Sign Up",
   "pricing.button.getStarted": "Get Started",

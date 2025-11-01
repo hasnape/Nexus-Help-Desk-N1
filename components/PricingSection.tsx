@@ -16,6 +16,27 @@ type Plans = {
   pro: Plan;
 };
 
+const defaultPlans: Plans = {
+  freemium: {
+    name: "",
+    price: "",
+    features: [],
+    cta: "",
+  },
+  standard: {
+    name: "",
+    price: "",
+    features: [],
+    cta: "",
+  },
+  pro: {
+    name: "",
+    price: "",
+    features: [],
+    cta: "",
+  },
+};
+
 const Badge: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <span className="text-xs px-2 py-1 rounded bg-blue-600 text-white">{children}</span>
 );
@@ -36,8 +57,8 @@ const Card: React.FC<{ plan: Plan; badgeText?: string; onClick: () => void }> = 
       {plan.yearly ? <div className="text-sm opacity-70">{plan.yearly}</div> : null}
 
       <ul className="mt-4 space-y-2 text-sm">
-        {plan.features?.map((feature, idx) => (
-          <li key={idx}>• {feature}</li>
+        {plan.features.map((feature) => (
+          <li key={`${plan.name}-${feature}`}>• {feature}</li>
         ))}
       </ul>
 
@@ -58,7 +79,10 @@ const PricingSection: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const plans = t("pricing.plans", { returnObjects: true }) as unknown as Plans;
+  const plans = t<Plans>("pricing.plans", {
+    returnObjects: true,
+    defaultValue: defaultPlans,
+  });
   const title = t("pricing.title");
   const disclaimer = t("pricing.disclaimer");
   const popular = t("pricing.badges.popular");
