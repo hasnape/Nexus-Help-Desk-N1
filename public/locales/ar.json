@@ -99,14 +99,6 @@
   "dashboard.noTicketsSubtitle": "انقر على 'احصل على مساعدة الذكاء الاصطناعي' لبدء محادثة.",
   "dashboard.noTicketsTitle": "ليس لديك تذاكر نشطة.",
   "dashboard.requestMaterialInvestigationButton": "فحص مشكلة مادية",
-  "dashboard.quota": {
-    "blocked": "تم بلوغ الحد: تم حظر إنشاء التذاكر.",
-    "near_limit": "أنت تقترب من الحد الشهري.",
-    "title": "التذاكر المتبقية هذا الشهر",
-    "unlimited": "غير محدود",
-    "upgrade_cta": "ترقية",
-    "value": "{remaining} / {limit} ( {percent}% مستخدم )"
-  },
   "dashboard.welcomeMessage": "مرحباً، {{username}}!",
   "demo": {
     "company": "اسم الشركة",
