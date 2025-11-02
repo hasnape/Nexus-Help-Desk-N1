@@ -630,18 +630,35 @@ const ManagerDashboardPage: React.FC = () => {
         if (quotaState.loading) {
             return '…';
         }
-        if (quotaComputation.isUnlimited) {
-            return '∞';
-        }
-        if (quotaComputation.limitValue === null) {
-            return '—';
-        }
-        const remainingValue = quotaComputation.remaining !== null ? quotaComputation.remaining : 0;
-        const percentValue = quotaComputation.percentUsed !== null ? quotaComputation.percentUsed : 0;
-        return t('dashboard.quota.value', {
-            remaining: formatQuotaNumber(Math.max(remainingValue, 0)),
-            limit: formatQuotaNumber(quotaComputation.limitValue),
-            percent: formatQuotaNumber(percentValue),
+
+        const remainingLabel = quotaComputation.isUnlimited
+            ? '∞'
+            : quotaComputation.remaining !== null
+                ? formatQuotaNumber(Math.max(quotaComputation.remaining, 0))
+                : '—';
+
+        const limitLabel = quotaComputation.isUnlimited
+            ? '∞'
+            : quotaComputation.limitValue !== null
+                ? formatQuotaNumber(quotaComputation.limitValue)
+                : '—';
+
+        const percentValue = !quotaComputation.isUnlimited && quotaComputation.percentUsed !== null
+            ? formatQuotaNumber(quotaComputation.percentUsed)
+            : null;
+
+        const percentChunk = percentValue !== null
+            ? t('dashboard.quota.percentChunk', {
+                default: ' ({percent}% utilisé)',
+                percent: percentValue,
+            })
+            : '';
+
+        return t('dashboard.quota.remaining', {
+            default: 'Tickets restants ce mois-ci {remaining} / {limit}{percentChunk}',
+            remaining: remainingLabel,
+            limit: limitLabel,
+            percentChunk,
         });
     }, [formatQuotaNumber, quotaComputation.isUnlimited, quotaComputation.limitValue, quotaComputation.percentUsed, quotaComputation.remaining, quotaState.loading, t]);
 

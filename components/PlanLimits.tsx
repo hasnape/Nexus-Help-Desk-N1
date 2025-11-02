@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useLanguage } from "../contexts/LanguageContext";
 import { supabase } from "../services/supabaseClient";
 
 interface PlanLimitsProps {
@@ -52,6 +53,8 @@ const severityBarClass = (percent: number | null) => {
 };
 
 const PlanLimits: React.FC<PlanLimitsProps> = ({ companyId }) => {
+  const { t: translateHook } = useLanguage();
+
   const [vm, setVm] = useState<ViewModel>({
     loading: true,
     error: null,
@@ -152,11 +155,32 @@ const PlanLimits: React.FC<PlanLimitsProps> = ({ companyId }) => {
     return Math.min(100, Math.round((vm.ticketUsed / vm.ticketLimit) * 100));
   }, [vm.ticketLimit, vm.ticketUsed, vm.unlimited]);
 
-  const ticketsRemaining = useMemo(() => {
-    if (vm.unlimited) return '∞';
-    if (vm.ticketLimit == null) return '—';
-    return Math.max(0, vm.ticketLimit - vm.ticketUsed);
+  const remainingLabel = useMemo(() => {
+    if (vm.unlimited) return "∞";
+    if (vm.ticketLimit == null) return "—";
+    return String(Math.max(0, vm.ticketLimit - vm.ticketUsed));
   }, [vm.ticketLimit, vm.ticketUsed, vm.unlimited]);
+
+  const limitLabel = useMemo(() => {
+    if (vm.unlimited) return "∞";
+    if (vm.ticketLimit == null) return "—";
+    return String(vm.ticketLimit);
+  }, [vm.ticketLimit, vm.unlimited]);
+
+  const percentChunk =
+    percent !== null
+      ? translateHook("dashboard.quota.percentChunk", {
+          default: " ({percent}% utilisé)",
+          percent,
+        })
+      : "";
+
+  const remainingText = translateHook("dashboard.quota.remaining", {
+    default: "Tickets restants ce mois-ci {remaining} / {limit}{percentChunk}",
+    remaining: remainingLabel,
+    limit: limitLabel,
+    percentChunk,
+  });
 
   if (vm.loading) {
     return (
@@ -196,15 +220,7 @@ const PlanLimits: React.FC<PlanLimitsProps> = ({ companyId }) => {
         </p>
 
         <div className="md:col-span-2">
-          <p className="mb-1">
-            Tickets restants : <strong>{ticketsRemaining}</strong>
-          </p>
-          <p className="mb-1">
-            Tickets ce mois :{" "}
-            <strong>
-              {vm.ticketUsed} {vm.unlimited || vm.ticketLimit == null ? "/ ∞" : `/ ${vm.ticketLimit}`}
-            </strong>
-          </p>
+          <p className="mb-1">{remainingText}</p>
 
           <div className="w-full h-2 rounded bg-slate-200 overflow-hidden">
             <div
