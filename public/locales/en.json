@@ -581,7 +581,7 @@
       "freemium": {
         "name": "Freemium (sandbox)",
         "price": "Free",
-        "yearly": "",
+        "yearly": "Yearly plan identical: €0",
         "features": [
           "1 agent",
           "50 tickets/month",
