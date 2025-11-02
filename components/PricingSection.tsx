@@ -36,12 +36,27 @@ const Card: React.FC<CardProps> = ({ plan, badgeText, onClick }) => (
     </ul>
     <button
       type="button"
-      className="mt-6 inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2 font-semibold text-slate-900 transition hover:bg-slate-900 hover:text-white focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2"
+      className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 font-semibold text-white shadow-md shadow-slate-900/15 transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-slate-900"
       onClick={onClick}
       aria-label={plan.cta}
       title={plan.cta}
     >
-      {plan.cta}
+      <span>{plan.cta}</span>
+      <svg
+        className="h-4 w-4"
+        viewBox="0 0 16 16"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        <path
+          d="M3.75 8h8.5m0 0L9.5 5.25M12.25 8 9.5 10.75"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
     </button>
   </div>
 );
