@@ -693,5 +693,6 @@
     "success": "Thanks! We’ll get back to you shortly.",
     "error": "Something went wrong. Please try again."
   },
-  "navbar.pricingpage": "Pricing"
+  "navbar.pricingpage": "Pricing",
+  "paypal.error.missingClientId": "PayPal configuration is missing. Please contact support."
 }

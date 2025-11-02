@@ -670,5 +670,6 @@
     "success": "Merci ! Nous revenons vers vous rapidement pour fixer le créneau.",
     "error": "Une erreur est survenue. Merci de réessayer."
   },
-  "navbar.pricingpage": "Tarifs"
+  "navbar.pricingpage": "Tarifs",
+  "paypal.error.missingClientId": "La configuration PayPal est manquante. Merci de contacter le support."
 }

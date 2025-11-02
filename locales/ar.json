@@ -525,5 +525,6 @@
   "signupPlans.Freemium.modal.features.singleCompany": "ذكاء اصطناعي أساسي",
   "signupPlans.Freemium.modal.storageNotice.title": "إدارة الحصة",
   "signupPlans.Freemium.modal.storageNotice.description": "تنبيه ترقية عند 80% وإيقاف إنشاء التذاكر عند 100%.",
-  "navbar.pricingpage": "الأسعار"
+  "navbar.pricingpage": "الأسعار",
+  "paypal.error.missingClientId": "إعداد PayPal غير متوفر. يرجى التواصل مع الدعم."
 }

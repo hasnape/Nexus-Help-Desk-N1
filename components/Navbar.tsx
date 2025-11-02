@@ -208,12 +208,6 @@ const Navbar: React.FC = () => {
               className="w-10 h-10 rounded-full object-cover border-2 border-sky-400 bg-white"
               style={{ minWidth: 40, minHeight: 40, background: "#fff" }}
             />
-        <span className="hidden md:inline text-xl font-bold text-sky-400 hover:text-sky-300">
-  Nexus Support Hub
-</span>
-
-
-
           </Link>
         </div>
         {/* Boutons Connexion/Créer un compte + burger à droite */}
@@ -295,9 +289,6 @@ const Navbar: React.FC = () => {
             className="w-9 h-9 rounded-full object-cover border-2 border-sky-400 bg-white"
             style={{ minWidth: 36, minHeight: 36, background: "#fff" }}
           />
-          <span className="text-xl font-bold text-sky-400 hover:text-sky-300">
-            {t("appName", { default: "Nexus Support Hub" })}
-          </span>
         </Link>
         {/* Langues à droite */}
         <div className="flex items-center space-x-1">

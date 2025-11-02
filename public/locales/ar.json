@@ -696,5 +696,6 @@
     "success": "شكراً! سنعاود الاتصال لتحديد الموعد.",
     "error": "حدث خطأ. يرجى المحاولة مرة أخرى."
   },
-  "navbar.pricingpage": "الأسعار"
+  "navbar.pricingpage": "الأسعار",
+  "paypal.error.missingClientId": "إعداد PayPal غير متوفر. يرجى التواصل مع الدعم."
 }

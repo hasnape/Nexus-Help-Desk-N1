@@ -418,6 +418,7 @@
   "subscription.disclaimer.title": "Les abonnements sont gérés par PayPal.",
   "subscription.disclaimer.text": "Vous pouvez annuler à tout moment depuis votre compte PayPal.",
   "paypal.error.sdkNotLoaded": "Le SDK PayPal n'a pas pu être chargé. Veuillez actualiser la page.",
+  "paypal.error.missingClientId": "La configuration PayPal est manquante. Merci de contacter le support.",
   "paypal.error.renderFailed": "Impossible d'afficher les boutons PayPal. Veuillez réessayer plus tard.",
   "paypal.error.generic": "Une erreur est survenue avec la transaction PayPal. Veuillez réessayer.",
   "paypal.onApprove.alert": "Abonnement réussi ! Votre plan sera mis à jour sous peu. ID d'abonnement : {{subscriptionId}}",
