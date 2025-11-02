@@ -5,7 +5,7 @@ import TicketCard from '../components/TicketCard';
 import { Button } from '../components/FormElements';
 import { useLanguage } from '../contexts/LanguageContext';
 import FloatingActionButton from '../components/FloatingActionButton';
-import PlanLimits from '../components/planLimits';
+import PlanLimits from '../components/PlanLimits';
 
 const PlusIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" {...props}>
