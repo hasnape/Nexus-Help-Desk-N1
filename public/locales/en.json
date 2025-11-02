@@ -569,10 +569,24 @@
     "delete_success": "Appointment deleted.",
     "delete_error": "Failed to delete appointment."
   },
+  "cta": {
+    "continue": "Continue",
+    "confirm": "Confirm",
+    "cancel": "Cancel"
+  },
   "pricing": {
     "title": "Pricing",
     "disclaimer": "Hosted on Supabase (RLS). No local storage.",
     "additionalNote": "Hosted on Supabase (RLS). No local storage.",
+    "select_freemium": "Select Freemium",
+    "select_standard": "Select Standard",
+    "view_pro_details": "View Pro details",
+    "freemium": "Freemium",
+    "standard": "Standard",
+    "pro": "Pro",
+    "billed_monthly": "Billed monthly",
+    "billed_yearly": "Billed yearly",
+    "features": "Features",
     "badges": {
       "popular": "Most popular"
     },

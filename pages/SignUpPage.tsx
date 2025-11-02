@@ -72,7 +72,9 @@ const FreemiumModal = ({
 
             <div className="flex gap-4">
               <Button onClick={() => setShowFreemiumModal(false)} className="flex-1 bg-gray-500 hover:bg-gray-600">
-                {t("signupPlans.Freemium.modal.buttons.cancel", { default: "Annuler" })}
+                {t("cta.cancel", {
+                  default: t("signupPlans.Freemium.modal.buttons.cancel", { default: "Annuler" }),
+                })}
               </Button>
               <Button onClick={handleFreemiumPurchase} className="flex-1 bg-primary hover:bg-primary-dark">
                 {t("signupPlans.Freemium.modal.buttons.subscribe", { default: plan.cta })}
@@ -138,7 +140,9 @@ const ProModal = ({
 
             <div className="flex gap-4">
               <Button onClick={() => setShowProModal(false)} className="flex-1 bg-gray-500 hover:bg-gray-600">
-                {t("signupPlans.pro.modal.buttons.cancel", { default: "Annuler" })}
+                {t("cta.cancel", {
+                  default: t("signupPlans.pro.modal.buttons.cancel", { default: "Annuler" }),
+                })}
               </Button>
               <a
                 href={paypalLinks.pro}
@@ -210,7 +214,9 @@ const StandardModal = ({
 
             <div className="flex gap-4">
               <Button onClick={() => setShowStandardModal(false)} className="flex-1 bg-gray-500 hover:bg-gray-600">
-                {t("signupPlans.standard.modal.buttons.cancel", { default: "Annuler" })}
+                {t("cta.cancel", {
+                  default: t("signupPlans.standard.modal.buttons.cancel", { default: "Annuler" }),
+                })}
               </Button>
               <a
                 href={paypalLinks.standard}
@@ -237,18 +243,47 @@ const PlanCard: React.FC<{
   t: (key: string, options?: { [key: string]: any }) => string;
   badgeText?: string;
 }> = ({ planKey, plan, isSelected, onSelect, t, badgeText }) => {
-  const buttonLabel = t(`signupPlans.${planKey}.select`, {
-    default: t("signupPlans.selectDefault", { default: "Sélectionner" }),
+  const isSelectable = planKey !== "pro";
+  const buttonKey = isSelectable
+    ? `pricing.select_${planKey}`
+    : "pricing.view_pro_details";
+  const buttonLabel = t(buttonKey, {
+    default: t(`signupPlans.${planKey}.select`, {
+      default: t("signupPlans.selectDefault", { default: "Sélectionner" }),
+    }),
   });
+  const planTitle = t(`pricing.${planKey}`, { default: plan.name });
 
   return (
     <div
-      className={`relative p-6 rounded-xl border-2 transition-all duration-200 ${
+      className={`relative p-6 rounded-xl border-2 bg-white transition-all duration-200 ${
         isSelected
-          ? "border-primary bg-primary/5 shadow-lg"
-          : "border-gray-200 hover:border-gray-300 hover:shadow-md"
+          ? "border-success border-3 shadow-lg ring-2 ring-green-200/60"
+          : "border-slate-200 hover:border-slate-300 hover:shadow-md"
       }`}
+      role="group"
+      aria-label={planTitle}
     >
+      {isSelected ? (
+        <span
+          className="position-absolute top-0 end-0 translate-middle mt-4 me-4 rounded-circle bg-success text-white d-flex align-items-center justify-content-center shadow"
+          aria-hidden="true"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            className="w-4 h-4"
+          >
+            <path
+              fillRule="evenodd"
+              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+              clipRule="evenodd"
+            />
+          </svg>
+        </span>
+      ) : null}
+
       {badgeText ? (
         <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
           <span className="bg-primary text-white px-3 py-1 rounded-full text-sm font-medium">
@@ -258,18 +293,47 @@ const PlanCard: React.FC<{
       ) : null}
 
       <div className="text-center mb-6">
-        <h3 className="text-xl font-bold text-gray-900 mb-2">{plan.name}</h3>
+        <h3
+          className="text-xl font-bold text-gray-900 mb-2"
+          data-i18n={`pricing.plans.${planKey}.name`}
+        >
+          {plan.name}
+        </h3>
+        <span className="visually-hidden" data-i18n={`pricing.${planKey}`}>
+          {planTitle}
+        </span>
         <div className="mb-2">
-          <span className="text-3xl font-bold text-primary">{plan.price}</span>
+          <span className="visually-hidden" data-i18n="pricing.billed_monthly">
+            {t("pricing.billed_monthly", { default: "Billed monthly" })}
+          </span>
+          <span
+            className="text-3xl font-bold text-primary"
+            data-i18n={`pricing.plans.${planKey}.price`}
+          >
+            {plan.price}
+          </span>
         </div>
-        {plan.yearly ? <p className="text-gray-600 text-sm">{plan.yearly}</p> : null}
+        {plan.yearly ? (
+          <>
+            <span className="visually-hidden" data-i18n="pricing.billed_yearly">
+              {t("pricing.billed_yearly", { default: "Billed yearly" })}
+            </span>
+            <p className="text-gray-600 text-sm" data-i18n={`pricing.plans.${planKey}.yearly`}>
+              {plan.yearly}
+            </p>
+          </>
+        ) : null}
       </div>
 
+      <span className="visually-hidden" data-i18n="pricing.features">
+        {t("pricing.features", { default: "Fonctionnalités" })}
+      </span>
+
       <ul className="space-y-3 mb-6">
-        {plan.features.map((feature) => (
+        {plan.features.map((feature, index) => (
           <li key={`${plan.name}-${feature}`} className="flex items-start">
             <svg
-              className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0"
+              className="w-5 h-5 text-success me-3 mt-0.5 flex-shrink-0"
               fill="currentColor"
               viewBox="0 0 20 20"
             >
@@ -279,21 +343,45 @@ const PlanCard: React.FC<{
                 clipRule="evenodd"
               />
             </svg>
-            <span className="text-gray-700 text-sm">{feature}</span>
+            <span
+              className="text-gray-700 text-sm"
+              data-i18n={`pricing.plans.${planKey}.features.${index}`}
+            >
+              {feature}
+            </span>
           </li>
         ))}
       </ul>
 
-      <Button
+      <button
+        type="button"
         onClick={() => onSelect(planKey)}
-        className={`w-full ${
-          isSelected
-            ? "bg-primary text-white hover:bg-primary-dark"
-            : "bg-white text-primary border border-primary hover:bg-primary hover:text-white"
+        className={`btn btn-success btn-lg w-100 fw-semibold d-flex align-items-center justify-content-center gap-2 focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-green-600 ${
+          isSelectable && isSelected ? "shadow" : ""
         }`}
+        {...(isSelectable
+          ? { "data-plan": planKey, "aria-pressed": isSelected }
+          : {})}
+        data-i18n={buttonKey}
+        aria-label={`${buttonLabel} - ${planTitle}`}
       >
-        {buttonLabel}
-      </Button>
+        <span>{buttonLabel}</span>
+        {isSelectable ? (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            className={`w-5 h-5 transition-opacity ${isSelected ? "opacity-100" : "opacity-0"}`}
+            aria-hidden="true"
+          >
+            <path
+              fillRule="evenodd"
+              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+              clipRule="evenodd"
+            />
+          </svg>
+        ) : null}
+      </button>
     </div>
   );
 };
@@ -313,7 +401,7 @@ const SignUpPage: React.FC = () => {
   const [showProModal, setShowProModal] = useState(false);
   const [showFreemiumModal, setShowFreemiumModal] = useState(false);
   const [showStandardModal, setShowStandardModal] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<PricingPlanKey | null>("freemium");
+  const [selectedPlan, setSelectedPlan] = useState<PricingPlanKey | null>(null);
 
 
   const { signUp, user } = useApp();
@@ -349,7 +437,7 @@ const SignUpPage: React.FC = () => {
     setRole(nextRole);
 
     if (nextRole === UserRole.MANAGER) {
-      setSelectedPlan((current) => current ?? "freemium");
+      setSelectedPlan((current) => current);
     } else {
       setSelectedPlan(null);
       setSecretCode("");
@@ -372,12 +460,13 @@ const SignUpPage: React.FC = () => {
       setError(t("signup.error.minCharsPassword"));
       return;
     }
-    const effectivePlan =
-      role === UserRole.MANAGER ? selectedPlan ?? "freemium" : undefined;
+    const effectivePlan: PricingPlanKey | undefined =
+      role === UserRole.MANAGER && selectedPlan ? selectedPlan : undefined;
     // Si le rôle est Manager, on s'assure que le champ du code n'est pas vide.
     // La VRAIE validation (si le code est bon) se fera sur le serveur.
     if (
       role === UserRole.MANAGER &&
+      effectivePlan &&
       effectivePlan !== "freemium" &&
       !secretCode.trim()
     ) {
@@ -409,7 +498,7 @@ const SignUpPage: React.FC = () => {
       companyName: companyName.trim(),
       // On envoie le code SEULEMENT si le rôle est Manager sur un plan payant.
       secretCode:
-        role === UserRole.MANAGER && effectivePlan !== "freemium"
+        role === UserRole.MANAGER && effectivePlan && effectivePlan !== "freemium"
           ? secretCode.trim()
           : undefined,
       plan:
@@ -441,13 +530,16 @@ const SignUpPage: React.FC = () => {
   };
 
   const handlePlanSelect = (plan: PricingPlanKey) => {
-    setSelectedPlan(plan);
-
     if (plan === "pro") {
       setShowProModal(true);
       setShowStandardModal(false);
       setShowFreemiumModal(false);
-    } else if (plan === "standard") {
+      return;
+    }
+
+    setSelectedPlan(plan);
+
+    if (plan === "standard") {
       setShowStandardModal(true);
       setShowProModal(false);
       setShowFreemiumModal(false);
@@ -464,6 +556,7 @@ const SignUpPage: React.FC = () => {
   };
 
   const handleProPurchase = () => {
+    setSelectedPlan("pro");
     setShowProModal(false);
     alert("✅ Abonnement Pro : Code envoyer par mail !");
   };

@@ -524,10 +524,24 @@
   "common.confirm": "Confirmer",
   "common.deleting": "Suppression...",
   "common.close": "Fermer",
+  "cta": {
+    "continue": "Continuer",
+    "confirm": "Confirmer",
+    "cancel": "Annuler"
+  },
   "pricing": {
     "title": "Tarifs",
     "disclaimer": "Tout hébergé sur Supabase (RLS). Aucun stockage local.",
     "additionalNote": "Tout hébergé sur Supabase (RLS). Aucun stockage local.",
+    "select_freemium": "Sélectionner Freemium",
+    "select_standard": "Sélectionner Standard",
+    "view_pro_details": "Voir les détails Pro",
+    "freemium": "Freemium",
+    "standard": "Standard",
+    "pro": "Pro",
+    "billed_monthly": "Facturation mensuelle",
+    "billed_yearly": "Facturation annuelle",
+    "features": "Fonctionnalités",
     "badges": {
       "popular": "Le plus populaire"
     },

@@ -572,10 +572,24 @@
     "delete_success": "تم حذف الموعد.",
     "delete_error": "فشل حذف الموعد."
   },
+  "cta": {
+    "continue": "متابعة",
+    "confirm": "تأكيد",
+    "cancel": "إلغاء"
+  },
   "pricing": {
     "title": "الأسعار",
     "disclaimer": "مستضاف على Supabase (RLS). بدون تخزين محلي.",
     "additionalNote": "مستضاف على Supabase (RLS). بدون تخزين محلي.",
+    "select_freemium": "اختر فريميوم",
+    "select_standard": "اختر الخطة القياسية",
+    "view_pro_details": "عرض تفاصيل برو",
+    "freemium": "فريميوم",
+    "standard": "قياسي",
+    "pro": "احترافي",
+    "billed_monthly": "فوترة شهرية",
+    "billed_yearly": "فوترة سنوية",
+    "features": "الميزات",
     "badges": {
       "popular": "الأكثر شيوعاً"
     },
