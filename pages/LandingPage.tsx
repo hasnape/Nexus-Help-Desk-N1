@@ -118,84 +118,6 @@ const LandingPage: React.FC = () => {
     },
   ];
 
-  const heroPricing = [
-    {
-      id: "freemium",
-      name: t("pricing.plans.freemium.name", {
-        default: "Freemium (bac à sable)",
-      }),
-      price: t("pricing.plans.freemium.price", {
-        default: "Gratuit",
-      }),
-      yearly: t("pricing.plans.freemium.yearly", {
-        default: "Plan annuel identique : 0 €",
-      }),
-      badge: null,
-      features: [
-        "1 agent",
-        "50 tickets/mois",
-        "Historique lecture seule 7 jours",
-        "IA basique (réponses courtes)",
-        "Pas de RDV",
-        "Pas d’export",
-        "Nudge d’upgrade à 80% du quota",
-        "Blocage création à 100%",
-      ],
-      cta: t("pricing.plans.freemium.cta", {
-        default: "Demander une démo",
-      }),
-    },
-    {
-      id: "standard",
-      name: t("pricing.plans.standard.name", {
-        default: "Standard",
-      }),
-      price: t("pricing.plans.standard.price", {
-        default: "19 €/mois",
-      }),
-      yearly: t("pricing.plans.standard.yearly", {
-        default: "ou 190 €/an",
-      }),
-      badge: t("pricing.badges.popular", { default: "Le plus populaire" }),
-      features: [
-        "5 agents",
-        "500 tickets/mois",
-        "Historique 6 mois",
-        "IA complète + catégorisation auto",
-        "Notes internes",
-        "Export CSV",
-        "RDV simples (sans rappels automatiques)",
-        "SLA standard",
-        "Code d’activation manager inclus",
-      ],
-      cta: t("pricing.plans.standard.cta", {
-        default: "Demander une démo",
-      }),
-    },
-    {
-      id: "pro",
-      name: t("pricing.plans.pro.name", { default: "Pro" }),
-      price: t("pricing.plans.pro.price", { default: "39 €/mois" }),
-      yearly: t("pricing.plans.pro.yearly", { default: "ou 390 €/an" }),
-      badge: null,
-      features: [
-        "10 agents",
-        "1000 tickets/mois",
-        "Historique 24 mois",
-        "Commandes vocales",
-        "Multilingue FR/EN (AR plus tard)",
-        "RDV + rappels",
-        "Rapports avancés",
-        "Webhooks",
-        "SLA prioritaire",
-      ],
-      cta: t("pricing.plans.pro.cta", {
-        default: "Demander une démo",
-      }),
-    },
-  ];
-
-
   // Avantages suggérés dans la revue
   const advantages = [
     {
@@ -276,54 +198,6 @@ const LandingPage: React.FC = () => {
       <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-700">
         <Navbar />
         <main className="pt-16">
-          {/* 1. Hero Section */} {/* Bannière centrale */}
-          <div className="bg-gradient-to-r from-slate-100 via-white to-slate-100 border border-slate-300 rounded-lg p-6 mb-8 shadow-md text-slate-900">
-            <div className="max-w-6xl mx-auto">
-              <div className="text-center">
-                <p className="text-sm font-semibold uppercase tracking-wide text-slate-600">
-                  Tarifs
-                </p>
-                <p className="mt-2 text-base text-slate-700">
-                  Tout hébergé sur Supabase (RLS). Aucun stockage local.
-                </p>
-              </div>
-              <div className="mt-6 grid gap-6 md:grid-cols-3">
-                {heroPricing.map((plan) => (
-                  <div
-                    key={plan.id}
-                    className="bg-white border border-slate-200 rounded-lg p-5 shadow-sm h-full flex flex-col"
-                  >
-                    <div className="mb-3">
-                      <h3 className="text-lg font-semibold text-slate-900">
-                        {plan.name}
-                      </h3>
-                      <p className="text-xl font-bold text-slate-900">{plan.price}</p>
-                      {plan.yearly && (
-                        <p className="text-sm text-slate-600">{plan.yearly}</p>
-                      )}
-                      {plan.badge && (
-                        <span className="mt-2 inline-block rounded-full bg-slate-200 px-3 py-1 text-xs font-semibold uppercase text-slate-800">
-                          {plan.badge}
-                        </span>
-                      )}
-                    </div>
-                    <ul className="space-y-2 text-sm text-slate-700 flex-1">
-                      {plan.features.map((feature) => (
-                        <li key={feature} className="flex items-start gap-2">
-                          <span className="mt-1 h-2 w-2 rounded-full bg-slate-500" aria-hidden="true" />
-                          <span>{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                    <div className="mt-4 text-sm font-semibold text-slate-900">
-                      {plan.cta}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
           <section className="py-8 px-4 sm:px-6 lg:px-8 text-white text-center">
             {" "}
             {/* padding vertical réduit */}

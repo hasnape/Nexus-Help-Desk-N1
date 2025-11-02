@@ -535,7 +535,7 @@
       "freemium": {
         "name": "Freemium (bac à sable)",
         "price": "Gratuit",
-        "yearly": "",
+        "yearly": "Plan annuel identique : 0 €",
         "features": [
           "1 agent",
           "50 tickets/mois",
