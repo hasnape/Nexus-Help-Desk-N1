@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 
 import { useApp } from "../App";
 import { Button, Input, Select } from "../components/FormElements";
-import { useLanguage, Locale } from "../contexts/LanguageContext";
+import type { Locale } from "../contexts/LanguageContext";
 import { UserRole } from "../types";
 import Layout from "../components/Layout";
 import { getPricingPlans, type PricingPlan, type PricingPlanKey } from "@/utils/pricing";
@@ -39,7 +39,7 @@ const FreemiumModal = ({
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-gray-900">
               {t("signupPlans.Freemium.modal.title", {
-                default: "Offre Freemium - Détails",
+                defaultValue: "Offre Freemium - Détails",
               })}
             </h2>
             <button onClick={() => setShowFreemiumModal(false)} className="text-gray-500 hover:text-gray-700">
@@ -73,11 +73,11 @@ const FreemiumModal = ({
             <div className="flex gap-4">
               <Button onClick={() => setShowFreemiumModal(false)} className="flex-1 bg-gray-500 hover:bg-gray-600">
                 {t("cta.cancel", {
-                  default: t("signupPlans.Freemium.modal.buttons.cancel", { default: "Annuler" }),
+                  defaultValue: t("signupPlans.Freemium.modal.buttons.cancel", { defaultValue: "Annuler" }),
                 })}
               </Button>
               <Button onClick={handleFreemiumPurchase} className="flex-1 bg-primary hover:bg-primary-dark">
-                {t("signupPlans.Freemium.modal.buttons.subscribe", { default: plan.cta })}
+                {t("signupPlans.Freemium.modal.buttons.subscribe", { defaultValue: plan.cta })}
               </Button>
             </div>
           </div>
@@ -108,7 +108,7 @@ const ProModal = ({
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-gray-900">
-              {t("signupPlans.pro.modal.title", { default: "Offre Pro - Détails" })}
+              {t("signupPlans.pro.modal.title", { defaultValue: "Offre Pro - Détails" })}
             </h2>
             <button onClick={() => setShowProModal(false)} className="text-gray-500 hover:text-gray-700">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -141,7 +141,7 @@ const ProModal = ({
             <div className="flex gap-4">
               <Button onClick={() => setShowProModal(false)} className="flex-1 bg-gray-500 hover:bg-gray-600">
                 {t("cta.cancel", {
-                  default: t("signupPlans.pro.modal.buttons.cancel", { default: "Annuler" }),
+                  defaultValue: t("signupPlans.pro.modal.buttons.cancel", { defaultValue: "Annuler" }),
                 })}
               </Button>
               <a
@@ -151,7 +151,7 @@ const ProModal = ({
                 onClick={handleProPurchase}
                 className="flex-1 inline-flex items-center justify-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
               >
-                {t("signupPlans.pro.modal.buttons.subscribe", { default: plan.cta })}
+                {t("signupPlans.pro.modal.buttons.subscribe", { defaultValue: plan.cta })}
               </a>
             </div>
           </div>
@@ -182,7 +182,7 @@ const StandardModal = ({
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-gray-900">
-              {t("signupPlans.standard.modal.title", { default: "Offre Standard - Détails" })}
+              {t("signupPlans.standard.modal.title", { defaultValue: "Offre Standard - Détails" })}
             </h2>
             <button onClick={() => setShowStandardModal(false)} className="text-gray-500 hover:text-gray-700">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -215,7 +215,7 @@ const StandardModal = ({
             <div className="flex gap-4">
               <Button onClick={() => setShowStandardModal(false)} className="flex-1 bg-gray-500 hover:bg-gray-600">
                 {t("cta.cancel", {
-                  default: t("signupPlans.standard.modal.buttons.cancel", { default: "Annuler" }),
+                  defaultValue: t("signupPlans.standard.modal.buttons.cancel", { defaultValue: "Annuler" }),
                 })}
               </Button>
               <a
@@ -225,7 +225,7 @@ const StandardModal = ({
                 onClick={handleStandardPurchase}
                 className="flex-1 inline-flex items-center justify-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
               >
-                {t("signupPlans.standard.modal.buttons.subscribe", { default: plan.cta })}
+                {t("signupPlans.standard.modal.buttons.subscribe", { defaultValue: plan.cta })}
               </a>
             </div>
           </div>
@@ -248,11 +248,11 @@ const PlanCard: React.FC<{
     ? `pricing.select_${planKey}`
     : "pricing.view_pro_details";
   const buttonLabel = t(buttonKey, {
-    default: t(`signupPlans.${planKey}.select`, {
-      default: t("signupPlans.selectDefault", { default: "Sélectionner" }),
+    defaultValue: t(`signupPlans.${planKey}.select`, {
+      defaultValue: t("signupPlans.selectDefault", { defaultValue: "Sélectionner" }),
     }),
   });
-  const planTitle = t(`pricing.${planKey}`, { default: plan.name });
+  const planTitle = t(`pricing.${planKey}`, { defaultValue: plan.name });
 
   return (
     <div
@@ -304,7 +304,7 @@ const PlanCard: React.FC<{
         </span>
         <div className="mb-2">
           <span className="visually-hidden" data-i18n="pricing.billed_monthly">
-            {t("pricing.billed_monthly", { default: "Billed monthly" })}
+            {t("pricing.billed_monthly", { defaultValue: "Billed monthly" })}
           </span>
           <span
             className="text-3xl font-bold text-primary"
@@ -316,7 +316,7 @@ const PlanCard: React.FC<{
         {plan.yearly ? (
           <>
             <span className="visually-hidden" data-i18n="pricing.billed_yearly">
-              {t("pricing.billed_yearly", { default: "Billed yearly" })}
+              {t("pricing.billed_yearly", { defaultValue: "Billed yearly" })}
             </span>
             <p className="text-gray-600 text-sm" data-i18n={`pricing.plans.${planKey}.yearly`}>
               {plan.yearly}
@@ -326,7 +326,7 @@ const PlanCard: React.FC<{
       </div>
 
       <span className="visually-hidden" data-i18n="pricing.features">
-        {t("pricing.features", { default: "Fonctionnalités" })}
+        {t("pricing.features", { defaultValue: "Fonctionnalités" })}
       </span>
 
       <ul className="space-y-3 mb-6">
@@ -387,11 +387,12 @@ const PlanCard: React.FC<{
 };
 
 const SignUpPage: React.FC = () => {
+  const { t, i18n } = useTranslation();
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [selectedLanguage, setSelectedLanguage] = useState<Locale>("en");
+  const [selectedLanguage, setSelectedLanguage] = useState<Locale>(() => (i18n.language as Locale) || "en");
   const [role, setRole] = useState<UserRole>(UserRole.USER);
   const [secretCode, setSecretCode] = useState("");
   const [companyName, setCompanyName] = useState("");
@@ -402,13 +403,9 @@ const SignUpPage: React.FC = () => {
   const [showFreemiumModal, setShowFreemiumModal] = useState(false);
   const [showStandardModal, setShowStandardModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<PricingPlanKey | null>(null);
-
-
   const { signUp, user } = useApp();
-  const { t, language: currentAppLang } = useLanguage();
-  const { t: translate } = useTranslation();
-  const pricingPlans = getPricingPlans(translate);
-  const popularBadge = translate("pricing.badges.popular");
+  const pricingPlans = getPricingPlans(t);
+  const popularBadge = t("pricing.badges.popular", { defaultValue: "Popular" });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -430,8 +427,18 @@ const SignUpPage: React.FC = () => {
   ];
 
   useEffect(() => {
-    setSelectedLanguage(currentAppLang);
-  }, [currentAppLang]);
+    const nextLanguage = (i18n.language as Locale) || "en";
+    setSelectedLanguage(nextLanguage);
+
+    const handleLanguageChanged = (lng: string) => {
+      setSelectedLanguage((lng as Locale) || "en");
+    };
+
+    i18n.on("languageChanged", handleLanguageChanged);
+    return () => {
+      i18n.off("languageChanged", handleLanguageChanged);
+    };
+  }, [i18n]);
 
   const handleRoleChange = (nextRole: UserRole) => {
     setRole(nextRole);
@@ -478,7 +485,7 @@ const SignUpPage: React.FC = () => {
       if (!effectivePlan) {
         setError(
           t("signup.error.planSelectionRequired", {
-            default: "Veuillez sélectionner une offre pour votre entreprise.",
+            defaultValue: "Veuillez sélectionner une offre pour votre entreprise.",
           })
         );
         return;
@@ -665,12 +672,12 @@ const SignUpPage: React.FC = () => {
                   <div className="text-center mb-6">
                     <h2 className="text-2xl font-bold text-textPrimary mb-2">
                       {t("signupPlans.title", {
-                        default: "Choisissez votre plan",
+                        defaultValue: "Choisissez votre plan",
                       })}
                     </h2>
                     <p className="text-textSecondary">
                       {t("signupPlans.subtitle", {
-                        default:
+                        defaultValue:
                           "Sélectionnez le plan qui correspond le mieux aux besoins de votre équipe.",
                       })}
                     </p>
@@ -704,18 +711,18 @@ const SignUpPage: React.FC = () => {
                     <div className="mb-8 rounded-lg border border-green-300 bg-green-50 p-5 text-left">
                       <h3 className="text-lg font-semibold text-green-900">
                         {t("signupPlans.freemium.autoSelected.title", {
-                          default: "Freemium sélectionné automatiquement",
+                          defaultValue: "Freemium sélectionné automatiquement",
                         })}
                       </h3>
                       <p className="mt-2 text-sm text-green-800">
                         {t("signupPlans.freemium.autoSelected.description", {
-                          default:
+                          defaultValue:
                             "Cette inscription active immédiatement votre espace Freemium hébergé sur le cloud Nexus.",
                         })}
                       </p>
                       <p className="mt-2 text-xs text-green-700">
                         {t("signupPlans.freemium.autoSelected.storageNotice", {
-                          default:
+                          defaultValue:
                             "Accédez à vos utilisateurs et tickets depuis n'importe quel appareil connecté.",
                         })}
                       </p>
@@ -814,7 +821,7 @@ const SignUpPage: React.FC = () => {
                             </button>
                             <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-64 p-3 bg-white border border-slate-200 rounded shadow-lg text-xs text-slate-700 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition pointer-events-none group-hover:pointer-events-auto z-20">
                               {t("activationKey.help", {
-                                default:
+                                defaultValue:
                                   "Pour obtenir le code d’activation, contactez le support Nexus ou consultez votre email de bienvenue après l’achat du plan.",
                               })}
                             </div>
@@ -855,11 +862,11 @@ const SignUpPage: React.FC = () => {
                       <p className="mt-1 text-xs text-slate-500 px-1">
                         {role === UserRole.MANAGER
                           ? t("signup.companyNameHelp.manager", {
-                              default:
+                              defaultValue:
                                 "This name must be unique. Your team will use it to sign up and log in.",
                             })
                           : t("signup.companyNameHelp.employee", {
-                              default:
+                              defaultValue:
                                 "Enter the exact company name provided by your manager.",
                             })}
                       </p>
@@ -869,13 +876,15 @@ const SignUpPage: React.FC = () => {
                       label={t("signup.languageLabel")}
                       id="language"
                       value={selectedLanguage}
-                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                        setSelectedLanguage(e.target.value as Locale)
-                      }
+                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                        const nextLocale = e.target.value as Locale;
+                        setSelectedLanguage(nextLocale);
+                        void i18n.changeLanguage(nextLocale);
+                      }}
                       options={languageOptions.map((opt) => ({
                         ...opt,
                         label: t(`language.${opt.value}`, {
-                          default: opt.label,
+                          defaultValue: opt.label,
                         }),
                       }))}
                       required
@@ -921,7 +930,7 @@ const SignUpPage: React.FC = () => {
                         clipRule="evenodd"
                       />
                     </svg>
-                    {t("signup.backToHome", { default: "Back to Plans" })}
+                    {t("signup.backToHome", { defaultValue: "Back to Plans" })}
                   </Link>
                 </p>
               </div>
@@ -933,7 +942,7 @@ const SignUpPage: React.FC = () => {
                   to="/legal"
                   className="text-xs text-slate-500 hover:text-primary hover:underline"
                 >
-                  {t("footer.legalLink", { default: "Legal & Documentation" })}
+                  {t("footer.legalLink", { defaultValue: "Legal & Documentation" })}
                 </Link>
               </div>
             </div>
