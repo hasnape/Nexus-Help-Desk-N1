@@ -96,6 +96,14 @@
   "dashboard.noTicketsSubtitle": "Click 'Get AI Help' to start a conversation.",
   "dashboard.noTicketsTitle": "You have no active tickets.",
   "dashboard.requestMaterialInvestigationButton": "Investigate Material Issue",
+  "dashboard.quota": {
+    "blocked": "Limit reached: ticket creation is blocked.",
+    "near_limit": "You are nearing your monthly limit.",
+    "title": "Remaining tickets this month",
+    "unlimited": "Unlimited",
+    "upgrade_cta": "Upgrade",
+    "value": "{remaining} / {limit} ({percent}% used)"
+  },
   "dashboard.welcomeMessage": "Welcome, {{username}}!",
   "demo": {
     "company": "Company name",

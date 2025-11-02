@@ -103,6 +103,14 @@
   "dashboard.noTicketsSubtitle": "Cliquez sur 'Obtenir de l'aide IA' pour démarrer une conversation.",
   "dashboard.noTicketsTitle": "Vous n'avez aucun ticket actif.",
   "dashboard.requestMaterialInvestigationButton": "Investiguer un problème matériel",
+  "dashboard.quota": {
+    "blocked": "Limite atteinte : création de ticket bloquée.",
+    "near_limit": "Vous approchez de votre limite mensuelle.",
+    "title": "Tickets restants ce mois-ci",
+    "unlimited": "Illimité",
+    "upgrade_cta": "Mettre à niveau",
+    "value": "{remaining} / {limit} ({percent}% utilisé)"
+  },
   "dashboard.welcomeMessage": "Bienvenue, {{username}} !",
   "demo": {
     "company": "Nom de l’entreprise",
