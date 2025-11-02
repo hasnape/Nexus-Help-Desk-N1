@@ -482,7 +482,7 @@
       "freemium": {
         "name": "Freemium (sandbox)",
         "price": "Free",
-        "yearly": "",
+        "yearly": "Yearly plan identical: €0",
         "features": [
           "1 agent",
           "50 tickets/month",
@@ -521,7 +521,7 @@
           "1000 tickets/month",
           "24-month history",
           "Voice commands",
-          "Multilingual FR/EN (AR later)",
+          "Multilingual FR/EN",
           "Scheduling with reminders",
           "Advanced reports",
           "Webhooks",
@@ -567,7 +567,7 @@
       "feature2": "1000 tickets/month",
       "feature3": "24-month history",
       "feature4": "Voice commands",
-      "feature5": "Multilingual FR/EN (AR later)",
+      "feature5": "Multilingual FR/EN",
       "feature6": "Scheduling with reminders",
       "feature7": "Advanced reports",
       "feature8": "Webhooks",
@@ -599,5 +599,6 @@
   "signupPlans.Freemium.modal.features.singleCompany": "Basic AI responses",
   "signupPlans.Freemium.modal.storageNotice.title": "Quota management",
   "signupPlans.Freemium.modal.storageNotice.description": "Upgrade nudges at 80% and creation blocked at 100%.",
-  "navbar.pricingpage": "Pricing"
+  "navbar.pricingpage": "Pricing",
+  "paypal.error.missingClientId": "PayPal configuration is missing. Please contact support."
 }

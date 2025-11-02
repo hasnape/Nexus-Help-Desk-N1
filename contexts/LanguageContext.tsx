@@ -23,13 +23,23 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
     return storedLang && ['en', 'fr', 'ar'].includes(storedLang) ? storedLang : 'en';
   });
 
-  const [isLoadingLang, setIsLoadingLang] = useState<boolean>(true);
+  const [isLoadingLang, setIsLoadingLang] = useState<boolean>(false);
 
   useEffect(() => {
     let isMounted = true;
 
     const applyLanguage = async (lang: Locale) => {
+      const shouldTriggerChange = i18n.language !== lang;
+
+      if (!shouldTriggerChange) {
+        if (isMounted) {
+          setIsLoadingLang(false);
+        }
+        return;
+      }
+
       setIsLoadingLang(true);
+
       try {
         await i18n.changeLanguage(lang);
       } finally {
@@ -78,16 +88,12 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
     (key: string, replacementsOrOptions?: Record<string, string | number> | { default: string } | (Record<string, string | number> & { default?: string })) => {
       const { defaultValue, interpolation } = mapOptions(replacementsOrOptions);
 
-      if (isLoadingLang) {
-        return defaultValue ?? key;
-      }
-
       const translation = i18n.t(key, {
         defaultValue,
         ...(interpolation ?? {}),
       });
 
-      if (typeof translation === 'string') {
+      if (typeof translation === 'string' && translation.trim().length > 0 && translation !== key) {
         return translation;
       }
 
@@ -95,9 +101,17 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
         return translation.join(', ');
       }
 
-      return defaultValue ?? key;
+      if (defaultValue) {
+        return defaultValue;
+      }
+
+      if (typeof translation === 'string' && translation.trim().length > 0) {
+        return translation;
+      }
+
+      return key;
     },
-    [isLoadingLang]
+    []
   );
 
   const getBCP47Locale = useCallback((): string => {
