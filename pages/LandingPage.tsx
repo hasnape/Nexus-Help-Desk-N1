@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { useLanguage } from "../contexts/LanguageContext";
 import { Button } from "../components/FormElements";
 import Navbar from "../components/Navbar";
 import Layout from "../components/Layout";
@@ -97,7 +96,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoUrl }) => {
 };
 
 const LandingPage: React.FC = () => {
-  const { t } = useLanguage();
+  const { t } = useTranslation();
   const [showVideo, setShowVideo] = useState(false);
 
   const features = [
@@ -214,7 +213,7 @@ const LandingPage: React.FC = () => {
                     size="lg"
                     className="px-8 py-4 text-lg w-full sm:w-auto"
                   >
-                    {t("landing.hero.ctaButton")}
+                    {t("landing.cta.trial")}
                   </Button>
                 </Link>
                 <button
@@ -229,7 +228,7 @@ const LandingPage: React.FC = () => {
                     <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
                   </svg>
                   {t("landing.hero.watchDemo", {
-                    default: "Voir la démonstration",
+                    defaultValue: "Voir la démonstration",
                   })}
                 </button>
                 <Link to="/infographie" className="block w-full sm:w-auto">
@@ -239,7 +238,7 @@ const LandingPage: React.FC = () => {
                     className="px-8 py-4 text-lg w-full sm:w-auto"
                   >
                     {t("infographie.seeMore", {
-                      default: "Voir l’infographie",
+                      defaultValue: "Voir l’infographie",
                     })}
                   </Button>
                 </Link>
@@ -251,7 +250,7 @@ const LandingPage: React.FC = () => {
                     <div className="flex justify-between items-center mb-4">
                       <h3 className="text-xl font-bold text-gray-900">
                         {t("landing.video.title", {
-                          default: "Découvrez Nexus Support Hub",
+                          defaultValue: "Découvrez Nexus Support Hub",
                         })}
                       </h3>
                       <button
@@ -284,7 +283,7 @@ const LandingPage: React.FC = () => {
                         className="text-primary hover:underline font-semibold"
                       >
                         {t("landing.video.watchOnYouTube", {
-                          default: "Regarder sur YouTube",
+                          defaultValue: "Regarder sur YouTube",
                         })}
                       </a>
                     </div>
@@ -300,12 +299,12 @@ const LandingPage: React.FC = () => {
               <div className="text-center mb-8">
                 <h2 className="text-3xl sm:text-4xl font-bold text-slate-800">
                   {t("landing.video.title", {
-                    default: "Découvrez Nexus Support Hub en vidéo",
+                    defaultValue: "Découvrez Nexus Support Hub en vidéo",
                   })}
                 </h2>
                 <p className="mt-4 text-lg text-slate-600">
                   {t("landing.video.subtitle", {
-                    default:
+                    defaultValue:
                       "Une présentation rapide de nos services et de notre valeur ajoutée.",
                   })}
                 </p>
@@ -321,7 +320,7 @@ const LandingPage: React.FC = () => {
                   className="text-primary hover:underline font-semibold"
                 >
                   {t("landing.video.watchOnYouTube", {
-                    default: "Regarder sur YouTube",
+                    defaultValue: "Regarder sur YouTube",
                   })}
                 </a>
               </div>
@@ -364,12 +363,12 @@ const LandingPage: React.FC = () => {
               <div className="text-center max-w-3xl mx-auto mb-12">
                 <h2 className="text-3xl sm:text-4xl font-bold text-slate-800">
                   {t("landing.advantages.title", {
-                    default: "Pourquoi choisir Nexus Support Hub ?",
+                    defaultValue: "Pourquoi choisir Nexus Support Hub ?",
                   })}
                 </h2>
                 <p className="mt-4 text-lg text-slate-600">
                   {t("landing.advantages.subtitle", {
-                    default:
+                    defaultValue:
                       "Découvrez les bénéfices concrets pour votre équipe et vos clients.",
                   })}
                 </p>
@@ -402,11 +401,11 @@ const LandingPage: React.FC = () => {
             <div className="container mx-auto px-4 max-w-screen-lg">
               <div className="text-center max-w-3xl mx-auto mb-12">
                 <h2 className="text-3xl sm:text-4xl font-bold text-slate-800">
-                  {t("infographie.title", { default: "Infographie technique" })}
+                  {t("infographie.title", { defaultValue: "Infographie technique" })}
                 </h2>
                 <p className="mt-4 text-lg text-slate-600">
                   {t("infographie.subtitle", {
-                    default:
+                    defaultValue:
                       "Découvrez l’architecture et les technologies clés de Nexus Support Hub.",
                   })}
                 </p>
@@ -415,7 +414,7 @@ const LandingPage: React.FC = () => {
                   className="inline-block mt-6 px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition"
                 >
                   {t("infographie.seeMore", {
-                    default: "Voir l’infographie complète",
+                    defaultValue: "Voir l’infographie complète",
                   })}
                 </Link>
               </div>

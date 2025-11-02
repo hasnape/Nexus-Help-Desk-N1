@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useApp } from '../App';
 import { Ticket, User, UserRole, TicketPriority, Locale, TicketStatus } from '../types';
@@ -74,6 +74,175 @@ const PartyPopperIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     </svg>
 );
 
+const DEFAULT_TIME_ZONE = 'Europe/Paris';
+const FALLBACK_PLAN_LIMITS: Record<string, number> = {
+    freemium: 50,
+    standard: 500,
+    pro: 1000,
+};
+
+type QuotaSeverity = 'normal' | 'near' | 'blocked' | 'none';
+
+interface QuotaMetadata {
+    limit: number | null;
+    isUnlimited: boolean;
+    planKey: string | null;
+    rawPlanLabel: string | null;
+    timezone: string | null;
+}
+
+const parseNumericValue = (value: unknown): number | null => {
+    if (typeof value === 'number' && Number.isFinite(value)) {
+        return value;
+    }
+    if (typeof value === 'string') {
+        const cleaned = value.replace(/[^0-9.,-]/g, '').replace(',', '.');
+        const parsed = Number(cleaned);
+        if (Number.isFinite(parsed)) {
+            return parsed;
+        }
+    }
+    return null;
+};
+
+const parseBooleanLike = (value: unknown): boolean => {
+    if (typeof value === 'boolean') {
+        return value;
+    }
+    if (typeof value === 'number') {
+        return value !== 0;
+    }
+    if (typeof value === 'string') {
+        const normalized = value.trim().toLowerCase();
+        return ['true', '1', 'yes', 'y', 'on'].includes(normalized);
+    }
+    return false;
+};
+
+const normalizePlanKey = (plan: string | null | undefined): string | null => {
+    if (!plan) {
+        return null;
+    }
+    const normalized = plan.trim().toLowerCase();
+    if (normalized.includes('unlimit') || normalized.includes('illimit') || normalized.includes('enterprise')) {
+        return 'unlimited';
+    }
+    if (normalized.includes('pro')) {
+        return 'pro';
+    }
+    if (normalized.includes('standard') || normalized.includes('team')) {
+        return 'standard';
+    }
+    if (normalized.includes('free') || normalized.includes('freemium') || normalized.includes('trial') || normalized.includes('sandbox')) {
+        return 'freemium';
+    }
+    return normalized || null;
+};
+
+const extractTimezone = (record: Record<string, any> | null | undefined): string | null => {
+    if (!record) {
+        return null;
+    }
+    const candidates = [record.timezone, record.time_zone, record.default_timezone, record.tz, record.locale_timezone];
+    for (const candidate of candidates) {
+        if (typeof candidate === 'string' && candidate.trim().length > 0) {
+            return candidate.trim();
+        }
+    }
+    return null;
+};
+
+const deriveQuotaMetadata = (record: Record<string, any> | null | undefined): QuotaMetadata | null => {
+    if (!record) {
+        return null;
+    }
+
+    const limitCandidates = [
+        record.plan_max_tickets_month,
+        record.monthly_ticket_limit,
+        record.ticket_limit,
+        record.tickets_limit,
+        record.max_tickets,
+        record.plan_limit,
+        record.limit,
+        record.quota_limit,
+    ];
+
+    let limit = limitCandidates.map(parseNumericValue).find((value) => value !== null) ?? null;
+    let isUnlimited = parseBooleanLike(record.is_unlimited) || parseBooleanLike(record.unlimited) || parseBooleanLike(record.has_unlimited_tickets);
+
+    const rawPlanLabel = typeof record.plan_name === 'string' && record.plan_name.trim().length > 0
+        ? record.plan_name
+        : typeof record.plan_tier === 'string' && record.plan_tier.trim().length > 0
+            ? record.plan_tier
+            : typeof record.plan === 'string' && record.plan.trim().length > 0
+                ? record.plan
+                : typeof record.subscription_plan === 'string' && record.subscription_plan.trim().length > 0
+                    ? record.subscription_plan
+                    : typeof record.current_plan === 'string' && record.current_plan.trim().length > 0
+                        ? record.current_plan
+                        : null;
+
+    const normalizedPlan = normalizePlanKey(rawPlanLabel ?? record.plan_tier ?? record.plan_name ?? record.plan);
+
+    if (limit !== null && limit <= 0) {
+        limit = null;
+        isUnlimited = true;
+    }
+
+    if (normalizedPlan === 'unlimited') {
+        isUnlimited = true;
+    }
+
+    if (limit === null && normalizedPlan && normalizedPlan in FALLBACK_PLAN_LIMITS) {
+        limit = FALLBACK_PLAN_LIMITS[normalizedPlan];
+    }
+
+    return {
+        limit,
+        isUnlimited,
+        planKey: normalizedPlan,
+        rawPlanLabel: rawPlanLabel,
+        timezone: extractTimezone(record),
+    };
+};
+
+const isSchemaMismatchError = (error: unknown): boolean => {
+    const candidate = error as { code?: string } | null;
+    if (!candidate || !candidate.code) {
+        return false;
+    }
+    return candidate.code === '42P01' || candidate.code === '42703';
+};
+
+const getDatePartsInTimeZone = (date: Date, timeZone: string) => {
+    const formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone,
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+    });
+    const parts = formatter.formatToParts(date);
+    const lookup = (type: Intl.DateTimeFormatPartTypes): number => {
+        const found = parts.find((part) => part.type === type);
+        return found ? Number(found.value) : 0;
+    };
+    return {
+        year: lookup('year'),
+        month: lookup('month'),
+        day: lookup('day'),
+    };
+};
+
+const isDateInCurrentMonth = (date: Date, timeZone: string): boolean => {
+    if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
+        return false;
+    }
+    const nowParts = getDatePartsInTimeZone(new Date(), timeZone);
+    const dateParts = getDatePartsInTimeZone(date, timeZone);
+    return nowParts.year === dateParts.year && nowParts.month === dateParts.month;
+};
+
 
 // --- SUB-COMPONENTS ---
 const StatCard: React.FC<{ title: string; value: string | number, icon: React.ReactNode }> = ({ title, value, icon }) => (
@@ -94,9 +263,19 @@ const priorityColors: Record<TicketPriority, string> = {
   [TicketPriority.HIGH]: 'text-red-600',
 };
 
+interface QuotaState {
+    loading: boolean;
+    error: boolean;
+    limit: number | null;
+    isUnlimited: boolean;
+    planKey: string | null;
+    rawPlanLabel: string | null;
+    timezone: string;
+}
+
 interface ManagerTicketRowProps {
     ticket: Ticket;
-    agents: User[]; 
+    agents: User[];
     allUsers: User[];
     onAssignTicket: (ticketId: string, agentId: string | null) => void;
     onDeleteTicket: (ticketId: string) => void;
@@ -263,7 +442,7 @@ const ManagerDashboardPage: React.FC = () => {
         updateUserRole, deleteUserById, newlyCreatedCompanyName, setNewlyCreatedCompanyName,
         updateCompanyName
     } = useApp();
-    const { t } = useLanguage();
+    const { t, getBCP47Locale } = useLanguage();
 
     const [company, setCompany] = useState<{ id: string; name: string } | null>(null);
     const [isEditingName, setIsEditingName] = useState(false);
@@ -276,6 +455,61 @@ const ManagerDashboardPage: React.FC = () => {
     const [isCopied, setIsCopied] = useState(false);
     const [showWelcomeModal, setShowWelcomeModal] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState(false);
+
+    const [quotaState, setQuotaState] = useState<QuotaState>({
+        loading: true,
+        error: false,
+        limit: null,
+        isUnlimited: false,
+        planKey: null,
+        rawPlanLabel: null,
+        timezone: DEFAULT_TIME_ZONE,
+    });
+
+    const localeTag = getBCP47Locale();
+    const quotaNumberFormatter = useMemo(() => new Intl.NumberFormat(localeTag, { maximumFractionDigits: 0 }), [localeTag]);
+    const formatQuotaNumber = useCallback((value: number) => quotaNumberFormatter.format(value), [quotaNumberFormatter]);
+
+    const resolveCompanyQuota = useCallback(async (companyId: string, signal: AbortSignal): Promise<QuotaMetadata> => {
+        const sources: Array<() => Promise<{ data: any; error: any }>> = [
+            () => supabase.from('company_settings').select('*').eq('company_id', companyId).abortSignal(signal).maybeSingle(),
+            () => supabase.from('companies').select('*').eq('id', companyId).abortSignal(signal).maybeSingle(),
+            () => supabase
+                .from('subscriptions')
+                .select('*')
+                .eq('company_id', companyId)
+                .order('created_at', { ascending: false })
+                .limit(1)
+                .abortSignal(signal)
+                .maybeSingle(),
+        ];
+
+        for (const fetchSource of sources) {
+            try {
+                const { data, error } = await fetchSource();
+                if (error) {
+                    if (isAbortFetchError(error)) {
+                        throw error;
+                    }
+                    if (!isSchemaMismatchError(error)) {
+                        console.warn('[quota] Unable to fetch quota metadata from source', error);
+                    }
+                    continue;
+                }
+                const metadata = deriveQuotaMetadata(data);
+                if (metadata) {
+                    return metadata;
+                }
+            } catch (err) {
+                if (isAbortFetchError(err)) {
+                    throw err;
+                }
+                console.warn('[quota] Unexpected error while resolving quota metadata', err);
+            }
+        }
+
+        return { limit: null, isUnlimited: false, planKey: null, rawPlanLabel: null, timezone: null };
+    }, []);
     
     useEffect(() => {
         const controller = new AbortController();
@@ -315,6 +549,69 @@ const ManagerDashboardPage: React.FC = () => {
             controller.abort();
         };
     }, [user]);
+
+    useEffect(() => {
+        if (!user?.company_id || user.role !== UserRole.MANAGER) {
+            setQuotaState({
+                loading: false,
+                error: false,
+                limit: null,
+                isUnlimited: false,
+                planKey: null,
+                rawPlanLabel: null,
+                timezone: DEFAULT_TIME_ZONE,
+            });
+            return;
+        }
+
+        let isMounted = true;
+        const controller = new AbortController();
+
+        setQuotaState((previous) => ({
+            ...previous,
+            loading: true,
+            error: false,
+        }));
+
+        resolveCompanyQuota(user.company_id, controller.signal)
+            .then((metadata) => {
+                if (!isMounted) {
+                    return;
+                }
+                const timezone = metadata.timezone || DEFAULT_TIME_ZONE;
+                if (metadata.limit === null && !metadata.isUnlimited) {
+                    console.warn('[quota] Ticket limit not resolved for company', user.company_id, metadata.rawPlanLabel);
+                }
+                setQuotaState({
+                    loading: false,
+                    error: false,
+                    limit: metadata.limit,
+                    isUnlimited: metadata.isUnlimited,
+                    planKey: metadata.planKey,
+                    rawPlanLabel: metadata.rawPlanLabel,
+                    timezone,
+                });
+            })
+            .catch((error) => {
+                if (!isMounted) {
+                    return;
+                }
+                if (isAbortFetchError(error)) {
+                    return;
+                }
+                console.error('[quota] Failed to load quota metadata', error);
+                setQuotaState((previous) => ({
+                    ...previous,
+                    loading: false,
+                    error: true,
+                }));
+            });
+
+        return () => {
+            isMounted = false;
+            controller.abort();
+        };
+    }, [resolveCompanyQuota, user]);
 
     useEffect(() => {
         if (newlyCreatedCompanyName) {
@@ -381,6 +678,112 @@ const ManagerDashboardPage: React.FC = () => {
             unassigned: data.filter(t => !t.assigned_agent_id).length
         };
     }, [filteredTickets]);
+
+    const ticketsUsedThisMonth = useMemo(() => {
+        const tz = quotaState.timezone || DEFAULT_TIME_ZONE;
+        return tickets.reduce((count, ticketItem) => {
+            const createdAt = ticketItem.created_at instanceof Date ? ticketItem.created_at : new Date(ticketItem.created_at);
+            if (isDateInCurrentMonth(createdAt, tz)) {
+                return count + 1;
+            }
+            return count;
+        }, 0);
+    }, [quotaState.timezone, tickets]);
+
+    const quotaComputation = useMemo(() => {
+        const limitValue = typeof quotaState.limit === 'number' && Number.isFinite(quotaState.limit)
+            ? quotaState.limit
+            : null;
+        const used = ticketsUsedThisMonth;
+        const isUnlimited = quotaState.isUnlimited;
+        let remaining: number | null = null;
+        let percentUsed: number | null = null;
+        let severity: QuotaSeverity = 'none';
+
+        if (!isUnlimited && limitValue !== null) {
+            remaining = Math.max(limitValue - used, 0);
+            if (limitValue > 0) {
+                const ratio = used / limitValue;
+                percentUsed = Math.min(100, Math.round(ratio * 100));
+                if (ratio >= 1) {
+                    severity = 'blocked';
+                } else if (ratio >= 0.8) {
+                    severity = 'near';
+                } else {
+                    severity = 'normal';
+                }
+            }
+        }
+
+        return {
+            limitValue,
+            used,
+            remaining,
+            percentUsed,
+            severity,
+            isUnlimited,
+        };
+    }, [quotaState.isUnlimited, quotaState.limit, ticketsUsedThisMonth]);
+
+    const quotaStyles = useMemo(() => {
+        switch (quotaComputation.severity) {
+            case 'blocked':
+                return {
+                    container: 'bg-red-50 border-red-300',
+                    message: 'text-red-700',
+                };
+            case 'near':
+                return {
+                    container: 'bg-amber-50 border-amber-300',
+                    message: 'text-amber-700',
+                };
+            case 'normal':
+                return {
+                    container: 'bg-surface border-slate-200',
+                    message: 'text-slate-600',
+                };
+            case 'none':
+            default:
+                return {
+                    container: 'bg-surface border-slate-200',
+                    message: 'text-slate-600',
+                };
+        }
+    }, [quotaComputation.severity]);
+
+    const quotaValueLabel = useMemo(() => {
+        if (quotaState.loading) {
+            return '…';
+        }
+        if (quotaComputation.isUnlimited) {
+            return t('dashboard.quota.unlimited');
+        }
+        if (quotaComputation.limitValue === null) {
+            return '—';
+        }
+        const remainingValue = quotaComputation.remaining !== null ? quotaComputation.remaining : 0;
+        const percentValue = quotaComputation.percentUsed !== null ? quotaComputation.percentUsed : 0;
+        return t('dashboard.quota.value', {
+            remaining: formatQuotaNumber(Math.max(remainingValue, 0)),
+            limit: formatQuotaNumber(quotaComputation.limitValue),
+            percent: formatQuotaNumber(percentValue),
+        });
+    }, [formatQuotaNumber, quotaComputation.isUnlimited, quotaComputation.limitValue, quotaComputation.percentUsed, quotaComputation.remaining, quotaState.loading, t]);
+
+    const quotaMessage = useMemo(() => {
+        if (quotaState.loading || quotaComputation.isUnlimited || quotaComputation.limitValue === null) {
+            return null;
+        }
+        if (quotaComputation.severity === 'near') {
+            return t('dashboard.quota.near_limit');
+        }
+        if (quotaComputation.severity === 'blocked') {
+            return t('dashboard.quota.blocked');
+        }
+        return null;
+    }, [quotaComputation.isUnlimited, quotaComputation.limitValue, quotaComputation.severity, quotaState.loading, t]);
+
+    const showUpgradeCta = quotaComputation.severity === 'blocked' && !quotaComputation.isUnlimited;
 
 
     if (!user || user.role !== UserRole.MANAGER) {
@@ -453,6 +856,32 @@ const ManagerDashboardPage: React.FC = () => {
             </div>
 
             {isLoading && <LoadingSpinner text={t('managerDashboard.loadingTickets')} />}
+
+            <section
+                className={`border shadow-lg rounded-lg p-4 sm:p-6 transition-colors ${quotaStyles.container}`}
+                aria-live="polite"
+            >
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <p className="text-sm font-semibold uppercase tracking-wide text-slate-600">
+                            {t('dashboard.quota.title')}
+                        </p>
+                        <p className="text-2xl font-bold text-slate-800 mt-1">{quotaValueLabel}</p>
+                        {quotaMessage && (
+                            <p className={`mt-2 text-sm ${quotaStyles.message}`}>{quotaMessage}</p>
+                        )}
+                    </div>
+                    <div className="flex items-center gap-3 sm:self-end">
+                        {showUpgradeCta && (
+                            <Link to="/pricing" className="flex-shrink-0">
+                                <Button variant="primary" size="sm">
+                                    {t('dashboard.quota.upgrade_cta')}
+                                </Button>
+                            </Link>
+                        )}
+                    </div>
+                </div>
+            </section>
 
             <section className="bg-surface shadow-lg rounded-lg p-4 sm:p-6">
                 <h2 className="text-xl font-semibold text-textPrimary mb-4">{t('managerDashboard.companyInfo.title', {default: "Company Information"})}</h2>

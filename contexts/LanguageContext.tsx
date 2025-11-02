@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, ReactNode, useEffect, useCallback } from 'react';
 
-import i18n from '@/config/i18n';
+import i18n, { applyHtmlLangDir } from '@/i18n';
 
 export type Locale = 'en' | 'fr' | 'ar';
 interface LanguageContextType {
@@ -32,6 +32,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
       const shouldTriggerChange = i18n.language !== lang;
 
       if (!shouldTriggerChange) {
+        applyHtmlLangDir(lang);
         if (isMounted) {
           setIsLoadingLang(false);
         }
@@ -42,6 +43,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
 
       try {
         await i18n.changeLanguage(lang);
+        applyHtmlLangDir(lang);
       } finally {
         if (isMounted) {
           setIsLoadingLang(false);
@@ -56,8 +58,6 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
 
     if (typeof window !== 'undefined') {
       localStorage.setItem('aiHelpDeskLang', language);
-      document.documentElement.lang = language;
-      document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
     }
 
     return () => {
