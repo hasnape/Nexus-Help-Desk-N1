@@ -431,8 +431,8 @@
   "promotional.section.pricing.content": "<h4>Positionnement recommandé pour Nexus Support Hub</h4><ul><li><strong>Freemium :</strong> Gratuit jusqu’à 3 agents / 200 tickets/mois avec stockage local.</li><li><strong>Standard :</strong> 10€ mois, 500 tickets/mois, 5 agents avec IA complète, auto-catégorisation, SLA.</li><li><strong>Pro :</strong> 20 € mois, 1000 tickets/mois, 10 agents avec commandes vocales, multilingue, rendez-vous.</li><li><strong>Usage IA :</strong> 0,02–0,05 €/ticket pour couvrir les coûts Gemini.</li><li><strong>Entreprise :</strong> À débattre, avec intégration CRM, SLA & support premium.</li></ul><p>💡 <em>Un tarif à 10 € mois 500 tickets/mois 5 agents place Nexus dans le segment PME + IA accessible, très compétitif.</em></p>",
   "promotional.section.conclusion.title": "7. Conclusion",
   "promotional.section.conclusion.content": "<p><strong>Nexus Support Hub</strong> n'est pas simplement un autre outil de help desk. C'est un partenaire stratégique qui apporte l'intelligence, l'efficacité et la modernité au cœur de votre service client. En alliant le meilleur de l'IA et une conception centrée sur l'utilisateur, nous offrons une solution prête à répondre aux exigences d'aujourd'hui et à évoluer pour celles de demain.</p><p><strong>Pour toute question ou pour une démonstration :</strong><br/><a href='mailto:hubnexusinfo@gmail.com' class='text-primary hover:underline'>hubnexusinfo@gmail.com</a> – REP&WEB</p>",
-  "landing.hero.title": "Un support plus intelligent, des clients plus heureux.",
-  "landing.hero.subtitle": "Nexus Support Hub combine une IA de pointe avec un système de tickets puissant pour résoudre les problèmes plus rapidement et ravir vos utilisateurs.",
+  "landing.hero.title": "Transformez chaque ticket en expérience client mémorable.",
+  "landing.hero.subtitle": "Centralisez vos agents, l'IA et les analyses dans un hub conforme RGAA, opérationnel en quelques minutes.",
   "landing.hero.ctaButton": "Commencez gratuitement",
   "landing.features.title": "Tout ce dont vous avez besoin dans un centre d'assistance moderne",
   "landing.features.subtitle": "Du chat alimenté par l'IA à l'architecture multi-entreprises sécurisée, nous avons tout prévu.",
@@ -558,7 +558,7 @@
       "freemium": {
         "name": "Freemium (bac à sable)",
         "price": "Gratuit",
-        "yearly": "",
+        "yearly": "Plan annuel identique : 0 €",
         "features": [
           "1 agent",
           "50 tickets/mois",

@@ -11,25 +11,32 @@ type CardProps = {
 };
 
 const Badge: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <span className="text-xs px-2 py-1 rounded bg-blue-600 text-white">{children}</span>
+  <span className="text-xs font-semibold tracking-wide uppercase px-3 py-1 rounded-full bg-slate-900 text-white">
+    {children}
+  </span>
 );
 
 const Card: React.FC<CardProps> = ({ plan, badgeText, onClick }) => (
-  <div className="rounded-2xl shadow p-6 border bg-white/70 dark:bg-neutral-900/60">
-    <div className="flex items-center justify-between">
-      <h3 className="text-xl font-semibold">{plan.name}</h3>
+  <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col h-full text-slate-900">
+    <div className="flex items-start justify-between gap-4">
+      <div>
+        <h3 className="text-xl font-semibold">{plan.name}</h3>
+        <p className="mt-2 text-2xl font-bold">{plan.price}</p>
+        {plan.yearly ? <p className="text-sm text-slate-600">{plan.yearly}</p> : null}
+      </div>
       {badgeText ? <Badge>{badgeText}</Badge> : null}
     </div>
-    <div className="mt-2 text-2xl font-bold">{plan.price}</div>
-    {plan.yearly ? <div className="text-sm opacity-70">{plan.yearly}</div> : null}
-    <ul className="mt-4 space-y-2 text-sm">
+    <ul className="mt-6 space-y-2 text-sm text-slate-700 flex-1">
       {plan.features.map((feature) => (
-        <li key={`${plan.name}-${feature}`}>• {feature}</li>
+        <li key={`${plan.name}-${feature}`} className="flex items-start gap-2">
+          <span className="mt-1 h-2 w-2 rounded-full bg-slate-500" aria-hidden="true" />
+          <span>{feature}</span>
+        </li>
       ))}
     </ul>
     <button
       type="button"
-      className="mt-6 w-full border rounded-lg py-2 hover:bg-black hover:text-white transition"
+      className="mt-6 inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2 font-semibold text-slate-900 transition hover:bg-slate-900 hover:text-white focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2"
       onClick={onClick}
       aria-label={plan.cta}
       title={plan.cta}
@@ -50,13 +57,17 @@ const PricingSection: React.FC = () => {
   const goDemo = () => navigate("/demo");
 
   return (
-    <section id="pricing" className="container mx-auto py-12">
-      <h2 className="text-2xl font-bold mb-2">{title}</h2>
-      <p className="opacity-70 mb-8">{disclaimer}</p>
-      <div className="grid md:grid-cols-3 gap-6">
-        <Card plan={plans.freemium} onClick={goDemo} />
-        <Card plan={plans.standard} badgeText={popular} onClick={goDemo} />
-        <Card plan={plans.pro} onClick={goDemo} />
+    <section id="pricing" className="bg-slate-100 py-16 text-slate-900">
+      <div className="container mx-auto px-4 md:px-8">
+        <div className="max-w-3xl">
+          <h2 className="text-3xl font-bold">{title}</h2>
+          <p className="mt-2 text-base text-slate-700">{disclaimer}</p>
+        </div>
+        <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <Card plan={plans.freemium} onClick={goDemo} />
+          <Card plan={plans.standard} badgeText={popular} onClick={goDemo} />
+          <Card plan={plans.pro} onClick={goDemo} />
+        </div>
       </div>
     </section>
   );
