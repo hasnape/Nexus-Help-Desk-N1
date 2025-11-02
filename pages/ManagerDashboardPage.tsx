@@ -631,7 +631,7 @@ const ManagerDashboardPage: React.FC = () => {
             return '…';
         }
         if (quotaComputation.isUnlimited) {
-            return t('dashboard.quota.unlimited');
+            return '∞';
         }
         if (quotaComputation.limitValue === null) {
             return '—';

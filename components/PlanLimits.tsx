@@ -152,6 +152,12 @@ const PlanLimits: React.FC<PlanLimitsProps> = ({ companyId }) => {
     return Math.min(100, Math.round((vm.ticketUsed / vm.ticketLimit) * 100));
   }, [vm.ticketLimit, vm.ticketUsed, vm.unlimited]);
 
+  const ticketsRemaining = useMemo(() => {
+    if (vm.unlimited) return '∞';
+    if (vm.ticketLimit == null) return '—';
+    return Math.max(0, vm.ticketLimit - vm.ticketUsed);
+  }, [vm.ticketLimit, vm.ticketUsed, vm.unlimited]);
+
   if (vm.loading) {
     return (
       <div className="p-4 border-2 border-dashed border-slate-300 rounded-lg mb-6 animate-pulse">
@@ -191,6 +197,9 @@ const PlanLimits: React.FC<PlanLimitsProps> = ({ companyId }) => {
 
         <div className="md:col-span-2">
           <p className="mb-1">
+            Tickets restants : <strong>{ticketsRemaining}</strong>
+          </p>
+          <p className="mb-1">
             Tickets ce mois :{" "}
             <strong>
               {vm.ticketUsed} {vm.unlimited || vm.ticketLimit == null ? "/ ∞" : `/ ${vm.ticketLimit}`}
@@ -217,6 +226,7 @@ const PlanLimits: React.FC<PlanLimitsProps> = ({ companyId }) => {
                 : "Consommation mensuelle en cours."}
             </p>
           )}
+          <p className="mt-2 text-xs text-slate-500">Fuseau horaire quota : {vm.timezone}</p>
         </div>
       </div>
     </div>
