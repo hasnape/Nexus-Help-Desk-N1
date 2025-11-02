@@ -118,7 +118,6 @@ const LandingPage: React.FC = () => {
     },
   ];
 
-
   // Avantages suggérés dans la revue
   const advantages = [
     {
@@ -199,18 +198,6 @@ const LandingPage: React.FC = () => {
       <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-700">
         <Navbar />
         <main className="pt-16">
-          {/* 1. Hero Section */} {/* Bannière centrale */}
-        <div className="bg-gradient-to-r from-yellow-200 via-yellow-100 to-yellow-200 border-l-4 border-yellow-400 rounded-lg p-6 mb-8 shadow-md text-center">
-          <p className="text-yellow-900 font-bold text-lg sm:text-xl">
-            Freemium : <span className="font-semibold">Gratuit (stockage local inclus)</span> &nbsp;|&nbsp;
-            Standard : <span className="font-semibold">1er mois à 5€ ensuite 10€/mois</span> &nbsp;|&nbsp;
-            Pro : <span className="font-semibold">1er mois à 12€ ensuite 20€/mois</span>
-          </p>
-          <p className="text-yellow-800 text-sm mt-2">
-            Choisissez le plan qui correspond le mieux à vos besoins
-          </p>
-        </div>
-
           <section className="py-8 px-4 sm:px-6 lg:px-8 text-white text-center">
             {" "}
             {/* padding vertical réduit */}
