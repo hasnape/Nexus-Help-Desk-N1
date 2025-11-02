@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useLanguage } from "../contexts/LanguageContext";
 import { supabase } from "../services/supabaseClient";
+import { formatQuota } from "@/utils/formatQuota";
 
 interface PlanLimitsProps {
   companyId: string;
@@ -53,7 +54,7 @@ const severityBarClass = (percent: number | null) => {
 };
 
 const PlanLimits: React.FC<PlanLimitsProps> = ({ companyId }) => {
-  const { t: translateHook } = useLanguage();
+  const { t: translateHook, getBCP47Locale } = useLanguage();
 
   const [vm, setVm] = useState<ViewModel>({
     loading: true,
@@ -150,37 +151,70 @@ const PlanLimits: React.FC<PlanLimitsProps> = ({ companyId }) => {
     };
   }, [companyId]);
 
-  const percent = useMemo(() => {
-    if (vm.unlimited || vm.ticketLimit == null || vm.ticketLimit <= 0) return null;
-    return Math.min(100, Math.round((vm.ticketUsed / vm.ticketLimit) * 100));
-  }, [vm.ticketLimit, vm.ticketUsed, vm.unlimited]);
+  const localeTag = getBCP47Locale();
 
-  const remainingLabel = useMemo(() => {
-    if (vm.unlimited) return "∞";
-    if (vm.ticketLimit == null) return "—";
-    return String(Math.max(0, vm.ticketLimit - vm.ticketUsed));
-  }, [vm.ticketLimit, vm.ticketUsed, vm.unlimited]);
+  const normalizedQuota = useMemo(
+    () =>
+      formatQuota(
+        {
+          used: vm.ticketUsed,
+          limit: vm.ticketLimit,
+          unlimited: vm.unlimited,
+          timezone: vm.timezone,
+        },
+        localeTag
+      ),
+    [localeTag, vm.ticketLimit, vm.ticketUsed, vm.timezone, vm.unlimited]
+  );
 
-  const limitLabel = useMemo(() => {
-    if (vm.unlimited) return "∞";
-    if (vm.ticketLimit == null) return "—";
-    return String(vm.ticketLimit);
-  }, [vm.ticketLimit, vm.unlimited]);
+  const percent = normalizedQuota.percent;
 
   const percentChunk =
     percent !== null
       ? translateHook("dashboard.quota.percentChunk", {
           default: " ({percent}% utilisé)",
+          values: { percent },
           percent,
         })
       : "";
 
   const remainingText = translateHook("dashboard.quota.remaining", {
     default: "Tickets restants ce mois-ci {remaining} / {limit}{percentChunk}",
-    remaining: remainingLabel,
-    limit: limitLabel,
+    values: {
+      remaining: normalizedQuota.remainingLabel,
+      limit: normalizedQuota.limitLabel,
+      percentChunk,
+    },
+    remaining: normalizedQuota.remainingLabel,
+    limit: normalizedQuota.limitLabel,
     percentChunk,
   });
+
+  const infinityLabel = translateHook("dashboard.quota.unlimitedBadge", {
+    default: "Illimité",
+    values: {},
+  });
+
+  const quotaTimezoneHint = translateHook("dashboard.quota.tzHint", {
+    default: "Calculé sur le fuseau {tz}",
+    values: { tz: normalizedQuota.timezone },
+    tz: normalizedQuota.timezone,
+  });
+
+  const numberFormatter = useMemo(
+    () => new Intl.NumberFormat(localeTag, { maximumFractionDigits: 0 }),
+    [localeTag]
+  );
+
+  const usedLabel = numberFormatter.format(normalizedQuota.used);
+  const limitDisplay = normalizedQuota.limitLabel;
+  const limitNode = normalizedQuota.unlimited || normalizedQuota.limit === null
+    ? (
+        <span aria-label={infinityLabel} title={infinityLabel}>
+          ∞
+        </span>
+      )
+    : limitDisplay;
 
   if (vm.loading) {
     return (
@@ -209,7 +243,15 @@ const PlanLimits: React.FC<PlanLimitsProps> = ({ companyId }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <p>
           Plan : <strong>{vm.planLabel}</strong>
-          {vm.unlimited && <span className="ml-2 text-xs px-2 py-1 rounded bg-emerald-100 text-emerald-700">Illimité</span>}
+          {vm.unlimited && (
+            <span
+              className="ml-2 text-xs px-2 py-1 rounded bg-emerald-100 text-emerald-700"
+              aria-label={infinityLabel}
+              title={infinityLabel}
+            >
+              {infinityLabel}
+            </span>
+          )}
         </p>
 
         <p>
@@ -220,6 +262,12 @@ const PlanLimits: React.FC<PlanLimitsProps> = ({ companyId }) => {
         </p>
 
         <div className="md:col-span-2">
+          <p className="mb-1">
+            Tickets ce mois :{" "}
+            <strong>
+              {usedLabel} / {limitNode}
+            </strong>
+          </p>
           <p className="mb-1">{remainingText}</p>
 
           <div className="w-full h-2 rounded bg-slate-200 overflow-hidden">
@@ -233,7 +281,7 @@ const PlanLimits: React.FC<PlanLimitsProps> = ({ companyId }) => {
             />
           </div>
 
-          {!vm.unlimited && vm.ticketLimit != null && percent != null && (
+          {!normalizedQuota.unlimited && normalizedQuota.limit !== null && percent !== null && (
             <p className={`mt-2 text-sm ${percent >= 100 ? "text-red-700" : percent >= 80 ? "text-amber-700" : "text-slate-500"}`}>
               {percent >= 100
                 ? "Quota mensuel atteint. Mettez à niveau votre plan pour créer de nouveaux tickets."
@@ -242,7 +290,7 @@ const PlanLimits: React.FC<PlanLimitsProps> = ({ companyId }) => {
                 : "Consommation mensuelle en cours."}
             </p>
           )}
-          <p className="mt-2 text-xs text-slate-500">Fuseau horaire quota : {vm.timezone}</p>
+          <p className="mt-2 text-xs text-slate-500">{quotaTimezoneHint}</p>
         </div>
       </div>
     </div>

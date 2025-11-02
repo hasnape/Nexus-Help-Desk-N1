@@ -8,6 +8,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import LoadingSpinner from '../components/LoadingSpinner';
 import FloatingActionButton from '../components/FloatingActionButton';
 import { supabase } from '../services/supabaseClient';
+import { formatQuota } from '@/utils/formatQuota';
 
 const isAbortFetchError = (error: unknown): boolean => {
   if (!error) return false;
@@ -360,8 +361,6 @@ const ManagerDashboardPage: React.FC = () => {
     const [rpcUsed, setRpcUsed] = useState<number | null>(null);
 
     const localeTag = getBCP47Locale();
-    const quotaNumberFormatter = useMemo(() => new Intl.NumberFormat(localeTag, { maximumFractionDigits: 0 }), [localeTag]);
-    const formatQuotaNumber = useCallback((value: number) => quotaNumberFormatter.format(value), [quotaNumberFormatter]);
 
     const resolveCompanyQuota = useCallback(
         async (_companyId: string, signal: AbortSignal): Promise<QuotaMetadata> => {
@@ -565,43 +564,35 @@ const ManagerDashboardPage: React.FC = () => {
         }, 0);
     }, [rpcUsed, quotaState.timezone, tickets]);
 
-    const quotaComputation = useMemo(() => {
-        const limitValue = typeof quotaState.limit === 'number' && Number.isFinite(quotaState.limit)
-            ? quotaState.limit
-            : null;
-        const used = ticketsUsedThisMonth;
-        const isUnlimited = quotaState.isUnlimited;
-        let remaining: number | null = null;
-        let percentUsed: number | null = null;
-        let severity: QuotaSeverity = 'none';
+    const normalizedQuota = useMemo(
+        () =>
+            formatQuota(
+                {
+                    used: ticketsUsedThisMonth,
+                    limit: quotaState.limit,
+                    unlimited: quotaState.isUnlimited,
+                    timezone: quotaState.timezone,
+                },
+                localeTag,
+            ),
+        [localeTag, quotaState.isUnlimited, quotaState.limit, quotaState.timezone, ticketsUsedThisMonth]
+    );
 
-        if (!isUnlimited && limitValue !== null) {
-            remaining = Math.max(limitValue - used, 0);
-            if (limitValue > 0) {
-                const ratio = used / limitValue;
-                percentUsed = Math.min(100, Math.round(ratio * 100));
-                if (ratio >= 1) {
-                    severity = 'blocked';
-                } else if (ratio >= 0.8) {
-                    severity = 'near';
-                } else {
-                    severity = 'normal';
-                }
-            }
+    const quotaSeverity = useMemo<QuotaSeverity>(() => {
+        if (normalizedQuota.unlimited || normalizedQuota.limit === null || normalizedQuota.percent === null) {
+            return 'none';
         }
-
-        return {
-            limitValue,
-            used,
-            remaining,
-            percentUsed,
-            severity,
-            isUnlimited,
-        };
-    }, [quotaState.isUnlimited, quotaState.limit, ticketsUsedThisMonth]);
+        if (normalizedQuota.percent >= 100) {
+            return 'blocked';
+        }
+        if (normalizedQuota.percent >= 80) {
+            return 'near';
+        }
+        return 'normal';
+    }, [normalizedQuota]);
 
     const quotaStyles = useMemo(() => {
-        switch (quotaComputation.severity) {
+        switch (quotaSeverity) {
             case 'blocked':
                 return {
                     container: 'bg-red-50 border-red-300',
@@ -624,58 +615,48 @@ const ManagerDashboardPage: React.FC = () => {
                     message: 'text-slate-600',
                 };
         }
-    }, [quotaComputation.severity]);
+    }, [quotaSeverity]);
 
     const quotaValueLabel = useMemo(() => {
         if (quotaState.loading) {
             return '…';
         }
 
-        const remainingLabel = quotaComputation.isUnlimited
-            ? '∞'
-            : quotaComputation.remaining !== null
-                ? formatQuotaNumber(Math.max(quotaComputation.remaining, 0))
-                : '—';
-
-        const limitLabel = quotaComputation.isUnlimited
-            ? '∞'
-            : quotaComputation.limitValue !== null
-                ? formatQuotaNumber(quotaComputation.limitValue)
-                : '—';
-
-        const percentValue = !quotaComputation.isUnlimited && quotaComputation.percentUsed !== null
-            ? formatQuotaNumber(quotaComputation.percentUsed)
-            : null;
-
-        const percentChunk = percentValue !== null
+        const percentChunk = normalizedQuota.percent !== null
             ? t('dashboard.quota.percentChunk', {
                 default: ' ({percent}% utilisé)',
-                percent: percentValue,
+                values: { percent: normalizedQuota.percent },
+                percent: normalizedQuota.percent,
             })
             : '';
 
         return t('dashboard.quota.remaining', {
             default: 'Tickets restants ce mois-ci {remaining} / {limit}{percentChunk}',
-            remaining: remainingLabel,
-            limit: limitLabel,
+            values: {
+                remaining: normalizedQuota.remainingLabel,
+                limit: normalizedQuota.limitLabel,
+                percentChunk,
+            },
+            remaining: normalizedQuota.remainingLabel,
+            limit: normalizedQuota.limitLabel,
             percentChunk,
         });
-    }, [formatQuotaNumber, quotaComputation.isUnlimited, quotaComputation.limitValue, quotaComputation.percentUsed, quotaComputation.remaining, quotaState.loading, t]);
+    }, [normalizedQuota, quotaState.loading, t]);
 
     const quotaMessage = useMemo(() => {
-        if (quotaState.loading || quotaComputation.isUnlimited || quotaComputation.limitValue === null) {
+        if (quotaState.loading || normalizedQuota.unlimited || normalizedQuota.limit === null) {
             return null;
         }
-        if (quotaComputation.severity === 'near') {
+        if (quotaSeverity === 'near') {
             return t('dashboard.quota.near_limit');
         }
-        if (quotaComputation.severity === 'blocked') {
+        if (quotaSeverity === 'blocked') {
             return t('dashboard.quota.blocked');
         }
         return null;
-    }, [quotaComputation.isUnlimited, quotaComputation.limitValue, quotaComputation.severity, quotaState.loading, t]);
+    }, [normalizedQuota.limit, normalizedQuota.unlimited, quotaSeverity, quotaState.loading, t]);
 
-    const showUpgradeCta = quotaComputation.severity === 'blocked' && !quotaComputation.isUnlimited;
+    const showUpgradeCta = quotaSeverity === 'blocked' && !normalizedQuota.unlimited;
 
 
     if (!user || user.role !== UserRole.MANAGER) {
