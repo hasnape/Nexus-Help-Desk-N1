@@ -624,14 +624,14 @@ const ManagerDashboardPage: React.FC = () => {
 
         const percentChunk = normalizedQuota.percent !== null
             ? t('dashboard.quota.percentChunk', {
-                default: ' ({percent}% utilisé)',
+                default: ' ({{percent}}% utilisé)',
                 values: { percent: normalizedQuota.percent },
                 percent: normalizedQuota.percent,
             })
             : '';
 
         return t('dashboard.quota.remaining', {
-            default: 'Tickets restants ce mois-ci {remaining} / {limit}{percentChunk}',
+            default: 'Tickets restants ce mois-ci {{remaining}} / {{limit}}{{percentChunk}}',
             values: {
                 remaining: normalizedQuota.remainingLabel,
                 limit: normalizedQuota.limitLabel,

@@ -110,8 +110,8 @@
     "unlimited": "Illimité",
     "upgrade_cta": "Mettre à niveau",
     "value": "{remaining} / {limit} ({percent}% utilisé)",
-    "remaining": "Tickets restants ce mois-ci {remaining} / {limit}{percentChunk}",
-    "percentChunk": " ({percent}% utilisé)",
+    "remaining": "Tickets restants ce mois-ci {{remaining}} / {{limit}}{{percentChunk}}",
+    "percentChunk": " ({{percent}}% utilisé)",
     "tzHint": "Calculé sur le fuseau {tz}",
     "unlimitedBadge": "Illimité"
   },
