@@ -631,7 +631,7 @@ const ManagerDashboardPage: React.FC = () => {
             : '';
 
         return t('dashboard.quota.remaining', {
-            default: 'Tickets restants ce mois-ci {{remaining}} / {{limit}}{{percentChunk}}',
+            default: '{{remaining}} / {{limit}}{{percentChunk}}',
             values: {
                 remaining: normalizedQuota.remainingLabel,
                 limit: normalizedQuota.limitLabel,

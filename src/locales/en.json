@@ -103,7 +103,7 @@
     "unlimited": "Unlimited",
     "upgrade_cta": "Upgrade",
     "value": "{remaining} / {limit} ({percent}% used)",
-    "remaining": "Remaining tickets this month {{remaining}} / {{limit}}{{percentChunk}}",
+    "remaining": "{{remaining}} / {{limit}}{{percentChunk}}",
     "percentChunk": " ({{percent}}% used)",
     "tzHint": "Computed in {tz} timezone",
     "unlimitedBadge": "Unlimited"

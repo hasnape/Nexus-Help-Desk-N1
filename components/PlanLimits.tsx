@@ -179,7 +179,7 @@ const PlanLimits: React.FC<PlanLimitsProps> = ({ companyId }) => {
       : "";
 
   const remainingText = translateHook("dashboard.quota.remaining", {
-    default: "Tickets restants ce mois-ci {{remaining}} / {{limit}}{{percentChunk}}",
+    default: "{{remaining}} / {{limit}}{{percentChunk}}",
     values: {
       remaining: normalizedQuota.remainingLabel,
       limit: normalizedQuota.limitLabel,
