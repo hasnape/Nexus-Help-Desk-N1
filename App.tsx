@@ -183,6 +183,30 @@ const isOfflineNetworkError = (error: any): boolean => {
 const isAbortError = (e: any) =>
   !!e && ((e.name === "AbortError") || String(e).includes("AbortError"));
 
+// -- QUOTA RPC ------------------------------------
+type QuotaResult = {
+  used: number;
+  limit: number | null;
+  unlimited: boolean;
+  timezone: string | null;
+  percent_used?: number;
+  plan_name?: string | null;
+};
+
+const getCompanyQuota = async (): Promise<QuotaResult | null> => {
+  try {
+    const { data, error } = await supabase.rpc("get_my_company_month_quota");
+    if (error) {
+      console.warn("[quota] RPC error:", error);
+      return null;
+    }
+    return data as QuotaResult;
+  } catch (e) {
+    console.warn("[quota] RPC exception:", e);
+    return null;
+  }
+};
+
 const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [user, setUser] = useState<User | null>(null);
@@ -1075,8 +1099,38 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       if (storageMode === "embedded") {
         newTicketDataBase.chat_history = normalizedChatHistory;
       }
-      const { data, error } = await supabase.from("tickets").insert(newTicketDataBase).select().single();
-      if (error) throw error;
+      // --- quota pre-check (front) ---
+      const quota = await getCompanyQuota();
+      if (quota && !quota.unlimited && quota.limit !== null && quota.used >= quota.limit) {
+        alert(
+          translateHook("dashboard.quota.blockedUi", {
+            default:
+              "Votre quota mensuel de tickets est atteint. Passez à l'offre supérieure pour continuer.",
+          })
+        );
+        setIsLoading(false);
+        return null;
+      }
+
+      const { data, error } = await supabase
+        .from("tickets")
+        .insert(newTicketDataBase)
+        .select()
+        .single();
+
+      if (error) {
+        const msg = (error.message || "").toLowerCase();
+        if (msg.includes("quota") || msg.includes("limit")) {
+          alert(
+            translateHook("dashboard.quota.blockedUi", {
+              default: "Création refusée: quota mensuel atteint.",
+            })
+          );
+          setIsLoading(false);
+          return null;
+        }
+        throw error;
+      }
       const createdTicket = reviveTicketDates(
         data,
         storageMode === "embedded" ? undefined : normalizedChatHistory

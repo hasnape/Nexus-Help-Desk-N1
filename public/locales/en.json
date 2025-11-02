@@ -102,7 +102,9 @@
     "title": "Remaining tickets this month",
     "unlimited": "Unlimited",
     "upgrade_cta": "Upgrade",
-    "value": "{remaining} / {limit} ({percent}% used)"
+    "value": "{remaining} / {limit} ({percent}% used)",
+    "remaining": "Remaining tickets this month {remaining} / {limit}{percentChunk}",
+    "percentChunk": " ({percent}% used)"
   },
   "dashboard.welcomeMessage": "Welcome, {{username}}!",
   "demo": {
