@@ -172,14 +172,14 @@ const PlanLimits: React.FC<PlanLimitsProps> = ({ companyId }) => {
   const percentChunk =
     percent !== null
       ? translateHook("dashboard.quota.percentChunk", {
-          default: " ({percent}% utilisé)",
+          default: " ({{percent}}% utilisé)",
           values: { percent },
           percent,
         })
       : "";
 
   const remainingText = translateHook("dashboard.quota.remaining", {
-    default: "Tickets restants ce mois-ci {remaining} / {limit}{percentChunk}",
+    default: "Tickets restants ce mois-ci {{remaining}} / {{limit}}{{percentChunk}}",
     values: {
       remaining: normalizedQuota.remainingLabel,
       limit: normalizedQuota.limitLabel,
