@@ -473,7 +473,7 @@ const LandingPage: React.FC = () => {
 </section>
 
           
-          <PricingSection/>
+          <PricingSection />
 
           {/* 6. Infographie Technique */}
           <section id="infographie" className="py-8 bg-white">
