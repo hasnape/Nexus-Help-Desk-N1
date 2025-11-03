@@ -154,6 +154,14 @@ const Footer: React.FC = () => {
               {t("footer.support", { default: "Support" })}
             </h4>
             <ul className="space-y-2">
+                <li>
+                <Link
+                  to="/accessibilite"
+                  className="text-slate-300 hover:text-primary transition-colors"
+                >
+                  {t("footer.accessibilite", { default: "Déclaration d’accessibilité" })}
+                </Link>
+              </li>
               <li>
                 <Link
                   to="/help"
