@@ -159,7 +159,7 @@ const Footer: React.FC = () => {
                   to="accessibilite"
                   className="text-slate-300 hover:text-primary transition-colors"
                 >
-                  {t("footer.accessibilite", { default: "Déclaration d’accessibilité" })}
+                  {t("footer.AccessibilitePage", { default: "Déclaration d’accessibilité" })}
                 </Link>
               </li>
               <li>
