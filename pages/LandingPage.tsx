@@ -193,12 +193,15 @@ const LandingPage: React.FC = () => {
 
   
   return (
+    <div>
     <a
   href="#main"
   className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:bg-black focus:text-white focus:px-3 focus:py-2 rounded"
 >
   Aller au contenu
 </a>
+     </div>
+    
     <Layout>
       <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-700">
         <Navbar />
