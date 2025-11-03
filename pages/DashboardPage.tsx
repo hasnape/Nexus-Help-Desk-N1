@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useApp } from '../App';
 import TicketCard from '../components/TicketCard';
@@ -6,6 +6,7 @@ import { Button } from '../components/FormElements';
 import { useLanguage } from '../contexts/LanguageContext';
 import FloatingActionButton from '../components/FloatingActionButton';
 import PlanLimits from '../components/PlanLimits';
+import { supabase } from '../services/supabaseClient';
 
 const PlusIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" {...props}>
@@ -23,8 +24,46 @@ const DashboardPage: React.FC = () => {
   const { tickets, user } = useApp();
   const { t } = useLanguage();
 
+  // Afficher le NOM de la société (et non l'UUID)
+  const [companyName, setCompanyName] = useState<string | null>(null);
+  const [companyLoading, setCompanyLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadCompany = async () => {
+      if (!user?.company_id) {
+        setCompanyName(null);
+        return;
+      }
+      setCompanyLoading(true);
+      const { data, error } = await supabase
+        .from('companies')
+        .select('name')
+        .eq('id', user.company_id)
+        .single();
+
+      if (!cancelled) {
+        if (!error && data?.name) {
+          setCompanyName(data.name);
+        } else {
+          // En cas d’erreur RLS/lecture, on évite d’afficher l’UUID brut
+          setCompanyName(null);
+        }
+        setCompanyLoading(false);
+      }
+    };
+
+    loadCompany();
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.company_id]);
+
   const myTickets = user ? tickets.filter(t => t.user_id === user.id) : [];
-  const sortedTickets = [...myTickets].sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
+  const sortedTickets = [...myTickets].sort(
+    (a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+  );
 
   return (
     <div className="space-y-8">
@@ -35,8 +74,19 @@ const DashboardPage: React.FC = () => {
             <h1 className="text-3xl font-bold text-textPrimary">
               {t('dashboard.welcomeMessage', { username: user?.full_name || 'User' })}
             </h1>
-            {user?.company_id && <p className="text-lg text-slate-500 font-medium">{user.company_id}</p>}
+
+            {/* Nom de la société (pas l'UUID) */}
+            {user?.company_id && (
+              <p className="text-lg text-slate-500 font-medium">
+                {companyLoading
+                  ? t('dashboard.company.loading', { default: 'Chargement…' })
+                  : companyName
+                    ? companyName
+                    : t('dashboard.company.unknown', { default: 'Société' })}
+              </p>
+            )}
           </div>
+
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
             <Link to="/help">
               <Button variant="primary" size="md" className="w-full sm:w-auto">
@@ -44,10 +94,13 @@ const DashboardPage: React.FC = () => {
                 {t('dashboard.createNewTicketButton')}
               </Button>
             </Link>
-            <Link 
+
+            <Link
               to="/help"
               state={{
-                initialMessage: t('helpChat.prefilled.materialInvestigation', { default: "I'd like to start an investigation on a piece of equipment."})
+                initialMessage: t('helpChat.prefilled.materialInvestigation', {
+                  default: "I'd like to start an investigation on a piece of equipment.",
+                }),
               }}
             >
               <Button variant="secondary" size="md" className="w-full sm:w-auto">
@@ -57,6 +110,7 @@ const DashboardPage: React.FC = () => {
             </Link>
           </div>
         </div>
+
         <p className="text-sm text-slate-600 mt-1">{t('dashboard.headerSubtitle')}</p>
       </div>
 
@@ -66,7 +120,12 @@ const DashboardPage: React.FC = () => {
       {/* TICKETS */}
       {sortedTickets.length === 0 ? (
         <div className="text-center py-12">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-16 h-16 mx-auto text-slate-400 mb-4">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none" viewBox="0 0 24 24"
+            strokeWidth={1.5} stroke="currentColor"
+            className="w-16 h-16 mx-auto text-slate-400 mb-4"
+          >
             <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
           </svg>
           <p className="text-xl text-textSecondary">{t('dashboard.noTicketsTitle')}</p>
