@@ -64,10 +64,10 @@ const Navbar: React.FC = () => {
           label: t("navbar.presentation", { default: "Présentation" }),
         },
          {
-          to: "/Accessibilité",
+          to: "/accessibilite",
           label: t("navbar.AccessibilitePage", { default: "Déclaration d’accessibilité" }),
         },
-
+        
         {
         to: "/pricing", // chemin de route, pas d'import nécessaire
         label: t("navbar.pricingpage", { default: "Tarifes" }),
