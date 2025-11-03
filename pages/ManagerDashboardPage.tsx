@@ -7,6 +7,7 @@ import { Button, Select, Input } from '../components/FormElements';
 import { useLanguage } from '../contexts/LanguageContext';
 import LoadingSpinner from '../components/LoadingSpinner';
 import FloatingActionButton from '../components/FloatingActionButton';
+import ManagerInviteUserCard from '../components/ManagerInviteUserCard';
 import { supabase } from '../services/supabaseClient';
 import { formatQuota } from '@/utils/formatQuota';
 
@@ -815,6 +816,12 @@ const ManagerDashboardPage: React.FC = () => {
                     </div>
                 </div>
             </section>
+
+            {user?.role === UserRole.MANAGER && user?.company_id && (
+                <section className="mt-6">
+                    <ManagerInviteUserCard companyId={user.company_id} />
+                </section>
+            )}
 
             <section>
                 <h2 className="text-xl font-semibold text-textPrimary mb-2">{t('managerDashboard.stats.title')}</h2>
