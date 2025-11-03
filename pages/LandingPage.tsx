@@ -193,10 +193,16 @@ const LandingPage: React.FC = () => {
 
   
   return (
+    <a
+  href="#main"
+  className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:bg-black focus:text-white focus:px-3 focus:py-2 rounded"
+>
+  Aller au contenu
+</a>
     <Layout>
       <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-700">
-        <Navbar />
-        <main className="pt-16">
+        <Navbar/>
+          <main id="main" role="main" className="pt-16">
           <section className="py-8 px-4 sm:px-6 lg:px-8 text-white text-center">
             {" "}
             {/* padding vertical réduit */}
@@ -242,6 +248,11 @@ const LandingPage: React.FC = () => {
                     })}
                   </Button>
                 </Link>
+                <p className="mt-3 text-sm text-slate-300">
+              <Link to="/accessibilite" className="underline">{t("landing.hero.accessStatement")}</Link>
+              <span aria-hidden="true"> · </span>
+              <Link to="/contact" className="underline">{t("landing.hero.accessContact")}</Link>
+              </p>          
               </div>
               {/* Modal vidéo */}
               {showVideo && (
@@ -392,9 +403,77 @@ const LandingPage: React.FC = () => {
             </div>
           </section>
 
+          {/* 5. Accessibilité RGAA */}
+<section id="accessibilite-rgaa" className="py-8 bg-slate-50">
+  <div className="container mx-auto px-4 max-w-screen-lg">
+    <div className="text-center max-w-3xl mx-auto mb-8">
+      <h2 className="text-3xl sm:text-4xl font-bold text-slate-800">
+        {t("landing.rgaa.title")}
+      </h2>
+      <p className="mt-4 text-lg text-slate-600">
+        {t("landing.rgaa.subtitle")}
+      </p>
+    </div>
+
+    <div className="grid md:grid-cols-3 gap-6">
+      <div className="p-6 bg-white rounded-lg shadow-sm">
+        <h3 className="font-semibold mb-2">A11y UI</h3>
+        <ul className="list-disc pl-5 text-slate-700">
+          <li>{t("landing.rgaa.li1")}</li>
+          <li>{t("landing.rgaa.li2")}</li>
+          <li>{t("landing.rgaa.li3")}</li>
+        </ul>
+      </div>
+      <div className="p-6 bg-white rounded-lg shadow-sm">
+        <h3 className="font-semibold mb-2">Formulaires</h3>
+        <ul className="list-disc pl-5 text-slate-700">
+          <li>{t("landing.rgaa.li4")}</li>
+          <li>{t("landing.rgaa.li5")}</li>
+          <li>{t("landing.rgaa.li6")}</li>
+        </ul>
+      </div>
+      <div className="p-6 bg-white rounded-lg shadow-sm">
+        <h3 className="font-semibold mb-2">Médias & Couleurs</h3>
+        <ul className="list-disc pl-5 text-slate-700">
+          <li>{t("landing.rgaa.li7")}</li>
+          <li>{t("landing.rgaa.li8")}</li>
+          <li>{t("landing.rgaa.li9")}</li>
+        </ul>
+      </div>
+    </div>
+
+    <p className="mt-6 text-center">
+      <Link to="/accessibilite" className="text-primary underline">{t("landing.rgaa.statementLink")}</Link>
+    </p>
+  </div>
+</section>
+
+            {/* 6. Mise en route en 7 minutes */}
+<section id="setup-7-min" className="py-8 bg-white">
+  <div className="container mx-auto px-4 max-w-3xl">
+    <h2 className="text-3xl sm:text-4xl font-bold text-slate-800 text-center">
+      {t("landing.setup.title")}
+    </h2>
+    <ol className="list-decimal pl-6 mt-6 space-y-2 text-slate-700">
+      <li><strong>{t("landing.setup.s1.strong")}</strong> {t("landing.setup.s1.text")}</li>
+      <li><strong>{t("landing.setup.s2.strong")}</strong> {t("landing.setup.s2.text")}</li>
+      <li><strong>{t("landing.setup.s3.strong")}</strong> {t("landing.setup.s3.text")}</li>
+    </ol>
+    <div className="mt-5 flex gap-3 justify-center" role="group" aria-label={t("landing.setup.actionsAria")}>
+      <Link to="/signup">
+        <Button size="lg" className="px-6">{t("landing.cta.trial")}</Button>
+      </Link>
+      <Link to="/guide-onboarding">
+        <Button variant="secondary" size="lg" className="px-6">
+          {t("landing.setup.ctaGuide")}
+        </Button>
+      </Link>
+    </div>
+  </div>
+</section>
+
           
-          
-          <PricingSection />
+          <PricingSection/>
 
           {/* 6. Infographie Technique */}
           <section id="infographie" className="py-8 bg-white">
