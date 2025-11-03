@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import Layout from "../components/Layout";
+
 
 const AccessibilitePage: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -20,7 +20,7 @@ const AccessibilitePage: React.FC = () => {
   });
 
   return (
-    <Layout>
+    
       <div className="min-h-screen bg-white text-slate-800">
 
         {/* Skip link */}
@@ -157,7 +157,7 @@ const AccessibilitePage: React.FC = () => {
           </section>
         </main>
       </div>
-    </Layout>
+   
   );
 };
 
