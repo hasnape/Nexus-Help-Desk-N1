@@ -63,6 +63,10 @@ const Navbar: React.FC = () => {
           to: "/presentation",
           label: t("navbar.presentation", { default: "Présentation" }),
         },
+         {
+          to: "/AccessibilitePage",
+          label: t("navbar.Accessibilite", { default: "Accessibilite" }),
+        },
 
         {
         to: "/pricing", // chemin de route, pas d'import nécessaire
@@ -73,8 +77,6 @@ const Navbar: React.FC = () => {
           to: "/demo",
           label: t("navbar.demo", { default: "Demander une démo" }),
         },
-
-        
         
         {
           to: "/infographie",
