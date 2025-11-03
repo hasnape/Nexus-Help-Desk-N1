@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Layout from "../components/Layout";
-import Navbar from "../components/Navbar";
+
 
 const AccessibilitePage: React.FC = () => {
   const { t } = useTranslation();
