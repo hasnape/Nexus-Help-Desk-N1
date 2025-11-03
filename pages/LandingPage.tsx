@@ -204,7 +204,7 @@ const LandingPage: React.FC = () => {
 
       <Layout>
         <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-700">
-          <Navbar />
+         
           <main id="main" role="main" className="pt-16">
             <section className="py-8 px-4 sm:px-6 lg:px-8 text-white text-center">
               {/* padding vertical réduit */}
