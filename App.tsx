@@ -19,6 +19,7 @@ import LegalPage from "./pages/LegalPage";
 import UserManualPage from "./pages/UserManualPage";
 import PromotionalPage from "./pages/PromotionalPage";
 import LandingPage from "./pages/LandingPage";
+import AccessibilitePage from "./pages/AccessibilitePage";
 import SubscriptionPage from "./pages/SubscriptionPage";
 import ContactPage from "./pages/ContactPage";
 import AboutPage from "./pages/AboutPage";
@@ -1712,6 +1713,7 @@ const MainAppContent: React.FC = () => {
     <Route path="/manual" element={<UserManualPage />} />
     <Route path="/presentation" element={<PromotionalPage />} />
     <Route path="/contact" element={<ContactPage />} />
+    <Route path="/accessibilite" element={<AccessibilitePage />} />
     <Route path="/about" element={<AboutPage />} />
     <Route path="/testimonials" element={<TestimonialsPage />} />
     <Route path="/partners" element={<PartnersPage />} />

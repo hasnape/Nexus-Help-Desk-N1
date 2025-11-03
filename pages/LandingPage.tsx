@@ -193,324 +193,345 @@ const LandingPage: React.FC = () => {
 
   
   return (
-    <div>
-    <a
-  href="#main"
-  className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:bg-black focus:text-white focus:px-3 focus:py-2 rounded">
-  Aller au contenu
-</a>
-     
-    <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-700">
-        <Navbar />
+    <>
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:bg-black focus:text-white focus:px-3 focus:py-2 rounded"
+      >
+        {t("accessibility.skipToContent", {
+          defaultValue: "Aller au contenu",
+        })}
+      </a>
+
+      <Layout>
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-700">
+          <Navbar />
           <main id="main" role="main" className="pt-16">
-          <section className="py-8 px-4 sm:px-6 lg:px-8 text-white text-center">
-            {" "}
-            {/* padding vertical réduit */}
-            <div className="max-w-7xl mx-auto">
-              <h1 className="text-4xl md:text-5xl font-bold mb-4">
-                {t("landing.hero.title")}
-              </h1>
-              <p className="text-lg md:text-xl text-slate-300 mb-6 max-w-3xl mx-auto">
-                {t("landing.hero.subtitle")}
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-6 sm:mb-8">
-                <Link to="/signup" className="block">
-                  <Button
-                    size="lg"
-                    className="px-8 py-4 text-lg w-full sm:w-auto"
+            <section className="py-8 px-4 sm:px-6 lg:px-8 text-white text-center">
+              {/* padding vertical réduit */}
+              <div className="max-w-7xl mx-auto">
+                <h1 className="text-4xl md:text-5xl font-bold mb-4">
+                  {t("landing.hero.title")}
+                </h1>
+                <p className="text-lg md:text-xl text-slate-300 mb-6 max-w-3xl mx-auto">
+                  {t("landing.hero.subtitle")}
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-6 sm:mb-8">
+                  <Link to="/signup" className="block">
+                    <Button
+                      size="lg"
+                      className="px-8 py-4 text-lg w-full sm:w-auto"
+                    >
+                      {t("landing.cta.trial")}
+                    </Button>
+                  </Link>
+                  <button
+                    onClick={() => setShowVideo(true)}
+                    className="inline-flex items-center bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-lg transition-colors font-medium text-lg w-full sm:w-auto justify-center"
                   >
-                    {t("landing.cta.trial")}
-                  </Button>
-                </Link>
-                <button
-                  onClick={() => setShowVideo(true)}
-                  className="inline-flex items-center bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-lg transition-colors font-medium text-lg w-full sm:w-auto justify-center"
-                >
-                  <svg
-                    className="w-6 h-6 mr-2"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-                  </svg>
-                  {t("landing.hero.watchDemo", {
-                    defaultValue: "Voir la démonstration",
-                  })}
-                </button>
-                <Link to="/infographie" className="block w-full sm:w-auto">
-                  <Button
-                    variant="secondary"
-                    size="lg"
-                    className="px-8 py-4 text-lg w-full sm:w-auto"
-                  >
-                    {t("infographie.seeMore", {
-                      defaultValue: "Voir l’infographie",
+                    <svg
+                      className="w-6 h-6 mr-2"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                    </svg>
+                    {t("landing.hero.watchDemo", {
+                      defaultValue: "Voir la démonstration",
                     })}
-                  </Button>
-                </Link>
+                  </button>
+                  <Link to="/infographie" className="block w-full sm:w-auto">
+                    <Button
+                      variant="secondary"
+                      size="lg"
+                      className="px-8 py-4 text-lg w-full sm:w-auto"
+                    >
+                      {t("infographie.seeMore", {
+                        defaultValue: "Voir l’infographie",
+                      })}
+                    </Button>
+                  </Link>
+                </div>
                 <p className="mt-3 text-sm text-slate-300">
-              <Link to="/accessibilite" className="underline">{t("landing.hero.accessStatement")}</Link>
-              <span aria-hidden="true"> · </span>
-              <Link to="/contact" className="underline">{t("landing.hero.accessContact")}</Link>
-              </p>          
-              </div>
-              {/* Modal vidéo */}
-              {showVideo && (
-                <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-                  <div className="bg-white rounded-lg p-4 max-w-4xl w-full max-h-full overflow-auto">
-                    <div className="flex justify-between items-center mb-4">
-                      <h3 className="text-xl font-bold text-gray-900">
-                        {t("landing.video.title", {
-                          defaultValue: "Découvrez Nexus Support Hub",
-                        })}
-                      </h3>
-                      <button
-                        onClick={() => setShowVideo(false)}
-                        className="text-gray-500 hover:text-gray-700"
-                      >
-                        <svg
-                          className="w-6 h-6"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
+                  <Link to="/accessibilite" className="underline">
+                    {t("landing.hero.accessStatement")}
+                  </Link>
+                  <span aria-hidden="true"> · </span>
+                  <Link to="/contact" className="underline">
+                    {t("landing.hero.accessContact")}
+                  </Link>
+                </p>
+                {/* Modal vidéo */}
+                {showVideo && (
+                  <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-lg p-4 max-w-4xl w-full max-h-full overflow-auto">
+                      <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-xl font-bold text-gray-900">
+                          {t("landing.video.title", {
+                            defaultValue: "Découvrez Nexus Support Hub",
+                          })}
+                        </h3>
+                        <button
+                          onClick={() => setShowVideo(false)}
+                          className="text-gray-500 hover:text-gray-700"
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M6 18L18 6M6 6l12 12"
-                          />
-                        </svg>
-                      </button>
+                          <svg
+                            className="w-6 h-6"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M6 18L18 6M6 6l12 12"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                      <div className="aspect-w-16 aspect-h-9">
+                        <VideoPlayer videoUrl="https://www.youtube.com/embed/OnfUuaRlukQ?autoplay=1" />
+                      </div>
+                      <div className="mt-4 text-center">
+                        <a
+                          href="https://youtu.be/OnfUuaRlukQ"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline font-semibold"
+                        >
+                          {t("landing.video.watchOnYouTube", {
+                            defaultValue: "Regarder sur YouTube",
+                          })}
+                        </a>
+                      </div>
                     </div>
-                    <div className="aspect-w-16 aspect-h-9">
-                      <VideoPlayer videoUrl="https://www.youtube.com/embed/OnfUuaRlukQ?autoplay=1" />
+                  </div>
+                )}
+              </div>
+            </section>
+
+            {/* 2. Section Vidéo de Présentation */}
+            <section id="presentation-video" className="py-8 bg-slate-100">
+              <div className="container mx-auto px-4 max-w-3xl">
+                <div className="text-center mb-8">
+                  <h2 className="text-3xl sm:text-4xl font-bold text-slate-800">
+                    {t("landing.video.title", {
+                      defaultValue: "Découvrez Nexus Support Hub en vidéo",
+                    })}
+                  </h2>
+                  <p className="mt-4 text-lg text-slate-600">
+                    {t("landing.video.subtitle", {
+                      defaultValue:
+                        "Une présentation rapide de nos services et de notre valeur ajoutée.",
+                    })}
+                  </p>
+                </div>
+                <div className="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden shadow-lg bg-black">
+                  <VideoPlayer videoUrl="https://www.youtube.com/embed/OnfUuaRlukQ" />
+                </div>
+                <div className="mt-4 text-center">
+                  <a
+                    href="https://youtu.be/OnfUuaRlukQ"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline font-semibold"
+                  >
+                    {t("landing.video.watchOnYouTube", {
+                      defaultValue: "Regarder sur YouTube",
+                    })}
+                  </a>
+                </div>
+              </div>
+            </section>
+
+            {/* 3. Fonctionnalités */}
+            <section id="features" className="py-8 bg-slate-50">
+              <div className="container mx-auto px-4 max-w-screen-lg">
+                <div className="text-center max-w-3xl mx-auto">
+                  <h2 className="text-3xl sm:text-4xl font-bold text-slate-800">
+                    {t("landing.features.title")}
+                  </h2>
+                  <p className="mt-4 text-lg text-slate-600">
+                    {t("landing.features.subtitle")}
+                  </p>
+                </div>
+                <div className="mt-16 grid md:grid-cols-3 gap-12">
+                  {features.map((feature, index) => (
+                    <div
+                      key={index}
+                      className="flex flex-col items-center text-center"
+                    >
+                      <FeatureIcon>{feature.icon}</FeatureIcon>
+                      <h3 className="mt-6 text-xl font-bold text-slate-800">
+                        {t(feature.titleKey)}
+                      </h3>
+                      <p className="mt-2 text-slate-600 text-sm md:text-base">
+                        {t(feature.descKey)}
+                      </p>
                     </div>
-                    <div className="mt-4 text-center">
-                      <a
-                        href="https://youtu.be/OnfUuaRlukQ"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary hover:underline font-semibold"
-                      >
-                        {t("landing.video.watchOnYouTube", {
-                          defaultValue: "Regarder sur YouTube",
-                        })}
-                      </a>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* 4. Avantages */}
+            <section id="advantages" className="py-8 bg-white">
+              <div className="container mx-auto px-4 max-w-screen-lg">
+                <div className="text-center max-w-3xl mx-auto mb-12">
+                  <h2 className="text-3xl sm:text-4xl font-bold text-slate-800">
+                    {t("landing.advantages.title", {
+                      defaultValue: "Pourquoi choisir Nexus Support Hub ?",
+                    })}
+                  </h2>
+                  <p className="mt-4 text-lg text-slate-600">
+                    {t("landing.advantages.subtitle", {
+                      defaultValue:
+                        "Découvrez les bénéfices concrets pour votre équipe et vos clients.",
+                    })}
+                  </p>
+                </div>
+                <div className="grid md:grid-cols-3 gap-8">
+                  {advantages.map((advantage, index) => (
+                    <div
+                      key={index}
+                      className="flex flex-col items-center text-center p-6 bg-slate-50 rounded-lg shadow-sm"
+                    >
+                      <div className="mb-4">{advantage.icon}</div>
+                      <h3 className="text-xl font-bold text-slate-800 mb-2">
+                        {t(advantage.titleKey)}
+                      </h3>
+                      <p className="text-slate-600 text-sm md:text-base">
+                        {t(advantage.descKey)}
+                      </p>
                     </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* 5. Accessibilité RGAA */}
+            <section id="accessibilite-rgaa" className="py-8 bg-slate-50">
+              <div className="container mx-auto px-4 max-w-screen-lg">
+                <div className="text-center max-w-3xl mx-auto mb-8">
+                  <h2 className="text-3xl sm:text-4xl font-bold text-slate-800">
+                    {t("landing.rgaa.title")}
+                  </h2>
+                  <p className="mt-4 text-lg text-slate-600">
+                    {t("landing.rgaa.subtitle")}
+                  </p>
+                </div>
+
+                <div className="grid md:grid-cols-3 gap-6">
+                  <div className="p-6 bg-white rounded-lg shadow-sm">
+                    <h3 className="font-semibold mb-2">A11y UI</h3>
+                    <ul className="list-disc pl-5 text-slate-700">
+                      <li>{t("landing.rgaa.li1")}</li>
+                      <li>{t("landing.rgaa.li2")}</li>
+                      <li>{t("landing.rgaa.li3")}</li>
+                    </ul>
+                  </div>
+                  <div className="p-6 bg-white rounded-lg shadow-sm">
+                    <h3 className="font-semibold mb-2">Formulaires</h3>
+                    <ul className="list-disc pl-5 text-slate-700">
+                      <li>{t("landing.rgaa.li4")}</li>
+                      <li>{t("landing.rgaa.li5")}</li>
+                      <li>{t("landing.rgaa.li6")}</li>
+                    </ul>
+                  </div>
+                  <div className="p-6 bg-white rounded-lg shadow-sm">
+                    <h3 className="font-semibold mb-2">Médias & Couleurs</h3>
+                    <ul className="list-disc pl-5 text-slate-700">
+                      <li>{t("landing.rgaa.li7")}</li>
+                      <li>{t("landing.rgaa.li8")}</li>
+                      <li>{t("landing.rgaa.li9")}</li>
+                    </ul>
                   </div>
                 </div>
-              )}
-            </div>
-          </section>
 
-          {/* 2. Section Vidéo de Présentation */}
-          <section id="presentation-video" className="py-8 bg-slate-100">
-            <div className="container mx-auto px-4 max-w-3xl">
-              <div className="text-center mb-8">
-                <h2 className="text-3xl sm:text-4xl font-bold text-slate-800">
-                  {t("landing.video.title", {
-                    defaultValue: "Découvrez Nexus Support Hub en vidéo",
-                  })}
-                </h2>
-                <p className="mt-4 text-lg text-slate-600">
-                  {t("landing.video.subtitle", {
-                    defaultValue:
-                      "Une présentation rapide de nos services et de notre valeur ajoutée.",
-                  })}
+                <p className="mt-6 text-center">
+                  <Link to="/accessibilite" className="text-primary underline">
+                    {t("landing.rgaa.statementLink")}
+                  </Link>
                 </p>
               </div>
-              <div className="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden shadow-lg bg-black">
-                <VideoPlayer videoUrl="https://www.youtube.com/embed/OnfUuaRlukQ" />
-              </div>
-              <div className="mt-4 text-center">
-                <a
-                  href="https://youtu.be/OnfUuaRlukQ"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary hover:underline font-semibold"
-                >
-                  {t("landing.video.watchOnYouTube", {
-                    defaultValue: "Regarder sur YouTube",
-                  })}
-                </a>
-              </div>
-            </div>
-          </section>
-
-          {/* 3. Fonctionnalités */}
-          <section id="features" className="py-8 bg-slate-50">
-            <div className="container mx-auto px-4 max-w-screen-lg">
-              <div className="text-center max-w-3xl mx-auto">
-                <h2 className="text-3xl sm:text-4xl font-bold text-slate-800">
-                  {t("landing.features.title")}
-                </h2>
-                <p className="mt-4 text-lg text-slate-600">
-                  {t("landing.features.subtitle")}
-                </p>
-              </div>
-              <div className="mt-16 grid md:grid-cols-3 gap-12">
-                {features.map((feature, index) => (
-                  <div
-                    key={index}
-                    className="flex flex-col items-center text-center"
-                  >
-                    <FeatureIcon>{feature.icon}</FeatureIcon>
-                    <h3 className="mt-6 text-xl font-bold text-slate-800">
-                      {t(feature.titleKey)}
-                    </h3>
-                    <p className="mt-2 text-slate-600 text-sm md:text-base">
-                      {t(feature.descKey)}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          {/* 4. Avantages */}
-          <section id="advantages" className="py-8 bg-white">
-            <div className="container mx-auto px-4 max-w-screen-lg">
-              <div className="text-center max-w-3xl mx-auto mb-12">
-                <h2 className="text-3xl sm:text-4xl font-bold text-slate-800">
-                  {t("landing.advantages.title", {
-                    defaultValue: "Pourquoi choisir Nexus Support Hub ?",
-                  })}
-                </h2>
-                <p className="mt-4 text-lg text-slate-600">
-                  {t("landing.advantages.subtitle", {
-                    defaultValue:
-                      "Découvrez les bénéfices concrets pour votre équipe et vos clients.",
-                  })}
-                </p>
-              </div>
-              <div className="grid md:grid-cols-3 gap-8">
-                {advantages.map((advantage, index) => (
-                  <div
-                    key={index}
-                    className="flex flex-col items-center text-center p-6 bg-slate-50 rounded-lg shadow-sm"
-                  >
-                    <div className="mb-4">{advantage.icon}</div>
-                    <h3 className="text-xl font-bold text-slate-800 mb-2">
-                      {t(advantage.titleKey)}
-                    </h3>
-                    <p className="text-slate-600 text-sm md:text-base">
-                      {t(advantage.descKey)}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          {/* 5. Accessibilité RGAA */}
-<section id="accessibilite-rgaa" className="py-8 bg-slate-50">
-  <div className="container mx-auto px-4 max-w-screen-lg">
-    <div className="text-center max-w-3xl mx-auto mb-8">
-      <h2 className="text-3xl sm:text-4xl font-bold text-slate-800">
-        {t("landing.rgaa.title")}
-      </h2>
-      <p className="mt-4 text-lg text-slate-600">
-        {t("landing.rgaa.subtitle")}
-      </p>
-    </div>
-
-    <div className="grid md:grid-cols-3 gap-6">
-      <div className="p-6 bg-white rounded-lg shadow-sm">
-        <h3 className="font-semibold mb-2">A11y UI</h3>
-        <ul className="list-disc pl-5 text-slate-700">
-          <li>{t("landing.rgaa.li1")}</li>
-          <li>{t("landing.rgaa.li2")}</li>
-          <li>{t("landing.rgaa.li3")}</li>
-        </ul>
-      </div>
-      <div className="p-6 bg-white rounded-lg shadow-sm">
-        <h3 className="font-semibold mb-2">Formulaires</h3>
-        <ul className="list-disc pl-5 text-slate-700">
-          <li>{t("landing.rgaa.li4")}</li>
-          <li>{t("landing.rgaa.li5")}</li>
-          <li>{t("landing.rgaa.li6")}</li>
-        </ul>
-      </div>
-      <div className="p-6 bg-white rounded-lg shadow-sm">
-        <h3 className="font-semibold mb-2">Médias & Couleurs</h3>
-        <ul className="list-disc pl-5 text-slate-700">
-          <li>{t("landing.rgaa.li7")}</li>
-          <li>{t("landing.rgaa.li8")}</li>
-          <li>{t("landing.rgaa.li9")}</li>
-        </ul>
-      </div>
-    </div>
-
-    <p className="mt-6 text-center">
-      <Link to="/accessibilite" className="text-primary underline">{t("landing.rgaa.statementLink")}</Link>
-    </p>
-  </div>
-</section>
+            </section>
 
             {/* 6. Mise en route en 7 minutes */}
-<section id="setup-7-min" className="py-8 bg-white">
-  <div className="container mx-auto px-4 max-w-3xl">
-    <h2 className="text-3xl sm:text-4xl font-bold text-slate-800 text-center">
-      {t("landing.setup.title")}
-    </h2>
-    <ol className="list-decimal pl-6 mt-6 space-y-2 text-slate-700">
-      <li><strong>{t("landing.setup.s1.strong")}</strong> {t("landing.setup.s1.text")}</li>
-      <li><strong>{t("landing.setup.s2.strong")}</strong> {t("landing.setup.s2.text")}</li>
-      <li><strong>{t("landing.setup.s3.strong")}</strong> {t("landing.setup.s3.text")}</li>
-    </ol>
-    <div className="mt-5 flex gap-3 justify-center" role="group" aria-label={t("landing.setup.actionsAria")}>
-      <Link to="/signup">
-        <Button size="lg" className="px-6">{t("landing.cta.trial")}</Button>
-      </Link>
-      <Link to="/guide-onboarding">
-        <Button variant="secondary" size="lg" className="px-6">
-          {t("landing.setup.ctaGuide")}
-        </Button>
-      </Link>
-    </div>
-  </div>
-</section>
-
-          
-          <PricingSection />
-
-          {/* 6. Infographie Technique */}
-          <section id="infographie" className="py-8 bg-white">
-            <div className="container mx-auto px-4 max-w-screen-lg">
-              <div className="text-center max-w-3xl mx-auto mb-12">
-                <h2 className="text-3xl sm:text-4xl font-bold text-slate-800">
-                  {t("infographie.title", { defaultValue: "Infographie technique" })}
+            <section id="setup-7-min" className="py-8 bg-white">
+              <div className="container mx-auto px-4 max-w-3xl">
+                <h2 className="text-3xl sm:text-4xl font-bold text-slate-800 text-center">
+                  {t("landing.setup.title")}
                 </h2>
-                <p className="mt-4 text-lg text-slate-600">
-                  {t("infographie.subtitle", {
-                    defaultValue:
-                      "Découvrez l’architecture et les technologies clés de Nexus Support Hub.",
-                  })}
-                </p>
-                <Link
-                  to="/infographie"
-                  className="inline-block mt-6 px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition"
+                <ol className="list-decimal pl-6 mt-6 space-y-2 text-slate-700">
+                  <li>
+                    <strong>{t("landing.setup.s1.strong")}</strong>{" "}
+                    {t("landing.setup.s1.text")}
+                  </li>
+                  <li>
+                    <strong>{t("landing.setup.s2.strong")}</strong>{" "}
+                    {t("landing.setup.s2.text")}
+                  </li>
+                  <li>
+                    <strong>{t("landing.setup.s3.strong")}</strong>{" "}
+                    {t("landing.setup.s3.text")}
+                  </li>
+                </ol>
+                <div
+                  className="mt-5 flex gap-3 justify-center"
+                  role="group"
+                  aria-label={t("landing.setup.actionsAria")}
                 >
-                  {t("infographie.seeMore", {
-                    defaultValue: "Voir l’infographie complète",
-                  })}
-                </Link>
-              </div>
-              <div className="flex justify-center">
-                <div className="w-full max-w-5xl">
-                  {" "}
-                  {/* Passez de max-w-3xl à max-w-5xl */}
-                  <InfographieNexus />
+                  <Link to="/signup">
+                    <Button size="lg" className="px-6">
+                      {t("landing.cta.trial")}
+                    </Button>
+                  </Link>
+                  <Link to="/guide-onboarding">
+                    <Button variant="secondary" size="lg" className="px-6">
+                      {t("landing.setup.ctaGuide")}
+                    </Button>
+                  </Link>
                 </div>
               </div>
-            </div>
-          </section>
-        </main>
-      </div>
-    </Layout>
-      </div>
+            </section>
+
+            <PricingSection />
+
+            {/* 6. Infographie Technique */}
+            <section id="infographie" className="py-8 bg-white">
+              <div className="container mx-auto px-4 max-w-screen-lg">
+                <div className="text-center max-w-3xl mx-auto mb-12">
+                  <h2 className="text-3xl sm:text-4xl font-bold text-slate-800">
+                    {t("infographie.title", { defaultValue: "Infographie technique" })}
+                  </h2>
+                  <p className="mt-4 text-lg text-slate-600">
+                    {t("infographie.subtitle", {
+                      defaultValue:
+                        "Découvrez l’architecture et les technologies clés de Nexus Support Hub.",
+                    })}
+                  </p>
+                  <Link
+                    to="/infographie"
+                    className="inline-block mt-6 px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition"
+                  >
+                    {t("infographie.seeMore", {
+                      defaultValue: "Voir l’infographie complète",
+                    })}
+                  </Link>
+                </div>
+                <div className="flex justify-center">
+                  <div className="w-full max-w-5xl">
+                    {/* Passez de max-w-3xl à max-w-5xl */}
+                    <InfographieNexus />
+                  </div>
+                </div>
+              </div>
+            </section>
+          </main>
+        </div>
+      </Layout>
+    </>
   );
 };
 
