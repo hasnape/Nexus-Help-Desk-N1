@@ -24,7 +24,6 @@ const AccessibilitePage: React.FC = () => {
   return (
     <Layout>
       <div className="min-h-screen bg-white text-slate-800">
-        <Navbar />
         <a
           href="#content"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:bg-black focus:text-white focus:px-3 focus:py-2 rounded"
