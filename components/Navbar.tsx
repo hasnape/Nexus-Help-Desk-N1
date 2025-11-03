@@ -64,8 +64,8 @@ const Navbar: React.FC = () => {
           label: t("navbar.presentation", { default: "Présentation" }),
         },
          {
-          to: "/AccessibilitePage",
-          label: t("navbar.Accessibilite", { default: "Accessibilite" }),
+          to: "/Accessibilité",
+          label: t("navbar.AccessibilitePage", { default: "Déclaration d’accessibilité" }),
         },
 
         {
