@@ -1,7 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import Navbar from "../components/Navbar";
 import Layout from "../components/Layout";
 
 const AccessibilitePage: React.FC = () => {
@@ -23,7 +22,6 @@ const AccessibilitePage: React.FC = () => {
   return (
     <Layout>
       <div className="min-h-screen bg-white text-slate-800">
-        <Navbar />
 
         {/* Skip link */}
         <a
