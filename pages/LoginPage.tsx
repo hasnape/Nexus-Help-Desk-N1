@@ -222,3 +222,17 @@ const LoginPage: React.FC = () => {
           {/* Footer legal */}
           <div className="mt-6 pt-4 border-t border-slate-200 text-center">
             <Link
+
+                         to="/legal"
+              className="text-xs text-slate-500 hover:text-primary hover:underline"
+            >
+              {t("footer.legalLink", { default: "Legal & Documentation" })}
+            </Link>
+          </div>
+        </div>
+      </div>
+    </Layout>
+  );
+};
+
+export default LoginPage;
