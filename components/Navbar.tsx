@@ -53,64 +53,67 @@ const Navbar: React.FC = () => {
     { code: "ar", nameKey: "language.arabic", defaultName: "العربية" },
   ];
 
+  const shouldHideSubscriptionLink =
+    user?.role === UserRole.AGENT || user?.role === UserRole.USER;
+
+  const mainLinks = [
+    { to: "/landing", label: t("navbar.home", { default: "Accueil" }) },
+    {
+      to: "/presentation",
+      label: t("navbar.presentation", { default: "Présentation" }),
+    },
+    {
+      to: "/accessibilite",
+      label: t("navbar.AccessibilitePage", { default: "Déclaration d’accessibilité" }),
+    },
+    {
+      to: "/pricing",
+      label: t("navbar.pricingpage", { default: "Tarifes" }),
+    },
+    {
+      to: "/demo",
+      label: t("navbar.demo", { default: "Demander une démo" }),
+    },
+    {
+      to: "/infographie",
+      label: t("navbar.infographie", { default: "Infographie" }),
+    },
+    {
+      to: "/manual",
+      label: t("navbar.userManual", { default: "Manuel utilisateur" }),
+    },
+    {
+      to: "/help",
+      label: t("navbar.helpCenter", { default: "Centre d'aide" }),
+    },
+    { to: "/support", label: t("navbar.support", { default: "Support" }) },
+    { to: "/contact", label: t("navbar.contact", { default: "Contact" }) },
+    {
+      to: "/legal",
+      label: t("navbar.legal", { default: "Légal & Documentation" }),
+    },
+    {
+      to: "/email-support",
+      label: t("navbar.emailSupport", { default: "Support par email" }),
+    },
+    {
+      to: "/presentation-video",
+      label: t("navbar.demoVideo", { default: "Démonstration vidéo" }),
+    },
+  ];
+
+  if (!shouldHideSubscriptionLink) {
+    mainLinks.push({
+      to: "/subscribe",
+      label: t("navbar.pricing", { default: "Abonnement" }),
+    });
+  }
+
   const navGroups = [
     {
       key: "main",
       title: t("navbar.group.main", { default: "Navigation" }),
-      links: [
-        { to: "/landing", label: t("navbar.home", { default: "Accueil" }) },
-        {
-          to: "/presentation",
-          label: t("navbar.presentation", { default: "Présentation" }),
-        },
-         {
-          to: "/accessibilite",
-          label: t("navbar.AccessibilitePage", { default: "Déclaration d’accessibilité" }),
-        },
-        
-        {
-        to: "/pricing", // chemin de route, pas d'import nécessaire
-        label: t("navbar.pricingpage", { default: "Tarifes" }),
-        },
-
-        {
-          to: "/demo",
-          label: t("navbar.demo", { default: "Demander une démo" }),
-        },
-        
-        {
-          to: "/infographie",
-          label: t("navbar.infographie", { default: "Infographie" }),
-        },
-        
-        {
-          to: "/manual",
-          label: t("navbar.userManual", { default: "Manuel utilisateur" }),
-        },
-        
-        {
-          to: "/help",
-          label: t("navbar.helpCenter", { default: "Centre d'aide" }),
-        },
-        { to: "/support", label: t("navbar.support", { default: "Support" }) },
-        { to: "/contact", label: t("navbar.contact", { default: "Contact" }) },
-        {
-          to: "/legal",
-          label: t("navbar.legal", { default: "Légal & Documentation" }),
-        },
-        {
-          to: "/email-support",
-          label: t("navbar.emailSupport", { default: "Support par email" }),
-        },
-        {
-          to: "/presentation-video",
-          label: t("navbar.demoVideo", { default: "Démonstration vidéo" }),
-        },
-        {
-          to: "/subscribe",
-          label: t("navbar.pricing", { default: "Abonnement" })
-        },
-      ],
+      links: mainLinks,
     },
     {
       key: "community",
@@ -131,10 +134,14 @@ const Navbar: React.FC = () => {
       title: t("navbar.group.account", { default: "Compte" }),
       links: user
         ? [
-            {
-              to: "/subscribe",
-              label: t("navbar.subscriptionButton", { default: "Abonnement" }),
-            },
+            ...(!shouldHideSubscriptionLink
+              ? [
+                  {
+                    to: "/subscribe",
+                    label: t("navbar.subscriptionButton", { default: "Abonnement" }),
+                  },
+                ]
+              : []),
             ...(user.role === UserRole.AGENT
               ? [
                   {
