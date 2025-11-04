@@ -23,7 +23,7 @@ type InvokeResponse<T> = Awaited<ReturnType<typeof supabase.functions.invoke<T>>
 
 const ManagerInviteUserCard: React.FC<Props> = ({ companyId }) => {
   const { t, i18n } = useLanguage();
-  const [mode, setMode] = useState<Mode>("invite");
+  const [mode, setMode] = useState<Mode>("create");
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [role, setRole] = useState<"agent" | "user">("agent");
@@ -37,6 +37,7 @@ const ManagerInviteUserCard: React.FC<Props> = ({ companyId }) => {
   const isMounted = useRef(true);
 
   useEffect(() => {
+    isMounted.current = true;
     return () => {
       isMounted.current = false;
     };
@@ -138,9 +139,7 @@ const ManagerInviteUserCard: React.FC<Props> = ({ companyId }) => {
 
   const invokeWithTimeout = async <T,>(body: Record<string, unknown>): Promise<InvokeResponse<T>> => {
     const controller = new AbortController();
-    let timedOut = false;
     const timer = setTimeout(() => {
-      timedOut = true;
       controller.abort();
     }, 20000);
 
@@ -149,11 +148,13 @@ const ManagerInviteUserCard: React.FC<Props> = ({ companyId }) => {
         body,
         signal: controller.signal,
       });
+    } catch (error) {
+      if (error instanceof Error && error.name === "AbortError") {
+        throw new Error("timeout");
+      }
+      throw error;
     } finally {
       clearTimeout(timer);
-      if (timedOut && isMounted.current) {
-        setErr(t("manager.invite.errors.timeout"));
-      }
     }
   };
 
@@ -215,26 +216,7 @@ const ManagerInviteUserCard: React.FC<Props> = ({ companyId }) => {
       payload.password_confirm = passwordConfirm;
     }
 
-    try {
-      const response = await invokeWithTimeout<FunctionSuccess | FunctionErrorPayload>(payload);
-      if (!isMounted.current) {
-        return;
-      }
-
-      const { data, error } = response;
-      if (error) {
-        if (error.name === "AbortError") {
-          return;
-        }
-        setErr(error.message ?? t("manager.invite.errors.generic"));
-        return;
-      }
-
-      if (data && "error" in data) {
-        setErr(translateApiError(data.error, "details" in data ? data.details : undefined));
-        return;
-      }
-
+    const handleSuccess = async () => {
       setMsg(mode === "invite" ? t("manager.invite.success") : t("manager.invite.created"));
       setEmail("");
       setFullName("");
@@ -246,9 +228,41 @@ const ManagerInviteUserCard: React.FC<Props> = ({ companyId }) => {
       if (role === "agent") {
         await refreshAgentCount();
       }
+    };
+
+    try {
+      const response = await invokeWithTimeout<FunctionSuccess | FunctionErrorPayload>(payload);
+      if (!isMounted.current) {
+        return;
+      }
+
+      const { data, error } = response;
+      if (error) {
+        const apiErrorCode = typeof error.message === "string" ? error.message : null;
+        const translated = apiErrorCode ? translateApiError(apiErrorCode) : t("manager.invite.errors.generic");
+        setErr(error.message ?? translated);
+        return;
+      }
+
+      if (!data) {
+        await handleSuccess();
+        return;
+      }
+
+      if ("error" in data) {
+        setErr(translateApiError(data.error, "details" in data ? data.details : undefined));
+        return;
+      }
+
+      await handleSuccess();
     } catch (error) {
       if (!isMounted.current) return;
+      if (error instanceof Error && error.message === "timeout") {
+        setErr(t("manager.invite.errors.timeout"));
+        return;
+      }
       if (error instanceof Error && error.name === "AbortError") {
+        setErr(t("manager.invite.errors.timeout"));
         return;
       }
       const message = error instanceof Error ? error.message : String(error ?? "");

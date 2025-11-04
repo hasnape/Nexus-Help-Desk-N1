@@ -6,7 +6,6 @@ import { Button } from "../../components/FormElements";
 import { useLanguage } from "../../contexts/LanguageContext";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import FloatingActionButton from "../../components/FloatingActionButton";
-import PlanLimits from "../../components/PlanLimits";
 import { supabase } from "../../services/supabaseClient";
 
 const PlusIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
@@ -143,8 +142,6 @@ const AgentDashboardPage: React.FC = () => {
           </Link>
         </div>
       </div>
-
-      {user.company_id && <PlanLimits companyId={user.company_id} />}
 
       {isLoading && <LoadingSpinner text={t("agentDashboard.loadingTickets")} />}
 

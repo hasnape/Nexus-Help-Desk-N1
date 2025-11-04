@@ -5,7 +5,6 @@ import TicketCard from "../../components/TicketCard";
 import { Button } from "../../components/FormElements";
 import { useLanguage } from "../../contexts/LanguageContext";
 import FloatingActionButton from "../../components/FloatingActionButton";
-import PlanLimits from "../../components/PlanLimits";
 import { supabase } from "../../services/supabaseClient";
 
 const PlusIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
@@ -109,8 +108,6 @@ const ClientDashboardPage: React.FC = () => {
 
         <p className="text-sm text-slate-600 mt-1">{t("dashboard.headerSubtitle")}</p>
       </div>
-
-      {user?.company_id && <PlanLimits companyId={user.company_id} />}
 
       {sortedTickets.length === 0 ? (
         <div className="text-center py-12">
