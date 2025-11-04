@@ -130,6 +130,10 @@
   "dashboard.headerSubtitle": "Manage your support tickets or start a new chat with our AI assistant below.",
   "dashboard.noTicketsSubtitle": "Click 'Get AI Help' to start a conversation.",
   "dashboard.noTicketsTitle": "You have no active tickets.",
+  "dashboard.company": {
+    "loading": "Loading…",
+    "unknown": "Company"
+  },
   "dashboard.requestMaterialInvestigationButton": "Investigate Material Issue",
   "dashboard.quota": {
     "blocked": "Limit reached: ticket creation is blocked.",

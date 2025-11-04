@@ -98,6 +98,10 @@
   "dashboard.headerSubtitle": "أدِر تذاكر الدعم الخاصة بك أو ابدأ محادثة جديدة مع مساعدنا الذكي أدناه.",
   "dashboard.noTicketsSubtitle": "انقر على 'احصل على مساعدة الذكاء الاصطناعي' لبدء محادثة.",
   "dashboard.noTicketsTitle": "ليس لديك تذاكر نشطة.",
+  "dashboard.company": {
+    "loading": "جارٍ التحميل…",
+    "unknown": "الشركة"
+  },
   "dashboard.requestMaterialInvestigationButton": "فحص مشكلة مادية",
   "dashboard.welcomeMessage": "مرحباً، {{username}}!",
   "demo": {

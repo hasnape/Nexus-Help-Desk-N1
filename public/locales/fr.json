@@ -137,6 +137,10 @@
   "dashboard.headerSubtitle": "Gérez vos tickets de support ou démarrez une nouvelle discussion avec notre assistant IA ci-dessous.",
   "dashboard.noTicketsSubtitle": "Cliquez sur 'Obtenir de l'aide IA' pour démarrer une conversation.",
   "dashboard.noTicketsTitle": "Vous n'avez aucun ticket actif.",
+  "dashboard.company": {
+    "loading": "Chargement…",
+    "unknown": "Société"
+  },
   "dashboard.requestMaterialInvestigationButton": "Investiguer un problème matériel",
   "dashboard.quota": {
     "blocked": "Limite atteinte : création de ticket bloquée.",
