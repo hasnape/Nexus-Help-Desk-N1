@@ -924,3 +924,4 @@
   "role.agent": "Agent",
   "role.user": "Utilisateur",
   "agentLimitReachedInvite": "Limite d'agents atteinte. Envoyez ce lien d'invitation à l'utilisateur : {{link}}"
+}
