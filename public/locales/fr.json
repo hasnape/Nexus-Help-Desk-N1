@@ -922,5 +922,7 @@
   "manager.invite.errors.passwordMismatch": "Les mots de passe ne correspondent pas.",
   "manager.invite.errors.timeout": "Temps dépassé. Vérifiez la Function et le CORS.",
   "role.agent": "Agent",
-  "role.user": "Utilisateur"
+  "role.user": "Utilisateur",
+  "agentLimitReachedInvite": "Limite d'agents atteinte. Envoyez ce lien d'invitation à l'utilisateur : {{link}}"
+
 }
