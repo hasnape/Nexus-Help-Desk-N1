@@ -54,11 +54,11 @@ serve(async (req) => {
   });
   const admin = createClient(supabaseUrl, serviceKey);
 
-  // 1) Caller must be authenticated
+  // 1) Vérification que le caller est authentifié
   const { data: authData, error: authErr } = await userClient.auth.getUser();
   if (authErr || !authData?.user) return json({ error: "unauthorized" }, 401, cors ?? { Vary: "Origin" });
 
-  // 2) Caller must be manager and have a company_id
+  // 2) Vérifier que le caller est manager et a une company_id
   const { data: meRow, error: meErr } = await admin
     .from("users")
     .select("id, role, company_id")
@@ -67,7 +67,7 @@ serve(async (req) => {
   if (meErr || !meRow) return json({ error: "profile_not_found" }, 403, cors ?? { Vary: "Origin" });
   if (meRow.role !== "manager") return json({ error: "forbidden" }, 403, cors ?? { Vary: "Origin" });
 
-  // 3) Parse body
+  // 3) Parse body JSON
   let body: any = {};
   try {
     body = await req.json();
@@ -86,7 +86,7 @@ serve(async (req) => {
   if (!email || !full_name || !role) return json({ error: "missing_fields" }, 400, cors ?? { Vary: "Origin" });
   if (!["agent", "user"].includes(role)) return json({ error: "invalid_role" }, 400, cors ?? { Vary: "Origin" });
 
-  // 4) Agent cap if role=agent
+  // 4) Vérification quota agent si rôle = 'agent'
   if (role === "agent") {
     const { data: comp, error: cErr } = await admin
       .from("companies")
@@ -111,10 +111,15 @@ serve(async (req) => {
 
     const maxAgents = plan.max_agents ?? 0;
     if ((agentCount ?? 0) >= maxAgents) {
-      return json({ error: "agent_limit_reached", details: { agentCount, maxAgents } }, 409, cors ?? { Vary: "Origin" });
+      return json(
+        { error: "agent_limit_reached", details: { agentCount, maxAgents } },
+        409,
+        cors ?? { Vary: "Origin" }
+      );
     }
   }
 
+  // 5) Mode invitation
   if (mode === "invite") {
     const { data: invite, error: invErr } = await admin.auth.admin.inviteUserByEmail(email, {
       data: { company_id: meRow.company_id, role, language_preference },
@@ -136,6 +141,7 @@ serve(async (req) => {
     return json({ ok: true, mode, user_id: auth_uid }, 200, cors ?? { Vary: "Origin" });
   }
 
+  // 6) Mode création avec mot de passe
   const password = String(body.password || "");
   const password_confirm = String(body.password_confirm || "");
   if (password.length < 8) return json({ error: "weak_password" }, 400, cors ?? { Vary: "Origin" });
