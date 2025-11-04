@@ -3,8 +3,9 @@ import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const STATIC_ALLOWED_ORIGINS = [
-  "https://www.nexussupporthub.eu",
-  "https://nexus-help-desk-n1.vercel.app",
+  "https://www.nexussupporthub.eu"
+  "https://nexus-help-desk-n1.vercel.app"
+  "https://www.nexussupporthub.eu/#/manager/dashboard"
 ];
 
 const additionalOrigins = (Deno.env.get("SUPABASE_ALLOWED_ORIGINS") ?? "")
