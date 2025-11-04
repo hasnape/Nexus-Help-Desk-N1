@@ -22,7 +22,7 @@ type FunctionErrorPayload = {
 type InvokeResponse<T> = Awaited<ReturnType<typeof supabase.functions.invoke<T>>>;
 
 const ManagerInviteUserCard: React.FC<Props> = ({ companyId }) => {
-  const { t, i18n } = useLanguage();
+  const { t, language } = useLanguage();
   const [mode, setMode] = useState<Mode>("create");
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
@@ -208,7 +208,7 @@ const ManagerInviteUserCard: React.FC<Props> = ({ companyId }) => {
       email,
       full_name: fullName,
       role,
-      language_preference: i18n.language || "fr",
+      language_preference: language,
     };
 
     if (mode === "create") {
