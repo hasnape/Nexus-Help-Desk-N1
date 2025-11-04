@@ -41,7 +41,11 @@ serve(async (req) => {
     return new Response("Forbidden", { status: 403, headers: { Vary: "Origin" } });
   }
 
-  if (req.method === "OPTIONS") return new Response("ok", { headers: cors ?? { Vary: "Origin" } });
+  // Gestion explicite des requêtes CORS préflight OPTIONS
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { status: 204, headers: cors ?? { Vary: "Origin" } });
+  }
+
   if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405, cors ?? { Vary: "Origin" });
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -54,11 +58,11 @@ serve(async (req) => {
   });
   const admin = createClient(supabaseUrl, serviceKey);
 
-  // 1) Vérification que le caller est authentifié
+  // Vérification appel authentifié
   const { data: authData, error: authErr } = await userClient.auth.getUser();
   if (authErr || !authData?.user) return json({ error: "unauthorized" }, 401, cors ?? { Vary: "Origin" });
 
-  // 2) Vérifier que le caller est manager et a une company_id
+  // Vérifier que le caller est manager avec company_id
   const { data: meRow, error: meErr } = await admin
     .from("users")
     .select("id, role, company_id")
@@ -67,26 +71,24 @@ serve(async (req) => {
   if (meErr || !meRow) return json({ error: "profile_not_found" }, 403, cors ?? { Vary: "Origin" });
   if (meRow.role !== "manager") return json({ error: "forbidden" }, 403, cors ?? { Vary: "Origin" });
 
-  // 3) Parse body JSON
+  // Parsing body
   let body: any = {};
   try {
     body = await req.json();
   } catch {
-    // ignore
+    // Ignore parse errors silently
   }
 
   const mode = (body.mode === "create" ? "create" : "invite") as "invite" | "create";
   const email = String(body.email || "").trim().toLowerCase();
   const full_name = String(body.full_name || "").trim();
   const role = String(body.role || "");
-  const language_preference = ["fr", "en", "ar"].includes(body.language_preference)
-    ? body.language_preference
-    : "fr";
+  const language_preference = ["fr", "en", "ar"].includes(body.language_preference) ? body.language_preference : "fr";
 
   if (!email || !full_name || !role) return json({ error: "missing_fields" }, 400, cors ?? { Vary: "Origin" });
   if (!["agent", "user"].includes(role)) return json({ error: "invalid_role" }, 400, cors ?? { Vary: "Origin" });
 
-  // 4) Vérification quota agent si rôle = 'agent'
+  // Vérifier quota agents si rôle agent
   if (role === "agent") {
     const { data: comp, error: cErr } = await admin
       .from("companies")
@@ -119,7 +121,7 @@ serve(async (req) => {
     }
   }
 
-  // 5) Mode invitation
+  // Mode invitation : envoyer mail
   if (mode === "invite") {
     const { data: invite, error: invErr } = await admin.auth.admin.inviteUserByEmail(email, {
       data: { company_id: meRow.company_id, role, language_preference },
@@ -141,12 +143,13 @@ serve(async (req) => {
     return json({ ok: true, mode, user_id: auth_uid }, 200, cors ?? { Vary: "Origin" });
   }
 
-  // 6) Mode création avec mot de passe
+  // Mode création : vérification mot de passe
   const password = String(body.password || "");
   const password_confirm = String(body.password_confirm || "");
   if (password.length < 8) return json({ error: "weak_password" }, 400, cors ?? { Vary: "Origin" });
   if (password !== password_confirm) return json({ error: "password_mismatch" }, 400, cors ?? { Vary: "Origin" });
 
+  // Créer utilisateur avec mot de passe
   const { data: created, error: createErr } = await admin.auth.admin.createUser({
     email,
     password,
