@@ -23,6 +23,7 @@ type InvokeResponse<T> = Awaited<ReturnType<typeof supabase.functions.invoke<T>>
 
 const ManagerInviteUserCard: React.FC<Props> = ({ companyId }) => {
   const { t, language } = useLanguage();
+  const preferredLanguage = language ?? "fr";
   const [mode, setMode] = useState<Mode>("create");
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
@@ -114,6 +115,9 @@ const ManagerInviteUserCard: React.FC<Props> = ({ companyId }) => {
   );
 
   const translateApiError = (code: string, details?: string | null): string => {
+    if (!code) {
+      return details ?? t("manager.invite.errors.generic");
+    }
     switch (code) {
       case "missing_fields":
         return t("manager.invite.errors.required");
@@ -128,6 +132,11 @@ const ManagerInviteUserCard: React.FC<Props> = ({ companyId }) => {
         return t("manager.invite.errors.weakPassword");
       case "password_mismatch":
         return t("manager.invite.errors.passwordMismatch");
+      case "unauthorized":
+      case "forbidden":
+      case "profile_not_found":
+      case "invalid_role":
+        return t("manager.invite.errors.generic");
       case "invite_failed":
       case "create_failed":
       case "profile_insert_failed":
@@ -208,7 +217,7 @@ const ManagerInviteUserCard: React.FC<Props> = ({ companyId }) => {
       email,
       full_name: fullName,
       role,
-      language_preference: language,
+      language_preference: preferredLanguage,
     };
 
     if (mode === "create") {
@@ -238,9 +247,14 @@ const ManagerInviteUserCard: React.FC<Props> = ({ companyId }) => {
 
       const { data, error } = response;
       if (error) {
-        const apiErrorCode = typeof error.message === "string" ? error.message : null;
-        const translated = apiErrorCode ? translateApiError(apiErrorCode) : t("manager.invite.errors.generic");
-        setErr(error.message ?? translated);
+        const contextPayload = (error as { context?: FunctionErrorPayload }).context;
+        if (contextPayload?.error) {
+          setErr(translateApiError(contextPayload.error, contextPayload.details));
+        } else if (typeof error.message === "string" && error.message.length > 0) {
+          setErr(translateApiError(error.message));
+        } else {
+          setErr(t("manager.invite.errors.generic"));
+        }
         return;
       }
 
