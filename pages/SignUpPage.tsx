@@ -242,17 +242,49 @@ const PlanCard: React.FC<{
   onSelect: (plan: PricingPlanKey) => void;
   t: (key: string, options?: { [key: string]: any }) => string;
   badgeText?: string;
-}> = ({ planKey, plan, isSelected, onSelect, t, badgeText }) => {
+  demoHref?: string;
+  demoLabel?: string;
+  buyHref?: string;
+  onBuy?: () => void;
+  buyLabel?: string;
+}> = ({
+  planKey,
+  plan,
+  isSelected,
+  onSelect,
+  t,
+  badgeText,
+  demoHref,
+  demoLabel,
+  buyHref,
+  onBuy,
+  buyLabel,
+}) => {
   const isSelectable = planKey !== "pro";
-  const buttonKey = isSelectable
-    ? `pricing.select_${planKey}`
-    : "pricing.view_pro_details";
+  const buttonKey = isSelectable ? `pricing.select_${planKey}` : "pricing.view_pro_details";
   const buttonLabel = t(buttonKey, {
     defaultValue: t(`signupPlans.${planKey}.select`, {
       defaultValue: t("signupPlans.selectDefault", { defaultValue: "Sélectionner" }),
     }),
   });
   const planTitle = t(`pricing.${planKey}`, { defaultValue: plan.name });
+  const demoButtonLabel = demoLabel ??
+    t("signupPlans.demoButton", {
+      defaultValue: t("pricing.requestDemo", { defaultValue: "Demander une démo" }),
+    });
+  const purchaseButtonLabel = buyLabel ?? plan.cta ??
+    t("signupPlans.subscribeDefault", { defaultValue: "Souscrire maintenant" });
+
+  const actionButtonBase = "w-100 fw-semibold d-flex align-items-center justify-content-center gap-2";
+
+  const handleSelectClick = () => {
+    onSelect(planKey);
+  };
+
+  const handleBuyClick = () => {
+    onSelect(planKey);
+    onBuy?.();
+  };
 
   return (
     <div
@@ -265,16 +297,9 @@ const PlanCard: React.FC<{
       aria-label={planTitle}
     >
       {isSelected ? (
-        <span
-          className="position-absolute top-0 end-0 translate-middle mt-4 me-4 rounded-circle bg-success text-white d-flex align-items-center justify-content-center shadow"
-          aria-hidden="true"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            className="w-4 h-4"
-          >
+        <span className="position-absolute top-0 end-0 translate-middle mt-4 me-4 rounded-circle bg-success text-white d-flex align-items-center justify-content-center shadow">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+               fill="currentColor" className="w-4 h-4">
             <path
               fillRule="evenodd"
               d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -286,17 +311,12 @@ const PlanCard: React.FC<{
 
       {badgeText ? (
         <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-          <span className="bg-primary text-white px-3 py-1 rounded-full text-sm font-medium">
-            {badgeText}
-          </span>
+          <span className="bg-primary text-white px-3 py-1 rounded-full text-sm font-medium">{badgeText}</span>
         </div>
       ) : null}
 
       <div className="text-center mb-6">
-        <h3
-          className="text-xl font-bold text-gray-900 mb-2"
-          data-i18n={`pricing.plans.${planKey}.name`}
-        >
+        <h3 className="text-xl font-bold text-gray-900 mb-2" data-i18n={`pricing.plans.${planKey}.name`}>
           {plan.name}
         </h3>
         <span className="visually-hidden" data-i18n={`pricing.${planKey}`}>
@@ -306,10 +326,7 @@ const PlanCard: React.FC<{
           <span className="visually-hidden" data-i18n="pricing.billed_monthly">
             {t("pricing.billed_monthly", { defaultValue: "Billed monthly" })}
           </span>
-          <span
-            className="text-3xl font-bold text-primary"
-            data-i18n={`pricing.plans.${planKey}.price`}
-          >
+          <span className="text-3xl font-bold text-primary" data-i18n={`pricing.plans.${planKey}.price`}>
             {plan.price}
           </span>
         </div>
@@ -332,10 +349,38 @@ const PlanCard: React.FC<{
       <ul className="space-y-3 mb-6">
         {plan.features.map((feature, index) => (
           <li key={`${plan.name}-${feature}`} className="flex items-start">
+            <svg className="w-5 h-5 text-success me-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fillRule="evenodd"
+                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                clipRule="evenodd"
+              />
+            </svg>
+            <span className="text-gray-700 text-sm" data-i18n={`pricing.plans.${planKey}.features.${index}`}>
+              {feature}
+            </span>
+          </li>
+        ))}
+      </ul>
+
+      <div className="mt-6 d-flex flex-column gap-3">
+        <button
+          type="button"
+          onClick={handleSelectClick}
+          className={`btn btn-success btn-lg ${actionButtonBase} focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-green-600 ${
+            isSelectable && isSelected ? "shadow" : ""
+          }`}
+          {...(isSelectable ? { "data-plan": planKey, "aria-pressed": isSelected } : {})}
+          data-i18n={buttonKey}
+          aria-label={`${buttonLabel} - ${planTitle}`}
+        >
+          <span>{buttonLabel}</span>
+          {isSelectable ? (
             <svg
-              className="w-5 h-5 text-success me-3 mt-0.5 flex-shrink-0"
-              fill="currentColor"
+              xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 20 20"
+              fill="currentColor"
+              className={`w-5 h-5 transition-opacity ${isSelected ? "opacity-100" : "opacity-0"}`}
             >
               <path
                 fillRule="evenodd"
@@ -343,45 +388,54 @@ const PlanCard: React.FC<{
                 clipRule="evenodd"
               />
             </svg>
-            <span
-              className="text-gray-700 text-sm"
-              data-i18n={`pricing.plans.${planKey}.features.${index}`}
-            >
-              {feature}
-            </span>
-          </li>
-        ))}
-      </ul>
+          ) : null}
+        </button>
 
-      <button
-        type="button"
-        onClick={() => onSelect(planKey)}
-        className={`btn btn-success btn-lg w-100 fw-semibold d-flex align-items-center justify-content-center gap-2 focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-green-600 ${
-          isSelectable && isSelected ? "shadow" : ""
-        }`}
-        {...(isSelectable
-          ? { "data-plan": planKey, "aria-pressed": isSelected }
-          : {})}
-        data-i18n={buttonKey}
-        aria-label={`${buttonLabel} - ${planTitle}`}
-      >
-        <span>{buttonLabel}</span>
-        {isSelectable ? (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            className={`w-5 h-5 transition-opacity ${isSelected ? "opacity-100" : "opacity-0"}`}
-            aria-hidden="true"
-          >
-            <path
-              fillRule="evenodd"
-              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-              clipRule="evenodd"
-            />
-          </svg>
-        ) : null}
-      </button>
+        <div className="d-flex flex-column gap-2">
+          {demoHref ? (
+            <a
+              href={demoHref}
+              className={`btn btn-outline-primary ${actionButtonBase}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${demoButtonLabel} - ${planTitle}`}
+            >
+              {demoButtonLabel}
+            </a>
+          ) : demoLabel ? (
+            <button
+              type="button"
+              className={`btn btn-outline-primary ${actionButtonBase}`}
+              onClick={handleSelectClick}
+              aria-label={`${demoButtonLabel} - ${planTitle}`}
+            >
+              {demoButtonLabel}
+            </button>
+          ) : null}
+
+          {buyHref ? (
+            <a
+              href={buyHref}
+              className={`btn btn-primary ${actionButtonBase}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => onSelect(planKey)}
+              aria-label={`${purchaseButtonLabel} - ${planTitle}`}
+            >
+              {purchaseButtonLabel}
+            </a>
+          ) : onBuy ? (
+            <button
+              type="button"
+              className={`btn btn-primary ${actionButtonBase}`}
+              onClick={handleBuyClick}
+              aria-label={`${purchaseButtonLabel} - ${planTitle}`}
+            >
+              {purchaseButtonLabel}
+            </button>
+          ) : null}
+        </div>
+      </div>
     </div>
   );
 };
@@ -689,6 +743,12 @@ const SignUpPage: React.FC = () => {
                       isSelected={selectedPlan === "freemium"}
                       onSelect={handlePlanSelect}
                       t={t}
+                      demoHref="/landing#demo"
+                      buyLabel={t("signupPlans.freemium.modal.buttons.subscribe", { defaultValue: pricingPlans.freemium.cta })}
+                      onBuy={() => {
+                        setSelectedPlan("freemium");
+                        setShowFreemiumModal(true);
+                      }}
                     />
                     <PlanCard
                       planKey="standard"
@@ -697,6 +757,9 @@ const SignUpPage: React.FC = () => {
                       onSelect={handlePlanSelect}
                       t={t}
                       badgeText={popularBadge}
+                      demoHref="/landing#demo"
+                      buyHref={paypalLinks.standard}
+                      buyLabel={t("signupPlans.standard.modal.buttons.subscribe", { defaultValue: pricingPlans.standard.cta })}
                     />
                     <PlanCard
                       planKey="pro"
@@ -704,6 +767,9 @@ const SignUpPage: React.FC = () => {
                       isSelected={selectedPlan === "pro"}
                       onSelect={handlePlanSelect}
                       t={t}
+                      demoHref="/landing#demo"
+                      buyHref={paypalLinks.pro}
+                      buyLabel={t("signupPlans.pro.modal.buttons.subscribe", { defaultValue: pricingPlans.pro.cta })}
                     />
                   </div>
 
