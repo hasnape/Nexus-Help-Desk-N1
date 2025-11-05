@@ -236,7 +236,24 @@ const PlanCard: React.FC<{
   onSelect: (plan: PricingPlanKey) => void;
   t: (key: string, options?: { [key: string]: any }) => string;
   badgeText?: string;
-}> = ({ planKey, plan, isSelected, onSelect, t, badgeText }) => {
+  demoHref?: string;
+  demoLabel?: string;
+  buyHref?: string;
+  onBuy?: () => void;
+  buyLabel?: string;
+}> = ({
+  planKey,
+  plan,
+  isSelected,
+  onSelect,
+  t,
+  badgeText,
+  demoHref,
+  demoLabel,
+  buyHref,
+  onBuy,
+  buyLabel,
+}) => {
   const isSelectable = planKey !== "pro";
   const buttonKey = isSelectable ? `pricing.select_${planKey}` : "pricing.view_pro_details";
   const buttonLabel = t(buttonKey, {
@@ -245,6 +262,23 @@ const PlanCard: React.FC<{
     }),
   });
   const planTitle = t(`pricing.${planKey}`, { defaultValue: plan.name });
+  const demoButtonLabel = demoLabel ??
+    t("signupPlans.demoButton", {
+      defaultValue: t("pricing.requestDemo", { defaultValue: "Demander une démo" }),
+    });
+  const purchaseButtonLabel = buyLabel ?? plan.cta ??
+    t("signupPlans.subscribeDefault", { defaultValue: "Souscrire maintenant" });
+
+  const actionButtonBase = "w-100 fw-semibold d-flex align-items-center justify-content-center gap-2";
+
+  const handleSelectClick = () => {
+    onSelect(planKey);
+  };
+
+  const handleBuyClick = () => {
+    onSelect(planKey);
+    onBuy?.();
+  };
 
   return (
     <div
@@ -671,6 +705,12 @@ const SignUpPage: React.FC = () => {
                       isSelected={selectedPlan === "freemium"}
                       onSelect={handlePlanSelect}
                       t={t}
+                      demoHref="/landing#demo"
+                      buyLabel={t("signupPlans.freemium.modal.buttons.subscribe", { defaultValue: pricingPlans.freemium.cta })}
+                      onBuy={() => {
+                        setSelectedPlan("freemium");
+                        setShowFreemiumModal(true);
+                      }}
                     />
 
                     <PlanCard
@@ -680,6 +720,9 @@ const SignUpPage: React.FC = () => {
                       onSelect={handlePlanSelect}
                       t={t}
                       badgeText={popularBadge}
+                      demoHref="/landing#demo"
+                      buyHref={paypalLinks.standard}
+                      buyLabel={t("signupPlans.standard.modal.buttons.subscribe", { defaultValue: pricingPlans.standard.cta })}
                     />
 
                     <PlanCard
@@ -688,6 +731,9 @@ const SignUpPage: React.FC = () => {
                       isSelected={selectedPlan === "pro"}
                       onSelect={handlePlanSelect}
                       t={t}
+                      demoHref="/landing#demo"
+                      buyHref={paypalLinks.pro}
+                      buyLabel={t("signupPlans.pro.modal.buttons.subscribe", { defaultValue: pricingPlans.pro.cta })}
                     />
                   </div>
 
