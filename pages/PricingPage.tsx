@@ -25,8 +25,11 @@ const PricingPage: React.FC = () => {
   const plans = getPricingPlans(t);
   const popularBadge = t("pricing.badges.popular");
   const ctaDemo = t("pricing.ctaDemo");
-  const ctaSubscribe = t("pricing.ctaSubscribe", {
+  const ctaBuyNow = t("pricing.buy_now", {
     defaultValue: t("signupPlans.subscribeDefault", { defaultValue: "Souscrire maintenant" }),
+  });
+  const ctaActivate = t("pricing.activate_now", {
+    defaultValue: t("signupPlans.freemium.modal.buttons.subscribe", { defaultValue: "Activer maintenant" }),
   });
 
   const backLinkDestination = user ? "/dashboard" : "/landing";
@@ -104,9 +107,9 @@ const PricingPage: React.FC = () => {
                   <Link
                     to={subscribeLinks.freemium}
                     className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 font-semibold text-white transition hover:bg-primary-dark"
-                    aria-label={`${ctaSubscribe} - ${plan.name}`}
+                    aria-label={`${ctaActivate} - ${plan.name}`}
                   >
-                    {ctaSubscribe}
+                    {ctaActivate}
                   </Link>
                 ) : (
                   <a
@@ -114,9 +117,9 @@ const PricingPage: React.FC = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 font-semibold text-white transition hover:bg-primary-dark"
-                    aria-label={`${ctaSubscribe} - ${plan.name}`}
+                    aria-label={`${ctaBuyNow} - ${plan.name}`}
                   >
-                    {ctaSubscribe}
+                    {ctaBuyNow}
                   </a>
                 )}
               </div>

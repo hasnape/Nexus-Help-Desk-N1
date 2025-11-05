@@ -447,6 +447,8 @@
     "billed_yearly": "Billed yearly",
     "ctaDemo": "Request a demo",
     "ctaSubscribe": "Subscribe now",
+    "buy_now": "Buy now",
+    "activate_now": "Activate now",
     "disclaimer": "Hosted on Supabase (RLS). No local storage.",
     "features": "Features",
     "freemium": {

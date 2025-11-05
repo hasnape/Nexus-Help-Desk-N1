@@ -99,8 +99,11 @@ const PricingSection: React.FC = () => {
   const disclaimer = t("pricing.disclaimer");
   const popular = t("pricing.badges.popular");
   const demoLabel = t("pricing.ctaDemo");
-  const buyLabel = t("pricing.ctaSubscribe", {
+  const buyLabel = t("pricing.buy_now", {
     defaultValue: t("signupPlans.subscribeDefault", { defaultValue: "Souscrire maintenant" }),
+  });
+  const activateLabel = t("pricing.activate_now", {
+    defaultValue: t("signupPlans.freemium.modal.buttons.subscribe", { defaultValue: "Activer maintenant" }),
   });
   const goDemo = () => navigate("/demo");
   const goFreemium = () => navigate("/signup?plan=freemium");
@@ -122,7 +125,7 @@ const PricingSection: React.FC = () => {
             plan={plans.freemium}
             onDemo={goDemo}
             demoLabel={demoLabel}
-            buyLabel={buyLabel}
+            buyLabel={activateLabel}
             onBuy={goFreemium}
           />
           <Card

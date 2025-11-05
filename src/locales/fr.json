@@ -467,6 +467,8 @@
     "billed_yearly": "Facturation annuelle",
     "ctaDemo": "Demander une démo",
     "ctaSubscribe": "Souscrire maintenant",
+    "buy_now": "Souscrire maintenant",
+    "activate_now": "Activer maintenant",
     "disclaimer": "Tout hébergé sur Supabase (RLS). Aucun stockage local.",
     "features": "Fonctionnalités",
     "freemium": {

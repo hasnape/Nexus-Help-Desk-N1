@@ -236,24 +236,11 @@ const PlanCard: React.FC<{
   onSelect: (plan: PricingPlanKey) => void;
   t: (key: string, options?: { [key: string]: any }) => string;
   badgeText?: string;
-  demoHref?: string;
-  demoLabel?: string;
+  showBuyNow?: boolean;
   buyHref?: string;
   onBuy?: () => void;
   buyLabel?: string;
-}> = ({
-  planKey,
-  plan,
-  isSelected,
-  onSelect,
-  t,
-  badgeText,
-  demoHref,
-  demoLabel,
-  buyHref,
-  onBuy,
-  buyLabel,
-}) => {
+}> = ({ planKey, plan, isSelected, onSelect, t, badgeText, showBuyNow = false, buyHref, onBuy, buyLabel }) => {
   const isSelectable = planKey !== "pro";
   const buttonKey = isSelectable ? `pricing.select_${planKey}` : "pricing.view_pro_details";
   const buttonLabel = t(buttonKey, {
@@ -262,23 +249,10 @@ const PlanCard: React.FC<{
     }),
   });
   const planTitle = t(`pricing.${planKey}`, { defaultValue: plan.name });
-  const demoButtonLabel = demoLabel ??
-    t("signupPlans.demoButton", {
-      defaultValue: t("pricing.requestDemo", { defaultValue: "Demander une démo" }),
-    });
-  const purchaseButtonLabel = buyLabel ?? plan.cta ??
-    t("signupPlans.subscribeDefault", { defaultValue: "Souscrire maintenant" });
-
-  const actionButtonBase = "w-100 fw-semibold d-flex align-items-center justify-content-center gap-2";
-
-  const handleSelectClick = () => {
-    onSelect(planKey);
-  };
-
-  const handleBuyClick = () => {
-    onSelect(planKey);
-    onBuy?.();
-  };
+  const defaultBuyLabel = buyHref
+    ? t("pricing.buy_now", { defaultValue: "Buy now" })
+    : t("pricing.activate_now", { defaultValue: "Activer maintenant" });
+  const secondaryLabel = buyLabel ?? defaultBuyLabel;
 
   return (
     <div
@@ -383,6 +357,34 @@ const PlanCard: React.FC<{
           </svg>
         ) : null}
       </button>
+      {showBuyNow ? (
+        <div className="mt-3 flex">
+          {buyHref ? (
+            <a
+              href={buyHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full inline-flex items-center justify-center rounded-md border border-transparent px-4 py-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-600"
+            >
+              {secondaryLabel}
+            </a>
+          ) : (
+            <button
+              type="button"
+              onClick={() => {
+                if (onBuy) {
+                  onBuy();
+                } else {
+                  onSelect(planKey);
+                }
+              }}
+              className="w-full inline-flex items-center justify-center rounded-md border border-transparent px-4 py-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-600"
+            >
+              {secondaryLabel}
+            </button>
+          )}
+        </div>
+      ) : null}
     </div>
   );
 };
@@ -705,8 +707,10 @@ const SignUpPage: React.FC = () => {
                       isSelected={selectedPlan === "freemium"}
                       onSelect={handlePlanSelect}
                       t={t}
-                      demoHref="/landing#demo"
-                      buyLabel={t("signupPlans.freemium.modal.buttons.subscribe", { defaultValue: pricingPlans.freemium.cta })}
+                      showBuyNow
+                      buyLabel={t("signupPlans.freemium.modal.buttons.subscribe", {
+                        defaultValue: pricingPlans.freemium.cta,
+                      })}
                       onBuy={() => {
                         setSelectedPlan("freemium");
                         setShowFreemiumModal(true);
@@ -720,9 +724,11 @@ const SignUpPage: React.FC = () => {
                       onSelect={handlePlanSelect}
                       t={t}
                       badgeText={popularBadge}
-                      demoHref="/landing#demo"
+                      showBuyNow
                       buyHref={paypalLinks.standard}
-                      buyLabel={t("signupPlans.standard.modal.buttons.subscribe", { defaultValue: pricingPlans.standard.cta })}
+                      buyLabel={t("signupPlans.standard.modal.buttons.subscribe", {
+                        defaultValue: pricingPlans.standard.cta,
+                      })}
                     />
 
                     <PlanCard
@@ -731,9 +737,11 @@ const SignUpPage: React.FC = () => {
                       isSelected={selectedPlan === "pro"}
                       onSelect={handlePlanSelect}
                       t={t}
-                      demoHref="/landing#demo"
+                      showBuyNow
                       buyHref={paypalLinks.pro}
-                      buyLabel={t("signupPlans.pro.modal.buttons.subscribe", { defaultValue: pricingPlans.pro.cta })}
+                      buyLabel={t("signupPlans.pro.modal.buttons.subscribe", {
+                        defaultValue: pricingPlans.pro.cta,
+                      })}
                     />
                   </div>
 
@@ -790,6 +798,7 @@ const SignUpPage: React.FC = () => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder={t("signup.passwordPlaceholder")}
+                      autoComplete="new-password"
                       required
                       disabled={isLoading}
                     />
@@ -800,6 +809,7 @@ const SignUpPage: React.FC = () => {
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder={t("signup.confirmPasswordPlaceholder")}
+                      autoComplete="new-password"
                       required
                       disabled={isLoading}
                     />

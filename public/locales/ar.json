@@ -447,6 +447,8 @@
     "billed_yearly": "فوترة سنوية",
     "ctaDemo": "اطلب عرضاً",
     "ctaSubscribe": "اشترك الآن",
+    "buy_now": "اشترِ الآن",
+    "activate_now": "فعّل الآن",
     "disclaimer": "مستضاف على Supabase (RLS). بدون تخزين محلي.",
     "features": "الميزات",
     "freemium": {

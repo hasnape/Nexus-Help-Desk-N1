@@ -829,13 +829,13 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         {
           body: {
             email,
-            fullName,
             password,
+            full_name: fullName,
             role,
-            companyName,
-            language: lang,
+            company_name: companyName,
+            language_preference: lang,
             plan,
-            secretCode,
+            secret_code: secretCode,
           },
         }
       );
