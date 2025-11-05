@@ -25,6 +25,9 @@ const PricingPage: React.FC = () => {
   const plans = getPricingPlans(t);
   const popularBadge = t("pricing.badges.popular");
   const ctaDemo = t("pricing.ctaDemo");
+  const ctaSubscribe = t("pricing.ctaSubscribe", {
+    defaultValue: t("signupPlans.subscribeDefault", { defaultValue: "Souscrire maintenant" }),
+  });
 
   const backLinkDestination = user ? "/dashboard" : "/landing";
 
@@ -33,6 +36,12 @@ const PricingPage: React.FC = () => {
     { key: "standard", isPopular: true },
     { key: "pro", isPopular: false },
   ];
+
+  const subscribeLinks: Record<PricingPlanKey, string> = {
+    freemium: "/signup?plan=freemium",
+    standard: "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-0E515487AE797135CNBTRYKA",
+    pro: "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-7HP75881LB3608938NBTBGUA",
+  };
 
   return (
     <div className="py-8 px-4 sm:px-6 lg:px-8">
@@ -83,13 +92,34 @@ const PricingPage: React.FC = () => {
                 ))}
               </ul>
 
-              <Link
-                to="/demo"
-                className="mt-8 inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2 font-semibold text-slate-900 hover:bg-slate-900 hover:text-white transition"
-                aria-label={plan.cta}
-              >
-                {ctaDemo}
-              </Link>
+              <div className="mt-8 flex flex-col gap-3">
+                <Link
+                  to="/demo"
+                  className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2 font-semibold text-slate-900 transition hover:bg-slate-900 hover:text-white"
+                  aria-label={`${ctaDemo} - ${plan.name}`}
+                >
+                  {ctaDemo}
+                </Link>
+                {key === "freemium" ? (
+                  <Link
+                    to={subscribeLinks.freemium}
+                    className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 font-semibold text-white transition hover:bg-primary-dark"
+                    aria-label={`${ctaSubscribe} - ${plan.name}`}
+                  >
+                    {ctaSubscribe}
+                  </Link>
+                ) : (
+                  <a
+                    href={subscribeLinks[key]}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 font-semibold text-white transition hover:bg-primary-dark"
+                    aria-label={`${ctaSubscribe} - ${plan.name}`}
+                  >
+                    {ctaSubscribe}
+                  </a>
+                )}
+              </div>
             </div>
           );
         })}

@@ -2,12 +2,16 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
-import { getPricingPlans, type PricingPlan, type PricingPlans } from "@/utils/pricing";
+import { getPricingPlans, type PricingPlan, type PricingPlans, type PricingPlanKey } from "@/utils/pricing";
 
 type CardProps = {
   plan: PricingPlan;
   badgeText?: string;
-  onClick: () => void;
+  onDemo: () => void;
+  demoLabel: string;
+  buyLabel: string;
+  buyHref?: string;
+  onBuy?: () => void;
 };
 
 const Badge: React.FC<{ children: React.ReactNode }> = ({ children }) => (
@@ -16,7 +20,7 @@ const Badge: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   </span>
 );
 
-const Card: React.FC<CardProps> = ({ plan, badgeText, onClick }) => (
+const Card: React.FC<CardProps> = ({ plan, badgeText, onDemo, demoLabel, buyLabel, buyHref, onBuy }) => (
   <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col h-full text-slate-900">
     <div className="flex items-start justify-between gap-4">
       <div>
@@ -34,30 +38,55 @@ const Card: React.FC<CardProps> = ({ plan, badgeText, onClick }) => (
         </li>
       ))}
     </ul>
-    <button
-      type="button"
-      className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 font-semibold text-white shadow-md shadow-slate-900/15 transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-slate-900"
-      onClick={onClick}
-      aria-label={plan.cta}
-      title={plan.cta}
-    >
-      <span>{plan.cta}</span>
-      <svg
-        className="h-4 w-4"
-        viewBox="0 0 16 16"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        aria-hidden="true"
+    <div className="mt-6 flex flex-col gap-3">
+      <button
+        type="button"
+        className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-900 px-5 py-2.5 font-semibold text-slate-900 transition hover:bg-slate-900 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-slate-900"
+        onClick={onDemo}
+        aria-label={`${demoLabel} - ${plan.name}`}
+        title={demoLabel}
       >
-        <path
-          d="M3.75 8h8.5m0 0L9.5 5.25M12.25 8 9.5 10.75"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    </button>
+        <span>{demoLabel}</span>
+        <svg
+          className="h-4 w-4"
+          viewBox="0 0 16 16"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <path
+            d="M3.75 8h8.5m0 0L9.5 5.25M12.25 8 9.5 10.75"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </button>
+
+      {buyHref ? (
+        <a
+          href={buyHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 font-semibold text-white shadow-md shadow-slate-900/15 transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-slate-900"
+          aria-label={`${buyLabel} - ${plan.name}`}
+          title={buyLabel}
+        >
+          <span>{buyLabel}</span>
+        </a>
+      ) : (
+        <button
+          type="button"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 font-semibold text-white shadow-md shadow-slate-900/15 transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-slate-900"
+          onClick={onBuy}
+          aria-label={`${buyLabel} - ${plan.name}`}
+          title={buyLabel}
+        >
+          <span>{buyLabel}</span>
+        </button>
+      )}
+    </div>
   </div>
 );
 
@@ -69,7 +98,17 @@ const PricingSection: React.FC = () => {
   const title = t("pricing.title");
   const disclaimer = t("pricing.disclaimer");
   const popular = t("pricing.badges.popular");
+  const demoLabel = t("pricing.ctaDemo");
+  const buyLabel = t("pricing.ctaSubscribe", {
+    defaultValue: t("signupPlans.subscribeDefault", { defaultValue: "Souscrire maintenant" }),
+  });
   const goDemo = () => navigate("/demo");
+  const goFreemium = () => navigate("/signup?plan=freemium");
+
+  const subscribeLinks: Record<Exclude<PricingPlanKey, "freemium">, string> = {
+    standard: "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-0E515487AE797135CNBTRYKA",
+    pro: "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-7HP75881LB3608938NBTBGUA",
+  };
 
   return (
     <section id="pricing" className="bg-slate-100 py-16 text-slate-900">
@@ -79,9 +118,28 @@ const PricingSection: React.FC = () => {
           <p className="mt-2 text-base text-slate-700">{disclaimer}</p>
         </div>
         <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <Card plan={plans.freemium} onClick={goDemo} />
-          <Card plan={plans.standard} badgeText={popular} onClick={goDemo} />
-          <Card plan={plans.pro} onClick={goDemo} />
+          <Card
+            plan={plans.freemium}
+            onDemo={goDemo}
+            demoLabel={demoLabel}
+            buyLabel={buyLabel}
+            onBuy={goFreemium}
+          />
+          <Card
+            plan={plans.standard}
+            badgeText={popular}
+            onDemo={goDemo}
+            demoLabel={demoLabel}
+            buyLabel={buyLabel}
+            buyHref={subscribeLinks.standard}
+          />
+          <Card
+            plan={plans.pro}
+            onDemo={goDemo}
+            demoLabel={demoLabel}
+            buyLabel={buyLabel}
+            buyHref={subscribeLinks.pro}
+          />
         </div>
       </div>
     </section>

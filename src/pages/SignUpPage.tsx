@@ -357,79 +357,32 @@ const PlanCard: React.FC<{
         ))}
       </ul>
 
-      <div className="mt-6 d-flex flex-column gap-3">
-        <button
-          type="button"
-          onClick={handleSelectClick}
-          className={`btn btn-success btn-lg ${actionButtonBase} focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-green-600 ${
-            isSelectable && isSelected ? "shadow" : ""
-          }`}
-          {...(isSelectable ? { "data-plan": planKey, "aria-pressed": isSelected } : {})}
-          data-i18n={buttonKey}
-          aria-label={`${buttonLabel} - ${planTitle}`}
-        >
-          <span>{buttonLabel}</span>
-          {isSelectable ? (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              className={`w-5 h-5 transition-opacity ${isSelected ? "opacity-100" : "opacity-0"}`}
-            >
-              <path
-                fillRule="evenodd"
-                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                clipRule="evenodd"
-              />
-            </svg>
-          ) : null}
-        </button>
-
-        <div className="d-flex flex-column gap-2">
-          {demoHref ? (
-            <a
-              href={demoHref}
-              className={`btn btn-outline-primary ${actionButtonBase}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`${demoButtonLabel} - ${planTitle}`}
-            >
-              {demoButtonLabel}
-            </a>
-          ) : demoLabel ? (
-            <button
-              type="button"
-              className={`btn btn-outline-primary ${actionButtonBase}`}
-              onClick={handleSelectClick}
-              aria-label={`${demoButtonLabel} - ${planTitle}`}
-            >
-              {demoButtonLabel}
-            </button>
-          ) : null}
-
-          {buyHref ? (
-            <a
-              href={buyHref}
-              className={`btn btn-primary ${actionButtonBase}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => onSelect(planKey)}
-              aria-label={`${purchaseButtonLabel} - ${planTitle}`}
-            >
-              {purchaseButtonLabel}
-            </a>
-          ) : onBuy ? (
-            <button
-              type="button"
-              className={`btn btn-primary ${actionButtonBase}`}
-              onClick={handleBuyClick}
-              aria-label={`${purchaseButtonLabel} - ${planTitle}`}
-            >
-              {purchaseButtonLabel}
-            </button>
-          ) : null}
-        </div>
-      </div>
+      <button
+        type="button"
+        onClick={() => onSelect(planKey)}
+        className={`btn btn-success btn-lg w-100 fw-semibold d-flex align-items-center justify-content-center gap-2 focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-green-600 ${
+          isSelectable && isSelected ? "shadow" : ""
+        }`}
+        {...(isSelectable ? { "data-plan": planKey, "aria-pressed": isSelected } : {})}
+        data-i18n={buttonKey}
+        aria-label={`${buttonLabel} - ${planTitle}`}
+      >
+        <span>{buttonLabel}</span>
+        {isSelectable ? (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            className={`w-5 h-5 transition-opacity ${isSelected ? "opacity-100" : "opacity-0"}`}
+          >
+            <path
+              fillRule="evenodd"
+              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+              clipRule="evenodd"
+            />
+          </svg>
+        ) : null}
+      </button>
     </div>
   );
 };
