@@ -296,7 +296,7 @@ export default function ManagerInviteUserCard({ companyId }: Props) {
               <input
                 type="radio"
                 name="role"
-                value="user'
+                value="user"
                 checked={role === 'user'}
                 onChange={() => setRole('user')}
               />
