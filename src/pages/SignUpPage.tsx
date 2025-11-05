@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
@@ -236,7 +236,24 @@ const PlanCard: React.FC<{
   onSelect: (plan: PricingPlanKey) => void;
   t: (key: string, options?: { [key: string]: any }) => string;
   badgeText?: string;
-}> = ({ planKey, plan, isSelected, onSelect, t, badgeText }) => {
+  demoHref?: string;
+  demoLabel?: string;
+  buyHref?: string;
+  onBuy?: () => void;
+  buyLabel?: string;
+}> = ({
+  planKey,
+  plan,
+  isSelected,
+  onSelect,
+  t,
+  badgeText,
+  demoHref,
+  demoLabel,
+  buyHref,
+  onBuy,
+  buyLabel,
+}) => {
   const isSelectable = planKey !== "pro";
   const buttonKey = isSelectable ? `pricing.select_${planKey}` : "pricing.view_pro_details";
   const buttonLabel = t(buttonKey, {
@@ -245,6 +262,23 @@ const PlanCard: React.FC<{
     }),
   });
   const planTitle = t(`pricing.${planKey}`, { defaultValue: plan.name });
+  const demoButtonLabel = demoLabel ??
+    t("signupPlans.demoButton", {
+      defaultValue: t("pricing.requestDemo", { defaultValue: "Demander une démo" }),
+    });
+  const purchaseButtonLabel = buyLabel ?? plan.cta ??
+    t("signupPlans.subscribeDefault", { defaultValue: "Souscrire maintenant" });
+
+  const actionButtonBase = "w-100 fw-semibold d-flex align-items-center justify-content-center gap-2";
+
+  const handleSelectClick = () => {
+    onSelect(planKey);
+  };
+
+  const handleBuyClick = () => {
+    onSelect(planKey);
+    onBuy?.();
+  };
 
   return (
     <div
@@ -323,28 +357,79 @@ const PlanCard: React.FC<{
         ))}
       </ul>
 
-      <button
-        type="button"
-        onClick={() => onSelect(planKey)}
-        className={`btn btn-success btn-lg w-100 fw-semibold d-flex align-items-center justify-content-center gap-2 focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-green-600 ${
-          isSelectable && isSelected ? "shadow" : ""
-        }`}
-        {...(isSelectable ? { "data-plan": planKey, "aria-pressed": isSelected } : {})}
-        data-i18n={buttonKey}
-        aria-label={`${buttonLabel} - ${planTitle}`}
-      >
-        <span>{buttonLabel}</span>
-        {isSelectable ? (
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-               fill="currentColor" className={`w-5 h-5 transition-opacity ${isSelected ? "opacity-100" : "opacity-0"}`}>
-            <path
-              fillRule="evenodd"
-              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-              clipRule="evenodd"
-            />
-          </svg>
-        ) : null}
-      </button>
+      <div className="mt-6 d-flex flex-column gap-3">
+        <button
+          type="button"
+          onClick={handleSelectClick}
+          className={`btn btn-success btn-lg ${actionButtonBase} focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-green-600 ${
+            isSelectable && isSelected ? "shadow" : ""
+          }`}
+          {...(isSelectable ? { "data-plan": planKey, "aria-pressed": isSelected } : {})}
+          data-i18n={buttonKey}
+          aria-label={`${buttonLabel} - ${planTitle}`}
+        >
+          <span>{buttonLabel}</span>
+          {isSelectable ? (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              className={`w-5 h-5 transition-opacity ${isSelected ? "opacity-100" : "opacity-0"}`}
+            >
+              <path
+                fillRule="evenodd"
+                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                clipRule="evenodd"
+              />
+            </svg>
+          ) : null}
+        </button>
+
+        <div className="d-flex flex-column gap-2">
+          {demoHref ? (
+            <a
+              href={demoHref}
+              className={`btn btn-outline-primary ${actionButtonBase}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${demoButtonLabel} - ${planTitle}`}
+            >
+              {demoButtonLabel}
+            </a>
+          ) : demoLabel ? (
+            <button
+              type="button"
+              className={`btn btn-outline-primary ${actionButtonBase}`}
+              onClick={handleSelectClick}
+              aria-label={`${demoButtonLabel} - ${planTitle}`}
+            >
+              {demoButtonLabel}
+            </button>
+          ) : null}
+
+          {buyHref ? (
+            <a
+              href={buyHref}
+              className={`btn btn-primary ${actionButtonBase}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => onSelect(planKey)}
+              aria-label={`${purchaseButtonLabel} - ${planTitle}`}
+            >
+              {purchaseButtonLabel}
+            </a>
+          ) : onBuy ? (
+            <button
+              type="button"
+              className={`btn btn-primary ${actionButtonBase}`}
+              onClick={handleBuyClick}
+              aria-label={`${purchaseButtonLabel} - ${planTitle}`}
+            >
+              {purchaseButtonLabel}
+            </button>
+          ) : null}
+        </div>
+      </div>
     </div>
   );
 };
@@ -405,6 +490,71 @@ const SignUpPage: React.FC = () => {
     }
   };
 
+  const translateSignupErrorCode = useCallback(
+    (code: string): string => {
+      const normalized = (code ?? "").toString().toLowerCase();
+      const company = companyName.trim();
+
+      if (normalized.includes("user already registered")) {
+        return t("signup.error.emailInUse", {
+          defaultValue: "Cet e-mail est déjà enregistré. Veuillez essayer de vous connecter.",
+        });
+      }
+
+      switch (normalized) {
+        case "missing_fields":
+          return t("signup.apiErrors.missing_fields", {
+            defaultValue: t("signup.error.allFieldsRequired", { defaultValue: "Tous les champs sont requis." }),
+          });
+        case "weak_password":
+          return t("signup.apiErrors.weak_password", {
+            defaultValue: t("signup.error.minCharsPassword", { defaultValue: "Le mot de passe doit comporter au moins 6 caractères." }),
+          });
+        case "invalid_role":
+          return t("signup.apiErrors.invalid_role", { defaultValue: t("signup.error.generic", { defaultValue: "Une erreur est survenue." }) });
+        case "company_name_taken":
+          return t("signup.apiErrors.company_name_taken", {
+            defaultValue: t("signup.error.companyNameTaken", { defaultValue: "Ce nom d'entreprise est déjà pris." }),
+          });
+        case "company_not_found":
+          return t("signup.apiErrors.company_not_found", {
+            companyName: company,
+            defaultValue: t("signup.error.companyNotFound", {
+              companyName: company,
+              defaultValue: "Entreprise introuvable.",
+            }),
+          });
+        case "plan_not_found":
+          return t("signup.apiErrors.plan_not_found", { defaultValue: t("signup.error.generic", { defaultValue: "Une erreur est survenue." }) });
+        case "activation_required":
+          return t("signup.apiErrors.activation_required", { defaultValue: t("signup.error.secretCodeRequiredManager", { defaultValue: "Un code d'activation est requis." }) });
+        case "invalid_activation_code":
+          return t("signup.apiErrors.invalid_activation_code", { defaultValue: t("signup.error.invalidSecretCodeManager", { defaultValue: "Code secret invalide." }) });
+        case "activation_already_used":
+          return t("signup.apiErrors.activation_already_used", { defaultValue: t("signup.error.invalidSecretCodeManager", { defaultValue: "Code secret invalide." }) });
+        case "activation_expired":
+          return t("signup.apiErrors.activation_expired", { defaultValue: t("signup.error.invalidSecretCodeManager", { defaultValue: "Code secret invalide." }) });
+        case "activation_company_mismatch":
+          return t("signup.apiErrors.activation_company_mismatch", { defaultValue: t("signup.error.invalidSecretCodeManager", { defaultValue: "Code secret invalide." }) });
+        case "auth_create_failed":
+          return t("signup.apiErrors.auth_create_failed", { defaultValue: t("signup.error.generic", { defaultValue: "Une erreur est survenue." }) });
+        case "company_create_failed":
+          return t("signup.apiErrors.company_create_failed", {
+            defaultValue: t("signup.error.companyCreateFailed", { defaultValue: "La création de l'entreprise a échoué." }),
+          });
+        case "profile_insert_failed":
+          return t("signup.apiErrors.profile_insert_failed", { defaultValue: t("signup.error.generic", { defaultValue: "Une erreur est survenue." }) });
+        case "signup_failed":
+          return t("signup.apiErrors.signup_failed", { defaultValue: t("signup.error.generic", { defaultValue: "Une erreur est survenue." }) });
+        case "network_error":
+          return t("signup.apiErrors.network_error", { defaultValue: t("signup.error.generic", { defaultValue: "Une erreur est survenue." }) });
+        default:
+          return code?.toString() ?? t("signup.error.generic", { defaultValue: "Une erreur est survenue." });
+      }
+    },
+    [companyName, t]
+  );
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -458,7 +608,7 @@ const SignUpPage: React.FC = () => {
     setIsLoading(false);
 
     if (result !== true) {
-      setError(result);
+      setError(translateSignupErrorCode(result));
     } else {
       if (role === UserRole.MANAGER) {
         setSuccess(t("signup.success.emailSentManager", { email: email.trim() }));
@@ -602,7 +752,14 @@ const SignUpPage: React.FC = () => {
                       isSelected={selectedPlan === "freemium"}
                       onSelect={handlePlanSelect}
                       t={t}
+                      demoHref="/landing#demo"
+                      buyLabel={t("signupPlans.freemium.modal.buttons.subscribe", { defaultValue: pricingPlans.freemium.cta })}
+                      onBuy={() => {
+                        setSelectedPlan("freemium");
+                        setShowFreemiumModal(true);
+                      }}
                     />
+
                     <PlanCard
                       planKey="standard"
                       plan={pricingPlans.standard}
@@ -610,13 +767,20 @@ const SignUpPage: React.FC = () => {
                       onSelect={handlePlanSelect}
                       t={t}
                       badgeText={popularBadge}
+                      demoHref="/landing#demo"
+                      buyHref={paypalLinks.standard}
+                      buyLabel={t("signupPlans.standard.modal.buttons.subscribe", { defaultValue: pricingPlans.standard.cta })}
                     />
+
                     <PlanCard
                       planKey="pro"
                       plan={pricingPlans.pro}
                       isSelected={selectedPlan === "pro"}
                       onSelect={handlePlanSelect}
                       t={t}
+                      demoHref="/landing#demo"
+                      buyHref={paypalLinks.pro}
+                      buyLabel={t("signupPlans.pro.modal.buttons.subscribe", { defaultValue: pricingPlans.pro.cta })}
                     />
                   </div>
 
