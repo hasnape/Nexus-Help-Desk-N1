@@ -21,6 +21,3 @@ export const supabase =
       headers: { 'X-Client-Info': 'nsh-web' },
     },
   }));
-
-// services/supabaseClient.ts (temporaire)
-export { supabase } from '@/services/supabaseClient';
