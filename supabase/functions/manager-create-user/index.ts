@@ -6,14 +6,9 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const STATIC_ALLOWED_ORIGINS = [
   "https://www.nexussupporthub.eu",
   "https://nexus-help-desk-n1.vercel.app",
-  "http://localhost:5173",
 ] as const;
 
-const additionalOrigins = (
-  Deno.env.get("ALLOWED_ORIGINS") ??
-  Deno.env.get("SUPABASE_ALLOWED_ORIGINS") ??
-  ""
-)
+const additionalOrigins = (Deno.env.get("ALLOWED_ORIGINS") ?? "")
   .split(",")
   .map((origin) => origin.trim())
   .filter((origin) => origin.length > 0);
@@ -61,8 +56,7 @@ serve(async (req) => {
   // Secrets (sans préfixe) + fallback
   const supabaseUrl = Deno.env.get("PROJECT_URL") ?? Deno.env.get("SUPABASE_URL")!;
   const anonKey = Deno.env.get("ANON_KEY") ?? Deno.env.get("SUPABASE_ANON_KEY")!;
-  const serviceKey =
-    Deno.env.get("SERVICE_ROLE_KEY") ?? Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  const serviceKey = Deno.env.get("SERVICE_ROLE_KEY")!;
   const FRONTEND_URL = Deno.env.get("FRONTEND_URL") ?? "https://www.nexussupporthub.eu";
 
   const authHeader = req.headers.get("Authorization") ?? "";

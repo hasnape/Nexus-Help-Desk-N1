@@ -7,7 +7,6 @@ import { Button, Select, Input } from '../components/FormElements';
 import { useLanguage } from '../contexts/LanguageContext';
 import LoadingSpinner from '../components/LoadingSpinner';
 import FloatingActionButton from '../components/FloatingActionButton';
-import ManagerInviteUserCard from '../components/ManagerInviteUserCard';
 import { formatQuota } from '@/utils/formatQuota';
 import { supabase } from '@/services/supabaseClient';
 
