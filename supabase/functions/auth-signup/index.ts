@@ -2,23 +2,30 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const STATIC_ALLOWED_ORIGINS = new Set<string>([
+const STATIC_ALLOWED_ORIGINS = [
   "https://www.nexussupporthub.eu",
   "https://nexus-help-desk-n1.vercel.app",
-]);
-const extra = (Deno.env.get("ALLOWED_ORIGINS") ?? "")
+];
+
+const extraOrigins = (Deno.env.get("ALLOWED_ORIGINS") ?? "")
   .split(",")
-  .map(s => s.trim())
-  .filter(Boolean);
-extra.forEach(o => STATIC_ALLOWED_ORIGINS.add(o));
+  .map((origin) => origin.trim())
+  .filter((origin) => origin.length > 0);
+
+const ALLOWED_ORIGINS = new Set<string>(
+  [...STATIC_ALLOWED_ORIGINS, ...extraOrigins]
+    .map((origin) => origin.replace(/\/$/, "").toLowerCase())
+);
 
 function corsHeaders(origin: string | null) {
   if (!origin) return { Vary: "Origin" };
-  if (!STATIC_ALLOWED_ORIGINS.has(origin)) return null;
+  const normalizedOrigin = origin.replace(/\/$/, "").toLowerCase();
+  if (!ALLOWED_ORIGINS.has(normalizedOrigin)) return null;
   return {
     "Access-Control-Allow-Origin": origin,
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Max-Age": "86400",
     Vary: "Origin",
   };
 }
@@ -30,7 +37,10 @@ serve(async (req) => {
   const origin = req.headers.get("Origin");
   const cors = corsHeaders(origin);
   if (origin && !cors) return new Response("Forbidden", { status: 403, headers: { Vary: "Origin" } });
-  if (req.method === "OPTIONS") return new Response("ok", { status: 204, headers: cors ?? { Vary: "Origin" } });
+  if (req.method === "OPTIONS") {
+    const headers = cors ?? { Vary: "Origin" };
+    return new Response("", { status: 200, headers });
+  }
   if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405, cors ?? { Vary: "Origin" });
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;

@@ -841,7 +841,10 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       );
 
       if (error) {
-        const msg = (error as any)?.message ?? (error as any)?.context?.error ?? "signup_failed";
+        const msg =
+          (error as any)?.context?.error ??
+          (error as any)?.message ??
+          "signup_failed";
         return msg;
       }
 
@@ -856,7 +859,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
 
       return true;
     } catch (e: any) {
-      return e?.message ?? "network_error";
+      return e?.context?.error ?? e?.message ?? "network_error";
     }
   };
 
