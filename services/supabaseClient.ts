@@ -1,1 +1,2 @@
-export { supabase } from "../src/services/supabaseClient";
+// services/supabaseClient.ts
+export { supabase } from '@/services/supabaseClient';
