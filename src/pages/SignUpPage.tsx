@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
@@ -335,8 +335,12 @@ const PlanCard: React.FC<{
       >
         <span>{buttonLabel}</span>
         {isSelectable ? (
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-               fill="currentColor" className={`w-5 h-5 transition-opacity ${isSelected ? "opacity-100" : "opacity-0"}`}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            className={`w-5 h-5 transition-opacity ${isSelected ? "opacity-100" : "opacity-0"}`}
+          >
             <path
               fillRule="evenodd"
               d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -405,6 +409,71 @@ const SignUpPage: React.FC = () => {
     }
   };
 
+  const translateSignupErrorCode = useCallback(
+    (code: string): string => {
+      const normalized = (code ?? "").toString().toLowerCase();
+      const company = companyName.trim();
+
+      if (normalized.includes("user already registered")) {
+        return t("signup.error.emailInUse", {
+          defaultValue: "Cet e-mail est déjà enregistré. Veuillez essayer de vous connecter.",
+        });
+      }
+
+      switch (normalized) {
+        case "missing_fields":
+          return t("signup.apiErrors.missing_fields", {
+            defaultValue: t("signup.error.allFieldsRequired", { defaultValue: "Tous les champs sont requis." }),
+          });
+        case "weak_password":
+          return t("signup.apiErrors.weak_password", {
+            defaultValue: t("signup.error.minCharsPassword", { defaultValue: "Le mot de passe doit comporter au moins 6 caractères." }),
+          });
+        case "invalid_role":
+          return t("signup.apiErrors.invalid_role", { defaultValue: t("signup.error.generic", { defaultValue: "Une erreur est survenue." }) });
+        case "company_name_taken":
+          return t("signup.apiErrors.company_name_taken", {
+            defaultValue: t("signup.error.companyNameTaken", { defaultValue: "Ce nom d'entreprise est déjà pris." }),
+          });
+        case "company_not_found":
+          return t("signup.apiErrors.company_not_found", {
+            companyName: company,
+            defaultValue: t("signup.error.companyNotFound", {
+              companyName: company,
+              defaultValue: "Entreprise introuvable.",
+            }),
+          });
+        case "plan_not_found":
+          return t("signup.apiErrors.plan_not_found", { defaultValue: t("signup.error.generic", { defaultValue: "Une erreur est survenue." }) });
+        case "activation_required":
+          return t("signup.apiErrors.activation_required", { defaultValue: t("signup.error.secretCodeRequiredManager", { defaultValue: "Un code d'activation est requis." }) });
+        case "invalid_activation_code":
+          return t("signup.apiErrors.invalid_activation_code", { defaultValue: t("signup.error.invalidSecretCodeManager", { defaultValue: "Code secret invalide." }) });
+        case "activation_already_used":
+          return t("signup.apiErrors.activation_already_used", { defaultValue: t("signup.error.invalidSecretCodeManager", { defaultValue: "Code secret invalide." }) });
+        case "activation_expired":
+          return t("signup.apiErrors.activation_expired", { defaultValue: t("signup.error.invalidSecretCodeManager", { defaultValue: "Code secret invalide." }) });
+        case "activation_company_mismatch":
+          return t("signup.apiErrors.activation_company_mismatch", { defaultValue: t("signup.error.invalidSecretCodeManager", { defaultValue: "Code secret invalide." }) });
+        case "auth_create_failed":
+          return t("signup.apiErrors.auth_create_failed", { defaultValue: t("signup.error.generic", { defaultValue: "Une erreur est survenue." }) });
+        case "company_create_failed":
+          return t("signup.apiErrors.company_create_failed", {
+            defaultValue: t("signup.error.companyCreateFailed", { defaultValue: "La création de l'entreprise a échoué." }),
+          });
+        case "profile_insert_failed":
+          return t("signup.apiErrors.profile_insert_failed", { defaultValue: t("signup.error.generic", { defaultValue: "Une erreur est survenue." }) });
+        case "signup_failed":
+          return t("signup.apiErrors.signup_failed", { defaultValue: t("signup.error.generic", { defaultValue: "Une erreur est survenue." }) });
+        case "network_error":
+          return t("signup.apiErrors.network_error", { defaultValue: t("signup.error.generic", { defaultValue: "Une erreur est survenue." }) });
+        default:
+          return code?.toString() ?? t("signup.error.generic", { defaultValue: "Une erreur est survenue." });
+      }
+    },
+    [companyName, t]
+  );
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -458,7 +527,7 @@ const SignUpPage: React.FC = () => {
     setIsLoading(false);
 
     if (result !== true) {
-      setError(result);
+      setError(translateSignupErrorCode(result));
     } else {
       if (role === UserRole.MANAGER) {
         setSuccess(t("signup.success.emailSentManager", { email: email.trim() }));
@@ -603,6 +672,7 @@ const SignUpPage: React.FC = () => {
                       onSelect={handlePlanSelect}
                       t={t}
                     />
+
                     <PlanCard
                       planKey="standard"
                       plan={pricingPlans.standard}
@@ -611,6 +681,7 @@ const SignUpPage: React.FC = () => {
                       t={t}
                       badgeText={popularBadge}
                     />
+
                     <PlanCard
                       planKey="pro"
                       plan={pricingPlans.pro}
