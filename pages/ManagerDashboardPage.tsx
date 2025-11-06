@@ -3,10 +3,10 @@ import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import { Ticket, User, UserRole, TicketPriority, Locale, TicketStatus } from '@/types';
-import { Button, Select, Input } from '../components/FormElements';
+import { Button, Select, Input } from '@/components/FormElements';
 import { useLanguage } from '@/contexts/LanguageContext';
-import LoadingSpinner from '../components/LoadingSpinner';
-import FloatingActionButton from '../components/FloatingActionButton';
+import LoadingSpinner from '@/components/LoadingSpinner';
+import FloatingActionButton from '@/components/FloatingActionButton';
 import { formatQuota } from '@/utils/formatQuota';
 import { supabase } from '@/services/supabaseClient';
 
