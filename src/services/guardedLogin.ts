@@ -59,20 +59,22 @@ export const guardedLogin = async (
   password: string,
   companyName: string
 ): Promise<GuardedLoginSuccess> => {
-  const { data: preloginData, error: preloginError } = await supabase.rpc(
-    "prelogin_check_company",
+  const { data: guardData, error: guardError } = await supabase.functions.invoke<GuardCheckResponse>(
+    "login-guard",
     {
-      p_email: email,
-      p_company_name: companyName,
+      body: {
+        email,
+        company: companyName,
+      },
     }
   );
 
-  if (preloginError) {
-    console.warn("guardedLogin: prelogin_check_company failed", preloginError.message);
-    throw new GuardedLoginError("login.error.invalidCompanyCredentials", preloginError.message);
+  if (guardError) {
+    const reason = (guardError as any)?.context?.reason as GuardReason | undefined;
+    throw new GuardedLoginError(mapReasonToErrorKey(reason));
   }
 
-  const preloginPayload = (preloginData as GuardCheckResponse | null) ?? null;
+  const preloginPayload = guardData ?? null;
   assertGuardAllowed(preloginPayload);
 
   const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
