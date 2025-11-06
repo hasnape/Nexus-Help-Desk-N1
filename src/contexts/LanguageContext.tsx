@@ -30,7 +30,6 @@ interface LanguageContextType {
   t: (key: string, options?: TranslateOptions) => string;
   getBCP47Locale: () => string;
   isLoadingLang: boolean;
-  setIsLoadingLang: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -62,15 +61,16 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
     const storedLang = localStorage.getItem('aiHelpDeskLang') as Locale | null;
     return storedLang && ['en', 'fr', 'ar'].includes(storedLang) ? storedLang : 'en';
   });
-  const [translations, setTranslations] = useState<Translations>(emptyTranslations);
-  const [isLoadingLang, setIsLoadingLang] = useState(false);
+  const [translations, setTranslations] = useState<Translations | null>(null);
+  const isLoadingLang = translations === null;
 
   useEffect(() => {
     let isMounted = true;
     const controller = new AbortController();
 
+    setTranslations(null);
+
     const loadLanguage = async (target: Locale) => {
-      setIsLoadingLang(true);
       try {
         const response = await fetch(`./locales/${target}.json`, { signal: controller.signal });
         if (!response.ok) {
@@ -109,17 +109,13 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
           console.error('Error loading translation file:', error);
           setTranslations(emptyTranslations);
         }
-      } finally {
-        if (isMounted) {
-          setIsLoadingLang(false);
-        }
       }
     };
 
     loadLanguage(language).catch((error) => {
       console.error('Failed to change language', error);
       if (isMounted) {
-        setIsLoadingLang(false);
+        setTranslations(emptyTranslations);
       }
     });
 
@@ -145,7 +141,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
   const t = useCallback(
     (key: string, options?: TranslateOptions): string => {
       const fallbackValue = options?.default ?? options?.defaultValue;
-      if (isLoadingLang) {
+      if (isLoadingLang || !translations) {
         return fallbackValue ?? key;
       }
 
@@ -190,7 +186,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   return (
     <LanguageContext.Provider
-      value={{ language, setLanguage, t, getBCP47Locale, isLoadingLang, setIsLoadingLang }}
+      value={{ language, setLanguage, t, getBCP47Locale, isLoadingLang }}
     >
       {children}
     </LanguageContext.Provider>

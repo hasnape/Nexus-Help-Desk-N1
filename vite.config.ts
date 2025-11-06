@@ -1,6 +1,8 @@
 // vite.config.ts
-import { defineConfig } from 'vite';
+import { fileURLToPath, URL } from 'node:url';
+
 import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite';
 
 const debug = process.env.VITE_DEBUG_BUNDLE === '1';
 
@@ -15,5 +17,6 @@ export default defineConfig({
     alias: {
       '@': '/src',
     },
+    dedupe: ['react', 'react-dom'],
   },
 });
