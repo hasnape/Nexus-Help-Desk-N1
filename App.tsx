@@ -1,7 +1,15 @@
 import React, { useState, ReactNode, useCallback, useEffect, useRef } from "react";
 import i18next from "i18next";
 import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
-import { Ticket, User, ChatMessage, TicketStatus, UserRole, Locale as AppLocale, AppointmentDetails } from "./types";
+import {
+  Ticket,
+  User,
+  ChatMessage,
+  TicketStatus,
+  UserRole,
+  Locale as AppLocale,
+  AppointmentDetails,
+} from "@/types";
 import { getFollowUpHelpResponse, getTicketSummary } from "./services/geminiService";
 import { supabase } from "@/services/supabaseClient";
 import { ensureUserProfile } from "./services/authService";

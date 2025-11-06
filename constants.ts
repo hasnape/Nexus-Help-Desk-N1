@@ -1,4 +1,4 @@
-import { TicketPriority, TicketStatus, UserRole } from './types';
+import { TicketPriority, TicketStatus, UserRole } from '@/types';
 
 // APP_NAME is now handled by translations: t('appName')
 
