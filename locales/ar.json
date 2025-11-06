@@ -1,406 +1,0 @@
-{
-  "appName": "محور دعم نيكسوس",
-  "login.title": "محور دعم نيكسوس",
-  "login.subtitle": "قم بالوصول إلى بوابة المستخدم أو الوكيل أو المدير الخاصة بك.",
-  "login.subtitleSimple": "الرجاء تسجيل الدخول للمتابعة.",
-  "login.emailLabel": "البريد الإلكتروني",
-  "login.emailPlaceholder": "أدخل عنوان بريدك الإلكتروني",
-  "login.passwordLabel": "كلمة المرور",
-  "login.passwordPlaceholder": "أدخل كلمة المرور الخاصة بك",
-  "login.companyNameLabel": "اسم الشركة",
-  "login.companyNamePlaceholder": "أدخل اسم شركتك",
-  "login.signInButton": "تسجيل الدخول",
-  "login.demoNotes.supabase.production": "هذا التطبيق يستخدم مصادقة Supabase الآمنة.",
-  "login.error.allFieldsRequired": "البريد الإلكتروني وكلمة المرور واسم الشركة مطلوبة.",
-  "login.error.invalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صالحة. الرجاء المحاولة مرة أخرى.",
-  "login.error.profileFetchFailed": "تعذر استرداد ملف تعريف المستخدم الخاص بك للتحقق.",
-  "login.error.companyIdMismatch": "الشركة لا تتطابق مع حسابك.",
-  "login.error.companyNotFound": "هذه الشركة غير موجودة.",
-  "login.error.unknownEmail": "هذا البريد الإلكتروني غير معروف.",
-  "login.error.invalidCompanyCredentials": "بيانات اعتماد غير صالحة (البريد الإلكتروني/الشركة).",
-  "login.noAccount": "ليس لديك حساب؟",
-  "login.signUpLink": "انشئ حساب",
-  "login.appDescription": "مركز مساعدة ذكي يضم مساعدنا الذكي 'Nexus'. احصل على دعم فوري، وأدِر التذاكر بكفاءة باستخدام لوحات تحكم مخصصة للأدوار، واستخدم الأوامر الصوتية لتجربة بدون استخدام اليدين.",
-  "signup.title": "إنشاء حسابك",
-  "signup.subtitle": "انضم إلى محور دعم نيكسوس",
-  "signup.subtitleSimple": "أنشئ حساب مستخدم مجاني للبدء.",
-  "signup.emailLabel": "عنوان البريد الإلكتروني",
-  "signup.emailPlaceholder": "أدخل بريدك الإلكتروني",
-  "signup.fullNameLabel": "الاسم الكامل",
-  "signup.fullNamePlaceholder": "أدخل اسمك الكامل",
-  "signup.passwordLabel": "كلمة المرور",
-  "signup.passwordPlaceholder": "أنشئ كلمة مرور (6 أحرف على الأقل)",
-  "signup.confirmPasswordLabel": "تأكيد كلمة المرور",
-  "signup.confirmPasswordPlaceholder": "أكد كلمة المرور الخاصة بك",
-  "signup.languageLabel": "اللغة المفضلة",
-  "signup.roleLabel": "دورك",
-  "signup.secretCodeLabel": "الرمز السري",
-  "signup.secretCodePlaceholderManager": "مطلوب لإنشاء شركة",
-  "signup.signUpButton": "انشئ حساب",
-  "signup.alreadyHaveAccount": "هل لديك حساب بالفعل؟",
-  "signup.signInLink": "تسجيل الدخول",
-  "signup.backToHome": "العودة إلى الخطط",
-  "signup.error.allFieldsRequired": "جميع الحقول مطلوبة.",
-  "signup.error.passwordsDoNotMatch": "كلمات المرور غير متطابقة.",
-  "signup.error.minCharsPassword": "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل.",
-  "signup.error.generic": "فشل التسجيل. حدث خطأ في الخادم.",
-  "signup.error.emailInUse": "هذا البريد الإلكتروني مسجل بالفعل. يرجى محاولة تسجيل الدخول.",
-  "signup.error.companyNameTaken": "اسم الشركة هذا مستخدم بالفعل. الرجاء اختيار اسم آخر.",
-  "signup.error.companyCreateFailed": "فشل في إنشاء شركة جديدة. الرجاء المحاولة مرة أخرى.",
-  "signup.error.companyNotFound": "لم يتم العثور على الشركة '{{companyName}}'. يرجى التحقق من الاسم والمحاولة مرة أخرى.",
-  "signup.error.secretCodeRequiredManager": "الرمز السري مطلوب لدور المدير.",
-  "signup.error.invalidSecretCodeManager": "رمز سري غير صالح لإنشاء شركة.",
-  "signup.companyNameLabel": "اسم الشركة الجديد",
-  "signup.companyNamePlaceholder": "أدخل اسم شركتك الجديدة",
-  "signup.existingCompanyNameLabel": "اسم الشركة الحالي",
-  "signup.existingCompanyNamePlaceholder": "أدخل اسم شركتك",
-  "signup.companyNameHelp.manager": "يجب أن يكون هذا الاسم فريدًا. سيستخدمه فريقك للتسجيل وتسجيل الدخول.",
-  "signup.companyNameHelp.employee": "أدخل اسم الشركة الدقيق الذي قدمه مديرك.",
-  "navbar.welcome": "مرحباً، {{username}}",
-  "navbar.logoutButton": "تسجيل الخروج",
-  "navbar.loginButton": "تسجيل الدخول",
-  "navbar.signUpButton": "إنشاء حساب",
-  "navbar.toggleAutoReadEnable": "تمكين القراءة التلقائية لردود الذكاء الاصطناعي",
-  "navbar.toggleAutoReadDisable": "تعطيل القراءة التلقائية لردود الذكاء الاصطناعي",
-  "navbar.agentPortalButton": "بوابة الوكيل",
-  "navbar.managerPortalButton": "بوابة المدير",
-  "navbar.subscriptionButton": "الاشتراك",
-  "dashboard.welcomeMessage": "مرحباً، {{username}}!",
-  "dashboard.headerSubtitle": "أدِر تذاكر الدعم الخاصة بك أو ابدأ محادثة جديدة مع مساعدنا الذكي أدناه.",
-  "dashboard.createNewTicketButton": "احصل على مساعدة الذكاء الاصطناعي",
-  "dashboard.requestMaterialInvestigationButton": "فحص مشكلة مادية",
-  "dashboard.noTicketsTitle": "ليس لديك تذاكر نشطة.",
-  "dashboard.noTicketsSubtitle": "انقر على 'احصل على مساعدة الذكاء الاصطناعي' لبدء محادثة.",
-  "newTicket.title": "إنشاء تذكرة دعم جديدة",
-  "newTicket.subtitle": "صف مشكلتك وسيساعدك مساعدنا الذكي.",
-  "newTicket.titleInvestigation": "طلب فحص مواد",
-  "newTicket.subtitleInvestigation": "صف المشكلة في جهازك لتشخيصها بمساعدة الذكاء الاصطناعي.",
-  "newTicket.error.failedToCreate": "فشل في إنشاء التذكرة. قد يكون مساعد الذكاء الاصطناعي غير متوفر.",
-  "newTicket.voiceInputNotSupported": "الإدخال الصوتي غير مدعوم من قبل متصفحك. يرجى كتابة وصفك.",
-  "newTicket.form.ticketTitleLabel": "عنوان المشكلة / اسم الجهاز",
-  "newTicket.form.ticketTitlePlaceholder": "مثال: الكمبيوتر لا يعمل، فأرة مكسورة",
-  "newTicket.form.detailedDescriptionLabel": "ملخص المشكلة (مولّد بواسطة الذكاء الاصطناعي)",
-  "newTicket.form.detailedDescriptionPlaceholder": "يرجى تقديم أكبر قدر ممكن من التفاصيل حول المشكلة...",
-  "newTicket.form.detailedDescriptionPlaceholderInvestigation": "صف المشكلة في المادة/الجهاز، أي رسائل خطأ، والخطوات التي جربتها بالفعل...",
-  "newTicket.form.workstationIdLabel": "معرف محطة العمل / نقطة العمل (اختياري)",
-  "newTicket.form.workstationIdPlaceholder": "مثال: COMP-123، علامة الأصول",
-  "newTicket.form.error.workstationIdMaxLength": "يجب أن يكون معرف محطة العمل 50 حرفًا أو أقل.",
-  "newTicket.form.categoryLabel": "الفئة (مقترحة من الذكاء الاصطناعي)",
-  "newTicket.form.priorityLabel": "الأولوية (مقترحة من الذكاء الاصطناعي)",
-  "newTicket.form.cancelButton": "إلغاء",
-  "newTicket.form.submitButton": "إرسال والحصول على مساعدة الذكاء الاصطناعي",
-  "newTicket.form.submitButtonLoading": "جارٍ الإرسال...",
-  "newTicket.form.submitButtonProcessingVoice": "معالجة الصوت...",
-  "newTicket.form.listening": "الاستماع للوصف...",
-  "newTicket.form.error.titleRequired": "العنوان مطلوب.",
-  "newTicket.form.error.titleMaxLength": "يجب أن يكون العنوان 100 حرف أو أقل.",
-  "newTicket.form.error.descriptionRequired": "الوصف مطلوب.",
-  "newTicket.form.error.descriptionMinLength": "يجب أن يكون الوصف 10 أحرف على الأقل.",
-  "newTicket.form.error.categoryRequired": "الفئة مطلوبة.",
-  "newTicket.form.error.priorityRequired": "الأولوية مطلوبة.",
-  "newTicket.loadingMessage": "جاري إنشاء تذكرتك والحصول على رؤى أولية من الذكاء الاصطناعي...",
-  "newTicket.loadingSubMessage": "قد يستغرق هذا بعض الوقت.",
-  "newTicket.form.onBehalfOfLabel": "إنشاء نيابة عن المستخدم",
-  "newTicket.form.onBehalfOfPlaceholder": "حدد المستخدم لهذه التذكرة",
-  "newTicket.form.error.onBehalfOfRequired": "يجب عليك تحديد مستخدم عند إنشاء تذكرة نيابة عنه.",
-  "newTicket.titleFinalize": "ضع اللمسات الأخيرة على تذكرة الدعم الخاصة بك",
-  "newTicket.subtitleFinalize": "تم تلخيص محادثتك بواسطة الذكاء الاصطناعي. يرجى مراجعة وتعديل التفاصيل أدناه قبل الإرسال.",
-  "newTicket.loadingMessageSummary": "جاري تحليل المحادثة وإعداد تذكرتك...",
-  "newTicket.error.summaryFailed": "فشل في الحصول على ملخص الذكاء الاصطناعي: {{error}}. يرجى ملء النموذج يدويًا.",
-  "newTicket.form.returnToDashboardButton": "العودة إلى لوحة التحكم",
-  "newTicket.form.submitButtonFinal": "إرسال التذكرة",
-  "ticketDetail.backToDashboardButton": "العودة إلى لوحة التحكم",
-  "ticketDetail.categoryLabel": "الفئة:",
-  "ticketDetail.priorityLabel": "الأولوية:",
-  "ticketDetail.createdLabel": "تم الإنشاء:",
-  "ticketDetail.statusLabel": "الحالة:",
-  "ticketDetail.updateStatusLabel": "تحديث الحالة:",
-  "ticketDetail.speechPlaybackError": "خطأ في تشغيل الكلام: {{error}}",
-  "ticketDetail.aiAssistantName": "نكسوس",
-  "ticketDetail.agentDisplayName": "الوكيل: {{agentName}}",
-  "ticketDetail.unknownAgent": "وكيل",
-  "ticketDetail.userDisplayName": "أنت",
-  "ticketDetail.chatPlaceholder.listening": "يستمع...",
-  "ticketDetail.chatPlaceholder.default": "اكتب رسالتك أو استخدم الميكروفون...",
-  "ticketDetail.chatPlaceholder.closed": "هذه التذكرة مغلقة. أعد فتحها للدردشة.",
-  "ticketDetail.sendMessageButton": "إرسال",
-  "ticketDetail.sendMessageButtonLoading": "جارٍ الإرسال...",
-  "ticketDetail.micButton.startRecording": "بدء تسجيل الرسالة",
-  "ticketDetail.micButton.stopRecording": "إيقاف تسجيل الرسالة",
-  "ticketDetail.ticketClosedWarning": "هذه التذكرة حاليًا {{status}}. لإرسال رسالة جديدة، يرجى تغيير حالتها إلى \"مفتوحة\" أو \"قيد المعالجة\".",
-  "ticketDetail.voiceInputForChatNotSupported": "الإدخال الصوتي للدردشة غير مدعوم من قبل متصفحك.",
-  "ticketDetail.loading": "جار تحميل تفاصيل التذكرة...",
-  "ticketDetail.autoRead.enableButton": "قراءة تلقائية ON",
-  "ticketDetail.autoRead.disableButton": "قراءة تلقائية OFF",
-  "ticketDetail.autoRead.enableTitle": "تمكين القراءة الصوتية التلقائية لردود الذكاء الاصطناعي",
-  "ticketDetail.autoRead.disableTitle": "تعطيل القراءة الصوتية التلقائية لردود الذكاء الاصطناعي",
-  "ticketDetail.repeatButton.label": "إعادة",
-  "ticketDetail.repeatButton.title": "إعادة آخر رسالة من الذكاء الاصطناعي",
-  "ticketDetail.contactAgent.buttonLabel": "اتصل بالوكيل",
-  "ticketDetail.contactAgent.buttonTitle": "اتصل بوكيل مكتب المساعدة البشري",
-  "ticketDetail.contactAgent.alertMessage": "تم إرسال إشعار إلى الوكلاء المتاحين. سينضمون إلى هذه الدردشة قريبًا.",
-  "ticketCard.categoryLabel": "الفئة: {{category}}",
-  "ticketCard.priorityLabel": "الأولوية: {{priority}}",
-  "ticketCard.createdByLabel": "تم إنشاؤها بواسطة: {{user}}",
-  "ticketCard.lastUpdatedLabel": "آخر تحديث: {{date}}",
-  "chatMessage.speakMessageLabel": "اقرأ الرسالة بصوت عالٍ",
-  "chatMessage.stopSpeakingLabel": "إيقاف القراءة",
-  "chatMessage.systemSummaryTitle": "ملخص النظام",
-  "formElements.select.placeholderDefault": "اختر خيارًا",
-  "ticketStatus.Open": "مفتوحة",
-  "ticketStatus.InProgress": "قيد المعالجة",
-  "ticketStatus.Resolved": "تم حلها",
-  "ticketStatus.Closed": "مغلقة",
-  "ticketPriority.Low": "منخفضة",
-  "ticketPriority.Medium": "متوسطة",
-  "ticketPriority.High": "عالية",
-  "userRole.user": "مستخدم",
-  "userRole.agent": "وكيل",
-  "userRole.manager": "مدير",
-  "userRoleShort.user": "مستخدم",
-  "userRoleShort.agent": "وكيل",
-  "userRoleShort.manager": "مدير",
-  "ticketCategory.SoftwareIssue": "مشكلة في البرنامج",
-  "ticketCategory.HardwareProblem": "مشكلة في الجهاز",
-  "ticketCategory.AccountAccess": "الوصول إلى الحساب",
-  "ticketCategory.BillingInquiry": "استفسار عن الفواتير",
-  "ticketCategory.NetworkOutage": "انقطاع الشبكة",
-  "ticketCategory.MaterialReplacementRequest": "طلب استبدال مواد",
-  "ticketCategory.LostMaterial": "مواد/معدات مفقودة",
-  "ticketCategory.BrokenMaterial": "مواد/معدات مكسورة",
-  "ticketCategory.MaterialInvestigation": "فحص المواد",
-  "ticketCategory.GeneralQuestion": "سؤال عام",
-  "language.en": "EN",
-  "language.fr": "FR",
-  "language.ar": "AR",
-  "language.english": "English",
-  "language.french": "Français",
-  "language.arabic": "العربية",
-  "speechRecognition.notSupported": "التعرف على الكلام غير مدعوم في هذا المتصفح.",
-  "speechRecognition.permissionDeniedProactive": "تم رفض الوصول إلى الميكروفون حاليًا. يرجى الانتقال إلى إعدادات الموقع في متصفحك، والسماح بالوصول إلى الميكروفون لهذه الصفحة، ثم التحديث لاستخدام الإدخال الصوتي.",
-  "speechRecognition.error.noSpeech": "لم يتم الكشف عن أي كلام. يرجى محاولة التحدث مرة أخرى.",
-  "speechRecognition.error.audioCapture": "خطأ في التقاط الصوت. يرجى التأكد من أن الميكروفون متصل ومحدد، ثم حاول مرة أخرى.",
-  "speechRecognition.error.notAllowed": "تم رفض الوصول إلى الميكروفون. لاستخدام الإدخال الصوتي، يرجى السماح بالوصول إلى الميكروفون في إعدادات الموقع الخاصة بالمتصفح لهذه الصفحة والتحديث.",
-  "speechRecognition.error.network": "خطأ في الشبكة مع التعرف على الكلام. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.",
-  "speechRecognition.error.generic": "خطأ في الكلام: {{error}}",
-  "speechTts.notSupported": "تحويل النص إلى كلام غير مدعوم في هذا المتصفح.",
-  "agentDashboard.title": "لوحة تحكم الوكيل - {{username}}",
-  "agentDashboard.subtitle": "عرض وإدارة التذاكر المعينة وغير المعينة.",
-  "agentDashboard.unassignedTicketsTitle": "التذاكر غير المعينة",
-  "agentDashboard.noUnassignedTickets": "لا توجد تذاكر غير معينة متاحة.",
-  "agentDashboard.myTicketsTitle": "التذاكر المعينة لي",
-  "agentDashboard.noMyTickets": "ليس لديك تذاكر معينة لك.",
-  "agentDashboard.tableHeader.title": "العنوان",
-  "agentDashboard.tableHeader.client": "العميل",
-  "agentDashboard.tableHeader.workstation": "محطة العمل",
-  "agentDashboard.tableHeader.created": "تاريخ الإنشاء",
-  "agentDashboard.tableHeader.lastUpdated": "آخر تحديث",
-  "agentDashboard.tableHeader.status": "الحالة",
-  "agentDashboard.tableHeader.action": "الإجراء",
-  "agentDashboard.takeChargeButton": "تولي المسؤولية",
-  "agentDashboard.viewTicketButton": "عرض",
-  "agentDashboard.loadingTickets": "جارٍ تحميل التذاكر...",
-  "agentDashboard.notApplicableShort": "غير متوفر",
-  "agentDashboard.createTicketButton": "احصل على مساعدة الذكاء الاصطناعي",
-  "managerDashboard.title": "لوحة تحكم المدير - {{username}}",
-  "managerDashboard.subtitle": "الإشراف على جميع التذاكر وتعيينات الوكلاء.",
-  "managerDashboard.allTicketsTitle": "جميع تذاكر النظام",
-  "managerDashboard.noTicketsSystem": "لا توجد تذاكر في النظام حتى الآن.",
-  "managerDashboard.tableHeader.title": "العنوان",
-  "managerDashboard.tableHeader.client": "العميل",
-  "managerDashboard.tableHeader.workstation": "محطة العمل",
-  "managerDashboard.tableHeader.created": "تاريخ الإنشاء",
-  "managerDashboard.tableHeader.status": "الحالة",
-  "managerDashboard.tableHeader.priority": "الأولوية",
-  "managerDashboard.tableHeader.assignedAgent": "الوكيل المعين",
-  "managerDashboard.tableHeader.actions": "الإجراءات",
-  "managerDashboard.assignButton": "تعيين",
-  "managerDashboard.reassignButton": "إعادة تعيين",
-  "managerDashboard.unassigned": "غير معين",
-  "managerDashboard.selectAgentPlaceholder": "اختر وكيلاً",
-  "managerDashboard.noAgentsAvailable": "لا يوجد وكلاء متاحون",
-  "managerDashboard.loadingTickets": "جارٍ تحميل التذاكر...",
-  "managerDashboard.notApplicableShort": "غير متوفر",
-  "managerDashboard.deleteTicketButton": "حذف",
-  "managerDashboard.deleteTicketConfirm": "هل أنت متأكد من أنك تريد حذف هذه التذكرة نهائياً؟ لا يمكن التراجع عن هذا الإجراء.",
-  "managerDashboard.userManagementTitle": "إدارة المستخدمين",
-  "managerDashboard.createNewTicketButton": "احصل على مساعدة الذكاء الاصطناعي",
-  "managerDashboard.userTableHeader.username": "المستخدم (البريد الإلكتروني / الاسم)",
-  "managerDashboard.userTableHeader.language": "اللغة",
-  "managerDashboard.userTableHeader.roleActions": "إجراءات الدور",
-  "managerDashboard.updateRoleButton": "تحديث الدور",
-  "managerDashboard.deleteUserButton": "حذف المستخدم",
-  "managerDashboard.deleteUserConfirm": "هل أنت متأكد من رغبتك في حذف هذا المستخدم نهائياً؟ سيؤدي هذا أيضًا إلى حذف جميع التذاكر التي أنشأها. لا يمكن التراجع عن هذا الإجراء.",
-  "managerDashboard.stats.title": "إحصائيات حية",
-  "managerDashboard.stats.description": "نظرة عامة على التذاكر التي تطابق الفلاتر الحالية.",
-  "managerDashboard.stats.totalTickets": "إجمالي التذاكر",
-  "managerDashboard.stats.openTickets": "مفتوحة / قيد المعالجة",
-  "managerDashboard.stats.resolvedTickets": "تم حلها",
-  "managerDashboard.stats.highPriority": "أولوية عالية",
-  "managerDashboard.stats.unassigned": "غير معينة",
-  "managerDashboard.filters.title": "تصفية التذاكر",
-  "managerDashboard.filters.statusLabel": "الحالة",
-  "managerDashboard.filters.userLabel": "أنشئت بواسطة",
-  "managerDashboard.filters.dateStartLabel": "من",
-  "managerDashboard.filters.dateEndLabel": "إلى",
-  "managerDashboard.filters.all": "الكل",
-  "managerDashboard.filters.resetButton": "إعادة تعيين",
-  "managerDashboard.filteredTicketsTitle": "التذاكر المصفاة",
-  "managerDashboard.noTicketsFiltered": "لا توجد تذاكر تطابق الفلاتر الحالية. حاول تعديل بحثك.",
-  "managerDashboard.deleteTicketError.rpc": "فشل حذف التذكرة: {{message}}",
-  "managerDashboard.deleteTicketError.critical": "حدث خطأ فادح أثناء حذف التذكرة: {{message}}",
-  "appointment.status.confirmed": "مؤكد",
-  "appointment.status.cancelled_by_user": "ألغاه المستخدم",
-  "appointment.status.cancelled_by_agent": "ألغاه الوكيل",
-  "appointment.status.rescheduled_by_user": "المستخدم يطلب إعادة جدولة",
-  "appointment.status.rescheduled_by_agent": "الوكيل يطلب إعادة جدولة",
-  "helpChat.titleUserError.rpc": "فشل حذف المستخدم: {{message}}",
-  "managerDashboard.deleteUserError.critical": "حدث خطأ فادح أثناء حذف المستخدم: {{message}}",
-  "managerDashboard.companyInfo.title": "معلومات الشركة",
-  "managerDashboard.companyInfo.nameLabel": "اسم الشركة",
-  "managerDashboard.companyInfo.editButton": "تعديل الاسم",
-  "managerDashboard.companyInfo.saveButton": "حفظ",
-  "managerDashboard.companyInfo.cancelButton": "إلغاء",
-  "managerDashboard.companyInfo.updateError": "فشل تحديث اسم الشركة.",
-  "managerDashboard.companyInfo.copyNameButton": "نسخ الاسم",
-  "managerDashboard.companyInfo.copiedButton": "تم النسخ!",
-  "managerDashboard.companyInfo.onboardingInstructions": "لإضافة أعضاء جدد للفريق، اطلب منهم التسجيل بدور 'مستخدم' أو 'وكيل' وتقديم اسم شركتك الدقيق:",
-  "managerDashboard.welcomeModal.title": "شركتك جاهزة!",
-  "managerDashboard.welcomeModal.congratulations": "تهانينا، {{username}}!",
-  "managerDashboard.welcomeModal.body": "تم إعداد حساب شركتك. لإضافة أعضاء الفريق، اطلب منهم التسجيل باستخدام اسم شركتك أدناه.",
-  "managerDashboard.welcomeModal.copyButton": "نسخ الاسم",
-  "managerDashboard.welcomeModal.copiedButton": "تم النسخ!",
-  "managerDashboard.welcomeModal.closeButton": "فهمت!",
-  "appContext.error.summaryGenerationFailed": "النظام: فشل في إنشاء ملخص التذكرة للوكيل.",
-  "appContext.error.aiFollowUpFailed": "عذراً، لقد واجهت خطأ: {{error}}",
-  "appointment.proposeButtonLabel": "اقتراح موعد",
-  "appointment.form.title": "اقتراح موعد جديد",
-  "appointment.form.dateLabel": "التاريخ",
-  "appointment.form.timeLabel": "الوقت",
-  "appointment.form.locationMethodLabel": "الموقع / الطريقة",
-  "appointment.form.locationMethodPlaceholder": "مثال: في الموقع، جلسة عن بعد، استلام",
-  "appointment.form.submitButton": "اقتراح",
-  "appointment.form.cancelButton": "إلغاء",
-  "appointment.user.pendingApprovalTitle": "موعد مقترح من الوكيل:",
-  "appointment.user.proposalDetails": "التاريخ: {{date}}، الوقت: {{time}}، الموقع/الطريقة: {{location}}",
-  "appointment.user.acceptButton": "قبول الموعد",
-  "appointment.user.suggestDifferentButton": "اقتراح وقت/تفاصيل مختلفة",
-  "appointment.chat.agentProposed": "لقد اقترحتُ موعدًا في {{date}} الساعة {{time}}، الطريقة/الموقع: {{location}}. يرجى إعلامي إذا كان هذا مناسبًا لك أو إذا كنت ترغب في اقتراح بديل.",
-  "appointment.chat.userConfirmed": "رائع، لقد أكدتُ الموعد في {{date}} الساعة {{time}}، الطريقة/الموقع: {{location}}.",
-  "appointment.chat.userWantsToReschedule": "بخصوص الموعد المحدد في {{date}} الساعة {{time}} ({{location}})، أود اقتراح وقت أو ترتيب مختلف. يرجى إخباري بما يناسبك.",
-  "appointment.confirm_title": "تأكيد الحذف",
-  "appointment.confirm_body": "هل أنت متأكد أنك تريد حذف هذا الموعد؟ لا يمكن التراجع عن هذا الإجراء.",
-  "appointment.delete": "حذف الموعد",
-  "appointment.delete_button": "حذف الموعد",
-  "appointment.delete_success": "تم حذف الموعد.",
-  "appointment.delete_error": "فشل حذف الموعد.",
-  "appointment.deleting": "جارٍ الحذف...",
-  "appointment.deleted_banner": "تم حذف الموعد.",
-  "appointment.undo": "تراجع",
-  "appointment.currentStatusLabel": "الموعد",
-  "appointment.detailsLabel": "{{date}} في {{time}} - {{location}}",
-  "appointment.status.pending_user_approval": "بانتظار موافقة المستخدم",
-  "appointment.status.pending_agent_approval": "بانتظار موافقة الوكيل",
-  "helpChat.title": "دردشة دعم الذكاء الاصطناعي",
-  "helpChat.subtitle": "صف مشكلتك أدناه للبدء.",
-  "helpChat.initialMessage": "مرحباً! أنا نكسوس، مساعدك الذكي. كيف يمكنني مساعدتك اليوم؟",
-  "helpChat.placeholder": "صف مشكلتك هنا...",
-  "helpChat.createTicketButton": "إنشاء تذكرة دعم",
-  "helpChat.createTicketExplanation": "إذا لم أتمكن من حل مشكلتك، سيظهر هذا الزر لإنشاء تذكرة رسمية بمحادثتنا.",
-  "helpChat.prefilled.materialInvestigation": "أود أن أبدأ تحقيقًا بشأن قطعة من المعدات.",
-  "helpChat.voiceInputHint": "يمكنك أيضًا استخدام الميكروفون لإملاء رسالتك.",
-  "footer.description": "مكتب مساعدة ذكي مع الذكاء الاصطناعي لإدارة فعالة للتذاكر ودعم عملاء محسّن.",
-  "footer.quickLinks": "روابط سريعة",
-  "footer.home": "الرئيسية",
-  "footer.contact": "اتصل بنا",
-  "footer.userManual": "دليل المستخدم",
-  "footer.pricing": "الأسعار",
-  "footer.support": "الدعم",
-  "footer.helpCenter": "مركز المساعدة",
-  "footer.emailSupport": "الدعم عبر البريد الإلكتروني",
-  "footer.phone": "الهاتف",
-  "footer.allRightsReserved": "جميع الحقوق محفوظة.",
-  "footer.privacyPolicy": "سياسة الخصوصية",
-  "footer.termsOfService": "شروط الخدمة",
-  "footer.cookies": "ملفات تعريف الارتباط",
-  "footer.watchDemo": "🎥 شاهد العرض التوضيحي",
-  "signupPlans.standard.modal.title": "تفاصيل الخطة القياسية",
-  "signupPlans.standard.modal.pricing": "/ لكل وكيل / شهريًا",
-  "signupPlans.standard.modal.features.title": "ميزات الخطة القياسية",
-  "signupPlans.standard.modal.features.unlimited": "تذاكر غير محدودة",
-  "signupPlans.standard.modal.features.ia": "جميع ميزات الذكاء الاصطناعي",
-  "signupPlans.standard.modal.features.categorization": "تصنيف تلقائي",
-  "signupPlans.standard.modal.features.sla": "اتفاقية مستوى الخدمة القياسية",
-  "signupPlans.standard.modal.trial.title": "تجربة بـ 1 يورو لمدة أسبوع",
-  "signupPlans.standard.modal.trial.description": "ابدأ تجربتك لمدة أسبوع مقابل 1 يورو فقط. يمكنك الإلغاء في أي وقت قبل نهاية الأسبوع لتجنب الفوترة الكاملة.",
-  "signupPlans.standard.modal.billing.title": "الفوترة والإلغاء",
-  "signupPlans.standard.modal.billing.description": "دفع شهري عبر PayPal. إلغاء سهل من حسابك في PayPal في أي وقت. لا يوجد التزام طويل الأمد.",
-  "signupPlans.standard.modal.buttons.cancel": "إلغاء",
-  "signupPlans.standard.modal.buttons.subscribe": "اشترك في القياسية",
-  "footer.presentation": "عرض تقديمي",
-  "footer.videoDemo": "عرض فيديو",
-  "landing.hero.watchDemo": "🎥 شاهد العرض",
-  "landing.video.title": "اكتشف Nexus Support Hub",
-  "landing.video.subtitle": "نظرة سريعة على خدماتنا وقيمتنا المضافة.",
-  "landing.video.openYoutube": "افتح على يوتيوب",
-  "landing.video.viewOnYoutube": "شاهد على يوتيوب",
-  "landing.videoSection.title": "شاهد Nexus في العمل",
-  "landing.videoSection.subtitle": "شاهد كيف تُحدث الذكاء الاصطناعي ثورة في دعم العملاء مع الاستجابات الفورية وإدارة التذاكر الذكية.",
-  "landing.stats.availability": "دعم الذكاء الاصطناعي متاح",
-  "landing.stats.languages": "فرنسي، إنجليزي، عربي",
-  "landing.video.subtitle": "نظرة سريعة على خدماتنا وقيمتنا المضافة.",
-  "landing.video.watchOnYouTube": "شاهد على يوتيوب",
-  "landing.stats.company": "تم تطويره من قبل",
-  "contact.video.title": "اكتشف حلولنا",
-  "contact.video.subtitle": "شاهد كيف يمكن لـ Nexus Support Hub تحويل دعم العملاء الخاص بك.",
-  "contact.video.watchFull": "شاهد العرض كاملاً",
-  "video.widget.expand": "شاهد العرض التوضيحي",
-  "video.widget.title": "اكتشف Nexus",
-  "contact.email.label": "يمكنك الاتصال بنا مباشرة على:",
-  "contact.email.address": "hubnexusinfo@gmail.com",
-  "signup.success.emailSent": "✅ تم التسجيل بنجاح! تم إرسال رسالة تأكيد إلى {{email}}",
-  "signup.success.emailSentManager": "🎉 تم التسجيل بنجاح! تم إرسال رسالة تلخيصية إلى {{email}} تحتوي على جميع المعلومات لإعداد فريقك.",
-  "signup.warning.emailFailed": "✅ تم التسجيل بنجاح! (لم يتم إرسال رسالة التأكيد)",
-  "email.welcome.subject": "🎉 مرحباً بك في Nexus Support Hub - تم إنشاء الشركة \"{{companyName}}\"",
-  "email.welcome.manager.title": "حساب المدير الخاص بك جاهز!",
-  "email.welcome.manager.body": "<p>مبروك، تم إنشاء حساب المدير الخاص بك في Nexus Support Hub بنجاح!</p><p>إليك ملخص معلومات شركتك:</p><ul><li><strong>اسم الشركة:</strong> {{companyName}}</li><li><strong>دورك:</strong> مدير</li></ul><p>للبدء، نوصي بما يلي:</p><ol><li>إكمال ملفك الشخصي.</li><li>دعوة أعضاء الفريق للانضمام إلى المنصة.</li><li>استكشاف ميزات لوحة تحكم المدير.</li></ol><p>إذا كان لديك أسئلة، اطلع على <a href='{{userManualLink}}' class='text-primary hover:underline'>دليل المستخدم</a> أو اتصل بالدعم.</p>",
-  "email.welcome.user.body": "<p>مرحباً بك في Nexus Support Hub!</p><p>تم إنشاء حسابك بنجاح. يمكنك الآن تسجيل الدخول وبدء استخدام منصة الدعم الخاصة بنا.</p><p>لأي أسئلة، اطلع على <a href='{{userManualLink}}' class='text-primary hover:underline'>دليل المستخدم</a> أو اتصل بالدعم.</p>",
-  "email.service.notConfigured": "خدمة البريد الإلكتروني غير مكونة - استخدام وضع المحاكاة",
-  "email.service.configured": "تم تكوين خدمة البريد الإلكتروني بنجاح",
-  "email.service.sendSuccess": "تم إرسال رسالة الترحيب بنجاح إلى {{email}}",
-  "email.service.sendError": "فشل في إرسال البريد الإلكتروني الترحيبي: {{error}}",
-  "email.service.fallbackMode": "التبديل إلى وضع المحاكاة بسبب خطأ في خدمة البريد الإلكتروني",
-
-  "signupPlans.title": "اختر خطتك",
-  "signupPlans.subtitle": "اختر الخطة التي تناسب احتياجات فريقك.",
-  "signupPlans.freemium.select": "اختر المجاني",
-  "signupPlans.standard.select": "اختر المعياري",
-  "signupPlans.pro.select": "عرض تفاصيل الاحترافي",
-
-  "signupPlans.pro.modal.title": "الخطة الاحترافية - التفاصيل الكاملة",
-  "signupPlans.pro.modal.pricing": "/ وكيل / شهر",
-  "signupPlans.pro.modal.features.title": "الميزات الاحترافية المتضمنة",
-  "signupPlans.pro.modal.features.unlimited": "تذاكر غير محدودة",
-  "signupPlans.pro.modal.features.voice": "أوامر صوتية متقدمة",
-  "signupPlans.pro.modal.features.multilingual": "دعم متعدد اللغات (FR/EN/AR)",
-  "signupPlans.pro.modal.features.appointments": "جدولة المواعيد",
-  "signupPlans.pro.modal.features.priority": "دعم أولوية",
-  "signupPlans.pro.modal.features.analytics": "تحليلات متقدمة",
-
-  "signupPlans.pro.modal.trial.title": "تجربة مجانية لمدة 7 أيام",
-  "signupPlans.pro.modal.trial.description": "ابدأ تجربتك المجانية لمدة 7 أيام الآن. لا حاجة لبطاقة ائتمان للبدء. ألغِ في أي وقت.",
-
-  "signupPlans.pro.modal.billing.title": "الفوترة والإلغاء",
-  "signupPlans.pro.modal.billing.description": "فوترة شهرية عبر PayPal. إلغاء سهل من حساب PayPal الخاص بك في أي وقت. لا يوجد التزام طويل الأمد.",
-
-  "signupPlans.pro.modal.buttons.cancel": "إلغاء",
-  "signupPlans.pro.modal.buttons.subscribe": "اشترك احترافي",
-
-  "signupPlans.pro.payment.title": "إنهاء الاشتراك الاحترافي",
-  "signupPlans.pro.payment.description": "انقر على زر PayPal أدناه لتفعيل اشتراكك الاحترافي. ستتلقى مفتاح التفعيل عبر البريد الإلكتروني بعد الدفع.",
-  "signupPlans.pro.payment.note": "يمكنك إلغاء اشتراكك في أي وقت من حساب PayPal الخاص بك.",
-  "common.cancel": "إلغاء",
-  "common.confirm": "تأكيد",
-  "common.deleting": "جارٍ الحذف...",
-  "common.close": "إغلاق"
-}

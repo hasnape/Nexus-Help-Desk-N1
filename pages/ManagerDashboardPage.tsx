@@ -1,5 +1,5 @@
-
-import React, { useState, useMemo, useEffect } from 'react';
+import ManagerInviteUserCard from '@/components/ManagerInviteUserCard';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useApp } from '../App';
 import { Ticket, User, UserRole, TicketPriority, Locale, TicketStatus } from '../types';
@@ -7,7 +7,9 @@ import { Button, Select, Input } from '../components/FormElements';
 import { useLanguage } from '../contexts/LanguageContext';
 import LoadingSpinner from '../components/LoadingSpinner';
 import FloatingActionButton from '../components/FloatingActionButton';
-import { supabase } from '../services/supabaseClient';
+import { formatQuota } from '@/utils/formatQuota';
+import { supabase } from '@/services/supabaseClient';
+
 
 const isAbortFetchError = (error: unknown): boolean => {
   if (!error) return false;
@@ -74,6 +76,67 @@ const PartyPopperIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     </svg>
 );
 
+const DEFAULT_TIME_ZONE = 'Europe/Paris';
+
+type QuotaSeverity = 'normal' | 'near' | 'blocked' | 'none';
+
+interface QuotaMetadata {
+    limit: number | null;
+    isUnlimited: boolean;
+    planKey: string | null;
+    rawPlanLabel: string | null;
+    timezone: string | null;
+    used: number | null;
+}
+
+const normalizePlanKey = (plan: string | null | undefined): string | null => {
+    if (!plan) {
+        return null;
+    }
+    const normalized = plan.trim().toLowerCase();
+    if (normalized.includes('unlimit') || normalized.includes('illimit') || normalized.includes('enterprise')) {
+        return 'unlimited';
+    }
+    if (normalized.includes('pro')) {
+        return 'pro';
+    }
+    if (normalized.includes('standard') || normalized.includes('team')) {
+        return 'standard';
+    }
+    if (normalized.includes('free') || normalized.includes('freemium') || normalized.includes('trial') || normalized.includes('sandbox')) {
+        return 'freemium';
+    }
+    return normalized || null;
+};
+
+const getDatePartsInTimeZone = (date: Date, timeZone: string) => {
+    const formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone,
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+    });
+    const parts = formatter.formatToParts(date);
+    const lookup = (type: Intl.DateTimeFormatPartTypes): number => {
+        const found = parts.find((part) => part.type === type);
+        return found ? Number(found.value) : 0;
+    };
+    return {
+        year: lookup('year'),
+        month: lookup('month'),
+        day: lookup('day'),
+    };
+};
+
+const isDateInCurrentMonth = (date: Date, timeZone: string): boolean => {
+    if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
+        return false;
+    }
+    const nowParts = getDatePartsInTimeZone(new Date(), timeZone);
+    const dateParts = getDatePartsInTimeZone(date, timeZone);
+    return nowParts.year === dateParts.year && nowParts.month === dateParts.month;
+};
+
 
 // --- SUB-COMPONENTS ---
 const StatCard: React.FC<{ title: string; value: string | number, icon: React.ReactNode }> = ({ title, value, icon }) => (
@@ -94,9 +157,19 @@ const priorityColors: Record<TicketPriority, string> = {
   [TicketPriority.HIGH]: 'text-red-600',
 };
 
+interface QuotaState {
+    loading: boolean;
+    error: boolean;
+    limit: number | null;
+    isUnlimited: boolean;
+    planKey: string | null;
+    rawPlanLabel: string | null;
+    timezone: string;
+}
+
 interface ManagerTicketRowProps {
     ticket: Ticket;
-    agents: User[]; 
+    agents: User[];
     allUsers: User[];
     onAssignTicket: (ticketId: string, agentId: string | null) => void;
     onDeleteTicket: (ticketId: string) => void;
@@ -263,7 +336,7 @@ const ManagerDashboardPage: React.FC = () => {
         updateUserRole, deleteUserById, newlyCreatedCompanyName, setNewlyCreatedCompanyName,
         updateCompanyName
     } = useApp();
-    const { t } = useLanguage();
+    const { t, getBCP47Locale } = useLanguage();
 
     const [company, setCompany] = useState<{ id: string; name: string } | null>(null);
     const [isEditingName, setIsEditingName] = useState(false);
@@ -276,6 +349,36 @@ const ManagerDashboardPage: React.FC = () => {
     const [isCopied, setIsCopied] = useState(false);
     const [showWelcomeModal, setShowWelcomeModal] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState(false);
+
+    const [quotaState, setQuotaState] = useState<QuotaState>({
+        loading: true,
+        error: false,
+        limit: null,
+        isUnlimited: false,
+        planKey: null,
+        rawPlanLabel: null,
+        timezone: DEFAULT_TIME_ZONE,
+    });
+    const [rpcUsed, setRpcUsed] = useState<number | null>(null);
+
+    const localeTag = getBCP47Locale();
+
+    const resolveCompanyQuota = useCallback(
+        async (_companyId: string, signal: AbortSignal): Promise<QuotaMetadata> => {
+            const { data, error } = await supabase.rpc('get_my_company_month_quota').abortSignal(signal);
+            if (error) throw error;
+
+            return {
+                limit: data?.limit ?? null,
+                isUnlimited: !!data?.unlimited,
+                planKey: normalizePlanKey(data?.plan_name ?? null),
+                rawPlanLabel: data?.plan_name ?? null,
+                timezone: data?.timezone ?? DEFAULT_TIME_ZONE,
+                used: data?.used ?? null,
+            };
+        },
+        []
+    );
     
     useEffect(() => {
         const controller = new AbortController();
@@ -315,6 +418,73 @@ const ManagerDashboardPage: React.FC = () => {
             controller.abort();
         };
     }, [user]);
+
+    useEffect(() => {
+        if (!user?.company_id || user.role !== UserRole.MANAGER) {
+            setQuotaState({
+                loading: false,
+                error: false,
+                limit: null,
+                isUnlimited: false,
+                planKey: null,
+                rawPlanLabel: null,
+                timezone: DEFAULT_TIME_ZONE,
+            });
+            setRpcUsed(null);
+            return;
+        }
+
+        let isMounted = true;
+        const controller = new AbortController();
+
+        setQuotaState((previous) => ({
+            ...previous,
+            loading: true,
+            error: false,
+        }));
+        setRpcUsed(null);
+
+        resolveCompanyQuota(user.company_id, controller.signal)
+            .then((metadata) => {
+                if (!isMounted) {
+                    return;
+                }
+                const timezone = metadata.timezone || DEFAULT_TIME_ZONE;
+                if (metadata.limit === null && !metadata.isUnlimited) {
+                    console.warn('[quota] Ticket limit not resolved for company', user.company_id, metadata.rawPlanLabel);
+                }
+                setRpcUsed(metadata.used ?? null);
+                setQuotaState({
+                    loading: false,
+                    error: false,
+                    limit: metadata.limit,
+                    isUnlimited: metadata.isUnlimited,
+                    planKey: metadata.planKey,
+                    rawPlanLabel: metadata.rawPlanLabel,
+                    timezone,
+                });
+            })
+            .catch((error) => {
+                if (!isMounted) {
+                    return;
+                }
+                if (isAbortFetchError(error)) {
+                    return;
+                }
+                console.error('[quota] Failed to load quota metadata', error);
+                setRpcUsed(null);
+                setQuotaState((previous) => ({
+                    ...previous,
+                    loading: false,
+                    error: true,
+                }));
+            });
+
+        return () => {
+            isMounted = false;
+            controller.abort();
+        };
+    }, [resolveCompanyQuota, user]);
 
     useEffect(() => {
         if (newlyCreatedCompanyName) {
@@ -381,6 +551,113 @@ const ManagerDashboardPage: React.FC = () => {
             unassigned: data.filter(t => !t.assigned_agent_id).length
         };
     }, [filteredTickets]);
+
+    const ticketsUsedThisMonth = useMemo(() => {
+        if (rpcUsed !== null) return rpcUsed;
+        // fallback: if RPC returned nothing, keep old local computation
+        const tz = quotaState.timezone || DEFAULT_TIME_ZONE;
+        return tickets.reduce((count, ticketItem) => {
+            const createdAt = ticketItem.created_at instanceof Date ? ticketItem.created_at : new Date(ticketItem.created_at);
+            if (isDateInCurrentMonth(createdAt, tz)) {
+                return count + 1;
+            }
+            return count;
+        }, 0);
+    }, [rpcUsed, quotaState.timezone, tickets]);
+
+    const normalizedQuota = useMemo(
+        () =>
+            formatQuota(
+                {
+                    used: ticketsUsedThisMonth,
+                    limit: quotaState.limit,
+                    unlimited: quotaState.isUnlimited,
+                    timezone: quotaState.timezone,
+                },
+                localeTag,
+            ),
+        [localeTag, quotaState.isUnlimited, quotaState.limit, quotaState.timezone, ticketsUsedThisMonth]
+    );
+
+    const quotaSeverity = useMemo<QuotaSeverity>(() => {
+        if (normalizedQuota.unlimited || normalizedQuota.limit === null || normalizedQuota.percent === null) {
+            return 'none';
+        }
+        if (normalizedQuota.percent >= 100) {
+            return 'blocked';
+        }
+        if (normalizedQuota.percent >= 80) {
+            return 'near';
+        }
+        return 'normal';
+    }, [normalizedQuota]);
+
+    const quotaStyles = useMemo(() => {
+        switch (quotaSeverity) {
+            case 'blocked':
+                return {
+                    container: 'bg-red-50 border-red-300',
+                    message: 'text-red-700',
+                };
+            case 'near':
+                return {
+                    container: 'bg-amber-50 border-amber-300',
+                    message: 'text-amber-700',
+                };
+            case 'normal':
+                return {
+                    container: 'bg-surface border-slate-200',
+                    message: 'text-slate-600',
+                };
+            case 'none':
+            default:
+                return {
+                    container: 'bg-surface border-slate-200',
+                    message: 'text-slate-600',
+                };
+        }
+    }, [quotaSeverity]);
+
+    const quotaValueLabel = useMemo(() => {
+        if (quotaState.loading) {
+            return '…';
+        }
+
+        const percentChunk = normalizedQuota.percent !== null
+            ? t('dashboard.quota.percentChunk', {
+                default: ' ({{percent}}% utilisé)',
+                values: { percent: normalizedQuota.percent },
+                percent: normalizedQuota.percent,
+            })
+            : '';
+
+        return t('dashboard.quota.remaining', {
+            default: '{{remaining}} / {{limit}}{{percentChunk}}',
+            values: {
+                remaining: normalizedQuota.remainingLabel,
+                limit: normalizedQuota.limitLabel,
+                percentChunk,
+            },
+            remaining: normalizedQuota.remainingLabel,
+            limit: normalizedQuota.limitLabel,
+            percentChunk,
+        });
+    }, [normalizedQuota, quotaState.loading, t]);
+
+    const quotaMessage = useMemo(() => {
+        if (quotaState.loading || normalizedQuota.unlimited || normalizedQuota.limit === null) {
+            return null;
+        }
+        if (quotaSeverity === 'near') {
+            return t('dashboard.quota.near_limit');
+        }
+        if (quotaSeverity === 'blocked') {
+            return t('dashboard.quota.blocked');
+        }
+        return null;
+    }, [normalizedQuota.limit, normalizedQuota.unlimited, quotaSeverity, quotaState.loading, t]);
+
+    const showUpgradeCta = quotaSeverity === 'blocked' && !normalizedQuota.unlimited;
 
 
     if (!user || user.role !== UserRole.MANAGER) {
@@ -454,6 +731,32 @@ const ManagerDashboardPage: React.FC = () => {
 
             {isLoading && <LoadingSpinner text={t('managerDashboard.loadingTickets')} />}
 
+            <section
+                className={`border shadow-lg rounded-lg p-4 sm:p-6 transition-colors ${quotaStyles.container}`}
+                aria-live="polite"
+            >
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <p className="text-sm font-semibold uppercase tracking-wide text-slate-600">
+                            {t('dashboard.quota.title')}
+                        </p>
+                        <p className="text-2xl font-bold text-slate-800 mt-1">{quotaValueLabel}</p>
+                        {quotaMessage && (
+                            <p className={`mt-2 text-sm ${quotaStyles.message}`}>{quotaMessage}</p>
+                        )}
+                    </div>
+                    <div className="flex items-center gap-3 sm:self-end">
+                        {showUpgradeCta && (
+                            <Link to="/pricing" className="flex-shrink-0">
+                                <Button variant="primary" size="sm">
+                                    {t('dashboard.quota.upgrade_cta')}
+                                </Button>
+                            </Link>
+                        )}
+                    </div>
+                </div>
+            </section>
+
             <section className="bg-surface shadow-lg rounded-lg p-4 sm:p-6">
                 <h2 className="text-xl font-semibold text-textPrimary mb-4">{t('managerDashboard.companyInfo.title', {default: "Company Information"})}</h2>
                 <div className="bg-slate-100 p-4 rounded-md space-y-4">
@@ -513,6 +816,12 @@ const ManagerDashboardPage: React.FC = () => {
                     </div>
                 </div>
             </section>
+
+            {user?.role === UserRole.MANAGER && user?.company_id && (
+                <section className="mt-6">
+                    <ManagerInviteUserCard companyId={user.company_id} />
+                </section>
+            )}
 
             <section>
                 <h2 className="text-xl font-semibold text-textPrimary mb-2">{t('managerDashboard.stats.title')}</h2>

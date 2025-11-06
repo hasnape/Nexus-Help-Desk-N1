@@ -8,15 +8,14 @@ type TranslationPrimitive = string | number | boolean | null;
 type TranslationValue = TranslationPrimitive | TranslationValue[] | { [key: string]: TranslationValue };
 export type Translations = Record<string, TranslationValue>;
 
+export type Locale = 'en' | 'fr' | 'ar';
 interface LanguageContextType {
   language: Locale;
   setLanguage: (language: Locale) => void;
-  t: (key: string, replacementsOrOptions?: Record<string, string | number> | { default: string }) => string;
+  t: (key: string, replacementsOrOptions?: Record<string, string | number> | { default: string } | (Record<string, string | number> & { default?: string })) => string;
   getBCP47Locale: () => string;
-  isLoadingLang: boolean; 
+  isLoadingLang: boolean;
 }
-
-const emptyTranslations: Translations = {};
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
@@ -32,16 +31,32 @@ if (!i18next.isInitialized) {
 
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [language, setLanguageState] = useState<Locale>(() => {
-    const storedLang = typeof window !== 'undefined' ? localStorage.getItem('aiHelpDeskLang') as Locale : 'en';
-    return ['en', 'fr', 'ar'].includes(storedLang) ? storedLang : 'en';
+    if (typeof window === 'undefined') {
+      return 'en';
+    }
+
+    const storedLang = localStorage.getItem('aiHelpDeskLang') as Locale | null;
+    return storedLang && ['en', 'fr', 'ar'].includes(storedLang) ? storedLang : 'en';
   });
 
-  const [translations, setTranslations] = useState<Translations>(emptyTranslations);
-  const [isLoadingLang, setIsLoadingLang] = useState<boolean>(true);
+  const [isLoadingLang, setIsLoadingLang] = useState<boolean>(false);
 
   useEffect(() => {
-    const fetchTranslations = async (lang: Locale) => {
+    let isMounted = true;
+
+    const applyLanguage = async (lang: Locale) => {
+      const shouldTriggerChange = i18n.language !== lang;
+
+      if (!shouldTriggerChange) {
+        applyHtmlLangDir(lang);
+        if (isMounted) {
+          setIsLoadingLang(false);
+        }
+        return;
+      }
+
       setIsLoadingLang(true);
+
       try {
         const response = await fetch(`./locales/${lang}.json`); // Relative to public/index.html
         if (!response.ok) {
@@ -77,35 +92,35 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
              setTranslations(emptyTranslations);
         }
       } finally {
-        setIsLoadingLang(false);
+        if (isMounted) {
+          setIsLoadingLang(false);
+        }
       }
     };
 
-    fetchTranslations(language);
+    applyLanguage(language).catch((error) => {
+      console.error('Failed to change language', error);
+      setIsLoadingLang(false);
+    });
 
     if (typeof window !== 'undefined') {
         localStorage.setItem('aiHelpDeskLang', language);
     }
+
+    return () => {
+      isMounted = false;
+    };
   }, [language]);
 
   const setLanguage = (lang: Locale) => {
-    // This function is called by components (Navbar, SignUpPage, App.tsx) to change language.
-    // The useEffect above will handle fetching and updating document attributes.
-    if (lang !== language) { // Only update if different
-        setLanguageState(lang);
+    if (lang !== language) {
+      setLanguageState(lang);
     }
   };
 
-  const t = useCallback((key: string, replacementsOrOptions?: Record<string, string | number> | { default: string }): string => {
-    let defaultValue: string | undefined = undefined;
-    let replacements: Record<string, string | number> | undefined = undefined;
-
-    if (replacementsOrOptions) {
-        if (typeof (replacementsOrOptions as { default: string }).default === 'string') {
-            defaultValue = (replacementsOrOptions as { default: string }).default;
-        } else {
-            replacements = replacementsOrOptions as Record<string, string | number>;
-        }
+  const mapOptions = (options?: Record<string, string | number> | { default: string } | (Record<string, string | number> & { default?: string })) => {
+    if (!options) {
+      return { defaultValue: undefined, interpolation: undefined as Record<string, string | number> | undefined };
     }
 
     const resolveTranslation = (path: string): string | undefined => {
@@ -142,12 +157,12 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
   
   const getBCP47Locale = useCallback((): string => {
     if (language === 'fr') return 'fr-FR';
-    if (language === 'ar') return 'ar-SA'; 
+    if (language === 'ar') return 'ar-SA';
     return 'en-US';
   }, [language]);
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t, getBCP47Locale, isLoadingLang }}>
+    <LanguageContext.Provider value={{ language, setLanguage, t: translate, getBCP47Locale, isLoadingLang }}>
       {children}
     </LanguageContext.Provider>
   );

@@ -1,45 +1,49 @@
+// deno-lint-ignore-file no-explicit-any
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+import { handleCors, json } from "../_shared/cors.ts";
+
+const SUPABASE_URL = Deno.env.get("PROJECT_URL") ?? Deno.env.get("SUPABASE_URL")!;
+const ANON_KEY = Deno.env.get("ANON_KEY") ?? Deno.env.get("SUPABASE_ANON_KEY")!;
+
 serve(async (req) => {
+  const { cors, response } = handleCors(req);
+  if (response) {
+    return response;
+  }
+
   if (req.method !== "POST") {
-    return new Response("Method Not Allowed", { status: 405 });
+    return json({ ok: false, error: "method_not_allowed" }, 405, cors);
   }
 
-  const { email, company } = await req.json().catch(() => ({}));
+  let body: any = null;
+  try {
+    body = await req.json();
+  } catch {
+    body = null;
+  }
+
+  const email = String(body?.email ?? "").trim();
+  const company = String(body?.company ?? "").trim();
+
   if (!email || !company) {
-    return new Response(JSON.stringify({ ok: false, error: "missing_params" }), {
-      status: 400,
-      headers: { "content-type": "application/json" },
-    });
+    return json({ ok: false, error: "missing_fields" }, 400, cors);
   }
 
-  const supabase = createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_ANON_KEY")! // suffit car RPC a GRANT pour anon
-  );
-
+  const supabase = createClient(SUPABASE_URL, ANON_KEY);
   const { data, error } = await supabase.rpc("prelogin_check_company", {
     p_email: email,
     p_company_name: company,
   });
 
   if (error) {
-    return new Response(JSON.stringify({ ok: false, error: error.message }), {
-      status: 500,
-      headers: { "content-type": "application/json" },
-    });
+    return json({ ok: false, error: "rpc_failed" }, 500, cors);
   }
 
   if (!data?.allowed) {
-    return new Response(
-      JSON.stringify({ ok: false, reason: data?.reason ?? "forbidden" }),
-      { status: 403, headers: { "content-type": "application/json" } }
-    );
+    return json({ ok: false, reason: data?.reason ?? "forbidden" }, 403, cors);
   }
 
-  return new Response(JSON.stringify({ ok: true }), {
-    status: 200,
-    headers: { "content-type": "application/json" },
-  });
+  return json({ ok: true }, 200, cors);
 });

@@ -116,43 +116,33 @@ const Footer: React.FC = () => {
             </h4>
             <ul className="space-y-2">
               <li>
-                <Link
-                  to="/landing"
-                  className="text-slate-300 hover:text-primary transition-colors"
-                >
+                <Link to="/landing" className="text-slate-300 hover:text-primary transition-colors">
                   {t("footer.home", { default: "Accueil" })}
                 </Link>
               </li>
               <li>
-                <Link
-                  to="/promotional"
-                  className="text-slate-300 hover:text-primary transition-colors"
-                >
+                <Link to="/presentation" className="text-slate-300 hover:text-primary transition-colors">
                   {t("footer.presentation", { default: "Présentation" })}
                 </Link>
               </li>
               <li>
-                <Link
-                  to="/contact"
-                  className="text-slate-300 hover:text-primary transition-colors"
-                >
-                  {t("footer.contact", { default: "Contact" })}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/user-manual"
-                  className="text-slate-300 hover:text-primary transition-colors"
-                >
-                  {t("footer.userManual", { default: "Manuel utilisateur" })}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/pricing"
-                  className="text-slate-300 hover:text-primary transition-colors"
-                >
+                <Link to="/pricing" className="text-slate-300 hover:text-primary transition-colors">
                   {t("footer.pricing", { default: "Tarifs" })}
+                </Link>
+              </li>
+              <li>
+                <Link to="/demo" className="text-slate-300 hover:text-primary transition-colors">
+                  {t("footer.demo", { default: "Demander une démo" })}
+                </Link>
+              </li>
+              <li>
+                <Link to="/infographie" className="text-slate-300 hover:text-primary transition-colors">
+                  {t("footer.infographie", { default: "Infographie" })}
+                </Link>
+              </li>
+              <li>
+                <Link to="/contact" className="text-slate-300 hover:text-primary transition-colors">
+                  {t("footer.contact", { default: "Contact" })}
                 </Link>
               </li>
             </ul>
@@ -164,12 +154,28 @@ const Footer: React.FC = () => {
               {t("footer.support", { default: "Support" })}
             </h4>
             <ul className="space-y-2">
+                <li>
+                <Link
+                  to="accessibilite"
+                  className="text-slate-300 hover:text-primary transition-colors"
+                >
+                  {t("footer.AccessibilitePage", { default: "Déclaration d’accessibilité" })}
+                </Link>
+              </li>
               <li>
                 <Link
-                  to="/help-chat"
+                  to="/help"
                   className="text-slate-300 hover:text-primary transition-colors"
                 >
                   {t("footer.helpCenter", { default: "Centre d'aide" })}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/manual"
+                  className="text-slate-300 hover:text-primary transition-colors"
+                >
+                  {t("footer.userManual", { default: "Manuel utilisateur" })}
                 </Link>
               </li>
               <li>

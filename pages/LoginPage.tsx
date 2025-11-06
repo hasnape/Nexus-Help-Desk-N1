@@ -135,6 +135,8 @@ const LoginPage: React.FC = () => {
               label={t("login.emailLabel")}
               id="email"
               type="email"
+              name="email"
+              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder={t("login.emailPlaceholder")}
@@ -146,6 +148,8 @@ const LoginPage: React.FC = () => {
               label={t("login.passwordLabel")}
               id="password"
               type="password"
+              name="password"
+              autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder={t("login.passwordPlaceholder")}
@@ -156,6 +160,8 @@ const LoginPage: React.FC = () => {
               label={t("login.companyNameLabel", { default: "Company Name" })}
               id="companyName"
               type="text"
+              name="companyName"
+              autoComplete="organization"
               value={companyName}
               onChange={(e) => setCompanyName(e.target.value)}
               placeholder={t("login.companyNamePlaceholder", {
@@ -216,7 +222,8 @@ const LoginPage: React.FC = () => {
           {/* Footer legal */}
           <div className="mt-6 pt-4 border-t border-slate-200 text-center">
             <Link
-              to="/legal"
+
+                         to="/legal"
               className="text-xs text-slate-500 hover:text-primary hover:underline"
             >
               {t("footer.legalLink", { default: "Legal & Documentation" })}
