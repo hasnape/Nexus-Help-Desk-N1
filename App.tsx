@@ -1,5 +1,5 @@
 import React, { useState, ReactNode, useCallback, useEffect, useRef } from "react";
-import i18next from "i18next";
+import i18next from "i18next"; 
 import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import {
   Ticket,
