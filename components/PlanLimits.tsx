@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useLanguage } from "../contexts/LanguageContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/services/supabaseClient";
 import { formatQuota } from "@/utils/formatQuota";
 
@@ -194,6 +194,30 @@ const PlanLimits: React.FC<PlanLimitsProps> = ({ companyId }) => {
     default: "Illimité",
     values: {},
   });
+  const infinitySrText = translateHook("dashboard.quota.infinity_badge_sr", {
+    default: "Illimité",
+  });
+
+  const unlimitedAriaLabel = translateHook("dashboard.quota.aria_unlimited_label", {
+    default: "Offre illimitée : aucun plafond de tickets ce mois-ci",
+  });
+
+  const progressAriaLabel =
+    !normalizedQuota.unlimited && normalizedQuota.limit !== null && normalizedQuota.percent !== null
+      ? translateHook("dashboard.quota.aria_progress_label", {
+          default: "Vous avez utilisé {{used}} sur {{limit}} tickets ({{percent}}%)",
+          values: {
+            used: normalizedQuota.used,
+            limit: normalizedQuota.limit,
+            percent: normalizedQuota.percent,
+          },
+          used: normalizedQuota.used,
+          limit: normalizedQuota.limit,
+          percent: normalizedQuota.percent,
+        })
+      : null;
+
+  const quotaAriaLabel = progressAriaLabel ?? unlimitedAriaLabel;
 
   const quotaTimezoneHint = translateHook("dashboard.quota.tzHint", {
     default: "Calculé sur le fuseau {tz}",
@@ -210,11 +234,23 @@ const PlanLimits: React.FC<PlanLimitsProps> = ({ companyId }) => {
   const limitDisplay = normalizedQuota.limitLabel;
   const limitNode = normalizedQuota.unlimited || normalizedQuota.limit === null
     ? (
-        <span aria-label={infinityLabel} title={infinityLabel}>
-          ∞
+        <span className="inline-flex items-center" title={infinityLabel}>
+          <span aria-hidden="true">∞</span>
+          <span className="sr-only">{infinitySrText}</span>
         </span>
       )
     : limitDisplay;
+
+  const progressBarProps =
+    normalizedQuota.unlimited || normalizedQuota.limit === null || normalizedQuota.percent === null
+      ? { "aria-hidden": true }
+      : {
+          role: "progressbar" as const,
+          "aria-valuemin": 0,
+          "aria-valuemax": normalizedQuota.limit,
+          "aria-valuenow": normalizedQuota.used,
+          "aria-label": progressAriaLabel ?? undefined,
+        };
 
   if (vm.loading) {
     return (
@@ -237,7 +273,7 @@ const PlanLimits: React.FC<PlanLimitsProps> = ({ companyId }) => {
   }
 
   return (
-    <div className="p-4 border-2 border-dashed border-slate-300 rounded-lg mb-6">
+    <div className="p-4 border-2 border-dashed border-slate-300 rounded-lg mb-6" aria-label={quotaAriaLabel}>
       <h2 className="text-xl font-semibold mb-2">Votre plan actuel</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -245,11 +281,12 @@ const PlanLimits: React.FC<PlanLimitsProps> = ({ companyId }) => {
           Plan : <strong>{vm.planLabel}</strong>
           {vm.unlimited && (
             <span
-              className="ml-2 text-xs px-2 py-1 rounded bg-emerald-100 text-emerald-700"
+              className="ml-2 inline-flex items-center text-xs px-2 py-1 rounded bg-emerald-100 text-emerald-700"
               aria-label={infinityLabel}
               title={infinityLabel}
             >
-              {infinityLabel}
+              <span aria-hidden="true">∞</span>
+              <span className="sr-only">{infinitySrText}</span>
             </span>
           )}
         </p>
@@ -270,15 +307,10 @@ const PlanLimits: React.FC<PlanLimitsProps> = ({ companyId }) => {
           </p>
           <p className="mb-1">{remainingText}</p>
 
-          <div className="w-full h-2 rounded bg-slate-200 overflow-hidden">
-            <div
-              className={`h-2 ${severityBarClass(percent)}`}
-              style={{ width: `${percent ?? 100}%` }}
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuenow={percent ?? 100}
-              role="progressbar"
-            />
+          <div className="w-full h-2 rounded bg-slate-200 overflow-hidden" {...progressBarProps}>
+            {!normalizedQuota.unlimited && percent !== null && (
+              <div className={`h-2 ${severityBarClass(percent)}`} style={{ width: `${percent}%` }} />
+            )}
           </div>
 
           {!normalizedQuota.unlimited && normalizedQuota.limit !== null && percent !== null && (

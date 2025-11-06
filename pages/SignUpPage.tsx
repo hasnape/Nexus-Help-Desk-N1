@@ -2,10 +2,10 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
-import { useApp } from "../App";
+import { useApp } from "@/contexts/AppContext";
 import { Button, Input, Select } from "../components/FormElements";
-import type { Locale } from "../contexts/LanguageContext";
-import { UserRole } from "../types";
+import type { Locale } from "@/contexts/LanguageContext";
+import { UserRole } from "@/types";
 import Layout from "../components/Layout";
 import { getPricingPlans, type PricingPlan, type PricingPlanKey } from "@/utils/pricing";
 
