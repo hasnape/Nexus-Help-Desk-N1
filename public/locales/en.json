@@ -145,7 +145,10 @@
     "remaining": "{{remaining}} / {{limit}}{{percentChunk}}",
     "percentChunk": " ({{percent}}% used)",
     "tzHint": "Computed in {tz} timezone",
-    "unlimitedBadge": "Unlimited"
+    "unlimitedBadge": "Unlimited",
+    "aria_unlimited_label": "Unlimited plan: no ticket limit this month",
+    "aria_progress_label": "You have used {{used}} of {{limit}} tickets ({{percent}}%)",
+    "infinity_badge_sr": "Unlimited"
   },
   "dashboard.welcomeMessage": "Welcome, {{username}}!",
   "demo": {

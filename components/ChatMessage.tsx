@@ -1,9 +1,9 @@
 
 import React from 'react';
-import { ChatMessage as ChatMessageType } from '../types';
+import { ChatMessage as ChatMessageType } from '@/types';
 import { Button } from './FormElements';
-import { useLanguage } from '../contexts/LanguageContext';
-import { useApp } from '../App';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useApp } from '@/contexts/AppContext';
 
 const SpeakerWaveIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" {...props}>
