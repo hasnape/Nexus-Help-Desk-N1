@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router-dom";
 
 import { useLanguage } from "../contexts/LanguageContext";
-import { useApp } from "../App";
+import { useApp } from "@/contexts/AppContext";
 import { getPricingPlans, type PricingPlanKey } from "@/utils/pricing";
 
 const ArrowLeftIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (

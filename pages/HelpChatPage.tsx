@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { useApp } from '../App';
+import { useApp } from '@/contexts/AppContext';
 import ChatMessageComponent from '../components/ChatMessage';
 import { Button, Textarea } from '../components/FormElements';
 import { ChatMessage, UserRole } from '../types';

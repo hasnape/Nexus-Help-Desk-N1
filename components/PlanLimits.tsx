@@ -270,15 +270,20 @@ const PlanLimits: React.FC<PlanLimitsProps> = ({ companyId }) => {
           </p>
           <p className="mb-1">{remainingText}</p>
 
-          <div className="w-full h-2 rounded bg-slate-200 overflow-hidden">
-            <div
-              className={`h-2 ${severityBarClass(percent)}`}
-              style={{ width: `${percent ?? 100}%` }}
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuenow={percent ?? 100}
-              role="progressbar"
-            />
+          <div
+            className="w-full h-2 rounded bg-slate-200 overflow-hidden"
+            aria-hidden={normalizedQuota.unlimited || percent === null}
+          >
+            {!normalizedQuota.unlimited && percent !== null && (
+              <div
+                className={`h-2 ${severityBarClass(percent)}`}
+                style={{ width: `${percent}%` }}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={percent}
+                role="progressbar"
+              />
+            )}
           </div>
 
           {!normalizedQuota.unlimited && normalizedQuota.limit !== null && percent !== null && (

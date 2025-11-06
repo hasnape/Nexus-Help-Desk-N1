@@ -1,4 +1,5 @@
 
+import './src/index.css';
 import './src/styles/bootstrap-lite.css';
 
 import React from 'react';

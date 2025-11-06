@@ -1,7 +1,7 @@
 import ManagerInviteUserCard from '@/components/ManagerInviteUserCard';
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Link, Navigate } from 'react-router-dom';
-import { useApp } from '../App';
+import { useApp } from '@/contexts/AppContext';
 import { Ticket, User, UserRole, TicketPriority, Locale, TicketStatus } from '../types';
 import { Button, Select, Input } from '../components/FormElements';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -618,9 +618,14 @@ const ManagerDashboardPage: React.FC = () => {
         }
     }, [quotaSeverity]);
 
-    const quotaValueLabel = useMemo(() => {
+    const infinityLabel = t('dashboard.quota.unlimitedBadge', { default: 'Illimité' });
+
+    const { quotaDisplayLabel, quotaAriaLabel } = useMemo(() => {
         if (quotaState.loading) {
-            return '…';
+            return {
+                quotaDisplayLabel: '…',
+                quotaAriaLabel: t('dashboard.quota.loadingAria', { default: 'Quota en cours de chargement' }),
+            };
         }
 
         const percentChunk = normalizedQuota.percent !== null
@@ -631,7 +636,7 @@ const ManagerDashboardPage: React.FC = () => {
             })
             : '';
 
-        return t('dashboard.quota.remaining', {
+        const quotaDisplay = t('dashboard.quota.remaining', {
             default: '{{remaining}} / {{limit}}{{percentChunk}}',
             values: {
                 remaining: normalizedQuota.remainingLabel,
@@ -642,7 +647,22 @@ const ManagerDashboardPage: React.FC = () => {
             limit: normalizedQuota.limitLabel,
             percentChunk,
         });
-    }, [normalizedQuota, quotaState.loading, t]);
+
+        const ariaLimit = normalizedQuota.unlimited ? infinityLabel : normalizedQuota.limitLabel;
+        const quotaAria = t('dashboard.quota.remaining', {
+            default: '{{remaining}} / {{limit}}{{percentChunk}}',
+            values: {
+                remaining: normalizedQuota.remainingLabel,
+                limit: ariaLimit,
+                percentChunk,
+            },
+            remaining: normalizedQuota.remainingLabel,
+            limit: ariaLimit,
+            percentChunk,
+        });
+
+        return { quotaDisplayLabel: quotaDisplay, quotaAriaLabel: quotaAria };
+    }, [infinityLabel, normalizedQuota, quotaState.loading, t]);
 
     const quotaMessage = useMemo(() => {
         if (quotaState.loading || normalizedQuota.unlimited || normalizedQuota.limit === null) {
@@ -740,7 +760,12 @@ const ManagerDashboardPage: React.FC = () => {
                         <p className="text-sm font-semibold uppercase tracking-wide text-slate-600">
                             {t('dashboard.quota.title')}
                         </p>
-                        <p className="text-2xl font-bold text-slate-800 mt-1">{quotaValueLabel}</p>
+                        <p
+                            className="text-2xl font-bold text-slate-800 mt-1"
+                            aria-label={quotaAriaLabel}
+                        >
+                            {quotaDisplayLabel}
+                        </p>
                         {quotaMessage && (
                             <p className={`mt-2 text-sm ${quotaStyles.message}`}>{quotaMessage}</p>
                         )}
