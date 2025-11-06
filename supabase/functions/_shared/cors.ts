@@ -1,61 +1,43 @@
-// deno-lint-ignore-file no-explicit-any
-const STATIC_ALLOWED_ORIGINS = [
-  "https://www.nexussupporthub.eu",
-  "https://nexus-help-desk-n1.vercel.app",
-  "http://localhost:5173",
-];
-
-function parseEnvList(value: string | undefined | null): string[] {
-  if (!value) return [];
-  return value
-    .split(",")
-    .map((entry) => entry.trim())
-    .filter((entry) => entry.length > 0);
+// supabase/functions/_shared/cors.ts
+export function getAllowedOrigins(env: Record<string, string | undefined>) {
+  // Compat : on supporte ALLOWED_ORIGINS et l’ancienne SUPABASE_ALLOWED_ORIGINS
+  const raw =
+    env.ALLOWED_ORIGINS ||
+    env.SUPABASE_ALLOWED_ORIGINS || // fallback legacy
+    '';
+  return raw
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
 }
 
-const mergedOrigins = new Set<string>([
-  ...STATIC_ALLOWED_ORIGINS,
-  ...parseEnvList(Deno.env.get("ALLOWED_ORIGINS")),
-  ...parseEnvList(Deno.env.get("SUPABASE_ALLOWED_ORIGINS")),
-]);
-
-export type CorsHeaders = Record<string, string>;
-
-export function corsHeaders(origin: string | null): CorsHeaders | null {
-  if (!origin) {
-    return { Vary: "Origin" };
-  }
-  if (!mergedOrigins.has(origin)) {
-    return null;
-  }
+export function corsHeaders(origin: string, allowed: string[]) {
+  const resolved = allowed.includes(origin) ? origin : allowed[0] || '*';
   return {
-    "Access-Control-Allow-Origin": origin,
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Credentials": "true",
-    Vary: "Origin",
-  } satisfies CorsHeaders;
+    'Access-Control-Allow-Origin': resolved,
+    'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
+    // IMPORTANT : apikey requis côté Supabase, x-client-info requis par supabase-js
+    'Access-Control-Allow-Headers': 'authorization, apikey, content-type, x-client-info',
+    'Vary': 'Origin',
+  };
 }
 
-export function handleCors(req: Request): { cors: CorsHeaders; response: Response | null } {
-  const origin = req.headers.get("Origin");
-  const cors = corsHeaders(origin);
-
-  if (req.method === "OPTIONS") {
-    const headers = cors ?? { Vary: "Origin" };
-    return { cors: headers, response: new Response("ok", { status: 204, headers }) };
-  }
-
-  if (origin && !cors) {
-    return { cors: { Vary: "Origin" }, response: new Response("Forbidden", { status: 403, headers: { Vary: "Origin" } }) };
-  }
-
-  return { cors: cors ?? { Vary: "Origin" }, response: null };
+export function handleOptions(req: Request, env: Record<string, string | undefined>) {
+  const origin = req.headers.get('origin') ?? '';
+  const allowed = getAllowedOrigins(env);
+  const isAllowed = allowed.includes(origin);
+  const headers = corsHeaders(isAllowed ? origin : origin, allowed);
+  const status = isAllowed ? 204 : 403;
+  return new Response(null, { status, headers });
 }
 
-export function json(body: unknown, status = 200, cors: CorsHeaders = { Vary: "Origin" }): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...cors, "content-type": "application/json; charset=utf-8" },
-  });
+export function guardOriginOr403(req: Request, env: Record<string, string | undefined>) {
+  const origin = req.headers.get('origin') ?? '';
+  const allowed = getAllowedOrigins(env);
+  if (!allowed.includes(origin)) {
+    const headers = corsHeaders(origin, allowed);
+    return new Response(JSON.stringify({ error: 'ORIGIN_NOT_ALLOWED' }), { status: 403, headers });
+  }
+  // ok => appelant utilisera origin+allowed pour fixer les headers de la réponse finale
+  return null as Response | null;
 }
