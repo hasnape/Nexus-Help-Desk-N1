@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useApp } from "../App";
 import PayPalButton from "../components/PayPalButton";
@@ -7,6 +7,7 @@ import { Link, useLocation } from "react-router-dom";
 import FreemiumPlanIcon from "../components/plan_images/FreemiumPlanIcon";
 import StandardPlanIcon from "../components/plan_images/StandardPlanIcon";
 import ProPlanIcon from "../components/plan_images/ProPlanIcon";
+import { getFreemiumBackupMeta, getFreemiumSessionMeta } from "../services/freemiumStorage";
 
 const ArrowLeftIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg
@@ -44,7 +45,7 @@ const PlanIcon: React.FC<{ planNameKey: string }> = ({ planNameKey }) => {
 };
 
 const SubscriptionPage: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, language: currentLanguage } = useLanguage();
   const { user } = useApp();
   const location = useLocation();
 
@@ -52,6 +53,16 @@ const SubscriptionPage: React.FC = () => {
   // For this demo, we assume all non-managers are on Freemium.
   const currentUserPlan = user?.role === UserRole.MANAGER ? "Pro" : "Freemium";
   const currentUserPlanKey = `pricing.${currentUserPlan.toLowerCase()}.name`;
+
+  const [freemiumBackupMeta, setFreemiumBackupMeta] = useState<ReturnType<typeof getFreemiumBackupMeta>>(null);
+  const [freemiumSessionMeta, setFreemiumSessionMeta] = useState<ReturnType<typeof getFreemiumSessionMeta>>(null);
+
+  useEffect(() => {
+    if (currentUserPlan === "Freemium") {
+      setFreemiumBackupMeta(getFreemiumBackupMeta());
+      setFreemiumSessionMeta(getFreemiumSessionMeta());
+    }
+  }, [currentUserPlan]);
 
   const plans = [
     {
@@ -124,11 +135,32 @@ const SubscriptionPage: React.FC = () => {
               {t(currentUserPlanKey)}
             </p>
             {currentUserPlan === "Freemium" && (
-              <p className="text-slate-500 mt-1">
-                {t("subscription.currentPlan.freemiumDesc", {
-                  default: "You are currently on the Freemium plan.",
-                })}
-              </p>
+              <div className="text-slate-500 mt-1 text-sm space-y-1">
+                <p>
+                  {t("subscription.currentPlan.freemiumDesc", {
+                    default:
+                      "Vous êtes actuellement sur l'offre Freemium. Les tickets et sauvegardes sont stockés localement sur cet ordinateur.",
+                  })}
+                </p>
+                {freemiumSessionMeta && freemiumSessionMeta.lastUpdated && (
+                  <p>
+                    {t("subscription.currentPlan.freemiumSessionInfo", {
+                      default: "Dernière session locale synchronisée le {{date}} pour l'entreprise {{company}}.",
+                      date: new Date(freemiumSessionMeta.lastUpdated).toLocaleString(currentLanguage),
+                      company: freemiumSessionMeta.companyName,
+                    })}
+                  </p>
+                )}
+                {freemiumBackupMeta && freemiumBackupMeta.lastSynced && (
+                  <p>
+                    {t("subscription.currentPlan.freemiumBackupInfo", {
+                      default: "Dernière sauvegarde locale : {{date}} ({{count}} tickets).",
+                      date: new Date(freemiumBackupMeta.lastSynced).toLocaleString(currentLanguage),
+                      count: freemiumBackupMeta.ticketCount ?? 0,
+                    })}
+                  </p>
+                )}
+              </div>
             )}
           </div>
         </div>

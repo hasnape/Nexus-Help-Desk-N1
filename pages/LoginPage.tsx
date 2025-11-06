@@ -4,6 +4,7 @@ import { useApp } from "../App";
 import { Button, Input } from "../components/FormElements";
 import { useLanguage } from "../contexts/LanguageContext";
 import Layout from "../components/Layout";
+import { callEdgeWithFallback } from "../services/functionClient";
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -24,6 +25,33 @@ const LoginPage: React.FC = () => {
     }
   }, [user, navigate, from]);
 
+  const formatGuardError = (reason?: string, message?: string) => {
+    switch (reason) {
+      case "company_conflict":
+        return t("login.error.companyConflict", {
+          default: "This company is locked. Please contact your manager.",
+        });
+      case "company_missing":
+        return t("login.error.companyNotFound");
+      case "origin_not_allowed":
+        return t("login.error.originNotAllowed", {
+          default: "This application cannot reach the authentication service from your origin.",
+        });
+      case "not_allowed":
+      case "forbidden":
+        return t("login.error.guardNotAllowed", {
+          default: "Login blocked for this company. Contact your administrator.",
+        });
+      default:
+        return (
+          message ||
+          t("login.error.guardFailed", {
+            default: "Login guard failed. Please try again later.",
+          })
+        );
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (email.trim() === "" || password === "" || companyName.trim() === "") {
@@ -33,7 +61,37 @@ const LoginPage: React.FC = () => {
 
     setIsLoading(true);
     setError("");
-    const loginResult = await login(email.trim(), password, companyName.trim());
+
+    const trimmedEmail = email.trim();
+    const trimmedCompany = companyName.trim();
+
+    try {
+      const guardResult = await callEdgeWithFallback("login-guard", {
+        email: trimmedEmail,
+        company: trimmedCompany,
+      });
+
+      if (guardResult.response.status === 403) {
+        const body = await guardResult.response.json().catch(() => ({}));
+        setError(formatGuardError(body.reason, body.message));
+        setIsLoading(false);
+        return;
+      }
+
+      if (!guardResult.response.ok) {
+        const body = await guardResult.response.json().catch(() => ({}));
+        setError(formatGuardError(body.reason, body.message));
+        setIsLoading(false);
+        return;
+      }
+    } catch (guardError: any) {
+      console.error("login guard error", guardError);
+      setError(formatGuardError(undefined, guardError?.message));
+      setIsLoading(false);
+      return;
+    }
+
+    const loginResult = await login(trimmedEmail, password, trimmedCompany);
 
     setIsLoading(false);
     if (loginResult !== true) {
