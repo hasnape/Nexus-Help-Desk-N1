@@ -113,7 +113,10 @@
     "remaining": "{{remaining}} / {{limit}}{{percentChunk}}",
     "percentChunk": " ({{percent}}% utilisé)",
     "tzHint": "Calculé sur le fuseau {tz}",
-    "unlimitedBadge": "Illimité"
+    "unlimitedBadge": "Illimité",
+    "aria_unlimited_label": "Offre illimitée : aucun plafond de tickets ce mois-ci",
+    "aria_progress_label": "Vous avez utilisé {{used}} sur {{limit}} tickets ({{percent}}%)",
+    "infinity_badge_sr": "Illimité"
   },
   "dashboard.welcomeMessage": "Bienvenue, {{username}} !",
   "demo": {

@@ -103,6 +103,12 @@
     "unknown": "الشركة"
   },
   "dashboard.requestMaterialInvestigationButton": "فحص مشكلة مادية",
+  "dashboard.quota": {
+    "aria_unlimited_label": "خطة غير محدودة: لا يوجد حد للتذاكر هذا الشهر",
+    "aria_progress_label": "استخدمت {{used}} من {{limit}} تذكرة ({{percent}}٪)",
+    "infinity_badge_sr": "غير محدود",
+    "unlimitedBadge": "غير محدود"
+  },
   "dashboard.welcomeMessage": "مرحباً، {{username}}!",
   "demo": {
     "company": "اسم الشركة",

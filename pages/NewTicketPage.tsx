@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom'; 
-import { useApp } from '../App';
+import { useApp } from '@/contexts/AppContext';
 import { Button, Input, Textarea, Select } from '../components/FormElements';
 import { TicketPriority, UserRole, ChatMessage, TicketStatus } from '../types';
 import { TICKET_CATEGORY_KEYS, TICKET_PRIORITY_KEYS } from '../constants';

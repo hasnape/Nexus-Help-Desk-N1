@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { useApp } from "../../App";
+import { useApp } from "@/contexts/AppContext";
 import TicketCard from "../../components/TicketCard";
 import { Button } from "../../components/FormElements";
 import { useLanguage } from "../../contexts/LanguageContext";

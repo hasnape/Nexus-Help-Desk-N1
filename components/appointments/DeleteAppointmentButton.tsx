@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useApp } from "../../App";
+import { useApp } from "@/contexts/AppContext";
 
 type Props = {
   appointmentId: string;
