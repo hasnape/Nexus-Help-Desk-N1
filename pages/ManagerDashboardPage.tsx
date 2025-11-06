@@ -659,7 +659,10 @@ const ManagerDashboardPage: React.FC = () => {
 
     const quotaDisplayLabel = useMemo(() => {
         if (quotaState.loading) {
-            return '…';
+            return {
+                quotaDisplayLabel: '…',
+                quotaAriaLabel: t('dashboard.quota.loadingAria', { default: 'Quota en cours de chargement' }),
+            };
         }
 
         const percentChunk = normalizedQuota.percent !== null
@@ -670,7 +673,7 @@ const ManagerDashboardPage: React.FC = () => {
             })
             : '';
 
-        return t('dashboard.quota.remaining', {
+        const quotaDisplay = t('dashboard.quota.remaining', {
             default: '{{remaining}} / {{limit}}{{percentChunk}}',
             values: {
                 remaining: normalizedQuota.remainingLabel,
