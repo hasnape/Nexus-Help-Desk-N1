@@ -3,10 +3,10 @@ import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import { Ticket, User, UserRole, TicketPriority, Locale, TicketStatus } from '@/types';
-import { Button, Select, Input } from '@/components/FormElements';
+import { Button, Select, Input } from '../components/FormElements';
 import { useLanguage } from '@/contexts/LanguageContext';
-import LoadingSpinner from '@/components/LoadingSpinner';
-import FloatingActionButton from '@/components/FloatingActionButton';
+import LoadingSpinner from '../components/LoadingSpinner';
+import FloatingActionButton from '../components/FloatingActionButton';
 import { formatQuota } from '@/utils/formatQuota';
 import { supabase } from '@/services/supabaseClient';
 
@@ -659,7 +659,10 @@ const ManagerDashboardPage: React.FC = () => {
 
     const quotaDisplayLabel = useMemo(() => {
         if (quotaState.loading) {
-            return '…';
+            return {
+                quotaDisplayLabel: '…',
+                quotaAriaLabel: t('dashboard.quota.loadingAria', { default: 'Quota en cours de chargement' }),
+            };
         }
 
         const percentChunk = normalizedQuota.percent !== null
@@ -670,7 +673,7 @@ const ManagerDashboardPage: React.FC = () => {
             })
             : '';
 
-        return t('dashboard.quota.remaining', {
+        const quotaDisplay = t('dashboard.quota.remaining', {
             default: '{{remaining}} / {{limit}}{{percentChunk}}',
             values: {
                 remaining: normalizedQuota.remainingLabel,
