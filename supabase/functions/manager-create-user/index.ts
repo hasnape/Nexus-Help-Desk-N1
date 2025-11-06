@@ -7,13 +7,9 @@ const STATIC_ALLOWED_ORIGINS = [
   "https://www.nexussupporthub.eu",
   "https://nexus-help-desk-n1.vercel.app",
   "http://localhost:5173",
-] as const;
+];
 
-const additionalOrigins = (
-  Deno.env.get("ALLOWED_ORIGINS") ??
-  Deno.env.get("SUPABASE_ALLOWED_ORIGINS") ??
-  ""
-)
+const additionalOrigins = (Deno.env.get("ALLOWED_ORIGINS") ?? "")
   .split(",")
   .map((origin) => origin.trim())
   .filter((origin) => origin.length > 0);
@@ -24,12 +20,14 @@ const ALLOWED_ORIGINS = new Set<string>([
 ]);
 
 function corsHeaders(origin: string | null) {
-  if (!origin || !ALLOWED_ORIGINS.has(origin)) return null;
+  if (!origin) return { Vary: "Origin" } as Record<string, string>;
+  if (!ALLOWED_ORIGINS.has(origin)) return null;
   return {
     "Access-Control-Allow-Origin": origin,
     "Access-Control-Allow-Headers":
       "authorization, x-client-info, apikey, content-type",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Credentials": "true",
     Vary: "Origin",
   } as Record<string, string>;
 }
@@ -51,18 +49,20 @@ serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { status: 204, headers: cors ?? { Vary: "Origin" } });
   }
-  if (!cors) {
+  if (origin && !cors) {
     return new Response("Forbidden", { status: 403, headers: { Vary: "Origin" } });
   }
   if (req.method !== "POST") {
-    return json({ error: "method_not_allowed" }, 405, cors);
+    return json({ error: "method_not_allowed" }, 405, cors ?? { Vary: "Origin" });
   }
 
   // Secrets (sans préfixe) + fallback
   const supabaseUrl = Deno.env.get("PROJECT_URL") ?? Deno.env.get("SUPABASE_URL")!;
   const anonKey = Deno.env.get("ANON_KEY") ?? Deno.env.get("SUPABASE_ANON_KEY")!;
   const serviceKey =
-    Deno.env.get("SERVICE_ROLE_KEY") ?? Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    Deno.env.get("NSH_SERVICE_ROLE_KEY") ??
+    Deno.env.get("SERVICE_ROLE_KEY") ??
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
   const FRONTEND_URL = Deno.env.get("FRONTEND_URL") ?? "https://www.nexussupporthub.eu";
 
   const authHeader = req.headers.get("Authorization") ?? "";
@@ -73,7 +73,7 @@ serve(async (req) => {
 
   // Vérif appel authentifié
   const { data: authData, error: authErr } = await userClient.auth.getUser();
-  if (authErr || !authData?.user) return json({ error: "unauthorized" }, 401, cors);
+  if (authErr || !authData?.user) return json({ error: "unauthorized" }, 401, cors ?? { Vary: "Origin" });
 
   // Vérifier que le caller est manager et rattaché à une société
   const { data: meRow, error: meErr } = await admin
@@ -82,9 +82,9 @@ serve(async (req) => {
     .eq("auth_uid", authData.user.id)
     .single();
 
-  if (meErr || !meRow) return json({ error: "profile_not_found" }, 403, cors);
-  if (meRow.role !== "manager") return json({ error: "forbidden" }, 403, cors);
-  if (!meRow.company_id) return json({ error: "no_company" }, 400, cors);
+  if (meErr || !meRow) return json({ error: "profile_not_found" }, 403, cors ?? { Vary: "Origin" });
+  if (meRow.role !== "manager") return json({ error: "forbidden" }, 403, cors ?? { Vary: "Origin" });
+  if (!meRow.company_id) return json({ error: "no_company" }, 400, cors ?? { Vary: "Origin" });
 
   // Parsing body
   let body: any = {};
@@ -102,8 +102,8 @@ serve(async (req) => {
       ? String(body.language_preference).toLowerCase()
       : "fr";
 
-  if (!email || !full_name) return json({ error: "missing_fields" }, 400, cors);
-  if (!["agent", "user"].includes(role)) return json({ error: "invalid_role" }, 400, cors);
+  if (!email || !full_name) return json({ error: "missing_fields" }, 400, cors ?? { Vary: "Origin" });
+  if (!["agent", "user"].includes(role)) return json({ error: "invalid_role" }, 400, cors ?? { Vary: "Origin" });
 
   // Quota agents
   if (role === "agent") {
@@ -112,25 +112,25 @@ serve(async (req) => {
       .select("plan_id")
       .eq("id", meRow.company_id)
       .single();
-    if (cErr || !comp) return json({ error: "company_not_found" }, 400, cors);
+    if (cErr || !comp) return json({ error: "company_not_found" }, 400, cors ?? { Vary: "Origin" });
 
     const { data: plan, error: pErr } = await admin
       .from("plans")
       .select("max_agents")
       .eq("id", comp.plan_id)
       .single();
-    if (pErr || !plan) return json({ error: "plan_not_found" }, 400, cors);
+    if (pErr || !plan) return json({ error: "plan_not_found" }, 400, cors ?? { Vary: "Origin" });
 
     const { count: agentCount, error: cntErr } = await admin
       .from("users")
       .select("id", { count: "exact", head: true })
       .eq("company_id", meRow.company_id)
       .eq("role", "agent");
-    if (cntErr) return json({ error: "count_failed" }, 500, cors);
+    if (cntErr) return json({ error: "count_failed" }, 500, cors ?? { Vary: "Origin" });
 
     const maxAgents = plan.max_agents ?? 0;
     if ((agentCount ?? 0) >= maxAgents) {
-      return json({ error: "agent_limit_reached", details: { agentCount, maxAgents } }, 409, cors);
+      return json({ error: "agent_limit_reached", details: { agentCount, maxAgents } }, 409, cors ?? { Vary: "Origin" });
     }
   }
 
@@ -139,23 +139,23 @@ serve(async (req) => {
       data: { company_id: meRow.company_id, role, language_preference },
       redirectTo: `${FRONTEND_URL}/#/login`,
     });
-    if (invErr || !invite?.user) return json({ error: "invite_failed", details: invErr?.message }, 500, cors);
+    if (invErr || !invite?.user) return json({ error: "invite_failed", details: invErr?.message }, 500, cors ?? { Vary: "Origin" });
 
     const auth_uid = invite.user.id;
     const { error: upErr } = await admin.from("users").upsert(
       { auth_uid, email, full_name, role, language_preference, company_id: meRow.company_id },
       { onConflict: "auth_uid" },
     );
-    if (upErr) return json({ error: "profile_upsert_failed", details: upErr.message }, 409, cors);
+    if (upErr) return json({ error: "profile_upsert_failed", details: upErr.message }, 409, cors ?? { Vary: "Origin" });
 
-    return json({ ok: true, mode, user_id: auth_uid }, 200, cors);
+    return json({ ok: true, mode, user_id: auth_uid }, 200, cors ?? { Vary: "Origin" });
   }
 
   // Mode création : vérification mot de passe
   const password = String(body.password || "");
   const password_confirm = String(body.password_confirm || "");
-  if (password.length < 8) return json({ error: "weak_password" }, 400, cors);
-  if (password !== password_confirm) return json({ error: "password_mismatch" }, 400, cors);
+  if (password.length < 8) return json({ error: "weak_password" }, 400, cors ?? { Vary: "Origin" });
+  if (password !== password_confirm) return json({ error: "password_mismatch" }, 400, cors ?? { Vary: "Origin" });
 
   // Créer utilisateur avec mot de passe
   const { data: created, error: createErr } = await admin.auth.admin.createUser({
@@ -164,14 +164,14 @@ serve(async (req) => {
     email_confirm: true,
     user_metadata: { company_id: meRow.company_id, role, language_preference },
   });
-  if (createErr || !created?.user) return json({ error: "create_failed", details: createErr?.message }, 500, cors);
+  if (createErr || !created?.user) return json({ error: "create_failed", details: createErr?.message }, 500, cors ?? { Vary: "Origin" });
 
   const auth_uid = created.user.id;
   const { error: upErr } = await admin.from("users").upsert(
     { auth_uid, email, full_name, role, language_preference, company_id: meRow.company_id },
     { onConflict: "auth_uid" },
   );
-  if (upErr) return json({ error: "profile_upsert_failed", details: upErr.message }, 409, cors);
+  if (upErr) return json({ error: "profile_upsert_failed", details: upErr.message }, 409, cors ?? { Vary: "Origin" });
 
-  return json({ ok: true, mode, user_id: auth_uid }, 200, cors);
+  return json({ ok: true, mode, user_id: auth_uid }, 200, cors ?? { Vary: "Origin" });
 });
