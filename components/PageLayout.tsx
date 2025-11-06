@@ -1,5 +1,5 @@
 import React from "react";
-import { useApp } from "@/App";
+import { useApp } from "@/contexts/AppContext";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import UpgradeBanner from "./UpgradeBanner";
