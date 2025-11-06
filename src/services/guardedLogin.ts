@@ -2,6 +2,7 @@ import type { Session } from "@supabase/supabase-js";
 import { supabase } from "./supabaseClient";
 import { ensureUserProfile } from "./authService";
 import type { User } from "../types";
+import { invokeWithFallback } from "./functionInvoker";
 
 type GuardReason = "company_mismatch" | "company_not_found" | "unknown_email" | "invalid_login" | "unknown";
 
@@ -59,22 +60,32 @@ export const guardedLogin = async (
   password: string,
   companyName: string
 ): Promise<GuardedLoginSuccess> => {
-  const { data: guardData, error: guardError } = await supabase.functions.invoke<GuardCheckResponse>(
+  const guardResult = await invokeWithFallback<GuardCheckResponse>(
     "login-guard",
-    {
-      body: {
-        email,
-        company: companyName,
-      },
-    }
+    { email, company: companyName },
+    "/api/login-guard"
   );
 
-  if (guardError) {
-    const reason = (guardError as any)?.context?.reason as GuardReason | undefined;
-    throw new GuardedLoginError(mapReasonToErrorKey(reason));
+  if (guardResult.error) {
+    const { status, context, message, isNetworkError } = guardResult.error;
+    const reason = (context?.reason ?? context?.error) as GuardReason | undefined;
+
+    if (status === 403) {
+      throw new GuardedLoginError(mapReasonToErrorKey(reason));
+    }
+
+    if (isNetworkError) {
+      throw new GuardedLoginError("login.error.invalidCompanyCredentials", message);
+    }
+
+    if (status && status >= 400) {
+      throw new GuardedLoginError(mapReasonToErrorKey(reason));
+    }
+
+    throw new GuardedLoginError("login.error.invalidCompanyCredentials", message);
   }
 
-  const preloginPayload = guardData ?? null;
+  const preloginPayload = guardResult.data ?? null;
   assertGuardAllowed(preloginPayload);
 
   const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({

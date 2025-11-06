@@ -2,10 +2,11 @@ import React, { createContext, useState, useContext, ReactNode, useCallback, use
 import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import { Ticket, User, ChatMessage, TicketStatus, UserRole, Locale as AppLocale, AppointmentDetails } from "./types";
 import { getFollowUpHelpResponse, getTicketSummary } from "./services/geminiService";
-import { supabase } from "./services/supabaseClient";
+import { supabase } from "@/services/supabaseClient";
 import { ensureUserProfile } from "./services/authService";
 import { guardedLogin, GuardedLoginError } from "./services/guardedLogin";
 import type { GuardedLoginErrorKey } from "./services/guardedLogin";
+import { invokeWithFallback } from "@/services/functionInvoker";
 import PricingPage from "./pages/PricingPage";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
@@ -120,6 +121,14 @@ type TicketMessageRow = {
   inserted_at?: string | null;
   timestamp?: string | null;
   agent_id?: string | null;
+};
+
+type SignupFunctionResponse = {
+  ok?: boolean | null;
+  error?: string | null;
+  user_id?: string | null;
+  company_id?: string | number | null;
+  mode?: string | null;
 };
 
 const reviveTicketDates = (data: any, chatHistoryOverride?: ChatMessage[]): Ticket => ({
@@ -824,42 +833,51 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     const { lang, role, companyName, secretCode, plan } = options;
 
     try {
-      const { data, error } = await supabase.functions.invoke(
+      const result = await invokeWithFallback<SignupFunctionResponse>(
         "auth-signup",
         {
-          body: {
-            email,
-            password,
-            full_name: fullName,
-            role,
-            company_name: companyName,
-            language_preference: lang,
-            plan,
-            secret_code: secretCode,
-          },
-        }
+          email,
+          password,
+          full_name: fullName,
+          role,
+          company_name: companyName,
+          language_preference: lang,
+          plan,
+          secretCode,
+        },
+        "/api/auth-signup"
       );
 
-      if (error) {
-        const msg =
-          (error as any)?.context?.error ??
-          (error as any)?.message ??
+      if (result.error) {
+        const { context, message, isNetworkError } = result.error;
+        if (isNetworkError) {
+          return "network_error";
+        }
+        const code =
+          (context?.error as string | undefined) ??
+          (context?.reason as string | undefined) ??
+          (typeof message === "string" ? message : undefined) ??
           "signup_failed";
-        return msg;
+        return code;
       }
 
-      if (!data?.ok) {
-        const apiErr = (data?.error ?? "signup_failed") as string;
-        return apiErr;
+      const payload = result.data;
+      if (!payload?.ok) {
+        const code = (payload?.error ?? "signup_failed") as string;
+        return code;
       }
 
-      if (role === UserRole.MANAGER) {
+      if (role === UserRole.MANAGER && payload.mode === "manager_new") {
         setNewlyCreatedCompanyName(companyName);
       }
 
       return true;
     } catch (e: any) {
-      return e?.context?.error ?? e?.message ?? "network_error";
+      const message = e?.context?.error ?? e?.message;
+      if (typeof message === "string" && message.trim().length > 0) {
+        return message;
+      }
+      return "network_error";
     }
   };
 

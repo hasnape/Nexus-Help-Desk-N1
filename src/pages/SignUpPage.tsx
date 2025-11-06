@@ -467,10 +467,12 @@ const SignUpPage: React.FC = () => {
           });
         case "invalid_role":
           return t("signup.apiErrors.invalid_role", { defaultValue: t("signup.error.generic", { defaultValue: "Une erreur est survenue." }) });
+        case "company_conflict":
         case "company_name_taken":
           return t("signup.apiErrors.company_name_taken", {
             defaultValue: t("signup.error.companyNameTaken", { defaultValue: "Ce nom d'entreprise est déjà pris." }),
           });
+        case "company_missing":
         case "company_not_found":
           return t("signup.apiErrors.company_not_found", {
             companyName: company,
@@ -492,17 +494,22 @@ const SignUpPage: React.FC = () => {
         case "activation_company_mismatch":
           return t("signup.apiErrors.activation_company_mismatch", { defaultValue: t("signup.error.invalidSecretCodeManager", { defaultValue: "Code secret invalide." }) });
         case "auth_create_failed":
-          return t("signup.apiErrors.auth_create_failed", { defaultValue: t("signup.error.generic", { defaultValue: "Une erreur est survenue." }) });
+        case "user_create_failed":
+          return t("signup.apiErrors.user_create_failed", { defaultValue: t("signup.error.generic", { defaultValue: "Une erreur est survenue." }) });
         case "company_create_failed":
           return t("signup.apiErrors.company_create_failed", {
             defaultValue: t("signup.error.companyCreateFailed", { defaultValue: "La création de l'entreprise a échoué." }),
           });
         case "profile_insert_failed":
           return t("signup.apiErrors.profile_insert_failed", { defaultValue: t("signup.error.generic", { defaultValue: "Une erreur est survenue." }) });
+        case "settings_insert_failed":
+          return t("signup.apiErrors.settings_insert_failed", { defaultValue: t("signup.error.generic", { defaultValue: "Une erreur est survenue." }) });
         case "signup_failed":
           return t("signup.apiErrors.signup_failed", { defaultValue: t("signup.error.generic", { defaultValue: "Une erreur est survenue." }) });
         case "network_error":
           return t("signup.apiErrors.network_error", { defaultValue: t("signup.error.generic", { defaultValue: "Une erreur est survenue." }) });
+        case "unexpected_error":
+          return t("signup.error.generic", { defaultValue: "Une erreur est survenue." });
         default:
           return code?.toString() ?? t("signup.error.generic", { defaultValue: "Une erreur est survenue." });
       }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
@@ -395,6 +395,66 @@ const SignUpPage: React.FC = () => {
   const popularBadge = t("pricing.badges.popular", { defaultValue: "Popular" });
   const navigate = useNavigate();
 
+  const translateSignupApiError = useCallback(
+    (raw: string): string => {
+      const trimmed = typeof raw === "string" ? raw.trim() : "";
+      if (!trimmed) {
+        return t("signup.error.generic", { defaultValue: "Une erreur est survenue." });
+      }
+
+      const normalized = trimmed.toLowerCase().replace(/\s+/g, "_");
+      const translation = t(`signup.apiErrors.${normalized}`, {
+        companyName: companyName.trim(),
+        defaultValue: "",
+      });
+      if (translation) {
+        return translation;
+      }
+
+      switch (normalized) {
+        case "company_conflict":
+        case "company_name_taken":
+          return t("signup.error.companyNameTaken", {
+            defaultValue: "Ce nom d'entreprise est déjà pris.",
+          });
+        case "company_missing":
+        case "company_not_found":
+          return t("signup.error.companyNotFound", {
+            companyName: companyName.trim(),
+            defaultValue: `L'entreprise ${companyName.trim() || ""} est introuvable.`,
+          });
+        case "activation_required":
+          return t("signup.error.secretCodeRequiredManager", {
+            defaultValue: "Un code d'activation est requis.",
+          });
+        case "invalid_activation_code":
+          return t("signup.error.invalidSecretCodeManager", {
+            defaultValue: "Code secret invalide.",
+          });
+        case "user_create_failed":
+        case "profile_insert_failed":
+        case "company_create_failed":
+        case "settings_insert_failed":
+        case "plan_not_found":
+        case "unexpected_error":
+          return t("signup.error.generic", {
+            defaultValue: "Une erreur est survenue.",
+          });
+        case "signup_failed":
+          return t("signup.apiErrors.signup_failed", {
+            defaultValue: t("signup.error.generic", { defaultValue: "Une erreur est survenue." }),
+          });
+        case "network_error":
+          return t("signup.apiErrors.network_error", {
+            defaultValue: t("signup.error.generic", { defaultValue: "Une erreur est survenue." }),
+          });
+        default:
+          return trimmed;
+      }
+    },
+    [companyName, t]
+  );
+
   useEffect(() => {
     if (user) {
       navigate("/dashboard", { replace: true });
@@ -508,7 +568,7 @@ const SignUpPage: React.FC = () => {
     if (result !== true) {
       // Le `result` contiendra le message d'erreur renvoyé par le serveur,
       // par exemple : "Code d'activation invalide ou déjà utilisé."
-      setError(result);
+      setError(translateSignupApiError(result));
     } else {
       // Le serveur a tout validé, l'inscription est réussie !
       if (role === UserRole.MANAGER) {
@@ -952,4 +1012,4 @@ const SignUpPage: React.FC = () => {
   );
 };
 
-export default SignUpPage;
+  export default SignUpPage;
