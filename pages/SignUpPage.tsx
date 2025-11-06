@@ -242,11 +242,6 @@ const PlanCard: React.FC<{
   onSelect: (plan: PricingPlanKey) => void;
   t: (key: string, options?: { [key: string]: any }) => string;
   badgeText?: string;
-  demoHref?: string;
-  demoLabel?: string;
-  buyHref?: string;
-  onBuy?: () => void;
-  buyLabel?: string;
 }> = ({
   planKey,
   plan,
@@ -254,11 +249,6 @@ const PlanCard: React.FC<{
   onSelect,
   t,
   badgeText,
-  demoHref,
-  demoLabel,
-  buyHref,
-  onBuy,
-  buyLabel,
 }) => {
   const isSelectable = planKey !== "pro";
   const buttonKey = isSelectable ? `pricing.select_${planKey}` : "pricing.view_pro_details";
@@ -268,22 +258,10 @@ const PlanCard: React.FC<{
     }),
   });
   const planTitle = t(`pricing.${planKey}`, { defaultValue: plan.name });
-  const demoButtonLabel = demoLabel ??
-    t("signupPlans.demoButton", {
-      defaultValue: t("pricing.requestDemo", { defaultValue: "Demander une démo" }),
-    });
-  const purchaseButtonLabel = buyLabel ?? plan.cta ??
-    t("signupPlans.subscribeDefault", { defaultValue: "Souscrire maintenant" });
-
   const actionButtonBase = "w-100 fw-semibold d-flex align-items-center justify-content-center gap-2";
 
   const handleSelectClick = () => {
     onSelect(planKey);
-  };
-
-  const handleBuyClick = () => {
-    onSelect(planKey);
-    onBuy?.();
   };
 
   return (
@@ -390,51 +368,6 @@ const PlanCard: React.FC<{
             </svg>
           ) : null}
         </button>
-
-        <div className="d-flex flex-column gap-2">
-          {demoHref ? (
-            <a
-              href={demoHref}
-              className={`btn btn-outline-primary ${actionButtonBase}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`${demoButtonLabel} - ${planTitle}`}
-            >
-              {demoButtonLabel}
-            </a>
-          ) : demoLabel ? (
-            <button
-              type="button"
-              className={`btn btn-outline-primary ${actionButtonBase}`}
-              onClick={handleSelectClick}
-              aria-label={`${demoButtonLabel} - ${planTitle}`}
-            >
-              {demoButtonLabel}
-            </button>
-          ) : null}
-
-          {buyHref ? (
-            <a
-              href={buyHref}
-              className={`btn btn-primary ${actionButtonBase}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => onSelect(planKey)}
-              aria-label={`${purchaseButtonLabel} - ${planTitle}`}
-            >
-              {purchaseButtonLabel}
-            </a>
-          ) : onBuy ? (
-            <button
-              type="button"
-              className={`btn btn-primary ${actionButtonBase}`}
-              onClick={handleBuyClick}
-              aria-label={`${purchaseButtonLabel} - ${planTitle}`}
-            >
-              {purchaseButtonLabel}
-            </button>
-          ) : null}
-        </div>
       </div>
     </div>
   );
