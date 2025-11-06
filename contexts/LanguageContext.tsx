@@ -1,6 +1,12 @@
 import React, { createContext, useState, useContext, ReactNode, useEffect, useCallback } from 'react';
+import i18next from 'i18next';
+import { initReactI18next } from 'react-i18next';
 
-import i18n, { applyHtmlLangDir } from '@/i18n';
+export type Locale = 'en' | 'fr' | 'ar';
+
+type TranslationPrimitive = string | number | boolean | null;
+type TranslationValue = TranslationPrimitive | TranslationValue[] | { [key: string]: TranslationValue };
+export type Translations = Record<string, TranslationValue>;
 
 export type Locale = 'en' | 'fr' | 'ar';
 interface LanguageContextType {
@@ -12,6 +18,16 @@ interface LanguageContextType {
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+
+if (!i18next.isInitialized) {
+  i18next.use(initReactI18next).init({
+    resources: {},
+    lng: 'en',
+    fallbackLng: 'en',
+    interpolation: { escapeValue: false },
+    returnObjects: true,
+  });
+}
 
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [language, setLanguageState] = useState<Locale>(() => {
@@ -42,8 +58,39 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
       setIsLoadingLang(true);
 
       try {
-        await i18n.changeLanguage(lang);
-        applyHtmlLangDir(lang);
+        const response = await fetch(`./locales/${lang}.json`); // Relative to public/index.html
+        if (!response.ok) {
+          throw new Error(`Failed to load ${lang}.json: ${response.statusText}`);
+        }
+        const data: Translations = await response.json();
+        setTranslations(data);
+        if (i18next.isInitialized) {
+          i18next.addResourceBundle(lang, 'translation', data, true, true);
+          i18next.changeLanguage(lang);
+        }
+      } catch (error) {
+        console.error("Error loading translation file:", error);
+        // Attempt to load English as a fallback if the selected language fails
+        if (lang !== 'en') {
+            try {
+                const fallbackResponse = await fetch('./locales/en.json');
+                if (fallbackResponse.ok) {
+                    const fallbackData: Translations = await fallbackResponse.json();
+                    setTranslations(fallbackData);
+                    if (i18next.isInitialized) {
+                      i18next.addResourceBundle('en', 'translation', fallbackData, true, true);
+                      i18next.changeLanguage('en');
+                    }
+                } else {
+                    setTranslations(emptyTranslations);
+                }
+            } catch (fallbackError) {
+                console.error("Error loading fallback English translation:", fallbackError);
+                setTranslations(emptyTranslations);
+            }
+        } else {
+             setTranslations(emptyTranslations);
+        }
       } finally {
         if (isMounted) {
           setIsLoadingLang(false);
@@ -57,7 +104,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
     });
 
     if (typeof window !== 'undefined') {
-      localStorage.setItem('aiHelpDeskLang', language);
+        localStorage.setItem('aiHelpDeskLang', language);
     }
 
     return () => {
@@ -76,44 +123,38 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
       return { defaultValue: undefined, interpolation: undefined as Record<string, string | number> | undefined };
     }
 
-    if ('default' in options) {
-      const { default: defaultValue, ...rest } = options;
-      return { defaultValue, interpolation: Object.keys(rest).length > 0 ? (rest as Record<string, string | number>) : undefined };
+    const resolveTranslation = (path: string): string | undefined => {
+      const direct = translations[path];
+      if (typeof direct === 'string') {
+        return direct;
+      }
+
+      const segments = path.split('.');
+      let current: TranslationValue | undefined = translations;
+      for (const segment of segments) {
+        if (!current || typeof current !== 'object' || Array.isArray(current)) {
+          return undefined;
+        }
+        current = (current as Record<string, TranslationValue>)[segment];
+      }
+      return typeof current === 'string' ? current : undefined;
+    };
+
+    const resolved = resolveTranslation(key);
+    if (isLoadingLang && resolved === undefined) {
+        return defaultValue !== undefined ? defaultValue : key;
     }
 
-    return { defaultValue: undefined, interpolation: options as Record<string, string | number> };
-  };
+    let translation = resolved ?? defaultValue ?? key;
 
-  const translate = useCallback(
-    (key: string, replacementsOrOptions?: Record<string, string | number> | { default: string } | (Record<string, string | number> & { default?: string })) => {
-      const { defaultValue, interpolation } = mapOptions(replacementsOrOptions);
-
-      const translation = i18n.t(key, {
-        defaultValue,
-        ...(interpolation ?? {}),
+    if (replacements && typeof translation === 'string') {
+      Object.entries(replacements).forEach(([placeholder, value]) => {
+        translation = translation.replace(new RegExp(`{{${placeholder}}}`, 'g'), String(value));
       });
-
-      if (typeof translation === 'string' && translation.trim().length > 0 && translation !== key) {
-        return translation;
-      }
-
-      if (Array.isArray(translation)) {
-        return translation.join(', ');
-      }
-
-      if (defaultValue) {
-        return defaultValue;
-      }
-
-      if (typeof translation === 'string' && translation.trim().length > 0) {
-        return translation;
-      }
-
-      return key;
-    },
-    []
-  );
-
+    }
+    return typeof translation === 'string' ? translation : String(translation);
+  }, [translations, isLoadingLang]);
+  
   const getBCP47Locale = useCallback((): string => {
     if (language === 'fr') return 'fr-FR';
     if (language === 'ar') return 'ar-SA';

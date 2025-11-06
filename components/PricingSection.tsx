@@ -1,148 +1,106 @@
 import React from "react";
-import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { Button } from "./FormElements";
 
-import { getPricingPlans, type PricingPlan, type PricingPlans, type PricingPlanKey } from "@/utils/pricing";
+const PLAN_KEYS = ["freemium", "standard", "pro"] as const;
+type PlanKey = (typeof PLAN_KEYS)[number];
 
-type CardProps = {
-  plan: PricingPlan;
-  badgeText?: string;
-  onDemo: () => void;
-  demoLabel: string;
-  buyLabel: string;
-  buyHref?: string;
-  onBuy?: () => void;
+type NormalizedPlan = {
+  key: PlanKey;
+  name: string;
+  price: string;
+  yearly?: string;
+  features: string[];
+  cta: string;
+  highlighted: boolean;
 };
 
-const Badge: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <span className="text-xs font-semibold tracking-wide uppercase px-3 py-1 rounded-full bg-slate-900 text-white">
-    {children}
-  </span>
-);
-
-const Card: React.FC<CardProps> = ({ plan, badgeText, onDemo, demoLabel, buyLabel, buyHref, onBuy }) => (
-  <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col h-full text-slate-900">
-    <div className="flex items-start justify-between gap-4">
-      <div>
-        <h3 className="text-xl font-semibold">{plan.name}</h3>
-        <p className="mt-2 text-2xl font-bold">{plan.price}</p>
-        {plan.yearly ? <p className="text-sm text-slate-600">{plan.yearly}</p> : null}
-      </div>
-      {badgeText ? <Badge>{badgeText}</Badge> : null}
-    </div>
-    <ul className="mt-6 space-y-2 text-sm text-slate-700 flex-1">
-      {plan.features.map((feature) => (
-        <li key={`${plan.name}-${feature}`} className="flex items-start gap-2">
-          <span className="mt-1 h-2 w-2 rounded-full bg-slate-500" aria-hidden="true" />
-          <span>{feature}</span>
-        </li>
-      ))}
-    </ul>
-    <div className="mt-6 flex flex-col gap-3">
-      <button
-        type="button"
-        className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-900 px-5 py-2.5 font-semibold text-slate-900 transition hover:bg-slate-900 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-slate-900"
-        onClick={onDemo}
-        aria-label={`${demoLabel} - ${plan.name}`}
-        title={demoLabel}
-      >
-        <span>{demoLabel}</span>
-        <svg
-          className="h-4 w-4"
-          viewBox="0 0 16 16"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          aria-hidden="true"
-        >
-          <path
-            d="M3.75 8h8.5m0 0L9.5 5.25M12.25 8 9.5 10.75"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </button>
-
-      {buyHref ? (
-        <a
-          href={buyHref}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 font-semibold text-white shadow-md shadow-slate-900/15 transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-slate-900"
-          aria-label={`${buyLabel} - ${plan.name}`}
-          title={buyLabel}
-        >
-          <span>{buyLabel}</span>
-        </a>
-      ) : (
-        <button
-          type="button"
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 font-semibold text-white shadow-md shadow-slate-900/15 transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-slate-900"
-          onClick={onBuy}
-          aria-label={`${buyLabel} - ${plan.name}`}
-          title={buyLabel}
-        >
-          <span>{buyLabel}</span>
-        </button>
-      )}
-    </div>
-  </div>
-);
+const normalizeFeatures = (raw: unknown): string[] => {
+  if (Array.isArray(raw)) {
+    return raw.filter((item): item is string => typeof item === "string");
+  }
+  if (typeof raw === "string") {
+    return [raw];
+  }
+  return [];
+};
 
 const PricingSection: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const plans: PricingPlans = getPricingPlans(t);
-  const title = t("pricing.title");
-  const disclaimer = t("pricing.disclaimer");
-  const popular = t("pricing.badges.popular");
-  const demoLabel = t("pricing.ctaDemo");
-  const buyLabel = t("pricing.buy_now", {
-    defaultValue: t("signupPlans.subscribeDefault", { defaultValue: "Souscrire maintenant" }),
+  const plans: NormalizedPlan[] = PLAN_KEYS.map((key) => {
+    const features = normalizeFeatures(t(`pricing.plans.${key}.features`, { returnObjects: true }));
+    const yearly = t(`pricing.plans.${key}.yearly`, { defaultValue: "" });
+    return {
+      key,
+      name: t(`pricing.plans.${key}.name`),
+      price: t(`pricing.plans.${key}.price`),
+      yearly: yearly.trim().length > 0 ? yearly : undefined,
+      features,
+      cta: t(`pricing.plans.${key}.cta`),
+      highlighted: key === "standard",
+    };
   });
-  const activateLabel = t("pricing.activate_now", {
-    defaultValue: t("signupPlans.freemium.modal.buttons.subscribe", { defaultValue: "Activer maintenant" }),
-  });
-  const goDemo = () => navigate("/demo");
-  const goFreemium = () => navigate("/signup?plan=freemium");
-
-  const subscribeLinks: Record<Exclude<PricingPlanKey, "freemium">, string> = {
-    standard: "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-0E515487AE797135CNBTRYKA",
-    pro: "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-7HP75881LB3608938NBTBGUA",
-  };
 
   return (
-    <section id="pricing" className="bg-slate-100 py-16 text-slate-900">
-      <div className="container mx-auto px-4 md:px-8">
-        <div className="max-w-3xl">
-          <h2 className="text-3xl font-bold">{title}</h2>
-          <p className="mt-2 text-base text-slate-700">{disclaimer}</p>
+    <section id="pricing" className="bg-slate-50 py-16">
+      <div className="mx-auto max-w-6xl px-4">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold text-slate-900 sm:text-4xl">
+            {t("pricing.title")}
+          </h2>
+          <p className="mt-3 text-base text-slate-600 sm:mt-4">
+            {t("pricing.disclaimer")}
+          </p>
         </div>
-        <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <Card
-            plan={plans.freemium}
-            onDemo={goDemo}
-            demoLabel={demoLabel}
-            buyLabel={activateLabel}
-            onBuy={goFreemium}
-          />
-          <Card
-            plan={plans.standard}
-            badgeText={popular}
-            onDemo={goDemo}
-            demoLabel={demoLabel}
-            buyLabel={buyLabel}
-            buyHref={subscribeLinks.standard}
-          />
-          <Card
-            plan={plans.pro}
-            onDemo={goDemo}
-            demoLabel={demoLabel}
-            buyLabel={buyLabel}
-            buyHref={subscribeLinks.pro}
-          />
+
+        <div className="mt-12 grid gap-8 md:grid-cols-3">
+          {plans.map((plan) => (
+            <article
+              key={plan.key}
+              className={`flex flex-col rounded-2xl border bg-white p-6 shadow-sm transition hover:shadow-lg ${
+                plan.highlighted ? "border-primary shadow-md" : "border-slate-200"
+              }`}
+            >
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-xl font-semibold text-slate-900">{plan.name}</h3>
+                {plan.highlighted && (
+                  <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary">
+                    {t("pricing.plans.standard.badge", { defaultValue: "Popular" })}
+                  </span>
+                )}
+              </div>
+
+              <div className="mb-6">
+                <p className="text-3xl font-bold text-slate-900">{plan.price}</p>
+                {plan.yearly && (
+                  <p className="text-sm text-slate-500">{plan.yearly}</p>
+                )}
+              </div>
+
+              <ul className="flex-1 space-y-3 text-sm text-slate-700">
+                {plan.features.map((feature, index) => (
+                  <li key={`${plan.key}-feature-${index}`} className="flex items-start gap-3">
+                    <span className="mt-1 inline-flex h-2.5 w-2.5 flex-shrink-0 rounded-full bg-primary" aria-hidden="true" />
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="mt-8">
+                <Button
+                  className="w-full"
+                  size="lg"
+                  variant={plan.highlighted ? "primary" : "outline"}
+                  onClick={() => navigate("/signup", { state: { plan: plan.key } })}
+                >
+                  {plan.cta}
+                </Button>
+              </div>
+            </article>
+          ))}
         </div>
       </div>
     </section>

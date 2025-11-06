@@ -347,9 +347,79 @@
   "login.error.companyIdMismatch": "The company does not match your account.",
   "login.error.companyNotFound": "This company does not exist.",
   "login.error.invalidCompanyCredentials": "Invalid credentials (email/company).",
-  "login.error.invalidCredentials": "Invalid email or password. Please try again.",
-  "login.error.profileFetchFailed": "Could not retrieve your user profile for verification.",
-  "login.error.unknownEmail": "This email address is not recognized.",
+  "pricing": {
+    "title": "Simple, transparent pricing",
+    "disclaimer": "Everything is hosted by us (Supabase + RLS). No local storage.",
+    "plans": {
+      "freemium": {
+        "name": "Freemium",
+        "price": "Free",
+        "yearly": "",
+        "features": [
+          "1 agent",
+          "50 tickets / month",
+          "Basic AI (short answers)",
+          "Read-only history 7 days",
+          "No export, no appointments",
+          "Upgrade banner at 80% / hard stop at 100%"
+        ],
+        "cta": "Start for free"
+      },
+      "standard": {
+        "name": "Standard",
+        "price": "€19 / mo",
+        "yearly": "€190 / yr",
+        "features": [
+          "5 agents",
+          "500 tickets / month",
+          "Full AI + auto categorization",
+          "Internal notes, CSV export",
+          "Simple appointments (no reminders)",
+          "Standard SLA",
+          "Manager activation code included"
+        ],
+        "cta": "Start Standard"
+      },
+      "pro": {
+        "name": "Pro",
+        "price": "€39 / mo",
+        "yearly": "€390 / yr",
+        "features": [
+          "10 agents",
+          "1000 tickets / month",
+          "Voice commands",
+          "Multilingual FR/EN (AR UI)",
+          "Appointments + reminders",
+          "Advanced reports, webhooks",
+          "Priority SLA"
+        ],
+        "cta": "Go Pro"
+      }
+    }
+  },
+  "landing": {
+    "hero": {
+      "title": "An AI help desk to move faster",
+      "subtitle": "Nexus summarizes & categorizes automatically so your agents focus on solving.",
+      "ctaStart": "Start free",
+      "ctaDemo": "Request a demo"
+    }
+  },
+  "demo": {
+    "title": "Request a 15-min demo",
+    "name": "Your name",
+    "email": "Your email",
+    "company": "Your company",
+    "message": "Your message (optional)",
+    "submit": "Send",
+    "success": "Thanks! We’ll get back to you shortly.",
+    "error": "Something went wrong. Please try again."
+  },
+  "upgradeBanner": {
+    "title": "You used {{percent}}% of your monthly quota.",
+    "subtitle": "Upgrade to avoid creation blocks.",
+    "cta": "See pricing"
+  },
   "login.noAccount": "Don't have an account?",
   "login.passwordLabel": "Password",
   "login.passwordPlaceholder": "Enter your password",

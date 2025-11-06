@@ -365,9 +365,79 @@
   "login.error.companyIdMismatch": "La compagnie ne correspond pas à votre compte.",
   "login.error.companyNotFound": "Cette compagnie n'existe pas.",
   "login.error.invalidCompanyCredentials": "Identifiants invalides (email/compagnie).",
-  "login.error.invalidCredentials": "Email ou mot de passe incorrect. Veuillez réessayer.",
-  "login.error.profileFetchFailed": "Impossible de récupérer votre profil utilisateur pour la vérification.",
-  "login.error.unknownEmail": "Cet email n'est pas reconnu.",
+  "pricing": {
+    "title": "Une tarification simple et transparente",
+    "disclaimer": "Tout est hébergé chez nous (Supabase + RLS). Aucune donnée stockée localement.",
+    "plans": {
+      "freemium": {
+        "name": "Freemium",
+        "price": "Gratuit",
+        "yearly": "",
+        "features": [
+          "1 agent",
+          "50 tickets / mois",
+          "IA basique (réponses courtes)",
+          "Historique lecture seule 7 jours",
+          "Pas d’export, pas de RDV",
+          "Bannière d’upgrade à 80% / blocage à 100%"
+        ],
+        "cta": "S’inscrire gratuitement"
+      },
+      "standard": {
+        "name": "Standard",
+        "price": "19 €/mois",
+        "yearly": "190 €/an",
+        "features": [
+          "5 agents",
+          "500 tickets / mois",
+          "IA complète + catégorisation auto",
+          "Notes internes, export CSV",
+          "RDV simples (sans rappels)",
+          "SLA standard",
+          "Code d’activation manager inclus"
+        ],
+        "cta": "Démarrer Standard"
+      },
+      "pro": {
+        "name": "Pro",
+        "price": "39 €/mois",
+        "yearly": "390 €/an",
+        "features": [
+          "10 agents",
+          "1000 tickets / mois",
+          "Commandes vocales",
+          "Multilingue FR/EN (UI AR)",
+          "RDV + rappels",
+          "Rapports avancés, webhooks",
+          "SLA prioritaire"
+        ],
+        "cta": "Passer en Pro"
+      }
+    }
+  },
+  "landing": {
+    "hero": {
+      "title": "Un centre d’assistance IA pour aller plus vite",
+      "subtitle": "Nexus résume et catégorise automatiquement, vos agents se concentrent sur la résolution.",
+      "ctaStart": "Commencer gratuitement",
+      "ctaDemo": "Demander une démo"
+    }
+  },
+  "demo": {
+    "title": "Demander une démo (15 min)",
+    "name": "Votre nom",
+    "email": "Votre email",
+    "company": "Votre entreprise",
+    "message": "Votre message (optionnel)",
+    "submit": "Envoyer",
+    "success": "Merci ! Nous revenons vers vous rapidement.",
+    "error": "Une erreur est survenue. Réessayez."
+  },
+  "upgradeBanner": {
+    "title": "Vous avez utilisé {{percent}}% de votre quota ce mois-ci.",
+    "subtitle": "Passez au plan supérieur pour éviter tout blocage de création.",
+    "cta": "Voir les offres"
+  },
   "login.noAccount": "Vous n'avez pas de compte ?",
   "login.passwordLabel": "Mot de passe",
   "login.passwordPlaceholder": "Entrez votre mot de passe",
