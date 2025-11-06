@@ -1,7 +1,7 @@
 import ManagerInviteUserCard from '@/components/ManagerInviteUserCard';
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Link, Navigate } from 'react-router-dom';
-import { useApp } from '../App';
+import { useApp } from '@/contexts/AppContext';
 import { Ticket, User, UserRole, TicketPriority, Locale, TicketStatus } from '../types';
 import { Button, Select, Input } from '../components/FormElements';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -618,7 +618,46 @@ const ManagerDashboardPage: React.FC = () => {
         }
     }, [quotaSeverity]);
 
-    const quotaValueLabel = useMemo(() => {
+    const progressBarColor = quotaSeverity === 'blocked'
+        ? 'bg-red-500'
+        : quotaSeverity === 'near'
+        ? 'bg-amber-500'
+        : 'bg-emerald-500';
+
+    const infinityLabel = t('dashboard.quota.unlimitedBadge', { default: 'Illimité' });
+    const infinitySrLabel = t('dashboard.quota.infinity_badge_sr', { default: 'Illimité' });
+    const unlimitedAriaLabel = t('dashboard.quota.aria_unlimited_label', {
+        default: 'Offre illimitée : aucun plafond de tickets ce mois-ci',
+    });
+    const loadingAriaLabel = t('dashboard.quota.loadingAria', { default: 'Quota en cours de chargement' });
+
+    const progressAriaLabel = !quotaState.loading && !normalizedQuota.unlimited && normalizedQuota.limit !== null && normalizedQuota.percent !== null
+        ? t('dashboard.quota.aria_progress_label', {
+            default: 'Vous avez utilisé {{used}} sur {{limit}} tickets ({{percent}}%)',
+            values: {
+                used: normalizedQuota.used,
+                limit: normalizedQuota.limit,
+                percent: normalizedQuota.percent,
+            },
+            used: normalizedQuota.used,
+            limit: normalizedQuota.limit,
+            percent: normalizedQuota.percent,
+        })
+        : null;
+
+    const quotaCardAriaLabel = quotaState.loading ? loadingAriaLabel : progressAriaLabel ?? unlimitedAriaLabel;
+
+    const progressBarProps = quotaState.loading || normalizedQuota.unlimited || normalizedQuota.limit === null || normalizedQuota.percent === null
+        ? { 'aria-hidden': true as const }
+        : {
+            role: 'progressbar' as const,
+            'aria-valuemin': 0,
+            'aria-valuemax': normalizedQuota.limit,
+            'aria-valuenow': normalizedQuota.used,
+            'aria-label': progressAriaLabel ?? undefined,
+        };
+
+    const quotaDisplayLabel = useMemo(() => {
         if (quotaState.loading) {
             return '…';
         }
@@ -642,7 +681,7 @@ const ManagerDashboardPage: React.FC = () => {
             limit: normalizedQuota.limitLabel,
             percentChunk,
         });
-    }, [normalizedQuota, quotaState.loading, t]);
+    }, [normalizedQuota.limitLabel, normalizedQuota.percent, normalizedQuota.remainingLabel, quotaState.loading, t]);
 
     const quotaMessage = useMemo(() => {
         if (quotaState.loading || normalizedQuota.unlimited || normalizedQuota.limit === null) {
@@ -734,13 +773,30 @@ const ManagerDashboardPage: React.FC = () => {
             <section
                 className={`border shadow-lg rounded-lg p-4 sm:p-6 transition-colors ${quotaStyles.container}`}
                 aria-live="polite"
+                aria-label={quotaCardAriaLabel}
             >
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <p className="text-sm font-semibold uppercase tracking-wide text-slate-600">
                             {t('dashboard.quota.title')}
                         </p>
-                        <p className="text-2xl font-bold text-slate-800 mt-1">{quotaValueLabel}</p>
+                        <p
+                            className="text-2xl font-bold text-slate-800 mt-1"
+                            aria-label={quotaCardAriaLabel}
+                        >
+                            {quotaDisplayLabel}
+                            {normalizedQuota.unlimited && (
+                                <span className="sr-only">{infinitySrLabel}</span>
+                            )}
+                        </p>
+                        <div className="mt-3 w-full h-2 rounded bg-slate-200 overflow-hidden" {...progressBarProps}>
+                            {!quotaState.loading && !normalizedQuota.unlimited && normalizedQuota.percent !== null && (
+                                <div
+                                    className={`h-2 ${progressBarColor}`}
+                                    style={{ width: `${normalizedQuota.percent}%` }}
+                                />
+                            )}
+                        </div>
                         {quotaMessage && (
                             <p className={`mt-2 text-sm ${quotaStyles.message}`}>{quotaMessage}</p>
                         )}
