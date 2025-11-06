@@ -2,12 +2,7 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-import {
-  handleOptions,
-  guardOriginOr403,
-  getAllowedOrigins,
-  corsHeaders,
-} from "../_shared/cors.ts";
+import { handleOptions, guardOriginOr403, json } from "../_shared/cors.ts";
 
 type Role = "manager" | "agent" | "user";
 type PlanKey = "freemium" | "standard" | "pro";
@@ -121,20 +116,8 @@ async function consumeActivationCode(id: string, authUid: string) {
     .eq("id", id);
 }
 
-function jsonResponse(
-  body: unknown,
-  status: number,
-  baseHeaders: Record<string, string>,
-  extraHeaders: Record<string, string> = {},
-) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...baseHeaders, "content-type": "application/json; charset=utf-8", ...extraHeaders },
-  });
-}
-
-function respondError(code: string, status: number, baseHeaders: Record<string, string>) {
-  return jsonResponse({ ok: false, error: code }, status, baseHeaders);
+function respondError(req: Request, env: Record<string, string | undefined>, code: string, status: number) {
+  return json(req, env, { ok: false, error: code }, status);
 }
 
 serve(async (req) => {
@@ -142,12 +125,9 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return handleOptions(req, env);
   const block = guardOriginOr403(req, env);
   if (block) return block;
-  const origin = req.headers.get("origin") ?? "";
-  const allowed = getAllowedOrigins(env);
-  const baseHeaders = corsHeaders(origin, allowed);
 
   if (req.method !== "POST") {
-    return respondError("method_not_allowed", 405, baseHeaders);
+    return respondError(req, env, "method_not_allowed", 405);
   }
 
   let payload: any = null;
@@ -167,22 +147,22 @@ serve(async (req) => {
   const secretCode = String(payload?.secretCode ?? payload?.secret_code ?? "").trim();
 
   if (!email || !password || !fullName || !role || !companyInput) {
-    return respondError("missing_fields", 400, baseHeaders);
+    return respondError(req, env, "missing_fields", 400);
   }
 
   if (password.length < 8) {
-    return respondError("weak_password", 400, baseHeaders);
+    return respondError(req, env, "weak_password", 400);
   }
 
   if (role !== "manager" && role !== "agent" && role !== "user") {
-    return respondError("invalid_role", 400, baseHeaders);
+    return respondError(req, env, "invalid_role", 400);
   }
 
   const language = SUPPORTED_LANGUAGES.has(languageRaw) ? languageRaw : "fr";
   const { normalized: companyName, lower: companyLower } = normalizeCompanyName(companyInput);
 
   if (!companyName) {
-    return respondError("missing_fields", 400, baseHeaders);
+    return respondError(req, env, "missing_fields", 400);
   }
 
   try {
@@ -193,7 +173,7 @@ serve(async (req) => {
       if (existingCompany) {
         const managerCount = await countManagers(existingCompany.id);
         if (managerCount > 0) {
-          return respondError("company_conflict", 409, baseHeaders);
+          return respondError(req, env, "company_conflict", 409);
         }
 
         const { data: authUser, error: authError } = await admin.auth.admin.createUser({
@@ -204,7 +184,7 @@ serve(async (req) => {
         });
 
         if (authError || !authUser?.user) {
-          return respondError("user_create_failed", 500, baseHeaders);
+          return respondError(req, env, "user_create_failed", 500);
         }
 
         const authUid = authUser.user.id;
@@ -219,32 +199,33 @@ serve(async (req) => {
 
         if (profileError) {
           await admin.auth.admin.deleteUser(authUid).catch(() => {});
-          return respondError("profile_insert_failed", 500, baseHeaders);
+          return respondError(req, env, "profile_insert_failed", 500);
         }
 
-        return jsonResponse(
-          { ok: true, company_id: existingCompany.id, user_id: authUid, mode: "manager_existing" },
-          200,
-          baseHeaders,
-        );
+        return json(req, env, {
+          ok: true,
+          company_id: existingCompany.id,
+          user_id: authUid,
+          mode: "manager_existing",
+        });
       }
 
       if (planKey !== "freemium" && !secretCode) {
-        return respondError("activation_required", 400, baseHeaders);
+        return respondError(req, env, "activation_required", 400);
       }
 
       let activationRow: ManagerActivationRow | null = null;
       if (planKey !== "freemium") {
         const activation = await validateActivationCode(secretCode, companyLower);
         if (!activation.ok) {
-          return respondError(activation.error, 400, baseHeaders);
+          return respondError(req, env, activation.error, 400);
         }
         activationRow = activation.row;
       }
 
       const planId = await resolvePlanId(planKey);
       if (!planId) {
-        return respondError("plan_not_found", 400, baseHeaders);
+        return respondError(req, env, "plan_not_found", 400);
       }
 
       const { data: authUser, error: authError } = await admin.auth.admin.createUser({
@@ -255,7 +236,7 @@ serve(async (req) => {
       });
 
       if (authError || !authUser?.user) {
-        return respondError("user_create_failed", 500, baseHeaders);
+        return respondError(req, env, "user_create_failed", 500);
       }
 
       const authUid = authUser.user.id;
@@ -268,7 +249,7 @@ serve(async (req) => {
 
       if (companyError || !companyRow?.id) {
         await admin.auth.admin.deleteUser(authUid).catch(() => {});
-        return respondError("company_create_failed", 500, baseHeaders);
+        return respondError(req, env, "company_create_failed", 500);
       }
 
       const companyId = companyRow.id as string | number;
@@ -280,7 +261,7 @@ serve(async (req) => {
       if (settings.error) {
         await admin.from("companies").delete().eq("id", companyId).catch(() => {});
         await admin.auth.admin.deleteUser(authUid).catch(() => {});
-        return respondError("settings_insert_failed", 500, baseHeaders);
+        return respondError(req, env, "settings_insert_failed", 500);
       }
 
       const { error: profileError } = await admin.from("users").insert({
@@ -296,23 +277,24 @@ serve(async (req) => {
         await admin.from("company_settings").delete().eq("company_id", companyId).catch(() => {});
         await admin.from("companies").delete().eq("id", companyId).catch(() => {});
         await admin.auth.admin.deleteUser(authUid).catch(() => {});
-        return respondError("profile_insert_failed", 500, baseHeaders);
+        return respondError(req, env, "profile_insert_failed", 500);
       }
 
       if (activationRow) {
         await consumeActivationCode(activationRow.id, authUid).catch(() => {});
       }
 
-      return jsonResponse(
-        { ok: true, company_id: companyId, user_id: authUid, mode: "manager_new" },
-        200,
-        baseHeaders,
-      );
+      return json(req, env, {
+        ok: true,
+        company_id: companyId,
+        user_id: authUid,
+        mode: "manager_new",
+      });
     }
 
     const company = await findCompanyByLowerName(companyLower);
     if (!company?.id) {
-      return respondError("company_missing", 404, baseHeaders);
+      return respondError(req, env, "company_missing", 404);
     }
 
     const { data: authUser, error: authError } = await admin.auth.admin.createUser({
@@ -323,7 +305,7 @@ serve(async (req) => {
     });
 
     if (authError || !authUser?.user) {
-      return respondError("user_create_failed", 500, baseHeaders);
+      return respondError(req, env, "user_create_failed", 500);
     }
 
     const authUid = authUser.user.id;
@@ -338,16 +320,12 @@ serve(async (req) => {
 
     if (profileError) {
       await admin.auth.admin.deleteUser(authUid).catch(() => {});
-      return respondError("profile_insert_failed", 500, baseHeaders);
+      return respondError(req, env, "profile_insert_failed", 500);
     }
 
-    return jsonResponse(
-      { ok: true, company_id: company.id, user_id: authUid, mode: "member" },
-      200,
-      baseHeaders,
-    );
+    return json(req, env, { ok: true, company_id: company.id, user_id: authUid, mode: "member" });
   } catch (error) {
     console.error("auth-signup unexpected error", error);
-    return respondError("unexpected_error", 500, baseHeaders);
+    return respondError(req, env, "unexpected_error", 500);
   }
 });
