@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "merge-locales": "node scripts/merge-locales.mjs",
-    "i18n:check": "node scripts/locales-csv-report.mjs"
+    "i18n:check": "node scripts/locales-csv-report.mjs",
+    "detect:cycles": "node scripts/detect-cycles.mjs"
   },
   "dependencies": {
     "@azure/identity": "^4.1.0",
