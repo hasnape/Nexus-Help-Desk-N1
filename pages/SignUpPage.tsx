@@ -736,6 +736,12 @@ const SignUpPage: React.FC = () => {
                       isSelected={selectedPlan === "freemium"}
                       onSelect={handlePlanSelect}
                       t={t}
+                      demoHref="/landing#demo"
+                      buyLabel={t("signupPlans.freemium.modal.buttons.subscribe", { defaultValue: pricingPlans.freemium.cta })}
+                      onBuy={() => {
+                        setSelectedPlan("freemium");
+                        setShowFreemiumModal(true);
+                      }}
                     />
                     <PlanCard
                       planKey="standard"
@@ -744,6 +750,9 @@ const SignUpPage: React.FC = () => {
                       onSelect={handlePlanSelect}
                       t={t}
                       badgeText={popularBadge}
+                      demoHref="/landing#demo"
+                      buyHref={paypalLinks.standard}
+                      buyLabel={t("signupPlans.standard.modal.buttons.subscribe", { defaultValue: pricingPlans.standard.cta })}
                     />
                     <PlanCard
                       planKey="pro"
@@ -751,6 +760,9 @@ const SignUpPage: React.FC = () => {
                       isSelected={selectedPlan === "pro"}
                       onSelect={handlePlanSelect}
                       t={t}
+                      demoHref="/landing#demo"
+                      buyHref={paypalLinks.pro}
+                      buyLabel={t("signupPlans.pro.modal.buttons.subscribe", { defaultValue: pricingPlans.pro.cta })}
                     />
                   </div>
 

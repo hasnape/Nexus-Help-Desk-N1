@@ -955,11 +955,9 @@ const SignUpPage: React.FC = () => {
                   </Link>
                 </p>
               </div>
-
               <p className="mt-4 text-xs text-center text-slate-400">
                 {t("login.demoNotes.supabase.production")}
               </p>
-
               <div className="mt-6 pt-4 border-t border-slate-200 text-center">
                 <Link to="/legal" className="text-xs text-slate-500 hover:text-primary hover:underline">
                   {t("footer.legalLink", { defaultValue: "Legal & Documentation" })}
