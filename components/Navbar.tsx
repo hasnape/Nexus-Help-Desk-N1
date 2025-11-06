@@ -2,10 +2,10 @@ import React, { useState, Fragment } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useApp } from "@/contexts/AppContext";
 import { Button } from "./FormElements";
-import { useLanguage } from "../contexts/LanguageContext";
-import { UserRole } from "../types";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { UserRole } from "@/types";
 import { Transition } from "@headlessui/react"; // Ajoutez cette dépendance si besoin
-import type { Locale } from "../contexts/LanguageContext";
+import type { Locale } from "@/contexts/LanguageContext";
 
 
 const SpeakerLoudIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (

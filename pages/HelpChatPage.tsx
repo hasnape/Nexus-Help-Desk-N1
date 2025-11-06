@@ -5,10 +5,10 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import ChatMessageComponent from '../components/ChatMessage';
 import { Button, Textarea } from '../components/FormElements';
-import { ChatMessage, UserRole } from '../types';
+import { ChatMessage, UserRole } from '@/types';
 import LoadingSpinner from '../components/LoadingSpinner';
 import useSpeechRecognition from '../hooks/useSpeechRecognition';
-import { useLanguage } from '../contexts/LanguageContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { getFollowUpHelpResponse } from '../services/geminiService';
 import useTextToSpeech from '../hooks/useTextToSpeech';
 

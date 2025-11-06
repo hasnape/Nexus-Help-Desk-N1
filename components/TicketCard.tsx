@@ -1,8 +1,8 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Ticket, TicketStatus, TicketPriority } from '../types';
-import { useLanguage } from '../contexts/LanguageContext';
+import { Ticket, TicketStatus, TicketPriority } from '@/types';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { TICKET_STATUS_KEYS, TICKET_PRIORITY_KEYS } from '../constants';
 import { useApp } from '@/contexts/AppContext';
 
