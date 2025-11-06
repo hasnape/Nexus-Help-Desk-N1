@@ -2,57 +2,12 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-// Origines autorisées (pas de chemins, pas de #hash)
-const STATIC_ALLOWED_ORIGINS = [
-  "https://www.nexussupporthub.eu",
-  "https://nexus-help-desk-n1.vercel.app",
-  "http://localhost:5173",
-] as const;
-
-const additionalOrigins = (
-  Deno.env.get("ALLOWED_ORIGINS") ??
-  Deno.env.get("SUPABASE_ALLOWED_ORIGINS") ??
-  ""
-)
-  .split(",")
-  .map((origin) => origin.trim())
-  .filter((origin) => origin.length > 0);
-
-const ALLOWED_ORIGINS = new Set<string>([
-  ...STATIC_ALLOWED_ORIGINS,
-  ...additionalOrigins,
-]);
-
-function corsHeaders(origin: string | null) {
-  if (!origin || !ALLOWED_ORIGINS.has(origin)) return null;
-  return {
-    "Access-Control-Allow-Origin": origin,
-    "Access-Control-Allow-Headers":
-      "authorization, x-client-info, apikey, content-type",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    Vary: "Origin",
-  } as Record<string, string>;
-}
-
-function json(
-  body: unknown,
-  status = 200,
-  cors: Record<string, string> = { Vary: "Origin" },
-) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...cors, "content-type": "application/json; charset=utf-8" },
-  });
-}
+import { handleCors, json } from "../_shared/cors.ts";
 
 serve(async (req) => {
-  const origin = req.headers.get("Origin");
-  const cors = corsHeaders(origin);
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { status: 204, headers: cors ?? { Vary: "Origin" } });
-  }
-  if (!cors) {
-    return new Response("Forbidden", { status: 403, headers: { Vary: "Origin" } });
+  const { cors, response } = handleCors(req);
+  if (response) {
+    return response;
   }
   if (req.method !== "POST") {
     return json({ error: "method_not_allowed" }, 405, cors);
@@ -62,7 +17,9 @@ serve(async (req) => {
   const supabaseUrl = Deno.env.get("PROJECT_URL") ?? Deno.env.get("SUPABASE_URL")!;
   const anonKey = Deno.env.get("ANON_KEY") ?? Deno.env.get("SUPABASE_ANON_KEY")!;
   const serviceKey =
-    Deno.env.get("SERVICE_ROLE_KEY") ?? Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    Deno.env.get("NSH_SERVICE_ROLE_KEY") ??
+    Deno.env.get("SERVICE_ROLE_KEY") ??
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
   const FRONTEND_URL = Deno.env.get("FRONTEND_URL") ?? "https://www.nexussupporthub.eu";
 
   const authHeader = req.headers.get("Authorization") ?? "";

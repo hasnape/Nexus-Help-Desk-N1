@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
@@ -242,17 +242,27 @@ const PlanCard: React.FC<{
   onSelect: (plan: PricingPlanKey) => void;
   t: (key: string, options?: { [key: string]: any }) => string;
   badgeText?: string;
-}> = ({ planKey, plan, isSelected, onSelect, t, badgeText }) => {
+}> = ({
+  planKey,
+  plan,
+  isSelected,
+  onSelect,
+  t,
+  badgeText,
+}) => {
   const isSelectable = planKey !== "pro";
-  const buttonKey = isSelectable
-    ? `pricing.select_${planKey}`
-    : "pricing.view_pro_details";
+  const buttonKey = isSelectable ? `pricing.select_${planKey}` : "pricing.view_pro_details";
   const buttonLabel = t(buttonKey, {
     defaultValue: t(`signupPlans.${planKey}.select`, {
       defaultValue: t("signupPlans.selectDefault", { defaultValue: "Sélectionner" }),
     }),
   });
   const planTitle = t(`pricing.${planKey}`, { defaultValue: plan.name });
+  const actionButtonBase = "w-100 fw-semibold d-flex align-items-center justify-content-center gap-2";
+
+  const handleSelectClick = () => {
+    onSelect(planKey);
+  };
 
   return (
     <div
@@ -265,16 +275,9 @@ const PlanCard: React.FC<{
       aria-label={planTitle}
     >
       {isSelected ? (
-        <span
-          className="position-absolute top-0 end-0 translate-middle mt-4 me-4 rounded-circle bg-success text-white d-flex align-items-center justify-content-center shadow"
-          aria-hidden="true"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            className="w-4 h-4"
-          >
+        <span className="position-absolute top-0 end-0 translate-middle mt-4 me-4 rounded-circle bg-success text-white d-flex align-items-center justify-content-center shadow">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+               fill="currentColor" className="w-4 h-4">
             <path
               fillRule="evenodd"
               d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -286,17 +289,12 @@ const PlanCard: React.FC<{
 
       {badgeText ? (
         <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-          <span className="bg-primary text-white px-3 py-1 rounded-full text-sm font-medium">
-            {badgeText}
-          </span>
+          <span className="bg-primary text-white px-3 py-1 rounded-full text-sm font-medium">{badgeText}</span>
         </div>
       ) : null}
 
       <div className="text-center mb-6">
-        <h3
-          className="text-xl font-bold text-gray-900 mb-2"
-          data-i18n={`pricing.plans.${planKey}.name`}
-        >
+        <h3 className="text-xl font-bold text-gray-900 mb-2" data-i18n={`pricing.plans.${planKey}.name`}>
           {plan.name}
         </h3>
         <span className="visually-hidden" data-i18n={`pricing.${planKey}`}>
@@ -306,10 +304,7 @@ const PlanCard: React.FC<{
           <span className="visually-hidden" data-i18n="pricing.billed_monthly">
             {t("pricing.billed_monthly", { defaultValue: "Billed monthly" })}
           </span>
-          <span
-            className="text-3xl font-bold text-primary"
-            data-i18n={`pricing.plans.${planKey}.price`}
-          >
+          <span className="text-3xl font-bold text-primary" data-i18n={`pricing.plans.${planKey}.price`}>
             {plan.price}
           </span>
         </div>
@@ -332,10 +327,38 @@ const PlanCard: React.FC<{
       <ul className="space-y-3 mb-6">
         {plan.features.map((feature, index) => (
           <li key={`${plan.name}-${feature}`} className="flex items-start">
+            <svg className="w-5 h-5 text-success me-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fillRule="evenodd"
+                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                clipRule="evenodd"
+              />
+            </svg>
+            <span className="text-gray-700 text-sm" data-i18n={`pricing.plans.${planKey}.features.${index}`}>
+              {feature}
+            </span>
+          </li>
+        ))}
+      </ul>
+
+      <div className="mt-6 d-flex flex-column gap-3">
+        <button
+          type="button"
+          onClick={handleSelectClick}
+          className={`btn btn-success btn-lg ${actionButtonBase} focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-green-600 ${
+            isSelectable && isSelected ? "shadow" : ""
+          }`}
+          {...(isSelectable ? { "data-plan": planKey, "aria-pressed": isSelected } : {})}
+          data-i18n={buttonKey}
+          aria-label={`${buttonLabel} - ${planTitle}`}
+        >
+          <span>{buttonLabel}</span>
+          {isSelectable ? (
             <svg
-              className="w-5 h-5 text-success me-3 mt-0.5 flex-shrink-0"
-              fill="currentColor"
+              xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 20 20"
+              fill="currentColor"
+              className={`w-5 h-5 transition-opacity ${isSelected ? "opacity-100" : "opacity-0"}`}
             >
               <path
                 fillRule="evenodd"
@@ -343,45 +366,9 @@ const PlanCard: React.FC<{
                 clipRule="evenodd"
               />
             </svg>
-            <span
-              className="text-gray-700 text-sm"
-              data-i18n={`pricing.plans.${planKey}.features.${index}`}
-            >
-              {feature}
-            </span>
-          </li>
-        ))}
-      </ul>
-
-      <button
-        type="button"
-        onClick={() => onSelect(planKey)}
-        className={`btn btn-success btn-lg w-100 fw-semibold d-flex align-items-center justify-content-center gap-2 focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-green-600 ${
-          isSelectable && isSelected ? "shadow" : ""
-        }`}
-        {...(isSelectable
-          ? { "data-plan": planKey, "aria-pressed": isSelected }
-          : {})}
-        data-i18n={buttonKey}
-        aria-label={`${buttonLabel} - ${planTitle}`}
-      >
-        <span>{buttonLabel}</span>
-        {isSelectable ? (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            className={`w-5 h-5 transition-opacity ${isSelected ? "opacity-100" : "opacity-0"}`}
-            aria-hidden="true"
-          >
-            <path
-              fillRule="evenodd"
-              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-              clipRule="evenodd"
-            />
-          </svg>
-        ) : null}
-      </button>
+          ) : null}
+        </button>
+      </div>
     </div>
   );
 };
@@ -407,6 +394,66 @@ const SignUpPage: React.FC = () => {
   const pricingPlans = getPricingPlans(t);
   const popularBadge = t("pricing.badges.popular", { defaultValue: "Popular" });
   const navigate = useNavigate();
+
+  const translateSignupApiError = useCallback(
+    (raw: string): string => {
+      const trimmed = typeof raw === "string" ? raw.trim() : "";
+      if (!trimmed) {
+        return t("signup.error.generic", { defaultValue: "Une erreur est survenue." });
+      }
+
+      const normalized = trimmed.toLowerCase().replace(/\s+/g, "_");
+      const translation = t(`signup.apiErrors.${normalized}`, {
+        companyName: companyName.trim(),
+        defaultValue: "",
+      });
+      if (translation) {
+        return translation;
+      }
+
+      switch (normalized) {
+        case "company_conflict":
+        case "company_name_taken":
+          return t("signup.error.companyNameTaken", {
+            defaultValue: "Ce nom d'entreprise est déjà pris.",
+          });
+        case "company_missing":
+        case "company_not_found":
+          return t("signup.error.companyNotFound", {
+            companyName: companyName.trim(),
+            defaultValue: `L'entreprise ${companyName.trim() || ""} est introuvable.`,
+          });
+        case "activation_required":
+          return t("signup.error.secretCodeRequiredManager", {
+            defaultValue: "Un code d'activation est requis.",
+          });
+        case "invalid_activation_code":
+          return t("signup.error.invalidSecretCodeManager", {
+            defaultValue: "Code secret invalide.",
+          });
+        case "user_create_failed":
+        case "profile_insert_failed":
+        case "company_create_failed":
+        case "settings_insert_failed":
+        case "plan_not_found":
+        case "unexpected_error":
+          return t("signup.error.generic", {
+            defaultValue: "Une erreur est survenue.",
+          });
+        case "signup_failed":
+          return t("signup.apiErrors.signup_failed", {
+            defaultValue: t("signup.error.generic", { defaultValue: "Une erreur est survenue." }),
+          });
+        case "network_error":
+          return t("signup.apiErrors.network_error", {
+            defaultValue: t("signup.error.generic", { defaultValue: "Une erreur est survenue." }),
+          });
+        default:
+          return trimmed;
+      }
+    },
+    [companyName, t]
+  );
 
   useEffect(() => {
     if (user) {
@@ -521,7 +568,7 @@ const SignUpPage: React.FC = () => {
     if (result !== true) {
       // Le `result` contiendra le message d'erreur renvoyé par le serveur,
       // par exemple : "Code d'activation invalide ou déjà utilisé."
-      setError(result);
+      setError(translateSignupApiError(result));
     } else {
       // Le serveur a tout validé, l'inscription est réussie !
       if (role === UserRole.MANAGER) {
@@ -953,4 +1000,4 @@ const SignUpPage: React.FC = () => {
   );
 };
 
-export default SignUpPage;
+  export default SignUpPage;

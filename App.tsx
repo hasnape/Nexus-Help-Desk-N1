@@ -2,10 +2,11 @@ import React, { createContext, useState, useContext, ReactNode, useCallback, use
 import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import { Ticket, User, ChatMessage, TicketStatus, UserRole, Locale as AppLocale, AppointmentDetails } from "./types";
 import { getFollowUpHelpResponse, getTicketSummary } from "./services/geminiService";
-import { supabase } from "./services/supabaseClient";
+import { supabase } from "@/services/supabaseClient";
 import { ensureUserProfile } from "./services/authService";
 import { guardedLogin, GuardedLoginError } from "./services/guardedLogin";
 import type { GuardedLoginErrorKey } from "./services/guardedLogin";
+import { invokeWithFallback } from "@/services/functionInvoker";
 import PricingPage from "./pages/PricingPage";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
@@ -32,7 +33,6 @@ import { LanguageProvider, useLanguage } from "./contexts/LanguageContext";
 import LoadingSpinner from "./components/LoadingSpinner";
 import CookieConsentBanner from "./components/CookieConsentBanner";
 import type { Session } from "@supabase/supabase-js";
-import { sendWelcomeManagerEmail, generateLoginUrl, formatRegistrationDate } from "./services/emailService";
 import PageLayout from './components/PageLayout';
 
 
@@ -121,6 +121,14 @@ type TicketMessageRow = {
   inserted_at?: string | null;
   timestamp?: string | null;
   agent_id?: string | null;
+};
+
+type SignupFunctionResponse = {
+  ok?: boolean | null;
+  error?: string | null;
+  user_id?: string | null;
+  company_id?: string | number | null;
+  mode?: string | null;
 };
 
 const reviveTicketDates = (data: any, chatHistoryOverride?: ChatMessage[]): Ticket => ({
@@ -824,163 +832,52 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
   ): Promise<string | true> => {
     const { lang, role, companyName, secretCode, plan } = options;
 
-    if (role === UserRole.MANAGER) {
-      if (!plan) {
-        return translateHook("signup.error.planSelectionRequired");
-      }
-
-      if (plan === "freemium") {
-        const { error: signUpError } = await supabase.auth.signUp({
+    try {
+      const result = await invokeWithFallback<SignupFunctionResponse>(
+        "auth-signup",
+        {
           email,
           password,
-          options: {
-            data: {
-              full_name: fullName,
-              language_preference: lang,
-              role: UserRole.MANAGER,
-              company_name: companyName,
-              plan_name: plan,
-            },
-          },
-        });
+          full_name: fullName,
+          role,
+          company_name: companyName,
+          language_preference: lang,
+          plan,
+          secretCode,
+        },
+        "/api/auth-signup"
+      );
 
-        if (signUpError) {
-          console.error("Erreur lors de l'inscription Freemium:", signUpError);
-          if (signUpError.message && signUpError.message.toLowerCase().includes("user already registered")) {
-            return translateHook("signup.error.emailInUse");
-          }
-          return signUpError.message || translateHook("signup.error.generic");
+      if (result.error) {
+        const { context, message, isNetworkError } = result.error;
+        if (isNetworkError) {
+          return "network_error";
         }
+        const code =
+          (context?.error as string | undefined) ??
+          (context?.reason as string | undefined) ??
+          (typeof message === "string" ? message : undefined) ??
+          "signup_failed";
+        return code;
+      }
 
-        try {
-          const emailData = {
-            managerName: fullName,
-            managerEmail: email,
-            companyName,
-            secretCode: "Freemium",
-            registrationDate: formatRegistrationDate(new Date()),
-            loginUrl: generateLoginUrl(),
-          };
-          const emailResult = await sendWelcomeManagerEmail(emailData);
-          if (!emailResult.success) {
-            console.warn("Failed to send welcome email for freemium manager:", emailResult.error);
-          }
-        } catch (emailError) {
-          console.warn("Unexpected error sending freemium welcome email:", emailError);
-        }
+      const payload = result.data;
+      if (!payload?.ok) {
+        const code = (payload?.error ?? "signup_failed") as string;
+        return code;
+      }
 
+      if (role === UserRole.MANAGER && payload.mode === "manager_new") {
         setNewlyCreatedCompanyName(companyName);
-        return true;
       }
 
-      if (!secretCode) {
-        return translateHook("signup.error.secretCodeRequiredManager");
-      }
-      
-      // ===================================================================
-      // CORRECTION FINALE : Nouvelle logique en 2 étapes
-      // ===================================================================
-
-      // ÉTAPE 1: Valider le code d'activation via une fonction serveur.
-      // Nous utiliserons la fonction 'creer_manager_avec_code' pour cette validation.
-      // Assurez-vous que cette fonction existe bien sur Supabase avec le bon code.
-      const { data: validation, error: rpcError } = await supabase.rpc('creer_manager_avec_code', {
-        email_utilisateur: email,
-        mot_de_passe_utilisateur: password, // envoyé mais non utilisé pour le signup
-        nom_complet_utilisateur: fullName,
-        nom_entreprise_utilisateur: companyName,
-        code_activation: secretCode
-      });
-
-      if (rpcError || validation?.error) {
-        const errorMessage = rpcError?.message || validation?.error;
-        console.error("Erreur lors de la validation du manager :", errorMessage);
-        if (errorMessage && errorMessage.includes('activation_code_not_found')) {
-          return "Le code d'activation est invalide ou a déjà été utilisé.";
-        }
-         if (errorMessage && errorMessage.includes('user_already_exists')) {
-          return "Un utilisateur avec cet email existe déjà.";
-        }
-        return "Une erreur de serveur est survenue lors de la validation. Veuillez réessayer.";
-      }
-      
-      if (!validation?.success || !validation.plan_name) {
-          return "La validation a échoué sans message d'erreur clair.";
-      }
-
-      // ÉTAPE 2: Si la validation réussit, on crée l'utilisateur avec la méthode native de Supabase.
-      // Le trigger 'handle_new_user' s'occupera de créer le profil dans public.users.
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: fullName,
-            language_preference: lang,
-            role: UserRole.MANAGER,
-            company_name: companyName, // Passe le nom de l'entreprise
-            plan_name: validation.plan_name // Passe le nom du plan validé par la fonction RPC
-          }
-        }
-      });
-      
-      if (signUpError) {
-        console.error("Erreur lors du Supabase signUp final:", signUpError);
-        return signUpError.message;
-      }
-      
-      // Si l'inscription réussit, on peut envoyer l'email de bienvenue
-      try {
-        const emailData = {
-          managerName: fullName,
-          managerEmail: email,
-          companyName,
-          secretCode: secretCode || "N/A",
-          registrationDate: formatRegistrationDate(new Date()),
-          loginUrl: generateLoginUrl(),
-        };
-        const emailResult = await sendWelcomeManagerEmail(emailData);
-        if (!emailResult.success) {
-          console.warn("⚠️ L'inscription a réussi, mais l'envoi de l'email de bienvenue a échoué:", emailResult.error);
-        }
-      } catch (emailError) {
-        console.error("❌ Erreur critique lors de l'envoi de l'email de bienvenue:", emailError);
-      }
-      
-      setNewlyCreatedCompanyName(companyName);
       return true;
-
-    } else {
-      // --- LOGIQUE INCHANGÉE POUR LES AUTRES RÔLES (USER, AGENT) ---
-      try {
-        const { data: existingCompany, error: findCompanyError } = await supabase
-          .from("companies")
-          .select("id")
-          .eq("name", companyName)
-          .limit(1);
-
-        if (findCompanyError || !existingCompany || existingCompany.length === 0) {
-          throw new Error(translateHook("signup.error.companyNotFound", { companyName }));
-        }
-        
-        const { error: signUpError } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { data: { full_name: fullName, language_preference: lang, role, company_name: companyName } },
-        });
-
-        if (signUpError) {
-          throw signUpError;
-        }
-
-        return true;
-
-      } catch (e: any) {
-        if (e.message.toLowerCase().includes("user already registered")) {
-          return translateHook("signup.error.emailInUse");
-        }
-        return e.message || translateHook("signup.error.generic");
+    } catch (e: any) {
+      const message = e?.context?.error ?? e?.message;
+      if (typeof message === "string" && message.trim().length > 0) {
+        return message;
       }
+      return "network_error";
     }
   };
 
