@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '@/services/supabaseClient';
+import { invokeWithFallback } from '@/utils/invokeWithFallback';
 
 type Lang = 'fr' | 'en' | 'ar';
 type Role = 'agent' | 'user';
@@ -43,15 +44,22 @@ export default function ManagerInviteUserCard({ companyId }: { companyId?: strin
       payload.password_confirm = password2;
     }
 
-    const { data, error } = await supabase.functions.invoke('manager-create-user', { body: payload });
+    const result = await invokeWithFallback<any>('manager-create-user', payload);
 
     setLoading(false);
 
-    // Gestion fine des erreurs renvoyées par l’Edge Function
-    const serverError = (data as any)?.error || (error as any)?.message;
+    const serverError =
+      (result.error &&
+        ((typeof result.error.context?.error === 'string' && result.error.context.error) ||
+          (typeof result.error.message === 'string' ? result.error.message : undefined))) ||
+      (result.data && typeof result.data === 'object' && 'error' in result.data ? (result.data as any).error : undefined);
+    const details =
+      (typeof result.error?.context?.details === 'string' && result.error.context.details) ||
+      (result.error?.context?.body && typeof (result.error.context.body as any)?.details === 'string'
+        ? (result.error.context.body as any).details
+        : (result.data as any)?.details);
 
-    if (error || serverError) {
-      const details = (data as any)?.details;
+    if (result.error || serverError) {
       if (serverError === 'agent_limit_reached') {
         const c = details?.agentCount ?? '?';
         const m = details?.maxAgents ?? '?';

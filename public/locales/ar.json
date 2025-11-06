@@ -887,6 +887,18 @@
   "manager.invite.errors.weakPassword": "كلمة المرور قصيرة (الحد الأدنى 8 أحرف).",
   "manager.invite.errors.passwordMismatch": "كلمتا المرور غير متطابقتين.",
   "manager.invite.errors.timeout": "انتهت المهلة. تحقق من الوظيفة و CORS.",
+  "auth.errors.ORIGIN_NOT_ALLOWED": "هذا النطاق غير مصرح له بالوصول. يُرجى استخدام نطاق معتمد من Nexus Support Hub.",
+  "auth.errors.agent_limit_reached": "تم بلوغ حد الوكلاء في خطتك.",
+  "auth.errors.company_not_found": "تعذر العثور على الشركة المحددة.",
+  "auth.errors.plan_not_found": "تعذر العثور على خطة الاشتراك المرتبطة.",
+  "auth.errors.profile_not_found": "تعذر العثور على ملف المستخدم.",
+  "auth.errors.invalid_role": "تم إرسال دور غير صالح.",
+  "auth.errors.weak_password": "كلمة المرور ضعيفة جدًا. استخدم 8 أحرف على الأقل.",
+  "auth.errors.password_mismatch": "كلمتا المرور غير متطابقتين.",
+  "auth.errors.invite_failed": "تعذر إرسال الدعوة.",
+  "auth.errors.create_failed": "فشل إنشاء الحساب. حاول مرة أخرى.",
+  "auth.errors.profile_insert_failed": "تعذر حفظ ملف المستخدم.",
+  "auth.errors.generic": "فشلت المصادقة. يرجى المحاولة مرة أخرى.",
   "role.agent": "وكيل",
   "role.user": "مستخدم"
 }
