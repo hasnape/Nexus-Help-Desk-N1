@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { useLanguage } from '../contexts/LanguageContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Link, Navigate, useLocation } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useLanguage } from '../contexts/LanguageContext'; // For default placeholder if necessary
+import { useLanguage } from '@/contexts/LanguageContext'; // For default placeholder if necessary
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'danger' | 'outline';
