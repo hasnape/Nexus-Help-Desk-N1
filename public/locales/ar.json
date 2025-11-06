@@ -1,8 +1,208 @@
 {
+<<<<<<< HEAD
+  "appName": "محور دعم نيكسوس",
+  "appDescription": "مركز دعم ذكي مع الذكاء الاصطناعي لإدارة فعالة للتذاكر ودعم عملاء محسن.",
+  "login.title": "محور دعم نيكسوس",
+  "login.subtitle": "قم بالوصول إلى بوابة المستخدم أو الوكيل أو المدير الخاصة بك.",
+  "login.subtitleSimple": "الرجاء تسجيل الدخول للمتابعة.",
+  "login.emailLabel": "البريد الإلكتروني",
+  "login.emailPlaceholder": "أدخل عنوان بريدك الإلكتروني",
+  "login.passwordLabel": "كلمة المرور",
+  "login.passwordPlaceholder": "أدخل كلمة المرور الخاصة بك",
+  "login.companyNameLabel": "اسم الشركة",
+  "login.companyNamePlaceholder": "أدخل اسم شركتك",
+  "login.signInButton": "تسجيل الدخول",
+  "login.demoNotes.supabase.production": "هذا التطبيق يستخدم مصادقة Supabase الآمنة.",
+  "login.error.allFieldsRequired": "البريد الإلكتروني وكلمة المرور واسم الشركة مطلوبة.",
+  "login.error.invalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صالحة. الرجاء المحاولة مرة أخرى.",
+  "login.error.profileFetchFailed": "تعذر استرداد ملف تعريف المستخدم الخاص بك للتحقق.",
+  "login.error.companyIdMismatch": "اسم الشركة المقدم لا يتطابق مع شركة حسابك.",
+  "login.error.guardFailed": "فشل فحص تسجيل الدخول. يرجى المحاولة لاحقًا.",
+  "login.error.guardNotAllowed": "تم حظر تسجيل الدخول مؤقتًا لهذه الشركة. يرجى التواصل مع المسؤول.",
+  "login.error.originNotAllowed": "هذا المصدر غير مسموح له بالوصول إلى خدمة المصادقة.",
+  "login.error.companyConflict": "هناك مدير يدير هذه الشركة بالفعل. يرجى التواصل مع الدعم.",
+  "login.error.companyNotFound": "لم يتم العثور على شركة بهذا الاسم.",
+  "login.noAccount": "ليس لديك حساب؟",
+  "login.signUpLink": "انشئ حساب",
+  "signup.title": "إنشاء حسابك",
+  "signup.subtitle": "انضم إلى محور دعم نيكسوس",
+  "signup.subtitleSimple": "أنشئ حساب مستخدم مجاني للبدء.",
+  "signup.emailLabel": "عنوان البريد الإلكتروني",
+  "signup.emailPlaceholder": "أدخل بريدك الإلكتروني",
+  "signup.fullNameLabel": "الاسم الكامل",
+  "signup.fullNamePlaceholder": "أدخل اسمك الكامل",
+  "signup.passwordLabel": "كلمة المرور",
+  "signup.passwordPlaceholder": "أنشئ كلمة مرور (6 أحرف على الأقل)",
+  "signup.confirmPasswordLabel": "تأكيد كلمة المرور",
+  "signup.confirmPasswordPlaceholder": "أكد كلمة المرور الخاصة بك",
+  "signup.languageLabel": "اللغة المفضلة",
+  "signup.roleLabel": "دورك",
+  "signup.secretCodeLabel": "الرمز السري",
+  "signup.secretCodePlaceholderManager": "مطلوب لإنشاء شركة",
+  "signup.signUpButton": "انشئ حساب",
+  "signup.alreadyHaveAccount": "هل لديك حساب بالفعل؟",
+  "signup.signInLink": "تسجيل الدخول",
+  "signup.backToHome": "العودة إلى الخطط",
+  "signup.error.allFieldsRequired": "جميع الحقول مطلوبة.",
+  "signup.error.passwordsDoNotMatch": "كلمات المرور غير متطابقة.",
+  "signup.error.minCharsPassword": "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل.",
+  "signup.error.generic": "فشل التسجيل. حدث خطأ في الخادم.",
+  "signup.error.emailInUse": "هذا البريد الإلكتروني مسجل بالفعل. يرجى محاولة تسجيل الدخول.",
+  "signup.error.companyNameTaken": "اسم الشركة هذا مستخدم بالفعل. الرجاء اختيار اسم آخر.",
+  "signup.error.companyCreateFailed": "فشل في إنشاء شركة جديدة. الرجاء المحاولة مرة أخرى.",
+  "signup.error.companyLookupFailed": "تعذر التحقق من الشركة. يرجى المحاولة لاحقًا.",
+  "signup.error.companyNotFound": "لم يتم العثور على الشركة '{{companyName}}'. يرجى التحقق من الاسم والمحاولة مرة أخرى.",
+  "signup.error.secretCodeRequiredManager": "الرمز السري مطلوب لدور المدير.",
+  "signup.error.invalidSecretCodeManager": "رمز سري غير صالح لإنشاء شركة.",
+  "signup.error.invalidRole": "الدور المحدد غير مسموح به.",
+  "signup.error.userCreateFailed": "تعذر إنشاء حساب المستخدم. يرجى المحاولة لاحقًا.",
+  "signup.error.profileInsertFailed": "تعذر حفظ ملف المستخدم. يرجى المحاولة لاحقًا.",
+  "signup.error.planSelectionRequired": "يرجى اختيار خطة لشركتك.",
+  "signup.error.freemiumDeviceLocked": "هذا الحاسوب مرتبط بالفعل بشركة فريميوم {{company}}. استخدم تلك الشركة أو جهازًا آخر.",
+  "signup.companyNameLabel": "اسم الشركة الجديد",
+  "signup.companyNamePlaceholder": "أدخل اسم شركتك الجديدة",
+  "signup.existingCompanyNameLabel": "اسم الشركة الحالي",
+  "signup.existingCompanyNamePlaceholder": "أدخل اسم شركتك",
+  "signup.companyNameHelp.manager": "يجب أن يكون هذا الاسم فريدًا. سيستخدمه فريقك للتسجيل وتسجيل الدخول.",
+  "signup.companyNameHelp.employee": "أدخل اسم الشركة الدقيق الذي قدمه مديرك.",
+  "navbar.welcome": "مرحباً، {{username}}",
+  "navbar.logoutButton": "تسجيل الخروج",
+  "navbar.loginButton": "تسجيل الدخول",
+  "navbar.signUpButton": "إنشاء حساب",
+  "navbar.toggleAutoReadEnable": "تمكين القراءة التلقائية لردود الذكاء الاصطناعي",
+  "navbar.toggleAutoReadDisable": "تعطيل القراءة التلقائية لردود الذكاء الاصطناعي",
+  "navbar.agentPortalButton": "بوابة الوكيل",
+  "navbar.managerPortalButton": "بوابة المدير",
+  "navbar.subscriptionButton": "الاشتراك",
+  "dashboard.welcomeMessage": "مرحباً، {{username}}!",
+  "dashboard.headerSubtitle": "أدِر تذاكر الدعم الخاصة بك أو ابدأ محادثة جديدة مع مساعدنا الذكي أدناه.",
+  "dashboard.createNewTicketButton": "احصل على مساعدة الذكاء الاصطناعي",
+  "dashboard.requestMaterialInvestigationButton": "فحص مشكلة مادية",
+  "dashboard.noTicketsTitle": "ليس لديك تذاكر نشطة.",
+  "dashboard.noTicketsSubtitle": "انقر على 'احصل على مساعدة الذكاء الاصطناعي' لبدء محادثة.",
+  "newTicket.title": "إنشاء تذكرة دعم جديدة",
+  "newTicket.subtitle": "صف مشكلتك وسيساعدك مساعدنا الذكي.",
+  "newTicket.titleInvestigation": "طلب فحص مواد",
+  "newTicket.subtitleInvestigation": "صف المشكلة في جهازك لتشخيصها بمساعدة الذكاء الاصطناعي.",
+  "newTicket.error.failedToCreate": "فشل في إنشاء التذكرة. قد يكون مساعد الذكاء الاصطناعي غير متوفر.",
+  "newTicket.voiceInputNotSupported": "الإدخال الصوتي غير مدعوم من قبل متصفحك. يرجى كتابة وصفك.",
+  "newTicket.form.ticketTitleLabel": "عنوان المشكلة / اسم الجهاز",
+  "newTicket.form.ticketTitlePlaceholder": "مثال: الكمبيوتر لا يعمل، فأرة مكسورة",
+  "newTicket.form.detailedDescriptionLabel": "ملخص المشكلة (مولّد بواسطة الذكاء الاصطناعي)",
+  "newTicket.form.detailedDescriptionPlaceholder": "يرجى تقديم أكبر قدر ممكن من التفاصيل حول المشكلة...",
+  "newTicket.form.detailedDescriptionPlaceholderInvestigation": "صف المشكلة في المادة/الجهاز، أي رسائل خطأ، والخطوات التي جربتها بالفعل...",
+  "newTicket.form.workstationIdLabel": "معرف محطة العمل / نقطة العمل (اختياري)",
+  "newTicket.form.workstationIdPlaceholder": "مثال: COMP-123، علامة الأصول",
+  "newTicket.form.error.workstationIdMaxLength": "يجب أن يكون معرف محطة العمل 50 حرفًا أو أقل.",
+  "newTicket.form.categoryLabel": "الفئة (مقترحة من الذكاء الاصطناعي)",
+  "newTicket.form.priorityLabel": "الأولوية (مقترحة من الذكاء الاصطناعي)",
+  "newTicket.form.cancelButton": "إلغاء",
+  "newTicket.form.submitButton": "إرسال والحصول على مساعدة الذكاء الاصطناعي",
+  "newTicket.form.submitButtonLoading": "جارٍ الإرسال...",
+  "newTicket.form.submitButtonProcessingVoice": "معالجة الصوت...",
+  "newTicket.form.listening": "الاستماع للوصف...",
+  "newTicket.form.error.titleRequired": "العنوان مطلوب.",
+  "newTicket.form.error.titleMaxLength": "يجب أن يكون العنوان 100 حرف أو أقل.",
+  "newTicket.form.error.descriptionRequired": "الوصف مطلوب.",
+  "newTicket.form.error.descriptionMinLength": "يجب أن يكون الوصف 10 أحرف على الأقل.",
+  "newTicket.form.error.categoryRequired": "الفئة مطلوبة.",
+  "newTicket.form.error.priorityRequired": "الأولوية مطلوبة.",
+  "newTicket.loadingMessage": "جاري إنشاء تذكرتك والحصول على رؤى أولية من الذكاء الاصطناعي...",
+  "newTicket.loadingSubMessage": "قد يستغرق هذا بعض الوقت.",
+  "newTicket.form.onBehalfOfLabel": "إنشاء نيابة عن المستخدم",
+  "newTicket.form.onBehalfOfPlaceholder": "حدد المستخدم لهذه التذكرة",
+  "newTicket.form.error.onBehalfOfRequired": "يجب عليك تحديد مستخدم عند إنشاء تذكرة نيابة عنه.",
+  "newTicket.titleFinalize": "ضع اللمسات الأخيرة على تذكرة الدعم الخاصة بك",
+  "newTicket.subtitleFinalize": "تم تلخيص محادثتك بواسطة الذكاء الاصطناعي. يرجى مراجعة وتعديل التفاصيل أدناه قبل الإرسال.",
+  "newTicket.loadingMessageSummary": "جاري تحليل المحادثة وإعداد تذكرتك...",
+  "newTicket.error.summaryFailed": "تعذر الحصول على ملخص بالذكاء الاصطناعي لهذه المحادثة بسبب مشكلة مؤقتة في الخدمة. يرجى مراجعة التفاصيل أدناه وملء أي معلومات مفقودة يدويًا.",
+  "newTicket.form.returnToDashboardButton": "العودة إلى لوحة التحكم",
+  "newTicket.form.submitButtonFinal": "إرسال التذكرة",
+  "ticketDetail.backToDashboardButton": "العودة إلى لوحة التحكم",
+  "ticketDetail.categoryLabel": "الفئة:",
+  "ticketDetail.priorityLabel": "الأولوية:",
+  "ticketDetail.createdLabel": "تم الإنشاء:",
+  "ticketDetail.statusLabel": "الحالة:",
+  "ticketDetail.updateStatusLabel": "تحديث الحالة:",
+  "ticketDetail.speechPlaybackError": "خطأ في تشغيل الكلام: {{error}}",
+  "ticketDetail.aiAssistantName": "نكسوس",
+  "ticketDetail.agentDisplayName": "الوكيل: {{agentName}}",
+  "ticketDetail.unknownAgent": "وكيل",
+  "ticketDetail.userDisplayName": "أنت",
+  "ticketDetail.chatPlaceholder.listening": "يستمع...",
+  "ticketDetail.chatPlaceholder.default": "اكتب رسالتك أو استخدم الميكروفون...",
+  "ticketDetail.chatPlaceholder.closed": "هذه التذكرة مغلقة. أعد فتحها للدردشة.",
+  "ticketDetail.sendMessageButton": "إرسال",
+  "ticketDetail.sendMessageButtonLoading": "جارٍ الإرسال...",
+  "ticketDetail.micButton.startRecording": "بدء تسجيل الرسالة",
+  "ticketDetail.micButton.stopRecording": "إيقاف تسجيل الرسالة",
+  "ticketDetail.ticketClosedWarning": "هذه التذكرة حاليًا {{status}}. لإرسال رسالة جديدة، يرجى تغيير حالتها إلى \"مفتوحة\" أو \"قيد المعالجة\".",
+  "ticketDetail.voiceInputForChatNotSupported": "الإدخال الصوتي للدردشة غير مدعوم من قبل متصفحك.",
+  "ticketDetail.loading": "جار تحميل تفاصيل التذكرة...",
+  "ticketDetail.autoRead.enableButton": "قراءة تلقائية ON",
+  "ticketDetail.autoRead.disableButton": "قراءة تلقائية OFF",
+  "ticketDetail.autoRead.enableTitle": "تمكين القراءة الصوتية التلقائية لردود الذكاء الاصطناعي",
+  "ticketDetail.autoRead.disableTitle": "تعطيل القراءة الصوتية التلقائية لردود الذكاء الاصطناعي",
+  "ticketDetail.repeatButton.label": "إعادة",
+  "ticketDetail.repeatButton.title": "إعادة آخر رسالة من الذكاء الاصطناعي",
+  "ticketDetail.contactAgent.buttonLabel": "اتصل بالوكيل",
+  "ticketDetail.contactAgent.buttonTitle": "اتصل بوكيل مكتب المساعدة البشري",
+  "ticketDetail.contactAgent.alertMessage": "تم إرسال إشعار إلى الوكلاء المتاحين. سينضمون إلى هذه الدردشة قريبًا.",
+  "ticketCard.categoryLabel": "الفئة: {{category}}",
+  "ticketCard.priorityLabel": "الأولوية: {{priority}}",
+  "ticketCard.createdByLabel": "تم إنشاؤها بواسطة: {{user}}",
+  "ticketCard.lastUpdatedLabel": "آخر تحديث: {{date}}",
+  "chatMessage.speakMessageLabel": "اقرأ الرسالة بصوت عالٍ",
+  "chatMessage.stopSpeakingLabel": "إيقاف القراءة",
+  "chatMessage.systemSummaryTitle": "ملخص النظام",
+  "formElements.select.placeholderDefault": "اختر خيارًا",
+  "ticketStatus.Open": "مفتوحة",
+  "ticketStatus.InProgress": "قيد المعالجة",
+  "ticketStatus.Resolved": "تم حلها",
+  "ticketStatus.Closed": "مغلقة",
+  "ticketPriority.Low": "منخفضة",
+  "ticketPriority.Medium": "متوسطة",
+  "ticketPriority.High": "عالية",
+  "userRole.user": "مستخدم",
+  "userRole.agent": "وكيل",
+  "userRole.manager": "مدير",
+  "userRoleShort.user": "مستخدم",
+  "userRoleShort.agent": "وكيل",
+  "userRoleShort.manager": "مدير",
+  "ticketCategory.SoftwareIssue": "مشكلة في البرنامج",
+  "ticketCategory.HardwareProblem": "مشكلة في الجهاز",
+  "ticketCategory.AccountAccess": "الوصول إلى الحساب",
+  "ticketCategory.BillingInquiry": "استفسار عن الفواتير",
+  "ticketCategory.NetworkOutage": "انقطاع الشبكة",
+  "ticketCategory.MaterialReplacementRequest": "طلب استبدال مواد",
+  "ticketCategory.LostMaterial": "مواد/معدات مفقودة",
+  "ticketCategory.BrokenMaterial": "مواد/معدات مكسورة",
+  "ticketCategory.MaterialInvestigation": "فحص المواد",
+  "ticketCategory.GeneralQuestion": "سؤال عام",
+  "language.en": "EN",
+  "language.fr": "FR",
+  "language.ar": "AR",
+  "language.english": "English",
+  "language.french": "Français",
+  "language.arabic": "العربية",
+  "speechRecognition.notSupported": "التعرف على الكلام غير مدعوم في هذا المتصفح.",
+  "speechRecognition.permissionDeniedProactive": "تم رفض الوصول إلى الميكروفون حاليًا. يرجى الانتقال إلى إعدادات الموقع في متصفحك، والسماح بالوصول إلى الميكروفون لهذه الصفحة، ثم التحديث لاستخدام الإدخال الصوتي.",
+  "speechRecognition.error.noSpeech": "لم يتم الكشف عن أي كلام. يرجى محاولة التحدث مرة أخرى.",
+  "speechRecognition.error.audioCapture": "خطأ في التقاط الصوت. يرجى التأكد من أن الميكروفون متصل ومحدد، ثم حاول مرة أخرى.",
+  "speechRecognition.error.notAllowed": "تم رفض الوصول إلى الميكروفون. لاستخدام الإدخال الصوتي، يرجى السماح بالوصول إلى الميكروفون في إعدادات الموقع الخاصة بالمتصفح لهذه الصفحة والتحديث.",
+  "speechRecognition.error.network": "خطأ في الشبكة مع التعرف على الكلام. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.",
+  "speechRecognition.error.generic": "خطأ في الكلام: {{error}}",
+  "speechTts.notSupported": "تحويل النص إلى كلام غير مدعوم في هذا المتصفح.",
+  "agentDashboard.title": "لوحة تحكم الوكيل - {{username}}",
+  "agentDashboard.subtitle": "عرض وإدارة التذاكر المعينة وغير المعينة.",
+  "agentDashboard.unassignedTicketsTitle": "التذاكر غير المعينة",
+  "agentDashboard.noUnassignedTickets": "لا توجد تذاكر غير معينة متاحة.",
+=======
   "account": "الحساب",
   "activationKey.help": "للحصول على رمز التفعيل، يرجى التواصل مع دعم نيكسوس أو مراجعة بريدك الإلكتروني الترحيبي بعد شراء الخطة.",
   "agentDashboard.createTicketButton": "احصل على مساعدة الذكاء الاصطناعي",
   "agentDashboard.loadingTickets": "جارٍ تحميل التذاكر...",
+>>>>>>> origin/master
   "agentDashboard.myTicketsTitle": "التذاكر المعينة لي",
   "agentDashboard.noMyTickets": "ليس لديك تذاكر معينة لك.",
   "agentDashboard.notApplicableShort": "غير متوفر",
@@ -858,6 +1058,228 @@
   "userManual.section.usingTheApp.user.desc": "كمستخدم، هدفك الرئيسي هو الحصول على المساعدة. انقر فوق \"احصل على مساعدة الذكاء الاصطناعي\" لبدء محادثة مع مساعدنا الذكي، نيكسوس. صف مشكلتك، وسيرشدك نيكسوس. إذا لم يتمكن من حل المشكلة، فسيقترح إنشاء تذكرة يمكنك وضع اللمسات الأخيرة عليها وإرسالها.",
   "userManual.section.usingTheApp.user.title": "لوحة تحكم المستخدم",
   "userManual.section.voice.desc": "يتضمن التطبيق ميزات صوتية لتحسين تجربتك. يمكنك استخدام الميكروفون لإملاء الرسائل في الدردشة، ويمكن قراءة ردود الذكاء الاصطناعي بصوت عالٍ تلقائيًا. استخدم أيقونات مكبر الصوت والميكروفون للتحكم في هذه الميزات.",
+<<<<<<< HEAD
+  "promotional.backToApp": "العودة إلى التطبيق",
+  "promotional.mainTitle": "محور دعم نيكسوس – ثورة في دعم العملاء الذكي",
+  "promotional.mainSubtitle": "وثيقة ترويجية | 26 أكتوبر 2023",
+  "promotional.section.intro.title": "1. مقدمة: إعادة تعريف الدعم الفني",
+  "promotional.section.intro.content": "<p>[سيتم إضافة المحتوى العربي الكامل هنا.]</p>",
+  "promotional.section.features.title": "2. الميزات الرئيسية",
+  "promotional.section.features.content": "<p>[سيتم إضافة المحتوى العربي الكامل هنا.]</p>",
+  "promotional.section.advantages.title": "3. المزايا التنافسية",
+  "promotional.section.advantages.content": "<p>[سيتم إضافة المحتوى العربي الكامل هنا.]</p>",
+  "promotional.section.limits.title": "4. الاعتبارات والحدود الحالية",
+  "promotional.section.limits.content": "<p>[سيتم إضافة المحتوى العربي الكامل هنا.]</p>",
+  "promotional.section.future.title": "5. التطورات المستقبلية الممكنة",
+  "promotional.section.future.content": "<p>[سيتم إضافة المحتوى العربي الكامل هنا.]</p>",
+  "promotional.section.pricing.title": "6. التسعير الاستراتيجي وتحديد المواقع",
+  "promotional.section.pricing.content": "<h4>التمركز الموصى به لـ Nexus Support Hub</h4><ul><li><strong>Freemium:</strong> مجاني لما يصل إلى 3 وكلاء / 200 تذكرة شهريًا مع ذكاء اصطناعي أساسي.</li><li><strong>Standard:</strong> 10 €/وكيل/شهريًا مع ذكاء اصطناعي كامل، وتصنيف تلقائي، واتفاقية مستوى الخدمة.</li><li><strong>Pro:</strong> 20 €/وكيل/شهريًا مع أوامر صوتية، ودعم متعدد اللغات، ومواعيد.</li><li><strong>استخدام الذكاء الاصطناعي:</strong> 0.02–0.05 €/تذكرة لتغطية تكاليف Gemini.</li><li><strong>Enterprise:</strong> حسب الطلب، مع تكامل CRM، واتفاقية مستوى الخدمة ودعم متميز.</li></ul><p>💡 <em>سعر 10 €/وكيل/شهريًا يضع Nexus في قطاع الشركات الصغيرة والمتوسطة + ذكاء اصطناعي ميسور التكلفة، وهو تنافسي للغاية مقارنة بـ 15–40 دولارًا/وكيل/شهريًا الموجودة.</em></p>",
+  "promotional.section.conclusion.title": "7. الخاتمة",
+  "promotional.section.conclusion.content": "<p>[سيتم إضافة المحتوى العربي الكامل هنا.]</p>",
+  "landing.hero.title": "دعم أذكى، عملاء أسعد.",
+  "landing.hero.subtitle": "يجمع محور دعم نيكسوس بين الذكاء الاصطناعي المتطور ونظام تذاكر قوي لحل المشكلات بشكل أسرع وإسعاد المستخدمين.",
+  "landing.hero.ctaButton": "ابدأ مجانًا",
+  "landing.advantages.title": "لماذا تختار Nexus Support Hub؟",
+  "landing.advantages.subtitle": "اكتشف المزايا التي تميز دعم العملاء لديك.",
+  "landing.advantages.analytics.title": "تحليلات وإحصائيات متقدمة",
+  "landing.advantages.analytics.desc": "تابع أداء الدعم الخاص بك من خلال لوحات معلومات مفصلة ومؤشرات رئيسية لاتخاذ قرارات أفضل.",
+  "landing.advantages.speed.title": "حل فوري",
+  "landing.advantages.speed.desc": "يتعامل الذكاء الاصطناعي مع كل طلب في الوقت الفعلي، مما يقلل أوقات الاستجابة بشكل كبير ويزيد رضا العملاء.",
+  "landing.advantages.security.title": "أمان بمستوى المؤسسات",
+  "landing.advantages.security.desc": "استفد من حماية متقدمة: بيانات معزولة، وصول مضبوط بدقة، والتوافق مع اللائحة العامة لحماية البيانات (GDPR) لراحة بالك التامة.",
+  "landing.advantages.voice.title": "إمكانية الوصول الصوتي",
+  "landing.advantages.voice.desc": "أوامر صوتية وتحويل النص إلى كلام لتجربة سلسة وشاملة وعصرية.",
+  "landing.advantages.multilingual.title": "دعم متعدد اللغات",
+  "landing.advantages.multilingual.desc": "واجهة ومساعدة متوفرة بالفرنسية والإنجليزية والعربية لخدمة جميع عملائك دون حواجز.",
+  "landing.advantages.dashboard.title": "لوحات تحكم بديهية",
+  "landing.advantages.dashboard.desc": "بوابات مخصصة لكل دور، مع أدوات مصممة لإدارة مثالية.", 
+  "landing.advantages.cost.title": "تحسين التكاليف",
+  "landing.advantages.cost.desc": "أتمتة المهام المتكررة: ركز مواردك على الأهم وقلل من نفقاتك.",
+  "landing.features.title": "كل ما تحتاجه في مكتب مساعدة حديث",
+  "landing.features.subtitle": "من الدردشة المدعومة بالذكاء الاصطناعي إلى الهندسة المعمارية الآمنة متعددة الشركات، لقد قمنا بتغطيتك.",
+  "landing.features.ai.title": "مساعدة فورية بالذكاء الاصطناعي",
+  "landing.features.ai.desc": "تقدم الذكاء الاصطناعي لدينا، نيكسوس، دعمًا على مدار الساعة طوال أيام الأسبوع، وتقوم تلقائيًا بإنشاء تذاكر ملخصة ومصنفة عند الحاجة إلى مساعدة بشرية.",
+  "landing.features.secure.title": "آمن ومتعدد المستأجرين",
+  "landing.features.secure.desc": "بيانات كل شركة معزولة تمامًا، مما يضمن الخصوصية والأمان مع تحكم قوي في الوصول القائم على الأدوار.",
+  "landing.features.voice.title": "مفعل بالصوت",
+  "landing.features.voice.desc": "عزز إمكانية الوصول باستخدام الأوامر الصوتية للدردشة وتحويل النص إلى كلام تلقائيًا لردود الذكاء الاصطناعي.",
+  "pricing.title": "تسعير بسيط وشفاف",
+  "pricing.subtitle": "اختر الخطة التي تناسب احتياجات فريقك. لا توجد رسوم خفية.",
+  "pricing.popular": "الأكثر شيوعًا",
+  "pricing.perAgentPerMonth": "/ وكيل / شهر",
+  "pricing.button.signUp": "انشئ حساب",
+  "pricing.button.getStarted": "ابدأ",
+  "pricing.subscribe": "اشترك",
+  "pricing.freemium.name": "فريميوم",
+  "pricing.freemium.price": "مجاني",
+  "pricing.freemium.desc": "خطة مجانية مع تخزين محلي يُدار على هذا الحاسوب.",
+  "pricing.freemium.feature1": "حتى 3 وكلاء",
+  "pricing.freemium.feature2": "200 تذكرة شهريًا",
+  "pricing.freemium.feature3": "تخزين محلي للتذاكر والجلسات على هذا الجهاز",
+  "pricing.freemium.feature4": "شركة فريميوم واحدة فقط لكل جهاز",
+  "pricing.freemium.cta": "ابدأ مجانًا",
+  "pricing.freemium.storageNotice": "في عرض Freemium تُحفظ التذاكر والجلسات والنسخ الاحتياطية محليًا على الحاسوب الذي يدير Nexus Support Hub. يمكن إعداد شركة فريميوم واحدة فقط لكل جهاز.",
+  "pricing.banner.freemiumFree": "Freemium: مجاني | Standard: الشهر الأول 5€ ثم 10€/شهر | Pro: 20€/شهر",
+  "pricing.banner.choosePlan": "اختر الخطة التي تناسبك",
+  "pricing.standard.name": "ستاندرد",
+  "pricing.standard.price": "10 €",
+  "pricing.standard.desc": "للفرق المتنامية التي تحتاج إلى القوة الكاملة لذكائنا الاصطناعي.",
+  "pricing.standard.feature1": "تذاكر غير محدودة",
+  "pricing.standard.feature2": "ميزات الذكاء الاصطناعي الكاملة",
+  "pricing.standard.feature3": "تصنيف تلقائي",
+  "pricing.standard.feature4": "اتفاقية مستوى خدمة قياسية",
+  "pricing.pro.name": "برو",
+  "pricing.pro.price": "20 €",
+  "pricing.pro.desc": "للفرق التي تتطلب الأفضل، مع ميزات متقدمة.",
+  "pricing.pro.feature1": "جميع ميزات Standard",
+  "pricing.pro.feature2": "أوامر صوتية",
+  "pricing.pro.feature3": "دعم متعدد اللغات",
+  "pricing.pro.feature4": "جدولة المواعيد",
+  "pricing.enterprise.text": "هل تحتاج إلى تكاملات مخصصة أو دعم متميز؟",
+  "pricing.enterprise.link": "اتصل بنا للحصول على أسعار الشركات.",
+  "subscription.pageTitle": "إدارة اشتراكك",
+  "subscription.pageSubtitle": "اختر الخطة المناسبة لفريقك.",
+  "subscription.currentPlan.title": "خطتك الحالية",
+  "subscription.currentPlan.freemiumDesc": "أنت على خطة فريميوم. يتم الاحتفاظ بالتذاكر والنسخ الاحتياطية محليًا على هذا الحاسوب.",
+  "subscription.currentPlan.freemiumSessionInfo": "آخر مزامنة محلية بتاريخ {{date}} لشركة {{company}}.",
+  "subscription.currentPlan.freemiumBackupInfo": "آخر نسخة احتياطية محلية: {{date}} ({{count}} تذكرة).",
+  "subscription.currentPlan.label": "الخطة الحالية",
+  "subscription.disclaimer.title": "تتم إدارة الاشتراكات بواسطة PayPal.",
+  "subscription.disclaimer.text": "يمكنك الإلغاء في أي وقت من حساب PayPal الخاص بك.",
+  "paypal.error.sdkNotLoaded": "تعذر تحميل PayPal SDK. يرجى تحديث الصفحة.",
+  "paypal.error.renderFailed": "تعذر عرض أزرار PayPal. يرجى المحاولة مرة أخرى لاحقًا.",
+  "paypal.error.generic": "حدث خطأ في معاملة PayPal. يرجى المحاولة مرة أخرى.",
+  "paypal.onApprove.alert": "نجح الاشتراك! سيتم تحديث خطتك قريبًا. معرف الاشتراك: {{subscriptionId}}",
+  "subscription.backToDashboard": "العودة إلى لوحة التحكم",
+  "contact.pageTitle": "اتصل بنا",
+  "contact.subtitle": "نحن نحب أن نسمع منك. لأي أسئلة أو شراكات أو استفسارات خاصة بالشركات، يرجى التواصل معنا.",
+  "contact.email.label": "يمكنك الاتصال بنا مباشرة على:",
+  "contact.email.address": "hubnexusinfo@gmail.com",
+  "signup.success.emailSent": "✅ تم التسجيل بنجاح! تم إرسال رسالة تأكيد إلى {{email}}",
+  "signup.success.emailSentManager": "🎉 تم التسجيل بنجاح! تم إرسال رسالة تلخيصية إلى {{email}} تحتوي على جميع المعلومات لإعداد فريقك.",
+  "signup.warning.emailFailed": "✅ تم التسجيل بنجاح! (لم يتم إرسال رسالة التأكيد)",
+  "email.welcome.subject": "🎉 مرحباً بك في Nexus Support Hub - تم إنشاء الشركة \"{{companyName}}\"",
+  "email.welcome.manager.title": "حساب المدير الخاص بك جاهز!",
+  "email.service.notConfigured": "خدمة البريد الإلكتروني غير مكونة - استخدام وضع المحاكاة",
+  "email.service.sendSuccess": "تم إرسال رسالة الترحيب بنجاح إلى {{email}}",
+  "email.service.sendError": "فشل في إرسال البريد الإلكتروني الترحيبي: {{error}}",
+  "email.service.fallbackMode": "التبديل إلى وضع المحاكاة بسبب خطأ في خدمة البريد الإلكتروني",
+  "signupPlans.title": "اختر خطتك",
+  "signupPlans.subtitle": "اختر الخطة التي تناسب احتياجات فريقك.",
+  "signupPlans.freemium.select": "اختر المجاني",
+  "signupPlans.Freemium.modal.title": "خطة فريميوم - التفاصيل",
+  "signupPlans.Freemium.modal.pricing": "مجاني",
+  "signupPlans.Freemium.modal.features.title": "ما يتضمنه فريميوم",
+  "signupPlans.Freemium.modal.features.unlimited": "حتى 3 وكلاء و200 تذكرة/شهر",
+  "signupPlans.Freemium.modal.features.localStorage": "تخزين محلي للتذاكر والجلسات على هذا الجهاز",
+  "signupPlans.Freemium.modal.features.singleCompany": "شركة فريميوم واحدة لكل جهاز (قفل الجهاز)",
+  "signupPlans.Freemium.modal.storageNotice.title": "بياناتك تبقى على جهازك",
+  "signupPlans.Freemium.modal.storageNotice.description": "يتم حفظ التذاكر وسجل المحادثة والنسخ الاحتياطية لفريميوم محليًا. احتفظ بهذا الجهاز أو انقل البيانات يدويًا قبل التبديل إلى جهاز آخر.",
+  "signupPlans.Freemium.modal.buttons.cancel": "إلغاء",
+  "signupPlans.Freemium.modal.buttons.subscribe": "تفعيل فريميوم",
+  "signupPlans.freemium.autoSelected.title": "تم اختيار فريميوم تلقائيًا",
+  "signupPlans.freemium.autoSelected.description": "يتم إنشاء هذا الحساب محليًا بالكامل: يتم حفظ المستخدمين والتذاكر والتفضيلات في المتصفح ضمن سجل \"nsh_freemium_session\" الواحد.",
+  "signupPlans.freemium.autoSelected.storageNotice": "تذكير: يمكن ربط شركة فريميوم واحدة فقط بهذا الحاسوب. صدّر نسخة احتياطية بصيغة JSON قبل تغيير الجهاز.",
+  "signupPlans.standard.select": "اختر المعياري",
+  "signupPlans.pro.select": "عرض تفاصيل الاحترافي",
+  "signupPlans.pro.modal.title": "الخطة الاحترافية - التفاصيل الكاملة",
+  "signupPlans.pro.modal.pricing": "/ وكيل / شهر",
+  "signupPlans.pro.modal.features.title": "الميزات الاحترافية المتضمنة",
+  "signupPlans.pro.modal.features.unlimited": "تذاكر غير محدودة",
+  "signupPlans.pro.modal.features.voice": "أوامر صوتية متقدمة",
+  "signupPlans.pro.modal.features.multilingual": "دعم متعدد اللغات (FR/EN/AR)",
+  "signupPlans.pro.modal.features.appointments": "جدولة المواعيد",
+  "signupPlans.pro.modal.features.priority": "دعم أولوية",
+  "signupPlans.pro.modal.features.analytics": "تحليلات متقدمة",
+  "signupPlans.pro.modal.trial.title": "تجربة مجانية لمدة 7 أيام",
+  "signupPlans.pro.modal.trial.description": "ابدأ تجربتك المجانية لمدة 7 أيام الآن. لا حاجة لبطاقة ائتمان للبدء. ألغِ في أي وقت.",
+  "signupPlans.pro.modal.billing.title": "الفوترة والإلغاء",
+  "signupPlans.pro.modal.billing.description": "فوترة شهرية عبر PayPal. إلغاء سهل من حساب PayPal الخاص بك في أي وقت. لا يوجد التزام طويل الأمد.",
+  "signupPlans.pro.modal.buttons.cancel": "إلغاء",
+  "signupPlans.pro.modal.buttons.subscribe": "اشترك احترافي",
+  "signupPlans.pro.payment.title": "إنهاء الاشتراك الاحترافي",
+  "signupPlans.pro.payment.description": "انقر على زر PayPal أدناه لتفعيل اشتراكك الاحترافي. ستتلقى مفتاح التفعيل عبر البريد الإلكتروني بعد الدفع.",
+  "signupPlans.pro.payment.note": "يمكنك إلغاء اشتراكك في أي وقت من حساب PayPal الخاص بك.",
+  "signupPlans.pro.payment.payButton": "ادفع الآن عبر PayPal",
+  "footer.logoAlt": "شعار محور دعم نيكسوس",
+  "footer.logoTitle": "محور دعم نيكسوس",
+  "footer.description": "مركز دعم ذكي مع الذكاء الاصطناعي لإدارة فعالة للتذاكر ودعم عملاء محسن.",
+  "footer.demoVideo": "🎥 شاهد العرض التوضيحي",
+  "footer.quickLinks": "روابط سريعة",
+  "footer.home": "الرئيسية",
+  "footer.presentation": "عرض تقديمي",
+  "footer.contact": "اتصل بنا",
+  "footer.userManual": "دليل المستخدم",
+  "footer.pricing": "الأسعار",
+  "footer.support": "الدعم",
+  "footer.legalDocs": "المستندات القانونية والتوثيق",
+  "footer.copyright": "© 2025 محور دعم نيكسوس - REP&WEB. كل الحقوق محفوظة.",
+  "footer.privacyPolicy": "سياسة الخصوصية",
+  "footer.termsOfUse": "شروط الاستخدام",
+  "login.appDescription": "مكتب مساعدة ذكي يضم مساعد الذكاء الاصطناعي 'نيكسوس'. احصل على دعم فوري، وادِر التذاكر بكفاءة عبر لوحات تحكم حسب الدور، واستخدم الأوامر الصوتية لتجربة بدون استخدام اليدين.",
+  "signupPlans.pro.modal.trial.note": "بعد انتهاء الفترة التجريبية، يمكنك متابعة خطة برو مقابل 20 يورو/وكيل/شهر.",
+  "signupPlans.pro.modal.buttons.title": "جاهز للترقية إلى برو؟",
+  "signupPlans.pro.modal.buttons.description": "استمتع بالميزات المتقدمة والدعم ذو الأولوية مع خطة برو",
+  "footer.about": "حول",
+  "footer.legal": "قانوني",
+  "footer.partners": "شركاؤنا",
+  "footer.dashboard": "لوحة التحكم",
+  "footer.subscription": "الاشتراك",
+  "footer.login": "تسجيل الدخول",
+  "footer.signup": "إنشاء حساب",
+  "footer.language": "اللغة",
+  "footer.followUs": "تابعنا",
+  "footer.whyChooseNexus": "لماذا تختار محور دعم نيكسوس؟",
+  "footer.whyChooseNexusSubtitle": "اكتشف مزايا مكتب المساعدة الذكي لدينا.",
+  "pricing.freemium.title": "خطة فريميوم",
+  "pricing.standard.title": "خطة ستاندرد",
+  "pricing.pro.title": "خطة برو",
+  "pricing.freemium.shortDesc": "مجاني للفرق الصغيرة",
+  "pricing.standard.shortDesc": "ذكاء اصطناعي كامل للفرق المتنامية",
+  "pricing.pro.shortDesc": "ميزات متقدمة للفرق المتطلبة",
+  "landing.whyChoose.title": "لماذا تختار محور دعم نيكسوس؟",
+  "landing.whyChoose.subtitle": "اكتشف مزايا مكتب المساعدة الذكي لدينا.",
+  "landing.whyChoose.feature1.title": "دعم مدعوم بالذكاء الاصطناعي",
+  "landing.whyChoose.feature1.desc": "إجابات فورية وإنشاء تذاكر مع مساعد الذكاء الاصطناعي.",
+  "landing.whyChoose.feature2.title": "لوحات تحكم حسب الدور",
+  "landing.whyChoose.feature2.desc": "لوحات تحكم مخصصة للمستخدمين والوكلاء والمديرين.",
+  "landing.whyChoose.feature3.title": "أوامر صوتية",
+  "landing.whyChoose.feature3.desc": "تجربة بدون استخدام اليدين مع التعرف على الكلام والتحويل إلى كلام.",
+  "landing.whyChoose.feature4.title": "آمن ومتعدد الشركات",
+  "landing.whyChoose.feature4.desc": "بياناتك معزولة ومحمية لكل شركة.",
+  "landing.whyChoose.feature5.title": "تسعير مرن",
+  "landing.whyChoose.feature5.desc": "خطط لكل حجم فريق، من فريميوم إلى برو.",
+  "landing.whyChoose.feature6.title": "إعداد سهل",
+  "landing.whyChoose.feature6.desc": "إعداد سريع لشركتك وأعضاء فريقك.",
+  "navbar.about": "حول",
+  "navbar.home": "الرئيسية",
+  "navbar.presentation": "العرض",
+  "navbar.pricing": "الأسعار",
+  "navbar.userManual": "دليل المستخدم",
+  "navbar.helpCenter": "مركز المساعدة",
+  "navbar.support": "الدعم",
+  "navbar.legal": "قانوني & وثائق",
+  "navbar.emailSupport": "دعم عبر البريد",
+  "navbar.demoVideo": "فيديو توضيحي",
+  "navbar.group.main": "التنقل",
+  "navbar.testimonials": "آراء العملاء",
+  "navbar.infographie": "مخطط",
+  "navbar.partners": "شركاؤنا",
+  "landing.whyChooseNexus.subtitle": "اكتشف الفوائد الملموسة لفريقك وعملائك.",
+  "landing.whyChooseNexus.title": "لماذا تختار محور دعم نيكسوس؟",
+  "navbar.contact": "اتصل",
+  "general": "عام",
+  "community": "المجتمع",
+  "account": "الحساب",
+  "infographie.title": "مخطط تقني",
+  "infographie.subtitle": "اكتشف بنية وتقنيات Nexus Support Hub الأساسية.",
+  "infographie.seeMore": "عرض المخطط الكامل",
+  "landing.hero.watchDemo": "شاهد العرض",
+  "landing.video.title": "اكتشفمحور دعم نيكسوس ",
+  "landing.video.watchOnYouTube": "شاهد على يوتيوب",
+   "activationKey.help": "للحصول على رمز التفعيل، يرجى التواصل مع دعم نيكسوس أو مراجعة بريدك الإلكتروني الترحيبي بعد شراء الخطة."
+}
+=======
   "userManual.section.voice.title": "3. الميزات الصوتية",
   "userRole.agent": "وكيل",
   "userRole.manager": "مدير",
@@ -908,3 +1330,4 @@
   "role.agent": "وكيل",
   "role.user": "مستخدم"
 }
+>>>>>>> origin/master

@@ -1,14 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { useApp } from "@/contexts/AppContext";
+import React from "react";
+import { useLanguage } from "../contexts/LanguageContext";
+import { useApp } from "../App";
 import PayPalButton from "../components/PayPalButton";
 import { UserRole } from "@/types";
 import { Link, useLocation } from "react-router-dom";
 import FreemiumPlanIcon from "../components/plan_images/FreemiumPlanIcon";
 import StandardPlanIcon from "../components/plan_images/StandardPlanIcon";
 import ProPlanIcon from "../components/plan_images/ProPlanIcon";
-import { getPricingPlans, type PricingPlanKey } from "@/utils/pricing";
 
 const ArrowLeftIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg
@@ -46,15 +44,15 @@ const PlanIcon: React.FC<{ planKey: PricingPlanKey }> = ({ planKey }) => {
 };
 
 const SubscriptionPage: React.FC = () => {
-  const { t, language: currentLanguage } = useLanguage();
-  const { t: translate } = useTranslation();
+  const { t } = useLanguage();
   const { user } = useApp();
   const location = useLocation();
   const pricingPlans = getPricingPlans(translate);
 
   // In a real app, this would come from the user's profile or subscription status in the DB.
   // For this demo, we assume all non-managers are on Freemium.
-  const currentUserPlanKey: PricingPlanKey = (user?.role === UserRole.MANAGER ? "pro" : "freemium") as PricingPlanKey;
+  const currentUserPlan = user?.role === UserRole.MANAGER ? "Pro" : "Freemium";
+  const currentUserPlanKey = `pricing.${currentUserPlan.toLowerCase()}.name`;
 
   const plans: Array<{ key: PricingPlanKey; paypalPlanId: string }> = [
     { key: "standard", paypalPlanId: "P-3TE12345AB678901CDE2FGHI" },
@@ -104,15 +102,12 @@ const SubscriptionPage: React.FC = () => {
             <p className="text-3xl font-bold text-primary">
               {pricingPlans[currentUserPlanKey].name}
             </p>
-            {currentUserPlanKey === "freemium" && (
-              <div className="text-slate-500 mt-1 text-sm">
-                <p>
-                  {t("subscription.currentPlan.freemiumDesc", {
-                    default:
-                      "Vous êtes actuellement sur l'offre Freemium. Vos données sont synchronisées sur le cloud Nexus et accessibles depuis n'importe quel appareil.",
-                  })}
-                </p>
-              </div>
+            {currentUserPlan === "Freemium" && (
+              <p className="text-slate-500 mt-1">
+                {t("subscription.currentPlan.freemiumDesc", {
+                  default: "You are currently on the Freemium plan.",
+                })}
+              </p>
             )}
           </div>
         </div>

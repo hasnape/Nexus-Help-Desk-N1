@@ -4,6 +4,7 @@ import { useApp } from "@/contexts/AppContext";
 import { Button, Input } from "../components/FormElements";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Layout from "../components/Layout";
+import { callEdgeWithFallback } from "../services/functionClient";
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -26,27 +27,6 @@ const LoginPage: React.FC = () => {
     }
   }, [user, navigate, from]);
 
-  useEffect(() => {
-    return () => {
-      if (toastTimeoutRef.current) {
-        clearTimeout(toastTimeoutRef.current);
-        toastTimeoutRef.current = null;
-      }
-    };
-  }, []);
-
-  const showErrorToast = (message: string) => {
-    setToastMessage(message);
-    setError(message);
-    if (toastTimeoutRef.current) {
-      clearTimeout(toastTimeoutRef.current);
-    }
-    toastTimeoutRef.current = setTimeout(() => {
-      setToastMessage(null);
-      toastTimeoutRef.current = null;
-    }, 4000);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (email.trim() === "" || password === "" || companyName.trim() === "") {
@@ -56,7 +36,37 @@ const LoginPage: React.FC = () => {
 
     setIsLoading(true);
     setError("");
-    const loginResult = await login(email.trim(), password, companyName.trim());
+
+    const trimmedEmail = email.trim();
+    const trimmedCompany = companyName.trim();
+
+    try {
+      const guardResult = await callEdgeWithFallback("login-guard", {
+        email: trimmedEmail,
+        company: trimmedCompany,
+      });
+
+      if (guardResult.response.status === 403) {
+        const body = await guardResult.response.json().catch(() => ({}));
+        setError(formatGuardError(body.reason, body.message));
+        setIsLoading(false);
+        return;
+      }
+
+      if (!guardResult.response.ok) {
+        const body = await guardResult.response.json().catch(() => ({}));
+        setError(formatGuardError(body.reason, body.message));
+        setIsLoading(false);
+        return;
+      }
+    } catch (guardError: any) {
+      console.error("login guard error", guardError);
+      setError(formatGuardError(undefined, guardError?.message));
+      setIsLoading(false);
+      return;
+    }
+
+    const loginResult = await login(trimmedEmail, password, trimmedCompany);
 
     setIsLoading(false);
     if (loginResult !== true) {

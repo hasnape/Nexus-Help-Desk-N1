@@ -122,16 +122,27 @@ const LandingPage: React.FC = () => {
   };
 
   return (
-    <Layout className="bg-slate-900 text-white">
-      <Navbar />
-      <main>
-        <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 pb-24 pt-20">
-          <div className="mx-auto flex max-w-6xl flex-col gap-10 px-4 lg:flex-row lg:items-center">
-            <div className="max-w-2xl">
-              <span className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
-                Nexus Help Desk
-              </span>
-              <h1 className="mt-6 text-4xl font-bold tracking-tight text-white sm:text-5xl">
+    <Layout>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-700">
+        <Navbar />
+        <main className="pt-16">
+          {/* 1. Hero Section */} {/* Bannière centrale */}
+      <div className="bg-gradient-to-r from-yellow-200 via-yellow-100 to-yellow-200 border-l-4 border-yellow-400 rounded-lg p-6 mb-8 shadow-md text-center">
+        <p className="text-yellow-900 font-bold text-lg sm:text-xl">
+          Freemium : <span className="font-semibold">1€/mois</span> &nbsp;|&nbsp; 
+          Standard : <span className="font-semibold">1er mois à 5€ ensuite 10€/mois</span> &nbsp;|&nbsp; 
+          Pro : <span className="font-semibold">1er mois à 12€ ensuite 20€/mois</span>
+        </p>
+        <p className="text-yellow-800 text-sm mt-2">
+          Choisissez le plan qui correspond le mieux à vos besoins
+        </p>
+      </div>
+
+          <section className="py-8 px-4 sm:px-6 lg:px-8 text-white text-center">
+            {" "}
+            {/* padding vertical réduit */}
+            <div className="max-w-7xl mx-auto">
+              <h1 className="text-4xl md:text-5xl font-bold mb-4">
                 {t("landing.hero.title")}
               </h1>
               <p className="mt-4 text-lg text-slate-300">
@@ -148,9 +159,90 @@ const LandingPage: React.FC = () => {
                 </Button>
               </div>
             </div>
-            <div className="flex flex-1 justify-center lg:justify-end">
-              <div className="w-full max-w-md rounded-3xl bg-white/10 p-6 backdrop-blur">
-                <h2 className="text-lg font-semibold text-white">
+          </section>
+
+          {/* 3. Fonctionnalités */}
+          <section id="features" className="py-8 bg-slate-50">
+            <div className="container mx-auto px-4 max-w-screen-lg">
+              <div className="text-center max-w-3xl mx-auto">
+                <h2 className="text-3xl sm:text-4xl font-bold text-slate-800">
+                  {t("landing.features.title")}
+                </h2>
+                <p className="mt-4 text-lg text-slate-600">
+                  {t("landing.features.subtitle")}
+                </p>
+              </div>
+              <div className="mt-16 grid md:grid-cols-3 gap-12">
+                {features.map((feature, index) => (
+                  <div
+                    key={index}
+                    className="flex flex-col items-center text-center"
+                  >
+                    <FeatureIcon>{feature.icon}</FeatureIcon>
+                    <h3 className="mt-6 text-xl font-bold text-slate-800">
+                      {t(feature.titleKey)}
+                    </h3>
+                    <p className="mt-2 text-slate-600 text-sm md:text-base">
+                      {t(feature.descKey)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* 4. Avantages */}
+          <section id="advantages" className="py-8 bg-white">
+            <div className="container mx-auto px-4 max-w-screen-lg">
+              <div className="text-center max-w-3xl mx-auto mb-12">
+                <h2 className="text-3xl sm:text-4xl font-bold text-slate-800">
+                  {t("landing.advantages.title", {
+                    default: "Pourquoi choisir Nexus Support Hub ?",
+                  })}
+                </h2>
+                <p className="mt-4 text-lg text-slate-600">
+                  {t("landing.advantages.subtitle", {
+                    default:
+                      "Découvrez les bénéfices concrets pour votre équipe et vos clients.",
+                  })}
+                </p>
+              </div>
+              <div className="grid md:grid-cols-3 gap-8">
+                {advantages.map((advantage, index) => (
+                  <div
+                    key={index}
+                    className="flex flex-col items-center text-center p-6 bg-slate-50 rounded-lg shadow-sm"
+                  >
+                    <div className="mb-4">{advantage.icon}</div>
+                    <h3 className="text-xl font-bold text-slate-800 mb-2">
+                      {t(advantage.titleKey)}
+                    </h3>
+                    <p className="text-slate-600 text-sm md:text-base">
+                      {t(advantage.descKey)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          
+          
+          {/* 5. Tarification */}
+          <section id="pricing" className="py-8 bg-slate-50">
+            <div className="container mx-auto px-4 max-w-screen-lg">
+               {/* Bannière centrale */}
+      <div className="bg-gradient-to-r from-yellow-200 via-yellow-100 to-yellow-200 border-l-4 border-yellow-400 rounded-lg p-6 mb-8 shadow-md text-center">
+        <p className="text-yellow-900 font-bold text-lg sm:text-xl">
+          Freemium : <span className="font-semibold">1€/mois</span> &nbsp;|&nbsp; 
+          Standard : <span className="font-semibold">1er mois 5€, ensuite 10€/mois</span> &nbsp;|&nbsp; 
+          Pro :<span className="font-semibold">1er mois à 12€ ensuite 20€/mois</span>
+        </p>
+       
+      </div>
+
+              <div className="text-center max-w-3xl mx-auto">
+                <h2 className="text-3xl sm:text-4xl font-bold text-slate-800">
                   {t("pricing.title")}
                 </h2>
                 <p className="mt-2 text-sm text-slate-200">

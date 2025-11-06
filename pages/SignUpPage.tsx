@@ -7,7 +7,6 @@ import { Button, Input, Select } from "../components/FormElements";
 import type { Locale } from "@/contexts/LanguageContext";
 import { UserRole } from "@/types";
 import Layout from "../components/Layout";
-import { getPricingPlans, type PricingPlan, type PricingPlanKey } from "@/utils/pricing";
 
 const paypalLinks = {
   standard: "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-0E515487AE797135CNBTRYKA",
@@ -51,8 +50,14 @@ const FreemiumModal = ({
 
           <div className="space-y-6">
             <div className="text-center">
-              <div className="text-4xl font-bold text-primary">{plan.price}</div>
-              {plan.yearly ? <p className="text-gray-600 text-sm">{plan.yearly}</p> : null}
+              <div className="flex items-baseline justify-center gap-2 mb-2">
+                <span className="text-4xl font-bold text-primary">1€</span>
+                <span className="text-gray-600 text-lg">
+                  {t("signupPlans.Freemium.modal.pricing", {
+                    default: "mois",
+                  })}
+                </span>
+              </div>
             </div>
 
             <ul className="space-y-2 text-left">
@@ -65,10 +70,120 @@ const FreemiumModal = ({
                       clipRule="evenodd"
                     />
                   </svg>
-                  <span className="text-sm text-gray-700">{feature}</span>
+                  {t("signupPlans.Freemium.modal.features.unlimited", {
+                    default: "3 Agents, 200 Tickets mois",
+                  })}
                 </li>
-              ))}
-            </ul>
+                <li className="flex items-center">
+                  <svg
+                    className="w-5 h-5 text-green-500 mr-2"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  {t("signupPlans.Freemium.modal.features.voice", {
+                    default: "Commandes vocales avancées",
+                  })}
+                </li>
+                <li className="flex items-center">
+                  <svg
+                    className="w-5 h-5 text-green-500 mr-2"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  {t("signupPlans.Freemium.modal.features.multilingual", {
+                    default: "Support multilingue (FR/EN)",
+                  })}
+                </li>
+                <li className="flex items-center">
+                  <svg
+                    className="w-5 h-5 text-green-500 mr-2"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  {t("signupPlans.Freemium.modal.features.appointments", {
+                    default: "Planification de rendez-vous",
+                  })}
+                </li>
+                <li className="flex items-center">
+                  <svg
+                    className="w-5 h-5 text-green-500 mr-2"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  {t("signupPlans.Freemium.modal.features.priority", {
+                    default: "Support mail",
+                  })}
+                </li>
+                <li className="flex items-center">
+                  <svg
+                    className="w-5 h-5 text-green-500 mr-2"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  {t("signupPlans.Freemium.modal.features.analytics", {
+                    default: "Statistiques avancées",
+                  })}
+                </li>
+              </ul>
+            </div>
+
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <h4 className="font-semibold text-blue-900 mb-2">
+                {t("signupPlans.Freemium.modal.trial.title", {
+                  default: "1€ par mois",
+                })}
+              </h4>
+              <p className="text-blue-800 text-sm">
+                {t("signupPlans.Freemium.modal.trial.description", {
+                  default:
+                    "Commencez pour seulement 1€ par mois. Annulez à tout moment.",
+                })}
+              </p>
+            </div>
+
+            <div className="bg-yellow-50 p-4 rounded-lg">
+              <h4 className="font-semibold text-yellow-900 mb-2">
+                {t("signupPlans.Freemium.modal.billing.title", {
+                  default: "Facturation et annulation",
+                })}
+              </h4>
+              <p className="text-yellow-800 text-sm">
+                {t("signupPlans.Freemium.modal.billing.description", {
+                  default:
+                    "Facturation mensuelle via PayPal. Annulation simple depuis votre compte PayPal à tout moment. Pas d'engagement à long terme.",
+                })}
+              </p>
+            </div>
 
             <div className="flex gap-4">
               <Button onClick={() => setShowFreemiumModal(false)} className="flex-1 bg-gray-500 hover:bg-gray-600">
@@ -76,9 +191,17 @@ const FreemiumModal = ({
                   defaultValue: t("signupPlans.Freemium.modal.buttons.cancel", { defaultValue: "Annuler" }),
                 })}
               </Button>
-              <Button onClick={handleFreemiumPurchase} className="flex-1 bg-primary hover:bg-primary-dark">
-                {t("signupPlans.Freemium.modal.buttons.subscribe", { defaultValue: plan.cta })}
-              </Button>
+              <a
+                href={paypalLinks.freemium}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleFreemiumPurchase}
+                className="flex-1 inline-flex items-center justify-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+              >
+                {t("signupPlans.Freemium.modal.buttons.subscribe", {
+                  default: "S'abonner Freemium",
+                })}
+              </a>
             </div>
           </div>
         </div>
@@ -250,19 +373,54 @@ const PlanCard: React.FC<{
   t,
   badgeText,
 }) => {
-  const isSelectable = planKey !== "pro";
-  const buttonKey = isSelectable ? `pricing.select_${planKey}` : "pricing.view_pro_details";
-  const buttonLabel = t(buttonKey, {
-    defaultValue: t(`signupPlans.${planKey}.select`, {
-      defaultValue: t("signupPlans.selectDefault", { defaultValue: "Sélectionner" }),
-    }),
-  });
-  const planTitle = t(`pricing.${planKey}`, { defaultValue: plan.name });
-  const actionButtonBase = "w-100 fw-semibold d-flex align-items-center justify-content-center gap-2";
-
-  const handleSelectClick = () => {
-    onSelect(planKey);
+  const plans = {
+    freemium: {
+      name: t("pricing.freemium.name"),
+      price: t("pricing.freemium.price"),
+      desc: t("pricing.freemium.desc"),
+      features: [
+        t("pricing.freemium.feature1"),
+        t("pricing.freemium.feature2"),
+        t("pricing.freemium.feature3"),
+      ],
+      buttonText: t("signupPlans.freemium.select", {
+        default: "Sélectionner",
+      }),
+      popular: false,
+    },
+    standard: {
+      name: t("pricing.standard.name"),
+      price: t("pricing.standard.price"),
+      desc: t("pricing.standard.desc"),
+      features: [
+        t("pricing.standard.feature1"),
+        t("pricing.standard.feature2"),
+        t("pricing.standard.feature3"),
+        t("pricing.standard.feature4"),
+      ],
+      buttonText: t("signupPlans.standard.select", {
+        default: "Sélectionner",
+      }),
+      popular: true,
+    },
+    pro: {
+      name: t("pricing.pro.name"),
+      price: t("pricing.pro.price"),
+      desc: t("pricing.pro.desc"),
+      features: [
+        t("pricing.pro.feature1"),
+        t("pricing.pro.feature2"),
+        t("pricing.pro.feature3"),
+        t("pricing.pro.feature4"),
+      ],
+      buttonText: t("signupPlans.pro.select", {
+        default: "Voir les détails",
+      }),
+      popular: false,
+    },
   };
+
+  const planData = plans[plan as keyof typeof plans];
 
   return (
     <div
@@ -389,7 +547,9 @@ const SignUpPage: React.FC = () => {
   const [showProModal, setShowProModal] = useState(false);
   const [showFreemiumModal, setShowFreemiumModal] = useState(false);
   const [showStandardModal, setShowStandardModal] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<PricingPlanKey | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+
+
   const { signUp, user } = useApp();
   const pricingPlans = getPricingPlans(t);
   const popularBadge = t("pricing.badges.popular", { defaultValue: "Popular" });
@@ -482,29 +642,9 @@ const SignUpPage: React.FC = () => {
   ];
 
   useEffect(() => {
-    const nextLanguage = (i18n.language as Locale) || "en";
-    setSelectedLanguage(nextLanguage);
+    setSelectedLanguage(currentAppLang);
+  }, [currentAppLang]);
 
-    const handleLanguageChanged = (lng: string) => {
-      setSelectedLanguage((lng as Locale) || "en");
-    };
-
-    i18n.on("languageChanged", handleLanguageChanged);
-    return () => {
-      i18n.off("languageChanged", handleLanguageChanged);
-    };
-  }, [i18n]);
-
-  const handleRoleChange = (nextRole: UserRole) => {
-    setRole(nextRole);
-
-    if (nextRole === UserRole.MANAGER) {
-      setSelectedPlan((current) => current);
-    } else {
-      setSelectedPlan(null);
-      setSecretCode("");
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -522,30 +662,11 @@ const SignUpPage: React.FC = () => {
       setError(t("signup.error.minCharsPassword"));
       return;
     }
-    const effectivePlan: PricingPlanKey | undefined =
-      role === UserRole.MANAGER && selectedPlan ? selectedPlan : undefined;
     // Si le rôle est Manager, on s'assure que le champ du code n'est pas vide.
     // La VRAIE validation (si le code est bon) se fera sur le serveur.
-    if (
-      role === UserRole.MANAGER &&
-      effectivePlan &&
-      effectivePlan !== "freemium" &&
-      !secretCode.trim()
-    ) {
+    if (role === UserRole.MANAGER && !secretCode.trim()) {
       setError(t("signup.error.secretCodeRequiredManager"));
       return;
-    }
-
-    if (role === UserRole.MANAGER) {
-      if (!effectivePlan) {
-        setError(
-          t("signup.error.planSelectionRequired", {
-            defaultValue: "Veuillez sélectionner une offre pour votre entreprise.",
-          })
-        );
-        return;
-      }
-
     }
 
     setError("");
@@ -558,15 +679,8 @@ const SignUpPage: React.FC = () => {
       lang: selectedLanguage,
       role: role,
       companyName: companyName.trim(),
-      // On envoie le code SEULEMENT si le rôle est Manager sur un plan payant.
-      secretCode:
-        role === UserRole.MANAGER && effectivePlan && effectivePlan !== "freemium"
-          ? secretCode.trim()
-          : undefined,
-      plan:
-        role === UserRole.MANAGER && effectivePlan
-          ? (effectivePlan as "freemium" | "standard" | "pro")
-          : undefined,
+      // On envoie le code SEULEMENT si le rôle est Manager.
+      secretCode: role === UserRole.MANAGER ? secretCode.trim() : undefined,
     });
 
     setIsLoading(false);
@@ -576,11 +690,14 @@ const SignUpPage: React.FC = () => {
     if (result !== true) {
       // Le `result` contiendra le message d'erreur renvoyé par le serveur,
       // par exemple : "Code d'activation invalide ou déjà utilisé."
-      setError(translateSignupApiError(result));
+      setError(result); 
     } else {
       // Le serveur a tout validé, l'inscription est réussie !
       if (role === UserRole.MANAGER) {
         setSuccess(t("signup.success.emailSentManager", { email: email.trim() }));
+        if (effectivePlan === "freemium") {
+          setStoredFreemiumCompany(companyName.trim());
+        }
       } else {
         setSuccess(t("signup.success.emailSent", { email: email.trim() }));
       }
@@ -625,9 +742,7 @@ const SignUpPage: React.FC = () => {
 
   const handleFreemiumPurchase = () => {
     setShowFreemiumModal(false);
-    alert(
-      "✅ Offre Freemium activée : votre compte sera créé sur nos serveurs et un email de bienvenue vous guidera pour la suite."
-    );
+    alert("✅ Abonnement Freemium : Code envoyer par mail !");
   };
 
   const handleStandardPurchase = () => {
@@ -737,6 +852,14 @@ const SignUpPage: React.FC = () => {
                       })}
                     </p>
                   </div>
+                  <div className="bg-gradient-to-r from-yellow-200 via-yellow-100 to-yellow-200 border-l-4 border-yellow-400 rounded-lg p-6 mb-8 shadow-md text-center">
+                    <p className="text-yellow-900 font-bold text-lg sm:text-xl">
+                      Freemium : <span className="font-semibold">1€/mois</span> &nbsp;|&nbsp; 
+                      Standard : <span className="font-semibold">1er mois 5€ ensuite 10€/mois</span> &nbsp;|&nbsp; 
+                      Pro : <span className="font-semibold">1er mois 12€ ensuite 20€/mois</span>
+                    </p>
+                  </div>
+
                   <div className="grid md:grid-cols-3 gap-6 mb-8">
                     <PlanCard
                       planKey="freemium"
@@ -773,28 +896,6 @@ const SignUpPage: React.FC = () => {
                       buyLabel={t("signupPlans.pro.modal.buttons.subscribe", { defaultValue: pricingPlans.pro.cta })}
                     />
                   </div>
-
-                  {selectedPlan === "freemium" && (
-                    <div className="mb-8 rounded-lg border border-green-300 bg-green-50 p-5 text-left">
-                      <h3 className="text-lg font-semibold text-green-900">
-                        {t("signupPlans.freemium.autoSelected.title", {
-                          defaultValue: "Freemium sélectionné automatiquement",
-                        })}
-                      </h3>
-                      <p className="mt-2 text-sm text-green-800">
-                        {t("signupPlans.freemium.autoSelected.description", {
-                          defaultValue:
-                            "Cette inscription active immédiatement votre espace Freemium hébergé sur le cloud Nexus.",
-                        })}
-                      </p>
-                      <p className="mt-2 text-xs text-green-700">
-                        {t("signupPlans.freemium.autoSelected.storageNotice", {
-                          defaultValue:
-                            "Accédez à vos utilisateurs et tickets depuis n'importe quel appareil connecté.",
-                        })}
-                      </p>
-                    </div>
-                  )}
                 </div>
               )}
 

@@ -21,30 +21,28 @@ const PricingPage: React.FC = () => {
   const { t: legacyTranslate } = useLanguage();
   const { user } = useApp();
   const location = useLocation();
+  const backLinkDestination = user ? '/dashboard' : '/landing';
 
-  const plans = getPricingPlans(t);
-  const popularBadge = t("pricing.badges.popular");
-  const ctaDemo = t("pricing.ctaDemo");
-  const ctaBuyNow = t("pricing.buy_now", {
-    defaultValue: t("signupPlans.subscribeDefault", { defaultValue: "Souscrire maintenant" }),
-  });
-  const ctaActivate = t("pricing.activate_now", {
-    defaultValue: t("signupPlans.freemium.modal.buttons.subscribe", { defaultValue: "Activer maintenant" }),
-  });
-
-  const backLinkDestination = user ? "/dashboard" : "/landing";
-
-  const orderedPlans: Array<{ key: PricingPlanKey; isPopular: boolean }> = [
-    { key: "freemium", isPopular: false },
-    { key: "standard", isPopular: true },
-    { key: "pro", isPopular: false },
+  const plans = [
+    {
+      name: 'Freemium',
+      price: '1€ / mois',
+      features: ["Jusqu'à 3 agents", '200 tickets par mois', 'Assistance IA de base'],
+      link: 'https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-3KG35083B1716942TNBYOA4Q'
+    },
+    {
+      name: 'Standard',
+      price: '10€ / mois',
+      features: ['500 tickets / mois, 5 agents', 'Fonctionnalités IA complètes', 'Catégorisation automatique'],
+      link: 'https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-0E515487AE797135CNBTRYKA'
+    },
+    {
+      name: 'Pro',
+      price: '20€ / mois',
+      features: ['Toutes les fonctionnalités Standard', '1000 tickets / mois, 10 agents', 'Commandes vocales avancées', 'Support multilingue', 'Planification de rendez-vous'],
+      link: 'https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-7HP75881LB3608938NBTBGUA'
+    }
   ];
-
-  const subscribeLinks: Record<PricingPlanKey, string> = {
-    freemium: "/signup?plan=freemium",
-    standard: "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-0E515487AE797135CNBTRYKA",
-    pro: "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-7HP75881LB3608938NBTBGUA",
-  };
 
   return (
     <div className="py-8 px-4 sm:px-6 lg:px-8">
@@ -64,73 +62,42 @@ const PricingPage: React.FC = () => {
         <p className="text-lg text-slate-600">{t("pricing.disclaimer")}</p>
       </header>
 
-      <div className="grid gap-8 md:grid-cols-3">
-        {orderedPlans.map(({ key, isPopular }) => {
-          const plan = plans[key];
-          return (
-            <div
-              key={plan.name}
-              className={`relative rounded-2xl border bg-white/80 shadow-sm backdrop-blur-sm p-8 flex flex-col ${
-                isPopular ? "border-blue-600 shadow-lg" : "border-slate-200"
-              }`}
-            >
-              {isPopular ? (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-blue-600 text-white text-xs font-semibold">
-                  {popularBadge}
-                </span>
-              ) : null}
+      {/* Bannière centrale */}
+      <div className="bg-gradient-to-r from-yellow-200 via-yellow-100 to-yellow-200 border-l-4 border-yellow-400 rounded-lg p-6 mb-8 shadow-md text-center">
+        <p className="text-yellow-900 font-bold text-lg sm:text-xl">
+          Freemium : <span className="font-semibold">1 €/mois</span> &nbsp;|&nbsp; 
+          Standard : <span className="font-semibold">1er mois 5 €, ensuite 10 €/mois</span> &nbsp;|&nbsp; 
+          Pro : <span className="font-semibold">20 €/mois</span>
+        </p>
+        <p className="text-yellow-800 text-sm mt-2">
+          Choisissez le plan qui correspond le mieux à vos besoins
+        </p>
+      </div>
 
-              <div className="mb-6 text-center">
-                <h2 className="text-2xl font-semibold text-slate-900">{plan.name}</h2>
-                <div className="mt-3 text-3xl font-bold text-slate-900">{plan.price}</div>
-                {plan.yearly ? <div className="text-sm text-slate-500">{plan.yearly}</div> : null}
-              </div>
-
-              <ul className="space-y-3 text-sm text-slate-700 flex-1">
-                {plan.features.map((feature) => (
-                  <li key={`${plan.name}-${feature}`} className="flex items-start">
-                    <span className="text-blue-600 mr-2">•</span>
-                    <span>{feature}</span>
-                  </li>
-                ))}
+      <section className="grid md:grid-cols-3 gap-6">
+        {plans.map((plan) => (
+          <div
+            key={plan.name}
+            className="border rounded p-6 shadow hover:shadow-lg transition flex flex-col justify-between h-full"
+          >
+            <div>
+              <h2 className="text-2xl font-bold mb-3">{plan.name}</h2>
+              <p className="text-xl font-semibold mb-4">{plan.price}</p>
+              <ul className="mb-4 list-disc list-inside">
+                {plan.features.map((f, i) => <li key={i}>{f}</li>)}
               </ul>
-
-              <div className="mt-8 flex flex-col gap-3">
-                <Link
-                  to="/demo"
-                  className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2 font-semibold text-slate-900 transition hover:bg-slate-900 hover:text-white"
-                  aria-label={`${ctaDemo} - ${plan.name}`}
-                >
-                  {ctaDemo}
-                </Link>
-                {key === "freemium" ? (
-                  <Link
-                    to={subscribeLinks.freemium}
-                    className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 font-semibold text-white transition hover:bg-primary-dark"
-                    aria-label={`${ctaActivate} - ${plan.name}`}
-                  >
-                    {ctaActivate}
-                  </Link>
-                ) : (
-                  <a
-                    href={subscribeLinks[key]}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 font-semibold text-white transition hover:bg-primary-dark"
-                    aria-label={`${ctaBuyNow} - ${plan.name}`}
-                  >
-                    {ctaBuyNow}
-                  </a>
-                )}
-              </div>
             </div>
-          );
-        })}
-      </div>
-
-      <div className="mt-12 text-center text-sm text-slate-500">
-        <p>{legacyTranslate("pricing.additionalNote", { default: "Tout hébergé sur Supabase (RLS). Aucun stockage local." })}</p>
-      </div>
+            <a
+              href={plan.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block text-center bg-sky-500 text-white font-semibold py-2 rounded hover:bg-sky-600"
+            >
+              {t('pricing.subscribe', { default: 'Souscrire' })}
+            </a>
+          </div>
+        ))}
+      </section>
     </div>
   );
 };

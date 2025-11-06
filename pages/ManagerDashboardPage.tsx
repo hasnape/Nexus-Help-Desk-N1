@@ -7,25 +7,7 @@ import { Button, Select, Input } from '../components/FormElements';
 import { useLanguage } from '@/contexts/LanguageContext';
 import LoadingSpinner from '../components/LoadingSpinner';
 import FloatingActionButton from '../components/FloatingActionButton';
-import { formatQuota } from '@/utils/formatQuota';
-import { supabase } from '@/services/supabaseClient';
-
-
-const isAbortFetchError = (error: unknown): boolean => {
-  if (!error) return false;
-  if (typeof error === 'string') {
-    return error.toLowerCase().includes('abort');
-  }
-
-  const anyError = error as { name?: unknown; message?: unknown };
-  if (typeof anyError.name === 'string' && anyError.name.toLowerCase() === 'aborterror') {
-    return true;
-  }
-  if (typeof anyError.message === 'string' && anyError.message.toLowerCase().includes('abort')) {
-    return true;
-  }
-  return false;
-};
+import { supabase } from '../services/supabaseClient';
 
 // --- ICONS ---
 const PlusIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
