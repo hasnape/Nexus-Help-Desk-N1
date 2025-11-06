@@ -5,9 +5,9 @@ import { Ticket, User, ChatMessage, TicketStatus, UserRole, Locale as AppLocale,
 import { getFollowUpHelpResponse, getTicketSummary } from "./services/geminiService";
 import { supabase } from "@/services/supabaseClient";
 import { ensureUserProfile } from "./services/authService";
-import { guardedLogin, GuardedLoginError } from "./services/guardedLogin";
+import { guardedLogin, GuardedLoginError, EdgeFunctionAuthError } from "./services/guardedLogin";
 import type { GuardedLoginErrorKey } from "./services/guardedLogin";
-import { invokeWithFallback } from "@/services/functionInvoker";
+import { invokeWithFallback } from "@/utils/invokeWithFallback";
 import PricingPage from "./pages/PricingPage";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
@@ -851,9 +851,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         console.debug("Failed to fetch company quota status:", rpcError);
         setQuotaUsagePercent(null);
       }
-    },
-    [supabase, user?.company_id]
-  );
+  }, [user?.company_id]);
 
   const translateGuardError = useCallback(
     (key: GuardedLoginErrorKey): string => {
@@ -888,6 +886,19 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     [translateHook]
   );
 
+  const translateAuthEdgeError = useCallback(
+    (code: string): string => {
+      const trimmed = code.trim();
+      const defaultMessage = translateHook('auth.errors.generic', {
+        default: 'Authentication failed. Please try again.',
+      });
+      const key = trimmed.startsWith('auth.errors.') ? trimmed : `auth.errors.${trimmed}`;
+      const resolved = translateHook(key, { default: defaultMessage });
+      return resolved || defaultMessage;
+    },
+    [translateHook]
+  );
+
   const login = async (email: string, password: string, companyName: string): Promise<string | true> => {
     try {
       const { session, profile } = await guardedLogin(email, password, companyName);
@@ -899,8 +910,11 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       if (authError instanceof GuardedLoginError) {
         return translateGuardError(authError.translationKey);
       }
+      if (authError instanceof EdgeFunctionAuthError) {
+        return translateAuthEdgeError(authError.code || 'generic');
+      }
       console.error("Unexpected login error:", authError);
-      return translateGuardError("login.error.invalidCompanyCredentials");
+      return translateAuthEdgeError('generic');
     }
   };
 
@@ -919,30 +933,28 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     const { lang, role, companyName, secretCode, plan } = options;
 
     try {
-      const result = await invokeWithFallback<SignupFunctionResponse>(
-        "auth-signup",
-        {
-          email,
-          password,
-          full_name: fullName,
-          role,
-          company_name: companyName,
-          language_preference: lang,
-          plan,
-          secretCode,
-        },
-        "/api/auth-signup"
-      );
+      const result = await invokeWithFallback<SignupFunctionResponse>("auth-signup", {
+        email,
+        password,
+        full_name: fullName,
+        role,
+        company_name: companyName,
+        language_preference: lang,
+        plan,
+        secretCode,
+      });
 
       if (result.error) {
-        const { context, message, isNetworkError } = result.error;
-        if (isNetworkError) {
+        const { context, message } = result.error;
+        if (message === "network_error") {
           return "network_error";
         }
+
         const code =
-          (context?.error as string | undefined) ??
-          (context?.reason as string | undefined) ??
-          (typeof message === "string" ? message : undefined) ??
+          (typeof context?.error === "string" && context.error) ||
+          (typeof context?.reason === "string" && context.reason) ||
+          (typeof context?.code === "string" && context.code) ||
+          (typeof message === "string" && message) ||
           "signup_failed";
         return code;
       }

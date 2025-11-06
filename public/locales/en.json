@@ -950,6 +950,18 @@
   "manager.invite.errors.weakPassword": "Password too short (min. 8 characters).",
   "manager.invite.errors.passwordMismatch": "Passwords do not match.",
   "manager.invite.errors.timeout": "Timed out. Check Function and CORS.",
+  "auth.errors.ORIGIN_NOT_ALLOWED": "Access from this origin is not allowed. Please use an approved Nexus Support Hub domain.",
+  "auth.errors.agent_limit_reached": "Your plan’s agent limit has been reached.",
+  "auth.errors.company_not_found": "We couldn't find the requested company.",
+  "auth.errors.plan_not_found": "The associated subscription plan could not be found.",
+  "auth.errors.profile_not_found": "We couldn't locate the user profile.",
+  "auth.errors.invalid_role": "An invalid role was provided.",
+  "auth.errors.weak_password": "Password is too weak. Please use at least 8 characters.",
+  "auth.errors.password_mismatch": "Passwords do not match.",
+  "auth.errors.invite_failed": "Invitation could not be sent.",
+  "auth.errors.create_failed": "Account creation failed. Please try again.",
+  "auth.errors.profile_insert_failed": "We couldn't save the user profile.",
+  "auth.errors.generic": "Authentication failed. Please try again.",
   "role.agent": "Agent",
   "role.user": "User"
 }

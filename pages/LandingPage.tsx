@@ -5,7 +5,7 @@ import Navbar from "../components/Navbar";
 import Layout from "../components/Layout";
 import PricingSection from "../components/PricingSection";
 import { Button, Input, Textarea } from "../components/FormElements";
-import { supabase } from "../services/supabaseClient";
+import { supabase } from "@/services/supabaseClient";
 
 interface DemoFormState {
   name: string;

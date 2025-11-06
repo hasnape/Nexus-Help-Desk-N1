@@ -403,6 +403,10 @@ const SignUpPage: React.FC = () => {
       }
 
       const normalized = trimmed.toLowerCase().replace(/\s+/g, "_");
+      const authTranslation = t(`auth.errors.${normalized.toUpperCase()}`, { defaultValue: "" });
+      if (authTranslation) {
+        return authTranslation;
+      }
       const translation = t(`signup.apiErrors.${normalized}`, {
         companyName: companyName.trim(),
         defaultValue: "",
@@ -439,6 +443,10 @@ const SignUpPage: React.FC = () => {
         case "unexpected_error":
           return t("signup.error.generic", {
             defaultValue: "Une erreur est survenue.",
+          });
+        case "origin_not_allowed":
+          return t("auth.errors.ORIGIN_NOT_ALLOWED", {
+            defaultValue: t("signup.error.generic", { defaultValue: "Une erreur est survenue." }),
           });
         case "signup_failed":
           return t("signup.apiErrors.signup_failed", {
