@@ -783,14 +783,16 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         setQuotaUsagePercent(null);
         return;
       }
-    },
-    [translateHook]
-  );
 
       const attemptRpc = async () => {
         if (targetCompanyId) {
           const firstTry = await supabase.rpc("company_quota_status", { p_company_id: targetCompanyId });
-          if (!firstTry.error || !firstTry.error.code || firstTry.error.code === "PGRST302" || firstTry.error.code === "42883") {
+          if (
+            !firstTry.error ||
+            !firstTry.error.code ||
+            firstTry.error.code === "PGRST302" ||
+            firstTry.error.code === "42883"
+          ) {
             return firstTry;
           }
           return supabase.rpc("company_quota_status");
@@ -850,7 +852,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         setQuotaUsagePercent(null);
       }
     },
-    [user?.company_id]
+    [supabase, user?.company_id]
   );
 
   const translateGuardError = useCallback(
