@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useApp } from "../App";
+import { useApp } from "@/contexts/AppContext";
 import { Button, Input, Select } from "../components/FormElements";
-import { useLanguage, Locale } from "../contexts/LanguageContext";
-import { UserRole } from "../types";
+import { useLanguage, Locale } from "@/contexts/LanguageContext";
+import { UserRole } from "@/types";
 
 const NewUserPage: React.FC = () => {
   const { user } = useApp();

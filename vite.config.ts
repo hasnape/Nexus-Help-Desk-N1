@@ -1,26 +1,22 @@
-import path from 'path';
-import { defineConfig, loadEnv } from 'vite';
+// vite.config.ts
+import { fileURLToPath, URL } from 'node:url';
 
-export default defineConfig(({ mode }) => {
-  // Charge toutes les variables .env
-  const env = loadEnv(mode, process.cwd(), '');
+import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite';
 
-  // Filtrer uniquement celles qui commencent par VITE_
-  const viteEnv = Object.fromEntries(
-    Object.entries(env).filter(([key]) => key.startsWith('VITE_'))
-  );
+const debug = process.env.VITE_DEBUG_BUNDLE === '1';
 
-  return {
-    define: Object.fromEntries(
-      Object.entries(viteEnv).map(([key, value]) => [
-        `import.meta.env.${key}`,
-        JSON.stringify(value),
-      ])
-    ),
-    resolve: {
-      alias: {
-        '@': path.resolve(__dirname, '.'),
-      },
+export default defineConfig({
+  plugins: [react()],
+  build: {
+    sourcemap: debug,
+    minify: debug ? false : 'esbuild',
+    rollupOptions: debug ? { treeshake: false } : {},
+  },
+  resolve: {
+    alias: {
+      '@': '/src',
     },
-  };
+    dedupe: ['react', 'react-dom'],
+  },
 });

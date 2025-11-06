@@ -1,0 +1,149 @@
+:root {
+  --bs-success: #198754;
+  --bs-success-dark: #157347;
+  --bs-success-contrast: #ffffff;
+  --bs-border-radius: 0.5rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  border-radius: var(--bs-border-radius);
+  border: 1px solid transparent;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--bs-success);
+  outline-offset: 2px;
+}
+
+.btn-success {
+  color: var(--bs-success-contrast);
+  background-color: var(--bs-success);
+  border-color: var(--bs-success);
+}
+
+.btn-success:hover,
+.btn-success:focus {
+  background-color: var(--bs-success-dark);
+  border-color: var(--bs-success-dark);
+  color: var(--bs-success-contrast);
+}
+
+.btn-lg {
+  padding: 0.75rem 1.5rem;
+  font-size: 1.125rem;
+}
+
+.w-100 {
+  width: 100% !important;
+}
+
+.fw-semibold {
+  font-weight: 600 !important;
+}
+
+.d-flex {
+  display: flex !important;
+}
+
+.align-items-center {
+  align-items: center !important;
+}
+
+.justify-content-center {
+  justify-content: center !important;
+}
+
+.gap-2 {
+  gap: 0.5rem !important;
+}
+
+.text-success {
+  color: var(--bs-success) !important;
+}
+
+.bg-success {
+  background-color: var(--bs-success) !important;
+}
+
+.text-white {
+  color: var(--bs-success-contrast) !important;
+}
+
+.border-success {
+  border-color: var(--bs-success) !important;
+}
+
+.border-3 {
+  border-width: 3px !important;
+}
+
+.shadow {
+  box-shadow: 0 0.5rem 1rem rgba(25, 135, 84, 0.15) !important;
+}
+
+.position-absolute {
+  position: absolute !important;
+}
+
+.top-0 {
+  top: 0 !important;
+}
+
+.end-0 {
+  right: 0 !important;
+}
+
+.translate-middle {
+  transform: translate(50%, -50%) !important;
+}
+
+.mt-4 {
+  margin-top: 1.5rem !important;
+}
+
+.me-4 {
+  margin-inline-end: 1.5rem !important;
+}
+
+.rounded-circle {
+  border-radius: 50% !important;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.me-3 {
+  margin-inline-end: 1rem !important;
+}
+
+.mt-0\.5 {
+  margin-top: 0.125rem !important;
+}
+
+.bg-white {
+  background-color: #ffffff !important;
+}
+
+.text-white:hover {
+  color: var(--bs-success-contrast) !important;
+}

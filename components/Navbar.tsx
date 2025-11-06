@@ -1,11 +1,11 @@
 import React, { useState, Fragment } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useApp } from "../App";
+import { useApp } from "@/contexts/AppContext";
 import { Button } from "./FormElements";
-import { useLanguage } from "../contexts/LanguageContext";
-import { UserRole } from "../types";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { UserRole } from "@/types";
 import { Transition } from "@headlessui/react"; // Ajoutez cette dépendance si besoin
-import type { Locale } from "../contexts/LanguageContext";
+import type { Locale } from "@/contexts/LanguageContext";
 
 
 const SpeakerLoudIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
@@ -53,56 +53,67 @@ const Navbar: React.FC = () => {
     { code: "ar", nameKey: "language.arabic", defaultName: "العربية" },
   ];
 
+  const shouldHideSubscriptionLink =
+    user?.role === UserRole.AGENT || user?.role === UserRole.USER;
+
+  const mainLinks = [
+    { to: "/landing", label: t("navbar.home", { default: "Accueil" }) },
+    {
+      to: "/presentation",
+      label: t("navbar.presentation", { default: "Présentation" }),
+    },
+    {
+      to: "/accessibilite",
+      label: t("navbar.AccessibilitePage", { default: "Déclaration d’accessibilité" }),
+    },
+    {
+      to: "/pricing",
+      label: t("navbar.pricingpage", { default: "Tarifes" }),
+    },
+    {
+      to: "/demo",
+      label: t("navbar.demo", { default: "Demander une démo" }),
+    },
+    {
+      to: "/infographie",
+      label: t("navbar.infographie", { default: "Infographie" }),
+    },
+    {
+      to: "/manual",
+      label: t("navbar.userManual", { default: "Manuel utilisateur" }),
+    },
+    {
+      to: "/help",
+      label: t("navbar.helpCenter", { default: "Centre d'aide" }),
+    },
+    { to: "/support", label: t("navbar.support", { default: "Support" }) },
+    { to: "/contact", label: t("navbar.contact", { default: "Contact" }) },
+    {
+      to: "/legal",
+      label: t("navbar.legal", { default: "Légal & Documentation" }),
+    },
+    {
+      to: "/email-support",
+      label: t("navbar.emailSupport", { default: "Support par email" }),
+    },
+    {
+      to: "/presentation-video",
+      label: t("navbar.demoVideo", { default: "Démonstration vidéo" }),
+    },
+  ];
+
+  if (!shouldHideSubscriptionLink) {
+    mainLinks.push({
+      to: "/subscribe",
+      label: t("navbar.pricing", { default: "Abonnement" }),
+    });
+  }
+
   const navGroups = [
     {
       key: "main",
       title: t("navbar.group.main", { default: "Navigation" }),
-      links: [
-        { to: "/landing", label: t("navbar.home", { default: "Accueil" }) },
-        {
-          to: "/presentation",
-          label: t("navbar.presentation", { default: "Présentation" }),
-        },
-
-        {
-        to: "/pricing", // chemin de route, pas d'import nécessaire
-        label: t("navbar.pricingpage", { default: "Tarifes" }),
-        },
-
-        
-        
-        {
-          to: "/infographie",
-          label: t("navbar.infographie", { default: "Infographie" }),
-        },
-        
-        {
-          to: "/manual",
-          label: t("navbar.userManual", { default: "Manuel utilisateur" }),
-        },
-        
-        {
-          to: "/help",
-          label: t("navbar.helpCenter", { default: "Centre d'aide" }),
-        },
-        { to: "/support", label: t("navbar.support", { default: "Support" }) },
-        { to: "/contact", label: t("navbar.contact", { default: "Contact" }) },
-        {
-          to: "/legal",
-          label: t("navbar.legal", { default: "Légal & Documentation" }),
-        },
-        {
-          to: "/email-support",
-          label: t("navbar.emailSupport", { default: "Support par email" }),
-        },
-        {
-          to: "/presentation-video",
-          label: t("navbar.demoVideo", { default: "Démonstration vidéo" }),
-        },{
-          to: "/SubscriptionPage",
-          label: t("navbar.pricing", { default: "Abonnés" })
-        },
-      ],
+      links: mainLinks,
     },
     {
       key: "community",
@@ -123,10 +134,14 @@ const Navbar: React.FC = () => {
       title: t("navbar.group.account", { default: "Compte" }),
       links: user
         ? [
-            {
-              to: "/subscribe",
-              label: t("navbar.subscriptionButton", { default: "Abonnement" }),
-            },
+            ...(!shouldHideSubscriptionLink
+              ? [
+                  {
+                    to: "/subscribe",
+                    label: t("navbar.subscriptionButton", { default: "Abonnement" }),
+                  },
+                ]
+              : []),
             ...(user.role === UserRole.AGENT
               ? [
                   {
@@ -202,12 +217,6 @@ const Navbar: React.FC = () => {
               className="w-10 h-10 rounded-full object-cover border-2 border-sky-400 bg-white"
               style={{ minWidth: 40, minHeight: 40, background: "#fff" }}
             />
-        <span className="hidden md:inline text-xl font-bold text-sky-400 hover:text-sky-300">
-  Nexus Support Hub
-</span>
-
-
-
           </Link>
         </div>
         {/* Boutons Connexion/Créer un compte + burger à droite */}
@@ -289,9 +298,6 @@ const Navbar: React.FC = () => {
             className="w-9 h-9 rounded-full object-cover border-2 border-sky-400 bg-white"
             style={{ minWidth: 36, minHeight: 36, background: "#fff" }}
           />
-          <span className="text-xl font-bold text-sky-400 hover:text-sky-300">
-            {t("appName", { default: "Nexus Support Hub" })}
-          </span>
         </Link>
         {/* Langues à droite */}
         <div className="flex items-center space-x-1">
