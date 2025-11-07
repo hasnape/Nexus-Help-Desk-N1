@@ -44,6 +44,7 @@ import {
   clearFreemiumSessionMeta,
 } from "./services/freemiumStorage";
 import { callEdgeWithFallback } from "./services/functionClient";
+import { mapSignupError } from "./services/signupErrorMapper";
 import PageLayout from './components/PageLayout';
 
 
@@ -447,38 +448,6 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
   ): Promise<string | true> => {
     const { lang, role, companyName, secretCode, plan } = options;
 
-    const interpretSignupError = (code?: string, message?: string): string => {
-      switch (code) {
-        case "company_conflict":
-          return translateHook("signup.error.companyNameTaken");
-        case "company_missing":
-          return translateHook("signup.error.companyNotFound", { companyName });
-        case "invalid_role":
-          return translateHook("signup.error.invalidRole", {
-            default: "The selected role is not allowed for this operation.",
-          });
-        case "missing_fields":
-          return translateHook("signup.error.allFieldsRequired");
-        case "company_create_failed":
-          return translateHook("signup.error.companyCreateFailed");
-        case "company_lookup_failed":
-        case "manager_lookup_failed":
-          return translateHook("signup.error.companyLookupFailed", {
-            default: "Unable to verify the company. Please try again later.",
-          });
-        case "user_create_failed":
-          return translateHook("signup.error.userCreateFailed", {
-            default: "Failed to create the user account. Please try again.",
-          });
-        case "profile_insert_failed":
-          return translateHook("signup.error.profileInsertFailed", {
-            default: "Failed to save the user profile. Please try again.",
-          });
-        default:
-          return message || translateHook("signup.error.generic");
-      }
-    };
-
     if (role === UserRole.MANAGER) {
       if (!plan) {
         return translateHook("signup.error.planSelectionRequired");
@@ -543,7 +512,9 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         });
         const body = await response.json().catch(() => ({}));
         if (!response.ok || !body?.ok) {
-          return interpretSignupError(body?.code ?? body?.reason, body?.message);
+          return mapSignupError(translateHook, body?.code ?? body?.reason, body?.message, {
+            companyName,
+          });
         }
 
         try {
@@ -565,10 +536,15 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
 
         setNewlyCreatedCompanyName(companyName);
         return true;
-      } catch (error) {
-        console.error("auth-signup manager error", error);
-        return interpretSignupError(undefined, (error as Error)?.message);
-      }
+        } catch (error) {
+          console.error("auth-signup manager error", error);
+          return mapSignupError(
+            translateHook,
+            undefined,
+            (error as Error)?.message,
+            { companyName }
+          );
+        }
 
     } else {
       try {
@@ -582,16 +558,23 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         });
         const body = await response.json().catch(() => ({}));
         if (!response.ok || !body?.ok) {
-          return interpretSignupError(body?.code ?? body?.reason, body?.message);
+          return mapSignupError(translateHook, body?.code ?? body?.reason, body?.message, {
+            companyName,
+          });
         }
 
         return true;
-      } catch (error) {
-        console.error("auth-signup user error", error);
-        return interpretSignupError(undefined, (error as Error)?.message);
+        } catch (error) {
+          console.error("auth-signup user error", error);
+          return mapSignupError(
+            translateHook,
+            undefined,
+            (error as Error)?.message,
+            { companyName }
+          );
+        }
       }
-    }
-  };
+    };
 
   const logout = async () => {
     try {

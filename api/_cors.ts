@@ -1,48 +1,21 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
+import {
+  createAllowedOriginSet,
+  isOriginAllowed as isOriginAllowedInternal,
+  resolveAllowOrigin as resolveAllowOriginInternal,
+} from "../supabase/functions/_shared/originUtils";
 
-const parseOrigins = (value?: string | string[] | null): string[] => {
-  if (!value) return [];
-  if (Array.isArray(value)) {
-    return value
-      .flatMap((entry) => entry.split(","))
-      .map((origin) => origin.trim())
-      .filter(Boolean);
-  }
-  return value
-    .split(",")
-    .map((origin) => origin.trim())
-    .filter(Boolean);
-};
+export const allowedOrigins = createAllowedOriginSet(
+  process.env.STATIC_ALLOWED_ORIGINS,
+  process.env.ALLOWED_ORIGINS,
+  process.env.SUPABASE_ALLOWED_ORIGINS
+);
 
-const buildAllowedOrigins = (): Set<string> => {
-  return new Set([
-    ...parseOrigins(process.env.STATIC_ALLOWED_ORIGINS),
-    ...parseOrigins(process.env.ALLOWED_ORIGINS),
-    ...parseOrigins(process.env.SUPABASE_ALLOWED_ORIGINS),
-  ]);
-};
+export const isOriginAllowed = (origin?: string | null): boolean =>
+  isOriginAllowedInternal(origin, allowedOrigins);
 
-const allowedOrigins = buildAllowedOrigins();
-
-export const isOriginAllowed = (origin?: string | null): boolean => {
-  if (!origin) {
-    return allowedOrigins.size === 0;
-  }
-  if (allowedOrigins.size === 0) {
-    return true;
-  }
-  return allowedOrigins.has(origin);
-};
-
-const resolveAllowOrigin = (origin?: string | null): string => {
-  if (origin && isOriginAllowed(origin)) {
-    return origin;
-  }
-  if (allowedOrigins.size > 0) {
-    return Array.from(allowedOrigins)[0];
-  }
-  return "*";
-};
+export const resolveAllowOrigin = (origin?: string | null): string =>
+  resolveAllowOriginInternal(origin, allowedOrigins);
 
 export const applyCors = (req: VercelRequest, res: VercelResponse): boolean => {
   const origin = (req.headers["origin"] as string | undefined) ?? null;

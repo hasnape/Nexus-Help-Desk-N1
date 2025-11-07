@@ -12,7 +12,17 @@ const isNetworkError = (error: unknown): boolean => {
   );
 };
 
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const resolveEnv = (key: string): string | undefined => {
+  if (typeof import.meta !== "undefined" && (import.meta as any)?.env && key in (import.meta as any).env) {
+    return ((import.meta as any).env as Record<string, string | undefined>)[key];
+  }
+  if (typeof process !== "undefined" && process.env) {
+    return process.env[key];
+  }
+  return undefined;
+};
+
+const supabaseAnonKey = resolveEnv("VITE_SUPABASE_ANON_KEY");
 
 const buildHeaders = (headers?: HeadersInit): Headers => {
   const merged = new Headers(headers || {});
@@ -31,7 +41,7 @@ const buildHeaders = (headers?: HeadersInit): Headers => {
 };
 
 const getFunctionsBaseUrl = (): string | null => {
-  const base = import.meta.env.VITE_SUPABASE_URL;
+  const base = resolveEnv("VITE_SUPABASE_URL");
   if (!base) return null;
   try {
     const url = new URL(base);
