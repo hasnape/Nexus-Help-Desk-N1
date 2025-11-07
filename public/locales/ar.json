@@ -1,5 +1,4 @@
 {
-<<<<<<< HEAD
   "appName": "محور دعم نيكسوس",
   "appDescription": "مركز دعم ذكي مع الذكاء الاصطناعي لإدارة فعالة للتذاكر ودعم عملاء محسن.",
   "login.title": "محور دعم نيكسوس",
@@ -17,6 +16,10 @@
   "login.error.invalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صالحة. الرجاء المحاولة مرة أخرى.",
   "login.error.profileFetchFailed": "تعذر استرداد ملف تعريف المستخدم الخاص بك للتحقق.",
   "login.error.companyIdMismatch": "اسم الشركة المقدم لا يتطابق مع شركة حسابك.",
+  "login.error.guardFailed": "فشل فحص تسجيل الدخول. يرجى المحاولة لاحقًا.",
+  "login.error.guardNotAllowed": "تم حظر تسجيل الدخول مؤقتًا لهذه الشركة. يرجى التواصل مع المسؤول.",
+  "login.error.originNotAllowed": "هذا المصدر غير مسموح له بالوصول إلى خدمة المصادقة.",
+  "login.error.companyConflict": "هناك مدير يدير هذه الشركة بالفعل. يرجى التواصل مع الدعم.",
   "login.error.guardFailed": "فشل فحص تسجيل الدخول. يرجى المحاولة لاحقًا.",
   "login.error.guardNotAllowed": "تم حظر تسجيل الدخول مؤقتًا لهذه الشركة. يرجى التواصل مع المسؤول.",
   "login.error.originNotAllowed": "هذا المصدر غير مسموح له بالوصول إلى خدمة المصادقة.",
@@ -197,12 +200,10 @@
   "agentDashboard.subtitle": "عرض وإدارة التذاكر المعينة وغير المعينة.",
   "agentDashboard.unassignedTicketsTitle": "التذاكر غير المعينة",
   "agentDashboard.noUnassignedTickets": "لا توجد تذاكر غير معينة متاحة.",
-=======
   "account": "الحساب",
   "activationKey.help": "للحصول على رمز التفعيل، يرجى التواصل مع دعم نيكسوس أو مراجعة بريدك الإلكتروني الترحيبي بعد شراء الخطة.",
   "agentDashboard.createTicketButton": "احصل على مساعدة الذكاء الاصطناعي",
   "agentDashboard.loadingTickets": "جارٍ تحميل التذاكر...",
->>>>>>> origin/master
   "agentDashboard.myTicketsTitle": "التذاكر المعينة لي",
   "agentDashboard.noMyTickets": "ليس لديك تذاكر معينة لك.",
   "agentDashboard.notApplicableShort": "غير متوفر",
@@ -1058,7 +1059,6 @@
   "userManual.section.usingTheApp.user.desc": "كمستخدم، هدفك الرئيسي هو الحصول على المساعدة. انقر فوق \"احصل على مساعدة الذكاء الاصطناعي\" لبدء محادثة مع مساعدنا الذكي، نيكسوس. صف مشكلتك، وسيرشدك نيكسوس. إذا لم يتمكن من حل المشكلة، فسيقترح إنشاء تذكرة يمكنك وضع اللمسات الأخيرة عليها وإرسالها.",
   "userManual.section.usingTheApp.user.title": "لوحة تحكم المستخدم",
   "userManual.section.voice.desc": "يتضمن التطبيق ميزات صوتية لتحسين تجربتك. يمكنك استخدام الميكروفون لإملاء الرسائل في الدردشة، ويمكن قراءة ردود الذكاء الاصطناعي بصوت عالٍ تلقائيًا. استخدم أيقونات مكبر الصوت والميكروفون للتحكم في هذه الميزات.",
-<<<<<<< HEAD
   "promotional.backToApp": "العودة إلى التطبيق",
   "promotional.mainTitle": "محور دعم نيكسوس – ثورة في دعم العملاء الذكي",
   "promotional.mainSubtitle": "وثيقة ترويجية | 26 أكتوبر 2023",
@@ -1330,4 +1330,3 @@
   "role.agent": "وكيل",
   "role.user": "مستخدم"
 }
->>>>>>> origin/master
