@@ -12,6 +12,24 @@ const isNetworkError = (error: unknown): boolean => {
   );
 };
 
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+const buildHeaders = (headers?: HeadersInit): Headers => {
+  const merged = new Headers(headers || {});
+  if (!merged.has("Content-Type")) {
+    merged.set("Content-Type", "application/json");
+  }
+  if (supabaseAnonKey) {
+    if (!merged.has("apikey")) {
+      merged.set("apikey", supabaseAnonKey);
+    }
+    if (!merged.has("Authorization")) {
+      merged.set("Authorization", `Bearer ${supabaseAnonKey}`);
+    }
+  }
+  return merged;
+};
+
 const getFunctionsBaseUrl = (): string | null => {
   const base = import.meta.env.VITE_SUPABASE_URL;
   if (!base) return null;
@@ -41,12 +59,10 @@ export const callEdgeWithFallback = async (
   payload: unknown,
   init: RequestInit = {}
 ): Promise<EdgeCallResult> => {
+  const headers = buildHeaders(init.headers);
   const requestInit: RequestInit = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...(init.headers || {}),
-    },
+    method: init.method ?? "POST",
+    headers,
     body: JSON.stringify(payload),
     ...init,
   };
