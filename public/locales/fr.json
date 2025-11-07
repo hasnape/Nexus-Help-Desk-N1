@@ -1,5 +1,4 @@
 {
-<<<<<<< HEAD
   "appName": "Nexus Support Hub",
   "login.title": "Nexus Support Hub",
   "login.subtitle": "Accédez à votre portail Utilisateur, Agent ou Manager.",
@@ -17,6 +16,10 @@
   "login.error.profileFetchFailed": "Impossible de récupérer votre profil utilisateur pour la vérification.",
   "login.error.companyIdMismatch": "Le nom de l'entreprise fourni ne correspond pas à l'entreprise de votre compte.",
   "login.error.guardFailed": "Le contrôle de connexion a échoué. Veuillez réessayer plus tard.",
+  "login.error.guardFailed": "Le contrôle de connexion a échoué. Veuillez réessayer plus tard.",
+  "login.error.guardNotAllowed": "La connexion est temporairement bloquée pour cette entreprise. Contactez votre administrateur.",
+  "login.error.originNotAllowed": "Cette origine n'est pas autorisée à contacter le service d'authentification.",
+  "login.error.companyConflict": "Un gestionnaire gère déjà cette entreprise. Veuillez contacter l'assistance.",
   "login.error.guardNotAllowed": "La connexion est temporairement bloquée pour cette entreprise. Contactez votre administrateur.",
   "login.error.originNotAllowed": "Cette origine n'est pas autorisée à contacter le service d'authentification.",
   "login.error.companyConflict": "Un gestionnaire gère déjà cette entreprise. Veuillez contacter l'assistance.",
@@ -238,7 +241,6 @@
   "advantagesTitle": "The Advantages That Set You Apart",
   "agentDashboard.createTicketButton": "Obtenir de l'aide IA",
   "agentDashboard.loadingTickets": "Chargement des tickets...",
->>>>>>> origin/master
   "agentDashboard.myTicketsTitle": "Mes tickets assignés",
   "agentDashboard.noMyTickets": "Aucun ticket ne vous est assigné.",
   "agentDashboard.notApplicableShort": "N/A",
@@ -1154,7 +1156,6 @@
   "userManual.section.usingTheApp.user.desc": "En tant qu'utilisateur, votre objectif principal est d'obtenir de l'aide. Cliquez sur \"Obtenir de l'aide IA\" pour démarrer une conversation avec notre assistant IA, Nexus. Décrivez votre problème, et Nexus vous guidera. S'il ne peut pas résoudre le problème, il suggérera de créer un ticket, que vous pourrez finaliser et soumettre.",
   "userManual.section.usingTheApp.user.title": "Tableau de bord Utilisateur",
   "userManual.section.voice.desc": "L'application inclut des fonctionnalités vocales pour améliorer votre expérience. Vous pouvez utiliser votre microphone pour dicter des messages dans le chat, et les réponses de l'IA peuvent être lues à voix haute automatiquement. Utilisez les icônes de haut-parleur et de microphone pour contrôler ces fonctionnalités.",
-<<<<<<< HEAD
   "promotional.backToApp": "Retour à l'application",
   "promotional.mainTitle": "Nexus Support Hub – La Révolution du Support Client Intelligent",
   "promotional.mainSubtitle": "Document Promotionnel | 26 octobre 2023",
@@ -1308,7 +1309,6 @@
     "futureContent": "<ul><li><strong>Advanced Integrations:</strong> We plan to integrate with popular CRM and messaging platforms for a smoother workflow.</li><li><strong>AI Customization:</strong> Future developments will allow businesses to train the AI with their own knowledge bases for even more accurate and specific responses.</li><li><strong>Appointment Module:</strong> An integrated system for scheduling appointments with agents will be added for more efficient management of complex interactions.</li></ul>",
     "conclusionTitle": "Conclusion: Your Partner for Excellence",
     "conclusionContent": "<p>Nexus Support Hub is not just a tool; it's your strategic partner for revolutionizing customer support. By adopting our platform, you invest in efficiency, security, and customer satisfaction, positioning your business for sustainable growth. Join the intelligent customer support revolution today.</p>"
-=======
   "userManual.section.voice.title": "3. Fonctionnalités vocales",
   "userRole.agent": "Agent",
   "userRole.manager": "Manager",
@@ -1388,5 +1388,4 @@
   "role.agent": "Agent",
   "role.user": "Utilisateur",
   "agentLimitReachedInvite": "Limite d'agents atteinte. Envoyez ce lien d'invitation à l'utilisateur : {{link}}"
->>>>>>> origin/master
 }
