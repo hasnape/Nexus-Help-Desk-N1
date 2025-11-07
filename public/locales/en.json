@@ -1,5 +1,4 @@
 {
-<<<<<<< HEAD
   "appName": "Nexus Support Hub",
   "login.title": "Nexus Support Hub",
   "login.subtitle": "Access your User, Agent, or Manager portal.",
@@ -44,6 +43,10 @@
   "signup.signInLink": "Sign In",
   "signup.backToHome": "Back to Plans",
   "signup.error.allFieldsRequired": "All fields are required.",
+  "login.error.guardFailed": "Login guard failed. Please try again later.",
+  "login.error.guardNotAllowed": "Login is temporarily blocked for this company. Please contact your administrator.",
+  "login.error.originNotAllowed": "This origin is not allowed to call the authentication service.",
+  "login.error.companyConflict": "A manager already manages this company. Please contact support.",
   "signup.error.passwordsDoNotMatch": "Passwords do not match.",
   "signup.error.minCharsPassword": "Password must be at least 6 characters.",
   "signup.error.generic": "Sign up failed. A server error occurred.",
@@ -234,7 +237,7 @@
   "activationKey.help": "To get the activation code, contact Nexus support or check your welcome email after purchasing the plan.",
   "agentDashboard.createTicketButton": "Get AI Help",
   "agentDashboard.loadingTickets": "Loading tickets...",
->>>>>>> origin/master
+
   "agentDashboard.myTicketsTitle": "My Assigned Tickets",
   "agentDashboard.noMyTickets": "You have no tickets assigned to you.",
   "agentDashboard.notApplicableShort": "N/A",
@@ -1115,7 +1118,6 @@
   "userManual.section.usingTheApp.user.desc": "As a user, your main goal is to get help. Click \"Get AI Help\" to start a chat with our AI assistant, Nexus. Describe your problem, and Nexus will guide you. If it cannot solve the issue, it will suggest creating a ticket, which you can finalize and submit.",
   "userManual.section.usingTheApp.user.title": "User Dashboard",
   "userManual.section.voice.desc": "The application includes voice features to enhance your experience. You can use your microphone to dictate messages in the chat, and the AI's responses can be read aloud automatically. Use the speaker and microphone icons to control these features.",
-<<<<<<< HEAD
   "promotional.backToApp": "Back to Application",
   "promotional.mainTitle": "Nexus Support Hub – The Revolution in Intelligent Customer Support",
   "promotional.mainSubtitle": "Promotional Document | October 26, 2025",
@@ -1393,4 +1395,3 @@
   "role.agent": "Agent",
   "role.user": "User"
 }
->>>>>>> origin/master
