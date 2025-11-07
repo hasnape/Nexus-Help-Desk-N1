@@ -42,8 +42,8 @@ const Navbar: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [openGroups, setOpenGroups] = useState<string[]>([]);
 
-  const handleLogout = async () => {
-    await logout();
+   const handleLogout = () => {
+    logout();
     navigate("/login");
   };
 
