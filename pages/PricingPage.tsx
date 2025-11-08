@@ -1,17 +1,24 @@
-// pages/PricingPage.tsx
-import React from 'react';
-import { useLanguage } from '../contexts/LanguageContext';
-import { Link, useLocation } from 'react-router-dom';
-import { useApp } from '../App';
+import React from "react";
+import { useTranslation } from "react-i18next";
+import { Link, useLocation } from "react-router-dom";
+
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useApp } from "@/contexts/AppContext";
+import { getPricingPlans, type PricingPlanKey } from "@/utils/pricing";
 
 const ArrowLeftIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" {...props}>
-    <path fillRule="evenodd" d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z" clipRule="evenodd" />
+    <path
+      fillRule="evenodd"
+      d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z"
+      clipRule="evenodd"
+    />
   </svg>
 );
 
 const PricingPage: React.FC = () => {
-  const { t } = useLanguage();
+  const { t } = useTranslation();
+  const { t: legacyTranslate } = useLanguage();
   const { user } = useApp();
   const location = useLocation();
   const backLinkDestination = user ? '/dashboard' : '/landing';
@@ -65,15 +72,19 @@ const PricingPage: React.FC = () => {
   return (
     <div className="py-8 px-4 sm:px-6 lg:px-8">
       <div className="mb-8">
-        <Link to={backLinkDestination} state={{ from: location }} className="inline-flex items-center text-primary hover:text-primary-dark font-semibold text-sm">
+        <Link
+          to={backLinkDestination}
+          state={{ from: location }}
+          className="inline-flex items-center text-primary hover:text-primary-dark font-semibold text-sm"
+        >
           <ArrowLeftIcon className="w-5 h-5 me-2" />
-          {t('pricing.backToApp', { default: 'Retour à l’application' })}
+          {legacyTranslate("pricing.backToApp", { default: "Retour à l’application" })}
         </Link>
       </div>
 
-      <header className="text-center mb-6">
-        <h1 className="text-4xl font-extrabold text-slate-800 mb-2">{t('pricing.mainTitle', { default: 'Tarifs – Nexus Support Hub' })}</h1>
-        <p className="text-lg text-slate-500">{t('pricing.mainSubtitle', { default: 'Choisissez le plan qui correspond à vos besoins' })}</p>
+      <header className="text-center mb-12">
+        <h1 className="text-4xl font-extrabold text-slate-800 mb-3">{t("pricing.title")}</h1>
+        <p className="text-lg text-slate-600">{t("pricing.disclaimer")}</p>
       </header>
 
       {/* Bannière centrale */}

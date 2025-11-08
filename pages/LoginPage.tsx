@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
-import { useApp } from "../App";
+import { useApp } from "@/contexts/AppContext";
 import { Button, Input } from "../components/FormElements";
-import { useLanguage } from "../contexts/LanguageContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import Layout from "../components/Layout";
 import { callEdgeWithFallback } from "../services/functionClient";
 import { mapLoginGuardError } from "../services/loginGuardErrorMapper";
@@ -13,6 +13,8 @@ const LoginPage: React.FC = () => {
   const [companyName, setCompanyName] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { login, user } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
@@ -29,7 +31,7 @@ const LoginPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (email.trim() === "" || password === "" || companyName.trim() === "") {
-      setError(t("login.error.allFieldsRequired"));
+      showErrorToast(t("login.error.allFieldsRequired"));
       return;
     }
 
@@ -69,12 +71,24 @@ const LoginPage: React.FC = () => {
 
     setIsLoading(false);
     if (loginResult !== true) {
-      setError(loginResult);
+      showErrorToast(loginResult);
+    } else {
+      setToastMessage(null);
     }
   };
 
   return (
     <Layout>
+      {toastMessage && (
+        <div className="fixed top-4 left-0 right-0 z-50 flex justify-center pointer-events-none">
+          <div
+            className="pointer-events-auto rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-lg"
+            role="alert"
+          >
+            {toastMessage}
+          </div>
+        </div>
+      )}
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-700 p-4">
         <div className="bg-surface p-6 sm:p-8 rounded-xl shadow-2xl w-full max-w-md">
           <div className="text-center mb-6">
@@ -132,6 +146,8 @@ const LoginPage: React.FC = () => {
               label={t("login.emailLabel")}
               id="email"
               type="email"
+              name="email"
+              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder={t("login.emailPlaceholder")}
@@ -143,6 +159,8 @@ const LoginPage: React.FC = () => {
               label={t("login.passwordLabel")}
               id="password"
               type="password"
+              name="password"
+              autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder={t("login.passwordPlaceholder")}
@@ -153,6 +171,8 @@ const LoginPage: React.FC = () => {
               label={t("login.companyNameLabel", { default: "Company Name" })}
               id="companyName"
               type="text"
+              name="companyName"
+              autoComplete="organization"
               value={companyName}
               onChange={(e) => setCompanyName(e.target.value)}
               placeholder={t("login.companyNamePlaceholder", {
@@ -213,7 +233,8 @@ const LoginPage: React.FC = () => {
           {/* Footer legal */}
           <div className="mt-6 pt-4 border-t border-slate-200 text-center">
             <Link
-              to="/legal"
+
+                         to="/legal"
               className="text-xs text-slate-500 hover:text-primary hover:underline"
             >
               {t("footer.legalLink", { default: "Legal & Documentation" })}

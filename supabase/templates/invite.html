@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Invite</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background-color: #f7fafc;
+        color: #1a202c;
+        margin: 0;
+        padding: 32px 16px;
+      }
+      .card {
+        max-width: 480px;
+        margin: 0 auto;
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 32px 28px;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+        border: 1px solid #e2e8f0;
+      }
+      h2 {
+        margin-top: 0;
+        color: #1e40af;
+        font-size: 24px;
+      }
+      p {
+        font-size: 16px;
+        line-height: 1.6;
+        margin: 16px 0;
+      }
+      a.button {
+        display: inline-block;
+        padding: 12px 20px;
+        background: #4338ca;
+        color: #ffffff !important;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+      }
+      .footer {
+        margin-top: 24px;
+        font-size: 13px;
+        color: #475569;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h2>You have been invited</h2>
+      <p>You have been invited to create a user on {{ .SiteURL }}. Follow this link to accept the invite:</p>
+      <p>
+        <a class="button" href="{{ .ConfirmationURL }}">Accept the invite</a>
+      </p>
+      <p class="footer">If you did not expect this email, you can safely ignore it.</p>
+    </div>
+  </body>
+</html>

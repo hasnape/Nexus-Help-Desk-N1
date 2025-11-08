@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useLanguage } from '../contexts/LanguageContext';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { paypalId } from '@/config/env';
 import LoadingSpinner from './LoadingSpinner';
 
 declare global {
@@ -13,25 +14,67 @@ interface PayPalButtonProps {
 }
 
 const PayPalButton: React.FC<PayPalButtonProps> = ({ planId }) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const paypalRef = useRef<HTMLDivElement>(null);
   const [sdkReady, setSdkReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Check if the PayPal SDK script has loaded
+    if (sdkReady || error) {
+      return;
+    }
+
     if (window.paypal) {
       setSdkReady(true);
-    } else {
-        // Simple check if the script is on the page, but not yet loaded
-        const script = document.querySelector('script[src*="paypal.com/sdk/js"]');
-        if (script) {
-             script.addEventListener('load', () => setSdkReady(true));
-        } else {
-            setError(t('paypal.error.sdkNotLoaded', {default: "PayPal SDK could not be loaded. Please refresh the page."}));
-        }
+      return;
     }
-  }, [t]);
+
+    if (!paypalId) {
+      setError(
+        t('paypal.error.missingClientId', {
+          default: 'PayPal configuration is missing. Please contact support.',
+        })
+      );
+      return;
+    }
+
+    const localeMap: Record<string, string> = {
+      en: 'en_US',
+      fr: 'fr_FR',
+      ar: 'ar_EG',
+    };
+    const paypalLocale = localeMap[language] ?? 'en_US';
+
+    const handleLoad = () => setSdkReady(true);
+    const handleError = () =>
+      setError(
+        t('paypal.error.sdkNotLoaded', {
+          default: "PayPal SDK could not be loaded. Please refresh the page.",
+        })
+      );
+
+    let script = document.querySelector<HTMLScriptElement>('script[data-paypal-sdk="true"]');
+
+    if (!script) {
+      script = document.createElement('script');
+      script.src = `https://www.paypal.com/sdk/js?client-id=${paypalId}&components=buttons&intent=subscription&vault=true&currency=EUR&locale=${paypalLocale}`;
+      script.async = true;
+      script.dataset.paypalSdk = 'true';
+      script.addEventListener('load', handleLoad);
+      script.addEventListener('error', handleError);
+      document.head.appendChild(script);
+    } else {
+      script.addEventListener('load', handleLoad);
+      script.addEventListener('error', handleError);
+    }
+
+    return () => {
+      if (script) {
+        script.removeEventListener('load', handleLoad);
+        script.removeEventListener('error', handleError);
+      }
+    };
+  }, [language, t, sdkReady, error]);
 
   useEffect(() => {
     if (sdkReady && paypalRef.current) {
