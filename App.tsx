@@ -1,23 +1,6 @@
-import React, {
-  useState,
-  ReactNode,
-  useCallback,
-  useEffect,
-  useRef,
-  createContext,
-  useContext,
-} from "react";
-import i18next from "i18next";
-import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
-import {
-  Ticket,
-  User,
-  ChatMessage,
-  TicketStatus,
-  UserRole,
-  Locale as AppLocale,
-  AppointmentDetails,
-} from "@/types";
+import React, { createContext, useState, useContext, ReactNode, useCallback, useEffect } from "react";
+import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation, Link } from "react-router-dom";
+import { Ticket, User, ChatMessage, TicketStatus, UserRole, Locale as AppLocale, AppointmentDetails } from "./types";
 import { getFollowUpHelpResponse, getTicketSummary } from "./services/geminiService";
 import { supabase } from "./src/services/supabaseClient";
 import PricingPage from "./pages/PricingPage";
@@ -33,16 +16,14 @@ import LegalPage from "./pages/LegalPage";
 import UserManualPage from "./pages/UserManualPage";
 import PromotionalPage from "./pages/PromotionalPage";
 import LandingPage from "./pages/LandingPage";
-import AccessibilitePage from "./pages/AccessibilitePage";
 import SubscriptionPage from "./pages/SubscriptionPage";
 import ContactPage from "./pages/ContactPage";
 import AboutPage from "./pages/AboutPage";
 import TestimonialsPage from "./pages/TestimonialsPage";
 import PartnersPage from "./pages/PartnersPage";
 import InfographiePage from "./pages/InfographiePage";
-import DemoPage from "./pages/DemoPage";
 import { DEFAULT_AI_LEVEL, DEFAULT_USER_ROLE, TICKET_STATUS_KEYS } from "./constants";
-import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
+import { LanguageProvider, useLanguage } from "./contexts/LanguageContext";
 import LoadingSpinner from "./components/LoadingSpinner";
 import CookieConsentBanner from "./components/CookieConsentBanner";
 import type { Session } from "@supabase/supabase-js";
@@ -66,52 +47,7 @@ import { callEdgeWithFallback } from "./services/functionClient";
 import { mapSignupError } from "./services/signupErrorMapper";
 import PageLayout from './components/PageLayout';
 
-/** ---------- Types utilitaires manquants (compilation sûre) ---------- */
-type ChatStorageMode = "unknown" | "jsonb" | "table";
-type TicketMessageRow = {
-  id?: string;
-  ticket_id?: string;
-  content?: string;
-  message_text?: string;
-  text?: string;
-  body?: string;
-  created_at?: string;
-  inserted_at?: string;
-  timestamp?: string;
-  sender?: ChatMessage["sender"] | string;
-  agent_id?: string;
-};
 
-/** ---------- Helpers réseau centralisés (définis une seule fois) ---------- */
-const isOfflineNetworkError = (error: any): boolean => {
-  if (!error) return false;
-  const message =
-    typeof error === "string"
-      ? error
-      : typeof error?.message === "string"
-      ? error.message
-      : "";
-  const lower = message.toLowerCase();
-  return (
-    lower.includes("failed to fetch") ||
-    lower.includes("networkerror") ||
-    lower.includes("network error") ||
-    lower.includes("fetch failed")
-  );
-};
-
-const isAbortError = (e: any) =>
-  !!e && (e.name === "AbortError" || String(e).includes("AbortError"));
-
-const isOnlineRequiredService = (fnName: string) =>
-  fnName === "getFollowUpHelpResponse" || fnName === "getTicketSummary";
-
-/** Circuit court local (freemium/offline) – par défaut désactivé */
-const shouldShortCircuitNetwork = (_key: string) => false;
-/** Détection du mode de stockage (placeholder sûr) */
-const ensureChatStorageMode = async (): Promise<ChatStorageMode> => "jsonb";
-
-/** ---------- Contexte App ---------- */
 interface AppContextType {
   user: User | null;
   login: (email: string, password: string, companyName: string) => Promise<string | true>;
@@ -130,26 +66,11 @@ interface AppContextType {
   ) => Promise<string | true>;
   tickets: Ticket[];
   addTicket: (
-    ticketData: Omit<
-      Ticket,
-      | "id"
-      | "created_at"
-      | "updated_at"
-      | "user_id"
-      | "assigned_agent_id"
-      | "internal_notes"
-      | "current_appointment"
-      | "assigned_ai_level"
-      | "chat_history"
-    >,
+    ticketData: Omit<Ticket, "id" | "created_at" | "updated_at" | "user_id" | "assigned_agent_id" | "internal_notes" | "current_appointment" | "assigned_ai_level" | "chat_history">,
     initialChatHistory: ChatMessage[]
   ) => Promise<Ticket | null>;
   updateTicketStatus: (ticketId: string, status: TicketStatus) => Promise<void>;
-  addChatMessage: (
-    ticketId: string,
-    userMessageText: string,
-    onAiMessageAdded?: (aiMessage: ChatMessage) => void
-  ) => Promise<void>;
+  addChatMessage: (ticketId: string, userMessageText: string, onAiMessageAdded?: (aiMessage: ChatMessage) => void) => Promise<void>;
   sendAgentMessage: (ticketId: string, agentMessageText: string) => Promise<void>;
   isLoading: boolean;
   isLoadingAi: boolean;
@@ -179,22 +100,12 @@ interface AppContextType {
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
-export const useApp = () => {
-  const ctx = useContext(AppContext);
-  if (!ctx) throw new Error("useApp must be used within AppProvider");
-  return ctx;
-};
 
-/** ---------- Helpers tickets ---------- */
-const reviveTicketDates = (data: any, chatHistoryOverride?: ChatMessage[]): Ticket => ({
+const reviveTicketDates = (data: any): Ticket => ({
   ...data,
   created_at: new Date(data.created_at),
   updated_at: new Date(data.updated_at),
-  chat_history: chatHistoryOverride
-    ? chatHistoryOverride
-    : data.chat_history
-    ? data.chat_history.map((c: any) => ({ ...c, timestamp: new Date(c.timestamp) }))
-    : [],
+  chat_history: data.chat_history ? data.chat_history.map((c: any) => ({ ...c, timestamp: new Date(c.timestamp) })) : [],
   internal_notes: data.internal_notes || [],
   current_appointment: data.current_appointment || undefined,
 });
@@ -229,7 +140,6 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [newlyCreatedCompanyName, setNewlyCreatedCompanyName] = useState<string | null>(null);
   const [consentGiven, setConsentGiven] = useState<boolean>(false);
-  const [quotaUsagePercent, setQuotaUsagePercent] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingAi, setIsLoadingAi] = useState(false);
   const [isFreemiumDevice, setIsFreemiumDevice] = useState<boolean>(false);
@@ -238,41 +148,6 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     const storedAutoRead = localStorage.getItem("aiHelpDeskAutoRead");
     return storedAutoRead ? JSON.parse(storedAutoRead) : true;
   });
-  const [chatStorageMode, setChatStorageMode] = useState<ChatStorageMode>("unknown");
-  const chatStorageModeRef = useRef<ChatStorageMode>(chatStorageMode);
-  useEffect(() => {
-    chatStorageModeRef.current = chatStorageMode;
-  }, [chatStorageMode]);
-
-  const [messageContentColumn, setMessageContentColumn] = useState<
-    "content" | "message_text" | "text" | "body" | null
-  >(null);
-  const messageContentColumnRef = useRef<typeof messageContentColumn>(messageContentColumn);
-  useEffect(() => {
-    messageContentColumnRef.current = messageContentColumn;
-  }, [messageContentColumn]);
-
-  const [ticketMessageAgentColumn, setTicketMessageAgentColumn] = useState<"agent_id" | null>(null);
-  const ticketMessageAgentColumnRef = useRef<"agent_id" | null>(ticketMessageAgentColumn);
-  useEffect(() => {
-    ticketMessageAgentColumnRef.current = ticketMessageAgentColumn;
-  }, [ticketMessageAgentColumn]);
-
-  const [hasInternalNotesColumn, setHasInternalNotesColumn] = useState<boolean | null>(null);
-  const hasInternalNotesColumnRef = useRef<boolean | null>(hasInternalNotesColumn);
-  useEffect(() => {
-    hasInternalNotesColumnRef.current = hasInternalNotesColumn;
-  }, [hasInternalNotesColumn]);
-
-  const [hasCurrentAppointmentColumn, setHasCurrentAppointmentColumn] = useState<boolean | null>(
-    null
-  );
-  const hasCurrentAppointmentColumnRef = useRef<boolean | null>(hasCurrentAppointmentColumn);
-  useEffect(() => {
-    hasCurrentAppointmentColumnRef.current = hasCurrentAppointmentColumn;
-  }, [hasCurrentAppointmentColumn]);
-
-  const updateTicketsState = (updater: (prev: Ticket[]) => Ticket[]) => setTickets(updater);
 
   const { language, setLanguage: setAppLanguage, t: translateHook } = useLanguage();
 
@@ -457,7 +332,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
       if (event === "TOKEN_REFRESHED" && !session) {
         loadUserData(null);
-      } else if (session?.user?.id !== user?.auth_uid) {
+      } else if (session?.user?.id !== user?.id) {
         loadUserData(session);
       }
     });
@@ -760,9 +635,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         setAllUsers((prev) => prev.filter((u) => u.id !== userId));
         updateTicketsState((prev) => {
           const ticketsAfterUserRemoval = prev.filter((t) => t.user_id !== userId);
-          return ticketsAfterUserRemoval.map((t) =>
-            t.assigned_agent_id === userId ? { ...t, assigned_agent_id: undefined } : t
-          );
+          return ticketsAfterUserRemoval.map((t) => (t.assigned_agent_id === userId ? { ...t, assigned_agent_id: undefined } : t));
         });
       }
     } catch (e: any) {
@@ -772,18 +645,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const addTicket = async (
-    ticketData: Omit<
-      Ticket,
-      | "id"
-      | "created_at"
-      | "updated_at"
-      | "user_id"
-      | "assigned_agent_id"
-      | "internal_notes"
-      | "current_appointment"
-      | "assigned_ai_level"
-      | "chat_history"
-    >,
+    ticketData: Omit<Ticket, "id" | "created_at" | "updated_at" | "user_id" | "assigned_agent_id" | "internal_notes" | "current_appointment" | "assigned_ai_level" | "chat_history">,
     initialChatHistory: ChatMessage[]
   ): Promise<Ticket | null> => {
     if (!user) return null;
@@ -851,12 +713,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       return;
     }
     const updated_at = new Date().toISOString();
-    const { data, error } = await supabase
-      .from("tickets")
-      .update({ status, updated_at })
-      .eq("id", ticketId)
-      .select()
-      .single();
+    const { data, error } = await supabase.from("tickets").update({ status, updated_at }).eq("id", ticketId).select().single();
     if (error) console.error("Error updating ticket status:", error);
     else
       updateTicketsState((prev) => prev.map((t) => (t.id === ticketId ? reviveTicketDates(data) : t)));
@@ -885,17 +742,11 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     const ticketToUpdate = tickets.find((t) => t.id === ticketId);
     if (!ticketToUpdate || user?.role !== "manager") return;
     let summaryMessage: ChatMessage | null = null;
-
     if (agentId && (!ticketToUpdate.assigned_agent_id || ticketToUpdate.assigned_agent_id !== agentId)) {
       setIsLoadingAi(true);
       try {
         const summaryText = await getTicketSummary(ticketToUpdate, language);
-        summaryMessage = {
-          id: crypto.randomUUID(),
-          sender: "system_summary",
-          text: summaryText,
-          timestamp: new Date(),
-        };
+        summaryMessage = { id: crypto.randomUUID(), sender: "system_summary", text: summaryText, timestamp: new Date() };
       } catch (error) {
         console.error("Error generating ticket summary:", error);
         summaryMessage = {
@@ -929,7 +780,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
     const { data, error } = await supabase
       .from("tickets")
-      .update(updatePayload)
+      .update({ assigned_agent_id: agentId || null, updated_at: new Date().toISOString(), chat_history: updatedChatHistory })
       .eq("id", ticketId)
       .select()
       .single();
@@ -973,7 +824,6 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     if (!user || (user.role !== UserRole.AGENT && user.role !== UserRole.MANAGER)) return;
     const ticket = tickets.find((t) => t.id === ticketId);
     if (!ticket) return;
-
     const agentMessage: ChatMessage = {
       id: crypto.randomUUID(),
       sender: "agent",
@@ -981,7 +831,6 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       timestamp: new Date(),
       agentId: user.id,
     };
-
     const updated_chat_history = [...ticket.chat_history, agentMessage];
     const newStatus =
       ticket.status === TICKET_STATUS_KEYS.OPEN || ticket.status === TICKET_STATUS_KEYS.RESOLVED
@@ -1007,7 +856,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
     const { data, error } = await supabase
       .from("tickets")
-      .update(updatePayload)
+      .update({ chat_history: updated_chat_history, status: newStatus, updated_at: new Date().toISOString() })
       .eq("id", ticketId)
       .select()
       .single();
@@ -1016,11 +865,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       updateTicketsState((prev) => prev.map((t) => (t.id === ticketId ? reviveTicketDates(data) : t)));
   };
 
-  const addChatMessage = async (
-    ticketId: string,
-    userMessageText: string,
-    onAiMessageAdded?: (aiMessage: ChatMessage) => void
-  ) => {
+  const addChatMessage = async (ticketId: string, userMessageText: string, onAiMessageAdded?: (aiMessage: ChatMessage) => void) => {
     if (!user) return;
     const ticket = tickets.find((t) => t.id === ticketId);
     if (!ticket) return;
@@ -1040,13 +885,6 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         ),
       isLocalFreemiumSession
     );
-
-    let storageMode = chatStorageModeRef.current;
-    if (storageMode === "unknown") {
-      storageMode = await ensureChatStorageMode();
-      setChatStorageMode(storageMode);
-    }
-
     if (ticket.assigned_agent_id) {
       if (shouldShortCircuitNetwork("supabase.tickets.update")) {
         return;
@@ -1057,7 +895,6 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         .eq("id", ticketId);
       return;
     }
-
     setIsLoadingAi(true);
     let finalChatHistory = tempUpdatedChatHistory;
     try {
@@ -1096,7 +933,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
       const { data, error } = await supabase
         .from("tickets")
-        .update(updatePayload)
+        .update({ chat_history: finalChatHistory, status: newStatus, updated_at: new Date().toISOString() })
         .eq("id", ticketId)
         .select()
         .single();
@@ -1116,7 +953,6 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     if (!user) return;
     const ticket = tickets.find((t) => t.id === ticketId);
     if (!ticket) return;
-
     const newAppointment: AppointmentDetails = {
       ...details,
       id: crypto.randomUUID(),
@@ -1124,34 +960,15 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       status: newStatus,
       history: ticket.current_appointment ? [...(ticket.current_appointment.history || []), ticket.current_appointment] : [],
     };
-
     let chatMessageText = "";
     const { proposedDate, proposedTime, locationOrMethod } = details;
-    const apptDateStr = new Date(proposedDate).toLocaleDateString(language, {
-      weekday: "long",
-      month: "long",
-      day: "numeric",
-    });
-
+    const apptDateStr = new Date(proposedDate).toLocaleDateString(language, { weekday: "long", month: "long", day: "numeric" });
     if (newStatus === "pending_user_approval")
-      chatMessageText = translateHook("appointment.chat.agentProposed", {
-        date: apptDateStr,
-        time: proposedTime,
-        location: locationOrMethod,
-      });
+      chatMessageText = translateHook("appointment.chat.agentProposed", { date: apptDateStr, time: proposedTime, location: locationOrMethod });
     else if (newStatus === "confirmed")
-      chatMessageText = translateHook("appointment.chat.userConfirmed", {
-        date: apptDateStr,
-        time: proposedTime,
-        location: locationOrMethod,
-      });
+      chatMessageText = translateHook("appointment.chat.userConfirmed", { date: apptDateStr, time: proposedTime, location: locationOrMethod });
     else if (newStatus === "rescheduled_by_user")
-      chatMessageText = translateHook("appointment.chat.userWantsToReschedule", {
-        date: apptDateStr,
-        time: proposedTime,
-        location: locationOrMethod,
-      });
-
+      chatMessageText = translateHook("appointment.chat.userWantsToReschedule", { date: apptDateStr, time: proposedTime, location: locationOrMethod });
     const systemMessage: ChatMessage = {
       id: crypto.randomUUID(),
       sender: proposedBy === "agent" ? "agent" : "user",
@@ -1159,7 +976,6 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       text: chatMessageText,
       timestamp: new Date(),
     };
-
     const updatedChatHistory = chatMessageText ? [...ticket.chat_history, systemMessage] : ticket.chat_history;
     if (shouldShortCircuitNetwork("supabase.tickets.update")) {
       const updatedAtDate = new Date();
@@ -1181,7 +997,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
     const { data, error } = await supabase
       .from("tickets")
-      .update(updatePayload)
+      .update({ current_appointment: newAppointment, chat_history: updatedChatHistory, updated_at: new Date().toISOString() })
       .eq("id", ticketId)
       .select()
       .single();
@@ -1190,10 +1006,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       updateTicketsState((prev) => prev.map((t) => (t.id === ticketId ? reviveTicketDates(data) : t)));
   };
 
-  const getTicketById = useCallback(
-    (ticketId: string) => tickets.find((t) => t.id === ticketId),
-    [tickets]
-  );
+  const getTicketById = useCallback((ticketId: string) => tickets.find((t) => t.id === ticketId), [tickets]);
 
   const updateCompanyName = async (newName: string): Promise<boolean> => {
     if (!user || user.role !== UserRole.MANAGER || !user.company_id) return false;
@@ -1205,67 +1018,34 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       return true;
     }
     const oldName = user.company_id;
-
-    const { data: companyResults, error: findError } = await supabase
-      .from("companies")
-      .select("id")
-      .eq("name", oldName)
-      .limit(1);
-
+    const { data: companyResults, error: findError } = await supabase.from("companies").select("id").eq("name", oldName).limit(1);
     if (findError) {
       console.error("Error finding company to update:", findError);
-      alert(
-        translateHook("managerDashboard.companyInfo.updateError", {
-          default: "Could not find the company to update.",
-        })
-      );
+      alert(translateHook("managerDashboard.companyInfo.updateError", { default: "Could not find the company to update." }));
       return false;
     }
-
-    const companyRow = (companyResults && (companyResults as any)[0]) || null;
-    if (!companyRow) {
-      alert(
-        translateHook("managerDashboard.companyInfo.updateError", {
-          default: "Company not found.",
-        })
-      );
+    if (!companyResults || companyResults.length === 0) {
+      console.error("Data integrity error: company not found with name", oldName);
+      alert(translateHook("managerDashboard.companyInfo.updateError", { default: "Could not find the company to update." }));
       return false;
     }
-
-    const { error: updateCompanyError } = await supabase
-      .from("companies")
-      .update({ name: newName })
-      .eq("id", companyRow.id);
-
+    const companyData = companyResults[0];
+    const { error: updateCompanyError } = await supabase.from("companies").update({ name: newName }).eq("id", companyData.id);
     if (updateCompanyError) {
       console.error("Error updating company name:", updateCompanyError);
-      alert(
-        translateHook("managerDashboard.companyInfo.updateError", {
-          default: "Failed to update company name. The new name might be taken.",
-        })
-      );
+      alert(translateHook("managerDashboard.companyInfo.updateError", { default: "Failed to update company name. The new name might be taken." }));
       return false;
     }
-
-    setAllUsers((prev) => [...prev]);
+    const { error: updateUserError } = await supabase.from("users").update({ company_id: newName }).eq("company_id", oldName);
+    if (updateUserError) {
+      console.error("CRITICAL: Failed to update users' company_id. Data is now inconsistent.", updateUserError);
+      await supabase.from("companies").update({ name: oldName }).eq("id", companyData.id);
+      alert(translateHook("managerDashboard.companyInfo.updateError", { default: "Failed to update company name for all users. The change has been rolled back." }));
+      return false;
+    }
+    setUser((prevUser) => (prevUser ? { ...prevUser, company_id: newName } : null));
+    setAllUsers((prevUsers) => prevUsers.map((u) => (u.company_id === oldName ? { ...u, company_id: newName } : u)));
     return true;
-  };
-
-  const refreshQuotaUsage = async () => {
-    const res = await getCompanyQuota();
-    if (!res) {
-      setQuotaUsagePercent(null);
-      return;
-    }
-    if (res.unlimited) {
-      setQuotaUsagePercent(0);
-      return;
-    }
-    if (typeof res.used === "number" && typeof res.limit === "number" && res.limit > 0) {
-      setQuotaUsagePercent(Math.min(100, Math.round((res.used / res.limit) * 100)));
-    } else {
-      setQuotaUsagePercent(null);
-    }
   };
 
   return (
@@ -1289,8 +1069,6 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         getAgents,
         getAllUsers,
         proposeOrUpdateAppointment,
-        restoreAppointment: async () => {},
-        deleteAppointment: async () => {},
         deleteTicket,
         updateUserRole,
         agentTakeTicket,
@@ -1313,7 +1091,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   return <AppProviderContent>{children}</AppProviderContent>;
 };
 
-/** ---------- Routes protégées ---------- */
+export const useApp = (): AppContextType => {
+  const context = useContext(AppContext);
+  if (context === undefined) {
+    throw new Error("useApp must be used within an AppProvider");
+  }
+  return context;
+};
+
 interface ProtectedRouteProps {
   children: ReactNode;
   allowedRoles?: UserRole[];
@@ -1330,11 +1115,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles 
       navigate("/login", { replace: true, state: { from: location } });
     } else if (allowedRoles && !allowedRoles.includes(user.role)) {
       const target =
-        user.role === UserRole.AGENT
-          ? "/agent/dashboard"
-          : user.role === UserRole.MANAGER
-          ? "/manager/dashboard"
-          : "/dashboard";
+        user.role === UserRole.AGENT ? "/agent/dashboard" : user.role === UserRole.MANAGER ? "/manager/dashboard" : "/dashboard";
       navigate(target, { replace: true });
     }
   }, [user, isLoading, navigate, allowedRoles, location]);
@@ -1343,23 +1124,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles 
   return <>{children}</>;
 };
 
-/** ---------- Shell principal ---------- */
 const MainAppContent: React.FC = () => {
   const { user, isLoading, consentGiven, giveConsent } = useApp();
   const { isLoadingLang, t } = useLanguage();
-  const location = useLocation();
+  const location = useLocation(); // Moved to top level
 
   const noLayoutPages = ["/login", "/signup", "/landing"];
-  const specialLayoutPages = [
-    "/legal",
-    "/manual",
-    "/presentation",
-    "/contact",
-    "/about",
-    "/testimonials",
-    "/partners",
-    "/infographie",
-  ];
+  const specialLayoutPages = ["/legal", "/manual", "/presentation", "/contact", "/about", "/testimonials", "/partners", "/infographie"];
 
   if (isLoading || isLoadingLang) {
     return (
@@ -1370,110 +1141,103 @@ const MainAppContent: React.FC = () => {
   }
 
   const renderRoutes = () => (
-    <Routes>
-      <Route path="/landing" element={<LandingPage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/signup" element={<SignUpPage />} />
-      <Route path="/legal" element={<LegalPage />} />
-      <Route path="/manual" element={<UserManualPage />} />
-      <Route path="/presentation" element={<PromotionalPage />} />
-      <Route path="/contact" element={<ContactPage />} />
-      <Route path="/accessibilite" element={<AccessibilitePage />} />
-      <Route path="/about" element={<AboutPage />} />
-      <Route path="/testimonials" element={<TestimonialsPage />} />
-      <Route path="/partners" element={<PartnersPage />} />
-      <Route path="/infographie" element={<InfographiePage />} />
-      <Route path="/demo" element={<DemoPage />} />
+  <Routes>
+    <Route path="/landing" element={<LandingPage />} />
+    <Route path="/login" element={<LoginPage />} />
+    <Route path="/signup" element={<SignUpPage />} />
+    <Route path="/legal" element={<LegalPage />} />
+    <Route path="/manual" element={<UserManualPage />} />
+    <Route path="/presentation" element={<PromotionalPage />} />
+    <Route path="/contact" element={<ContactPage />} />
+    <Route path="/about" element={<AboutPage />} />
+    <Route path="/testimonials" element={<TestimonialsPage />} />
+    <Route path="/partners" element={<PartnersPage />} />
+    <Route path="/infographie" element={<InfographiePage />} />
 
-      <Route path="/pricing" element={<PricingPage />} />
+    {/* PricingPage */}
+    <Route path="/pricing" element={<PricingPage />} />
 
-      <Route
-        path="/subscribe"
-        element={
-          <ProtectedRoute>
-            <SubscriptionPage />
-          </ProtectedRoute>
-        }
-      />
+    <Route path="/subscribe" element={<ProtectedRoute><SubscriptionPage /></ProtectedRoute>} />
 
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
-            {user?.role === UserRole.AGENT ? (
-              <Navigate to="/agent/dashboard" replace />
-            ) : user?.role === UserRole.MANAGER ? (
-              <Navigate to="/manager/dashboard" replace />
-            ) : (
-              <DashboardPage />
-            )}
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/help"
-        element={
-          <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
-            <HelpChatPage />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/ticket/new"
-        element={
-          <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
-            <NewTicketPage />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/ticket/:ticketId"
-        element={
-          <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
-            <TicketDetailPage />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/agent/dashboard"
-        element={
-          <ProtectedRoute allowedRoles={[UserRole.AGENT, UserRole.MANAGER]}>
-            <AgentDashboardPage />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/manager/dashboard"
-        element={
-          <ProtectedRoute allowedRoles={[UserRole.MANAGER]}>
-            <ManagerDashboardPage />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/"
-        element={
-          user ? (
-            user.role === UserRole.AGENT ? (
-              <Navigate to="/agent/dashboard" replace />
-            ) : user.role === UserRole.MANAGER ? (
-              <Navigate to="/manager/dashboard" replace />
-            ) : (
-              <Navigate to="/dashboard" replace />
-            )
+    <Route
+      path="/dashboard"
+      element={
+        <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
+          {user?.role === UserRole.AGENT ? (
+            <Navigate to="/agent/dashboard" replace />
+          ) : user?.role === UserRole.MANAGER ? (
+            <Navigate to="/manager/dashboard" replace />
           ) : (
-            <Navigate to="/landing" replace />
+            <DashboardPage />
+          )}
+        </ProtectedRoute>
+      }
+    />
+
+    <Route
+      path="/help"
+      element={
+        <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
+          <HelpChatPage />
+        </ProtectedRoute>
+      }
+    />
+
+    <Route
+      path="/ticket/new"
+      element={
+        <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
+          <NewTicketPage />
+        </ProtectedRoute>
+      }
+    />
+
+    <Route
+      path="/ticket/:ticketId"
+      element={
+        <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
+          <TicketDetailPage />
+        </ProtectedRoute>
+      }
+    />
+
+    <Route
+      path="/agent/dashboard"
+      element={
+        <ProtectedRoute allowedRoles={[UserRole.AGENT, UserRole.MANAGER]}>
+          <AgentDashboardPage />
+        </ProtectedRoute>
+      }
+    />
+
+    <Route
+      path="/manager/dashboard"
+      element={
+        <ProtectedRoute allowedRoles={[UserRole.MANAGER]}>
+          <ManagerDashboardPage />
+        </ProtectedRoute>
+      }
+    />
+
+    <Route
+      path="/"
+      element={
+        user ? (
+          user.role === UserRole.AGENT ? (
+            <Navigate to="/agent/dashboard" replace />
+          ) : user.role === UserRole.MANAGER ? (
+            <Navigate to="/manager/dashboard" replace />
+          ) : (
+            <Navigate to="/dashboard" replace />
           )
-        }
-      />
-    </Routes>
-  );
+        ) : (
+          <Navigate to="/landing" replace />
+        )
+      }
+    />
+  </Routes>
+);
+
 
   if (noLayoutPages.includes(location.pathname)) {
     return (
@@ -1489,28 +1253,15 @@ const MainAppContent: React.FC = () => {
   }
 
   return (
-    <PageLayout>
-      {renderRoutes()}
-      {!consentGiven && <CookieConsentBanner onAccept={giveConsent} />}
-    </PageLayout>
-  );
+  <PageLayout>
+    {renderRoutes()}
+    {!consentGiven && <CookieConsentBanner onAccept={giveConsent} />}
+  </PageLayout>
+);
+
 };
 
 function App() {
-  useEffect(() => {
-    const apply = () => {
-      const lng = i18next.language;
-      document.documentElement.lang = lng;
-      document.documentElement.dir = lng === "ar" ? "rtl" : "ltr";
-    };
-    apply();
-    const handler = () => apply();
-    i18next.on("languageChanged", handler);
-    return () => {
-      i18next.off("languageChanged", handler);
-    };
-  }, []);
-
   return (
     <LanguageProvider>
       <AppProvider>
