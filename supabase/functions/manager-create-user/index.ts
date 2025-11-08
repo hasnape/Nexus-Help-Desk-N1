@@ -208,6 +208,6 @@ serve(async (req: Request) => {
     return respond(headers, 200, { ok: true, userId: createdUser.user.id, mode: "create" });
   } catch (error) {
     console.error("manager-create-user: unexpected error", error);
-    return respond(headers, 500, { ok: false, code: "unknown_error", message: String(error) });
+    return respond(headers, 500, { ok: false, code: "unknown_error", message: "An unexpected error occurred" });
   }
 });
