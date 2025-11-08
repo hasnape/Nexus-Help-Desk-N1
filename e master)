@@ -1,0 +1,19 @@
+[35mpublic/locales/ar.json[m[36m:[m[32m1282[m[36m:[m[1;31m=======[m
+[35mpublic/locales/en.json[m[36m:[m[32m201[m[36m:[m[1;31m=======[m
+[35mpublic/locales/en.json[m[36m:[m[32m1346[m[36m:[m[1;31m=======[m
+[35mpublic/locales/fr.json[m[36m:[m[32m203[m[36m:[m[1;31m=======[m
+[35msrc/locales/en.json[m[36m:[m[32m2[m[36m:[m[1;31m<<<<<<<[m HEAD:locales/en.json
+[35msrc/locales/en.json[m[36m:[m[32m229[m[36m:[m[1;31m=======[m
+[35msrc/locales/en.json[m[36m:[m[32m233[m[36m:[m[1;31m>>>>>>>[m origin/master:src/locales/en.json
+[35msrc/locales/fr.json[m[36m:[m[32m2[m[36m:[m[1;31m<<<<<<<[m HEAD:locales/fr.json
+[35msrc/locales/fr.json[m[36m:[m[32m203[m[36m:[m[1;31m=======[m
+[35msrc/locales/fr.json[m[36m:[m[32m209[m[36m:[m[1;31m>>>>>>>[m origin/master:src/locales/fr.json
+[35msupabase/functions/_shared/cors.ts[m[36m:[m[32m1[m[36m:[m[1;31m<<<<<<<[m HEAD
+[35msupabase/functions/_shared/cors.ts[m[36m:[m[32m59[m[36m:[m[1;31m=======[m
+[35msupabase/functions/_shared/cors.ts[m[36m:[m[32m109[m[36m:[m[1;31m>>>>>>>[m origin/master
+[35msupabase/functions/auth-signup/index.ts[m[36m:[m[32m1[m[36m:[m[1;31m<<<<<<<[m HEAD
+[35msupabase/functions/auth-signup/index.ts[m[36m:[m[32m250[m[36m:[m[1;31m=======[m
+[35msupabase/functions/auth-signup/index.ts[m[36m:[m[32m580[m[36m:[m[1;31m>>>>>>>[m origin/master
+[35msupabase/functions/login-guard/index.ts[m[36m:[m[32m1[m[36m:[m[1;31m<<<<<<<[m HEAD
+[35msupabase/functions/login-guard/index.ts[m[36m:[m[32m97[m[36m:[m[1;31m=======[m
+[35msupabase/functions/login-guard/index.ts[m[36m:[m[32m146[m[36m:[m[1;31m>>>>>>>[m origin/master

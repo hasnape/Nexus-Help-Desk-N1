@@ -5,6 +5,7 @@ import { Button, Input } from "../components/FormElements";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Layout from "../components/Layout";
 import { callEdgeWithFallback } from "../services/functionClient";
+import { mapLoginGuardError } from "../services/loginGuardErrorMapper";
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -48,20 +49,20 @@ const LoginPage: React.FC = () => {
 
       if (guardResult.response.status === 403) {
         const body = await guardResult.response.json().catch(() => ({}));
-        setError(formatGuardError(body.reason, body.message));
+        setError(mapLoginGuardError(t, body.reason, body.message));
         setIsLoading(false);
         return;
       }
 
       if (!guardResult.response.ok) {
         const body = await guardResult.response.json().catch(() => ({}));
-        setError(formatGuardError(body.reason, body.message));
+        setError(mapLoginGuardError(t, body.reason, body.message));
         setIsLoading(false);
         return;
       }
     } catch (guardError: any) {
       console.error("login guard error", guardError);
-      setError(formatGuardError(undefined, guardError?.message));
+      setError(mapLoginGuardError(t, undefined, guardError?.message));
       setIsLoading(false);
       return;
     }

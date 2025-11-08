@@ -7,6 +7,7 @@ import { Button, Input, Select } from "../components/FormElements";
 import type { Locale } from "@/contexts/LanguageContext";
 import { UserRole } from "@/types";
 import Layout from "../components/Layout";
+import { getStoredFreemiumCompany, setStoredFreemiumCompany } from "../services/freemiumStorage";
 
 const paypalLinks = {
   standard: "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-0E515487AE797135CNBTRYKA",
@@ -51,10 +52,10 @@ const FreemiumModal = ({
           <div className="space-y-6">
             <div className="text-center">
               <div className="flex items-baseline justify-center gap-2 mb-2">
-                <span className="text-4xl font-bold text-primary">1€</span>
+                <span className="text-4xl font-bold text-primary">0€</span>
                 <span className="text-gray-600 text-lg">
                   {t("signupPlans.Freemium.modal.pricing", {
-                    default: "mois",
+                    default: "Gratuit",
                   })}
                 </span>
               </div>
@@ -71,7 +72,7 @@ const FreemiumModal = ({
                     />
                   </svg>
                   {t("signupPlans.Freemium.modal.features.unlimited", {
-                    default: "3 Agents, 200 Tickets mois",
+                    default: "Jusqu'à 3 agents et 200 tickets/mois",
                   })}
                 </li>
                 <li className="flex items-center">
@@ -86,8 +87,8 @@ const FreemiumModal = ({
                       clipRule="evenodd"
                     />
                   </svg>
-                  {t("signupPlans.Freemium.modal.features.voice", {
-                    default: "Commandes vocales avancées",
+                  {t("signupPlans.Freemium.modal.features.localStorage", {
+                    default: "Sauvegarde locale des tickets et sessions sur cet ordinateur",
                   })}
                 </li>
                 <li className="flex items-center">
@@ -102,85 +103,23 @@ const FreemiumModal = ({
                       clipRule="evenodd"
                     />
                   </svg>
-                  {t("signupPlans.Freemium.modal.features.multilingual", {
-                    default: "Support multilingue (FR/EN)",
-                  })}
-                </li>
-                <li className="flex items-center">
-                  <svg
-                    className="w-5 h-5 text-green-500 mr-2"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  {t("signupPlans.Freemium.modal.features.appointments", {
-                    default: "Planification de rendez-vous",
-                  })}
-                </li>
-                <li className="flex items-center">
-                  <svg
-                    className="w-5 h-5 text-green-500 mr-2"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  {t("signupPlans.Freemium.modal.features.priority", {
-                    default: "Support mail",
-                  })}
-                </li>
-                <li className="flex items-center">
-                  <svg
-                    className="w-5 h-5 text-green-500 mr-2"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  {t("signupPlans.Freemium.modal.features.analytics", {
-                    default: "Statistiques avancées",
+                  {t("signupPlans.Freemium.modal.features.singleCompany", {
+                    default: "Une seule entreprise Freemium par ordinateur (verrouillage automatique)",
                   })}
                 </li>
               </ul>
             </div>
 
-            <div className="bg-blue-50 p-4 rounded-lg">
-              <h4 className="font-semibold text-blue-900 mb-2">
-                {t("signupPlans.Freemium.modal.trial.title", {
-                  default: "1€ par mois",
+            <div className="bg-green-50 p-4 rounded-lg">
+              <h4 className="font-semibold text-green-900 mb-2">
+                {t("signupPlans.Freemium.modal.storageNotice.title", {
+                  default: "Vos données restent sur votre appareil",
                 })}
               </h4>
-              <p className="text-blue-800 text-sm">
-                {t("signupPlans.Freemium.modal.trial.description", {
+              <p className="text-green-800 text-sm">
+                {t("signupPlans.Freemium.modal.storageNotice.description", {
                   default:
-                    "Commencez pour seulement 1€ par mois. Annulez à tout moment.",
-                })}
-              </p>
-            </div>
-
-            <div className="bg-yellow-50 p-4 rounded-lg">
-              <h4 className="font-semibold text-yellow-900 mb-2">
-                {t("signupPlans.Freemium.modal.billing.title", {
-                  default: "Facturation et annulation",
-                })}
-              </h4>
-              <p className="text-yellow-800 text-sm">
-                {t("signupPlans.Freemium.modal.billing.description", {
-                  default:
-                    "Facturation mensuelle via PayPal. Annulation simple depuis votre compte PayPal à tout moment. Pas d'engagement à long terme.",
+                    "Les tickets, historiques de chat et sauvegardes Freemium sont stockés en local sur cet ordinateur. Gardez cet appareil pour gérer votre entreprise ou migrez vos données manuellement.",
                 })}
               </p>
             </div>
@@ -191,17 +130,14 @@ const FreemiumModal = ({
                   defaultValue: t("signupPlans.Freemium.modal.buttons.cancel", { defaultValue: "Annuler" }),
                 })}
               </Button>
-              <a
-                href={paypalLinks.freemium}
-                target="_blank"
-                rel="noopener noreferrer"
+              <Button
                 onClick={handleFreemiumPurchase}
-                className="flex-1 inline-flex items-center justify-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                className="flex-1 bg-primary hover:bg-primary-dark"
               >
                 {t("signupPlans.Freemium.modal.buttons.subscribe", {
-                  default: "S'abonner Freemium",
+                  default: "Activer l'offre Freemium",
                 })}
-              </a>
+              </Button>
             </div>
           </div>
         </div>
@@ -382,6 +318,7 @@ const PlanCard: React.FC<{
         t("pricing.freemium.feature1"),
         t("pricing.freemium.feature2"),
         t("pricing.freemium.feature3"),
+        t("pricing.freemium.feature4"),
       ],
       buttonText: t("signupPlans.freemium.select", {
         default: "Sélectionner",
@@ -547,7 +484,7 @@ const SignUpPage: React.FC = () => {
   const [showProModal, setShowProModal] = useState(false);
   const [showFreemiumModal, setShowFreemiumModal] = useState(false);
   const [showStandardModal, setShowStandardModal] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<string | null>("freemium");
 
 
   const { signUp, user } = useApp();
@@ -645,6 +582,16 @@ const SignUpPage: React.FC = () => {
     setSelectedLanguage(currentAppLang);
   }, [currentAppLang]);
 
+  const handleRoleChange = (nextRole: UserRole) => {
+    setRole(nextRole);
+
+    if (nextRole === UserRole.MANAGER) {
+      setSelectedPlan((current) => current ?? "freemium");
+    } else {
+      setSelectedPlan(null);
+      setSecretCode("");
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -662,11 +609,46 @@ const SignUpPage: React.FC = () => {
       setError(t("signup.error.minCharsPassword"));
       return;
     }
+    const effectivePlan =
+      role === UserRole.MANAGER ? selectedPlan ?? "freemium" : undefined;
     // Si le rôle est Manager, on s'assure que le champ du code n'est pas vide.
     // La VRAIE validation (si le code est bon) se fera sur le serveur.
-    if (role === UserRole.MANAGER && !secretCode.trim()) {
+    if (
+      role === UserRole.MANAGER &&
+      effectivePlan !== "freemium" &&
+      !secretCode.trim()
+    ) {
       setError(t("signup.error.secretCodeRequiredManager"));
       return;
+    }
+
+    if (role === UserRole.MANAGER) {
+      if (!effectivePlan) {
+        setError(
+          t("signup.error.planSelectionRequired", {
+            default: "Veuillez sélectionner une offre pour votre entreprise.",
+          })
+        );
+        return;
+      }
+
+      if (effectivePlan === "freemium") {
+        const storedCompany = getStoredFreemiumCompany();
+        if (
+          storedCompany &&
+          storedCompany.trim().length > 0 &&
+          storedCompany.trim().toLowerCase() !== companyName.trim().toLowerCase()
+        ) {
+          setError(
+            t("signup.error.freemiumDeviceLocked", {
+              company: storedCompany,
+              default:
+                "Cet ordinateur a déjà été associé à une entreprise Freemium différente. Veuillez utiliser l'entreprise enregistrée ou un autre appareil.",
+            })
+          );
+          return;
+        }
+      }
     }
 
     setError("");
@@ -679,8 +661,15 @@ const SignUpPage: React.FC = () => {
       lang: selectedLanguage,
       role: role,
       companyName: companyName.trim(),
-      // On envoie le code SEULEMENT si le rôle est Manager.
-      secretCode: role === UserRole.MANAGER ? secretCode.trim() : undefined,
+      // On envoie le code SEULEMENT si le rôle est Manager sur un plan payant.
+      secretCode:
+        role === UserRole.MANAGER && effectivePlan !== "freemium"
+          ? secretCode.trim()
+          : undefined,
+      plan:
+        role === UserRole.MANAGER && effectivePlan
+          ? (effectivePlan as "freemium" | "standard" | "pro")
+          : undefined,
     });
 
     setIsLoading(false);
@@ -690,7 +679,7 @@ const SignUpPage: React.FC = () => {
     if (result !== true) {
       // Le `result` contiendra le message d'erreur renvoyé par le serveur,
       // par exemple : "Code d'activation invalide ou déjà utilisé."
-      setError(result); 
+      setError(result);
     } else {
       // Le serveur a tout validé, l'inscription est réussie !
       if (role === UserRole.MANAGER) {
@@ -742,7 +731,9 @@ const SignUpPage: React.FC = () => {
 
   const handleFreemiumPurchase = () => {
     setShowFreemiumModal(false);
-    alert("✅ Abonnement Freemium : Code envoyer par mail !");
+    alert(
+      "✅ Offre Freemium activée : vos tickets et sauvegardes seront stockés localement sur cet ordinateur. Conservez ce poste pour cette entreprise."
+    );
   };
 
   const handleStandardPurchase = () => {
@@ -854,8 +845,8 @@ const SignUpPage: React.FC = () => {
                   </div>
                   <div className="bg-gradient-to-r from-yellow-200 via-yellow-100 to-yellow-200 border-l-4 border-yellow-400 rounded-lg p-6 mb-8 shadow-md text-center">
                     <p className="text-yellow-900 font-bold text-lg sm:text-xl">
-                      Freemium : <span className="font-semibold">1€/mois</span> &nbsp;|&nbsp; 
-                      Standard : <span className="font-semibold">1er mois 5€ ensuite 10€/mois</span> &nbsp;|&nbsp; 
+                      Freemium : <span className="font-semibold">Gratuit</span> &nbsp;|&nbsp;
+                      Standard : <span className="font-semibold">1er mois 5€ ensuite 10€/mois</span> &nbsp;|&nbsp;
                       Pro : <span className="font-semibold">1er mois 12€ ensuite 20€/mois</span>
                     </p>
                   </div>
@@ -896,6 +887,28 @@ const SignUpPage: React.FC = () => {
                       buyLabel={t("signupPlans.pro.modal.buttons.subscribe", { defaultValue: pricingPlans.pro.cta })}
                     />
                   </div>
+
+                  {selectedPlan === "freemium" && (
+                    <div className="mb-8 rounded-lg border border-green-300 bg-green-50 p-5 text-left">
+                      <h3 className="text-lg font-semibold text-green-900">
+                        {t("signupPlans.freemium.autoSelected.title", {
+                          default: "Freemium sélectionné automatiquement",
+                        })}
+                      </h3>
+                      <p className="mt-2 text-sm text-green-800">
+                        {t("signupPlans.freemium.autoSelected.description", {
+                          default:
+                            "Cette inscription s'effectue entièrement en local : vos utilisateurs, tickets et préférences sont sauvegardés dans le navigateur (clé unique 'nsh_freemium_session').",
+                        })}
+                      </p>
+                      <p className="mt-2 text-xs text-green-700">
+                        {t("signupPlans.freemium.autoSelected.storageNotice", {
+                          default:
+                            "Rappel : une seule entreprise Freemium peut être associée à cet ordinateur. Exportez une sauvegarde JSON avant de changer d'appareil.",
+                        })}
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 

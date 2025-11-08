@@ -25,22 +25,47 @@ const PricingPage: React.FC = () => {
 
   const plans = [
     {
-      name: 'Freemium',
-      price: '1€ / mois',
-      features: ["Jusqu'à 3 agents", '200 tickets par mois', 'Assistance IA de base'],
-      link: 'https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-3KG35083B1716942TNBYOA4Q'
+      name: t('pricing.freemium.name', { default: 'Freemium' }),
+      price: t('pricing.freemium.price', { default: 'Gratuit' }),
+      features: [
+        t('pricing.freemium.feature1', { default: "Jusqu'à 3 agents" }),
+        t('pricing.freemium.feature2', { default: '200 tickets par mois' }),
+        t('pricing.freemium.feature3', {
+          default: 'Sauvegarde locale des tickets et sessions',
+        }),
+        t('pricing.freemium.feature4', {
+          default: '1 entreprise Freemium par ordinateur',
+        }),
+      ],
+      link: '/signup',
+      external: false,
+      cta: t('pricing.freemium.cta', { default: 'Commencer gratuitement' }),
     },
     {
-      name: 'Standard',
-      price: '10€ / mois',
-      features: ['500 tickets / mois, 5 agents', 'Fonctionnalités IA complètes', 'Catégorisation automatique'],
-      link: 'https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-0E515487AE797135CNBTRYKA'
+      name: t('pricing.standard.name', { default: 'Standard' }),
+      price: t('pricing.standard.price', { default: '10€ / mois' }),
+      features: [
+        t('pricing.standard.feature1'),
+        t('pricing.standard.feature2'),
+        t('pricing.standard.feature3'),
+        t('pricing.standard.feature4'),
+      ],
+      link: 'https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-0E515487AE797135CNBTRYKA',
+      external: true,
+      cta: t('pricing.subscribe', { default: 'Souscrire' }),
     },
     {
-      name: 'Pro',
-      price: '20€ / mois',
-      features: ['Toutes les fonctionnalités Standard', '1000 tickets / mois, 10 agents', 'Commandes vocales avancées', 'Support multilingue', 'Planification de rendez-vous'],
-      link: 'https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-7HP75881LB3608938NBTBGUA'
+      name: t('pricing.pro.name', { default: 'Pro' }),
+      price: t('pricing.pro.price', { default: '20€ / mois' }),
+      features: [
+        t('pricing.pro.feature1'),
+        t('pricing.pro.feature2'),
+        t('pricing.pro.feature3'),
+        t('pricing.pro.feature4'),
+      ],
+      link: 'https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-7HP75881LB3608938NBTBGUA',
+      external: true,
+      cta: t('pricing.subscribe', { default: 'Souscrire' }),
     }
   ];
 
@@ -63,14 +88,23 @@ const PricingPage: React.FC = () => {
       </header>
 
       {/* Bannière centrale */}
-      <div className="bg-gradient-to-r from-yellow-200 via-yellow-100 to-yellow-200 border-l-4 border-yellow-400 rounded-lg p-6 mb-8 shadow-md text-center">
+      <div className="bg-gradient-to-r from-yellow-200 via-yellow-100 to-yellow-200 border-l-4 border-yellow-400 rounded-lg p-6 mb-6 shadow-md text-center">
         <p className="text-yellow-900 font-bold text-lg sm:text-xl">
-          Freemium : <span className="font-semibold">1 €/mois</span> &nbsp;|&nbsp; 
-          Standard : <span className="font-semibold">1er mois 5 €, ensuite 10 €/mois</span> &nbsp;|&nbsp; 
-          Pro : <span className="font-semibold">20 €/mois</span>
+          {t('pricing.banner.freemiumFree', {
+            default: 'Freemium : Gratuit | Standard : 1er mois 5€, ensuite 10€/mois | Pro : 20€/mois',
+          })}
         </p>
         <p className="text-yellow-800 text-sm mt-2">
-          Choisissez le plan qui correspond le mieux à vos besoins
+          {t('pricing.banner.choosePlan', { default: 'Choisissez le plan qui correspond le mieux à vos besoins' })}
+        </p>
+      </div>
+
+      <div className="bg-green-50 border border-green-200 rounded-lg p-5 mb-8 text-green-800">
+        <p className="font-medium">
+          {t('pricing.freemium.storageNotice', {
+            default:
+              'Avec l’offre Freemium, vos tickets, sessions et sauvegardes sont stockés en local sur l’ordinateur qui gère Nexus Support Hub. Une seule entreprise Freemium peut être utilisée par appareil.',
+          })}
         </p>
       </div>
 
@@ -87,14 +121,23 @@ const PricingPage: React.FC = () => {
                 {plan.features.map((f, i) => <li key={i}>{f}</li>)}
               </ul>
             </div>
-            <a
-              href={plan.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block text-center bg-sky-500 text-white font-semibold py-2 rounded hover:bg-sky-600"
-            >
-              {t('pricing.subscribe', { default: 'Souscrire' })}
-            </a>
+            {plan.external ? (
+              <a
+                href={plan.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block text-center bg-sky-500 text-white font-semibold py-2 rounded hover:bg-sky-600"
+              >
+                {plan.cta}
+              </a>
+            ) : (
+              <Link
+                to={plan.link}
+                className="block text-center bg-sky-500 text-white font-semibold py-2 rounded hover:bg-sky-600"
+              >
+                {plan.cta}
+              </Link>
+            )}
           </div>
         ))}
       </section>

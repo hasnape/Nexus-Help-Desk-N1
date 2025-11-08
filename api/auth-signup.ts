@@ -8,7 +8,7 @@ type SignupBody = {
   full_name?: string;
   role?: string;
   companyName?: string;
- language?: string;
+  language?: string;
   plan?: string;
   secretCode?: string;
 };
@@ -152,7 +152,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         },
       });
 
-     if (createError || !userCreation?.user) {
+      if (createError || !userCreation?.user) {
         respond(res, 500, { ok: false, code: "user_create_failed", message: createError?.message });
         return;
       }
@@ -168,14 +168,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       if (profileInsertError) {
         respond(res, 500, { ok: false, code: "profile_insert_failed", message: profileInsertError.message });
-       return;
-     }
+        return;
+      }
 
       respond(res, 200, { ok: true, userId: userCreation.user.id, companyId: existingCompany.id });
       return;
     }
 
-  const { data: company, error: companyFetchError } = await anonClient
+    const { data: company, error: companyFetchError } = await anonClient
       .from("companies")
       .select("id, name")
       .ilike("name", companyName)
@@ -184,7 +184,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (companyFetchError) {
       respond(res, 500, { ok: false, code: "company_lookup_failed", message: companyFetchError.message });
       return;
-}
+    }
 
     if (!company) {
       respond(res, 404, { ok: false, code: "company_missing", message: "Company not found" });
@@ -206,14 +206,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (createError || !userCreation?.user) {
       respond(res, 500, { ok: false, code: "user_create_failed", message: createError?.message });
       return;
-   }
+    }
 
     const { error: profileInsertError } = await adminClient.from("users").insert({
       id: userCreation.user.id,
       email,
       full_name: fullName,
       role,
-     company_id: company.name,
+      company_id: company.name,
       language_preference: language,
     });
 
@@ -222,7 +222,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return;
     }
 
-   respond(res, 200, { ok: true, userId: userCreation.user.id, companyId: company.id });
+    respond(res, 200, { ok: true, userId: userCreation.user.id, companyId: company.id });
   } catch (error) {
     respond(res, 500, { ok: false, code: "unknown_error", message: error instanceof Error ? error.message : String(error) });
   }

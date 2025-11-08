@@ -49,7 +49,7 @@ type SerializedTicketPayload = Omit<
   created_at: string;
   updated_at: string;
   chat_history: SerializedChatMessage[];
-+  internal_notes?: SerializedInternalNote[];
+  internal_notes?: SerializedInternalNote[];
 };
 
 type FreemiumStoredTicket = {
@@ -58,7 +58,7 @@ type FreemiumStoredTicket = {
   status: TicketStatus;
   createdAt: string;
   updatedAt: string;
- messages: FreemiumTicketMessage[];
+  messages: FreemiumTicketMessage[];
   payload: SerializedTicketPayload;
 };
 
@@ -88,9 +88,9 @@ type StoredFreemiumAccount = {
 };
 
 type FreemiumSessionAuth = {
- accounts: StoredFreemiumAccount[];
- deviceCompanyId: string | null;
- lastUser: FreemiumSessionLastUser | null;
+  accounts: StoredFreemiumAccount[];
+  deviceCompanyId: string | null;
+  lastUser: FreemiumSessionLastUser | null;
 };
 
 type FreemiumSessionData = {
@@ -124,8 +124,8 @@ const normalizeRoles = (roles: UserRole[] | undefined): UserRole[] => {
   if (!roles || roles.length === 0) {
     return [UserRole.MANAGER];
   }
- const unique = Array.from(new Set(roles));
-+  return unique.length > 0 ? unique : [UserRole.MANAGER];
+  const unique = Array.from(new Set(roles));
+  return unique.length > 0 ? unique : [UserRole.MANAGER];
 };
 
 const normalizeTicketMessage = (message: Partial<FreemiumTicketMessage>): FreemiumTicketMessage => ({
@@ -276,6 +276,7 @@ const serializeTicket = (ticket: Ticket): FreemiumStoredTicket => {
     ...message,
     timestamp: message.timestamp.toISOString(),
   }));
+
   const serializedNotes = ticket.internal_notes
     ? ticket.internal_notes.map((note) => ({
         ...note,
@@ -307,7 +308,7 @@ const serializeTicket = (ticket: Ticket): FreemiumStoredTicket => {
 };
 
 const reviveTicket = (stored: FreemiumStoredTicket): Ticket => {
- const payload = stored.payload;
+  const payload = stored.payload;
   const revivedNotes = payload.internal_notes
     ? payload.internal_notes.map((note) => ({
         ...note,
@@ -365,7 +366,7 @@ export const FreemiumSession = {
       roles: normalizeRoles(roles),
     };
 
-   const existingIndex = session.users.findIndex(
+    const existingIndex = session.users.findIndex(
       (user) => user.email.toLowerCase() === normalizedEmail.toLowerCase()
     );
 
@@ -383,7 +384,7 @@ export const FreemiumSession = {
     }
 
     session.users.push(userRecord);
-   session.meta.lastSyncAt = nowIso();
+    session.meta.lastSyncAt = nowIso();
     persistSession();
     return { ...userRecord };
   },
@@ -409,7 +410,7 @@ export const FreemiumSession = {
         : [],
       payload: {
         id: ticketId,
-       user_id: "",
+        user_id: "",
         title: title.trim(),
         description: message || "",
         category: "General",
@@ -423,7 +424,7 @@ export const FreemiumSession = {
                 id: generateLocalId(),
                 sender: "user",
                 text: message,
-               timestamp: createdAt,
+                timestamp: createdAt,
                 agentId: undefined,
               },
             ]
@@ -568,6 +569,7 @@ export const createFreemiumManagerAccount = (params: {
   if (accounts.some((account) => account.emailLower === normalizedEmail)) {
     return { success: false, error: "EMAIL_EXISTS" };
   }
+
   const userRecord = FreemiumSession.addUser({
     displayName: params.fullName.trim() || email,
     email,
@@ -616,6 +618,7 @@ export const findFreemiumAccountByEmail = (email: string): StoredFreemiumAccount
 export const findFreemiumAccountById = (id: string): StoredFreemiumAccount | undefined => {
   return getAccounts().find((account) => account.id === id);
 };
+
 export const validateFreemiumCredentials = (
   email: string,
   password: string,
@@ -698,8 +701,8 @@ export const getFreemiumBackupMeta = (): { ticketCount: number; lastSynced: stri
   const session = ensureSession();
   if (!session.tickets.length) return null;
   return {
-   ticketCount: session.tickets.length,
-  lastSynced: session.meta.lastSyncAt,
+    ticketCount: session.tickets.length,
+    lastSynced: session.meta.lastSyncAt,
   };
 };
 
@@ -722,7 +725,7 @@ export const recordFreemiumSession = (userId: string, email: string, companyName
   persistSession();
 };
 
-+export const resetFreemiumStorage = () => {
+export const resetFreemiumStorage = () => {
   const session = ensureSession();
   session.tickets = [];
   session.auth.lastUser = null;
@@ -733,7 +736,7 @@ export const recordFreemiumSession = (userId: string, email: string, companyName
 export const FREEMIUM_STORAGE_CONSTANTS = {
   sessionKey: STORAGE_KEY,
 };
-  
+
 if (isBrowser()) {
   (window as any).FreemiumSession = FreemiumSession;
   FreemiumSession.init();
