@@ -16,7 +16,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': '/src',
-    },
+    , "@": require("node:path").resolve(__dirname,"src"), "@types": require("node:path").resolve(__dirname,"src/types") },
     dedupe: ['react', 'react-dom'],
   },
 });
