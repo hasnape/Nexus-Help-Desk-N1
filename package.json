@@ -6,7 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "node --loader ./tools/ts-test-loader.mjs --test tests/**/*.test.ts",
+    "build:journal": "node tools/build-with-journal.mjs",
+    "doctor": "npm run build:journal"
   },
   "dependencies": {
     "@azure/identity": "^4.1.0",

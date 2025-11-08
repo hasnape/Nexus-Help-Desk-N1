@@ -7,16 +7,14 @@ interface LayoutProps {
   includeFooter?: boolean;
 }
 
-const Layout: React.FC<LayoutProps> = ({ 
-  children, 
-  className = '', 
-  includeFooter = true 
+const Layout: React.FC<LayoutProps> = ({
+  children,
+  className = '',
+  includeFooter = true,
 }) => {
   return (
     <div className={`min-h-screen flex flex-col ${className}`}>
-      <main className="flex-1">
-        {children}
-      </main>
+      <main className="flex-1">{children}</main>
       {includeFooter && <Footer />}
     </div>
   );

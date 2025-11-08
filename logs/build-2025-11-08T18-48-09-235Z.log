@@ -1,0 +1,39 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+vite v7.2.2 building client environment for production...
+transforming...
+node_modules/@headlessui/react/dist/components/button/button.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@headlessui/react/dist/components/button/button.js" was ignored.
+node_modules/@headlessui/react/dist/components/checkbox/checkbox.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@headlessui/react/dist/components/checkbox/checkbox.js" was ignored.
+node_modules/@headlessui/react/dist/components/close-button/close-button.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@headlessui/react/dist/components/close-button/close-button.js" was ignored.
+node_modules/@headlessui/react/dist/components/data-interactive/data-interactive.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@headlessui/react/dist/components/data-interactive/data-interactive.js" was ignored.
+node_modules/@headlessui/react/dist/components/description/description.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@headlessui/react/dist/components/description/description.js" was ignored.
+node_modules/@headlessui/react/dist/components/dialog/dialog.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@headlessui/react/dist/components/dialog/dialog.js" was ignored.
+node_modules/@headlessui/react/dist/components/disclosure/disclosure.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@headlessui/react/dist/components/disclosure/disclosure.js" was ignored.
+node_modules/@headlessui/react/dist/components/combobox/combobox.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@headlessui/react/dist/components/combobox/combobox.js" was ignored.
+node_modules/@headlessui/react/dist/components/input/input.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@headlessui/react/dist/components/input/input.js" was ignored.
+node_modules/@headlessui/react/dist/components/legend/legend.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@headlessui/react/dist/components/legend/legend.js" was ignored.
+node_modules/@headlessui/react/dist/components/label/label.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@headlessui/react/dist/components/label/label.js" was ignored.
+node_modules/@headlessui/react/dist/components/listbox/listbox.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@headlessui/react/dist/components/listbox/listbox.js" was ignored.
+node_modules/@headlessui/react/dist/components/menu/menu.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@headlessui/react/dist/components/menu/menu.js" was ignored.
+node_modules/@headlessui/react/dist/components/portal/portal.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@headlessui/react/dist/components/portal/portal.js" was ignored.
+node_modules/@headlessui/react/dist/components/select/select.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@headlessui/react/dist/components/select/select.js" was ignored.
+node_modules/@headlessui/react/dist/components/popover/popover.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@headlessui/react/dist/components/popover/popover.js" was ignored.
+node_modules/@headlessui/react/dist/components/radio-group/radio-group.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@headlessui/react/dist/components/radio-group/radio-group.js" was ignored.
+node_modules/@headlessui/react/dist/components/textarea/textarea.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@headlessui/react/dist/components/textarea/textarea.js" was ignored.
+node_modules/@headlessui/react/dist/components/switch/switch.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@headlessui/react/dist/components/switch/switch.js" was ignored.
+node_modules/@headlessui/react/dist/internal/close-provider.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@headlessui/react/dist/internal/close-provider.js" was ignored.
+node_modules/@headlessui/react/dist/components/tabs/tabs.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@headlessui/react/dist/components/tabs/tabs.js" was ignored.
+node_modules/@headlessui/react/dist/components/transition/transition.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@headlessui/react/dist/components/transition/transition.js" was ignored.
+node_modules/@headlessui/react/dist/components/focus-trap/focus-trap.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@headlessui/react/dist/components/focus-trap/focus-trap.js" was ignored.
+node_modules/@headlessui/react/dist/components/field/field.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@headlessui/react/dist/components/field/field.js" was ignored.
+node_modules/@headlessui/react/dist/components/fieldset/fieldset.js (1:0): Module level directives cause errors when bundled, "use client" in "node_modules/@headlessui/react/dist/components/fieldset/fieldset.js" was ignored.
+✓ 452 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                  2.61 kB │ gzip:   1.02 kB
+dist/assets/index-noTNjaw1.js  767.90 kB │ gzip: 236.65 kB
+✓ built in 5.39s
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.

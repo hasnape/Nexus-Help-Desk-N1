@@ -42,8 +42,8 @@ const Navbar: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [openGroups, setOpenGroups] = useState<string[]>([]);
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate("/login");
   };
 
@@ -474,57 +474,6 @@ const Navbar: React.FC = () => {
         </div>
       </Transition>
     </nav>
-  );
-};
-
-const Footer: React.FC = () => {
-  const { t } = useLanguage();
-  return (
-    <footer className="bg-slate-900 text-slate-300 py-8 mt-12">
-      <div className="container mx-auto flex flex-col md:flex-row justify-between items-center">
-        <div className="flex items-center mb-4 md:mb-0">
-          <img src="/logo.png" alt="Logo Nexus" className="w-8 h-8 mr-2" />
-          <span className="font-bold text-lg">Nexus Support Hub</span>
-        </div>
-        <div className="flex space-x-4 mb-4 md:mb-0">
-          <Link to="/landing" className="hover:text-sky-400">
-            Accueil
-          </Link>
-          <Link to="/about" className="hover:text-sky-400">
-            À propos
-          </Link>
-          <Link to="/testimonials" className="hover:text-sky-400">
-            Témoignages
-          </Link>
-          <Link to="/partners" className="hover:text-sky-400">
-            Partenaires
-          </Link>
-          <Link to="/infographie" className="nav-link">
-            {t("navbar.infographie", { default: "Infographie" })}
-          </Link>
-        </div>
-        <div className="flex items-center space-x-4">
-          <Link to="/login">
-            <Button
-              variant="outline"
-              size="sm"
-              className="!text-slate-200 !border-slate-500 hover:!bg-slate-700"
-            >
-              Connexion
-            </Button>
-          </Link>
-          <Link to="/signup">
-            <Button
-              variant="primary"
-              size="sm"
-              className="!bg-sky-500 hover:!bg-sky-600"
-            >
-              Créer un compte
-            </Button>
-          </Link>
-        </div>
-      </div>
-    </footer>
   );
 };
 

@@ -7,7 +7,7 @@ import { Button, Select, Input } from '../components/FormElements';
 import { useLanguage } from '../contexts/LanguageContext';
 import LoadingSpinner from '../components/LoadingSpinner';
 import FloatingActionButton from '../components/FloatingActionButton';
-import { supabase } from '../services/supabaseClient';
+import { supabase } from '../src/services/supabaseClient';
 
 // --- ICONS ---
 const PlusIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
@@ -242,10 +242,20 @@ const UserManagementRow: React.FC<UserManagementRowProps> = ({ userToManage, cur
 
 // --- MAIN DASHBOARD COMPONENT ---
 const ManagerDashboardPage: React.FC = () => {
-    const { 
-        tickets, user, assignTicket, getAgents, getAllUsers, isLoading, deleteTicket, 
-        updateUserRole, deleteUserById, newlyCreatedCompanyName, setNewlyCreatedCompanyName,
-        updateCompanyName
+    const {
+        tickets,
+        user,
+        assignTicket,
+        getAgents,
+        getAllUsers,
+        isLoading,
+        deleteTicket,
+        updateUserRole,
+        deleteUserById,
+        newlyCreatedCompanyName,
+        setNewlyCreatedCompanyName,
+        updateCompanyName,
+        isLocalFreemiumSession,
     } = useApp();
     const { t } = useLanguage();
 
@@ -265,30 +275,42 @@ const ManagerDashboardPage: React.FC = () => {
         const controller = new AbortController();
 
         const fetchCompanyDetails = async () => {
-            if (user?.role === UserRole.MANAGER && user.company_id) {
-                try {
-                    const { data: companies, error } = await supabase
-                        .from('companies')
-                        .select('id, name')
-                        .eq('name', user.company_id)
-                        .abortSignal(controller.signal)
-                        .limit(1);
+            if (!(user?.role === UserRole.MANAGER && user.company_id)) {
+                return;
+            }
 
-                    if (error) {
-                        if (error.name !== 'AbortError') {
-                            console.error("Error fetching company details:", JSON.stringify(error, null, 2));
-                        }
-                    } else if (companies && companies.length > 0) {
-                        const companyData = companies[0];
-                        setCompany(companyData);
-                        setNewCompanyName(companyData.name);
-                    } else {
-                        console.error(`Data integrity issue: No company found with name "${user.company_id}" for manager ${user.id}`);
+            if (isLocalFreemiumSession) {
+                setCompany((prev) =>
+                    prev && prev.name === user.company_id
+                        ? prev
+                        : { id: `local-${user.company_id}`, name: user.company_id }
+                );
+                setNewCompanyName((prev) => (prev === user.company_id ? prev : user.company_id));
+                return;
+            }
+
+            try {
+                const { data: companies, error } = await supabase
+                    .from('companies')
+                    .select('id, name')
+                    .eq('name', user.company_id)
+                    .abortSignal(controller.signal)
+                    .limit(1);
+
+                if (error) {
+                    if (error.name !== 'AbortError') {
+                        console.error("Error fetching company details:", JSON.stringify(error, null, 2));
                     }
-                } catch (e: any) {
-                    if (e.name !== 'AbortError') {
-                        console.error("Critical error fetching company details:", JSON.stringify(e, null, 2));
-                    }
+                } else if (companies && companies.length > 0) {
+                    const companyData = companies[0];
+                    setCompany(companyData);
+                    setNewCompanyName((prev) => (prev === companyData.name ? prev : companyData.name));
+                } else {
+                    console.error(`Data integrity issue: No company found with name "${user.company_id}" for manager ${user.id}`);
+                }
+            } catch (e: any) {
+                if (e.name !== 'AbortError') {
+                    console.error("Critical error fetching company details:", JSON.stringify(e, null, 2));
                 }
             }
         };
@@ -298,7 +320,7 @@ const ManagerDashboardPage: React.FC = () => {
         return () => {
             controller.abort();
         };
-    }, [user]);
+    }, [user, isLocalFreemiumSession]);
 
     useEffect(() => {
         if (newlyCreatedCompanyName) {
