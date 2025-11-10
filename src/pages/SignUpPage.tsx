@@ -2,11 +2,10 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
-import { useApp } from "@/contexts/AppContext";
-import { Button, Input, Select } from "@/components/FormElements";
-import type { Locale } from "@/contexts/LanguageContext";
-import { UserRole } from "@/types";
-import Layout from "@/components/Layout";
+import { useApp } from "../App";
+import { Button, Input, Select } from "../components/FormElements";
+import { UserRole, type Locale } from "@types";
+import Layout from "../components/Layout";
 import { getPricingPlans, type PricingPlan, type PricingPlanKey } from "@/utils/pricing";
 
 const paypalLinks = {
@@ -28,6 +27,7 @@ const FreemiumModal = ({
   t: (key: string, options?: { [key: string]: any }) => string;
 }) => {
   if (!showFreemiumModal) return null;
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
@@ -50,7 +50,7 @@ const FreemiumModal = ({
             </div>
 
             <ul className="space-y-2 text-left">
-              {plan.features.map((feature) => (
+              {plan.features.map((feature: string) => (
                 <li key={`${plan.name}-${feature}`} className="flex items-start">
                   <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                     <path
@@ -118,7 +118,7 @@ const ProModal = ({
             </div>
 
             <ul className="space-y-2 text-left">
-              {plan.features.map((feature) => (
+              {plan.features.map((feature: string) => (
                 <li key={`${plan.name}-${feature}`} className="flex items-start">
                   <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                     <path
@@ -192,7 +192,7 @@ const StandardModal = ({
             </div>
 
             <ul className="space-y-2 text-left">
-              {plan.features.map((feature) => (
+              {plan.features.map((feature: string) => (
                 <li key={`${plan.name}-${feature}`} className="flex items-start">
                   <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                     <path
@@ -236,11 +236,24 @@ const PlanCard: React.FC<{
   onSelect: (plan: PricingPlanKey) => void;
   t: (key: string, options?: { [key: string]: any }) => string;
   badgeText?: string;
-  showBuyNow?: boolean;
+  demoHref?: string;
   buyHref?: string;
-  onBuy?: () => void;
   buyLabel?: string;
-}> = ({ planKey, plan, isSelected, onSelect, t, badgeText, showBuyNow = false, buyHref, onBuy, buyLabel }) => {
+  onBuy?: () => void;
+  showBuyNow?: boolean;
+}> = ({
+  planKey,
+  plan,
+  isSelected,
+  onSelect,
+  t,
+  badgeText,
+  demoHref,
+  buyHref,
+  buyLabel,
+  onBuy,
+  showBuyNow,
+}) => {
   const isSelectable = planKey !== "pro";
   const buttonKey = isSelectable ? `pricing.select_${planKey}` : "pricing.view_pro_details";
   const buttonLabel = t(buttonKey, {
@@ -249,25 +262,21 @@ const PlanCard: React.FC<{
     }),
   });
   const planTitle = t(`pricing.${planKey}`, { defaultValue: plan.name });
-  const defaultBuyLabel = buyHref
-    ? t("pricing.buy_now", { defaultValue: "Buy now" })
-    : t("pricing.activate_now", { defaultValue: "Activer maintenant" });
-  const secondaryLabel = buyLabel ?? defaultBuyLabel;
+  const actionButtonBase = "w-100 fw-semibold d-flex align-items-center justify-content-center gap-2";
+
+  const handleSelectClick = () => onSelect(planKey);
 
   return (
     <div
       className={`relative p-6 rounded-xl border-2 bg-white transition-all duration-200 ${
-        isSelected
-          ? "border-success border-3 shadow-lg ring-2 ring-green-200/60"
-          : "border-slate-200 hover:border-slate-300 hover:shadow-md"
+        isSelected ? "border-success border-3 shadow-lg ring-2 ring-green-200/60" : "border-slate-200 hover:border-slate-300 hover:shadow-md"
       }`}
       role="group"
       aria-label={planTitle}
     >
       {isSelected ? (
         <span className="position-absolute top-0 end-0 translate-middle mt-4 me-4 rounded-circle bg-success text-white d-flex align-items-center justify-content-center shadow">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-               fill="currentColor" className="w-4 h-4">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
             <path
               fillRule="evenodd"
               d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -315,7 +324,7 @@ const PlanCard: React.FC<{
       </span>
 
       <ul className="space-y-3 mb-6">
-        {plan.features.map((feature, index) => (
+        {plan.features.map((feature: string, index: number) => (
           <li key={`${plan.name}-${feature}`} className="flex items-start">
             <svg className="w-5 h-5 text-success me-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
               <path
@@ -331,58 +340,59 @@ const PlanCard: React.FC<{
         ))}
       </ul>
 
-      <button
-        type="button"
-        onClick={() => onSelect(planKey)}
-        className={`btn btn-success btn-lg w-100 fw-semibold d-flex align-items-center justify-content-center gap-2 focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-green-600 ${
-          isSelectable && isSelected ? "shadow" : ""
-        }`}
-        {...(isSelectable ? { "data-plan": planKey, "aria-pressed": isSelected } : {})}
-        data-i18n={buttonKey}
-        aria-label={`${buttonLabel} - ${planTitle}`}
-      >
-        <span>{buttonLabel}</span>
-        {isSelectable ? (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            className={`w-5 h-5 transition-opacity ${isSelected ? "opacity-100" : "opacity-0"}`}
-          >
-            <path
-              fillRule="evenodd"
-              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-              clipRule="evenodd"
-            />
-          </svg>
-        ) : null}
-      </button>
-      {showBuyNow ? (
-        <div className="mt-3 flex">
+      <div className="mt-6 d-flex flex-column gap-3">
+        <button
+          type="button"
+          onClick={handleSelectClick}
+          className={`btn btn-success btn-lg ${actionButtonBase} focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-green-600 ${
+            isSelectable && isSelected ? "shadow" : ""
+          }`}
+          {...(isSelectable ? { "data-plan": planKey, "aria-pressed": isSelected } : {})}
+          data-i18n={buttonKey}
+          aria-label={`${buttonLabel} - ${planTitle}`}
+        >
+          <span>{buttonLabel}</span>
+          {isSelectable ? (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className={`w-5 h-5 transition-opacity ${isSelected ? "opacity-100" : "opacity-0"}`}>
+              <path
+                fillRule="evenodd"
+                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                clipRule="evenodd"
+              />
+            </svg>
+          ) : null}
+        </button>
+      </div>
+
+      {(showBuyNow || demoHref || buyHref || onBuy) ? (
+        <div className="mt-3 d-flex flex-column gap-2">
+          {demoHref ? (
+            <Link
+              to={demoHref}
+              className={`btn btn-outline-secondary ${actionButtonBase}`}
+              aria-label={t("cta.demo", { defaultValue: "Demander une démo" })}
+              data-i18n="cta.demo"
+            >
+              {t("cta.demo", { defaultValue: "Demander une démo" })}
+            </Link>
+          ) : null}
+
           {buyHref ? (
             <a
               href={buyHref}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full inline-flex items-center justify-center rounded-md border border-transparent px-4 py-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-600"
+              className={`btn btn-primary ${actionButtonBase}`}
+              aria-label={buyLabel ?? plan.cta}
+              data-i18n={`pricing.plans.${planKey}.buy`}
             >
-              {secondaryLabel}
+              {buyLabel ?? plan.cta}
             </a>
-          ) : (
-            <button
-              type="button"
-              onClick={() => {
-                if (onBuy) {
-                  onBuy();
-                } else {
-                  onSelect(planKey);
-                }
-              }}
-              className="w-full inline-flex items-center justify-center rounded-md border border-transparent px-4 py-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-600"
-            >
-              {secondaryLabel}
+          ) : onBuy ? (
+            <button type="button" onClick={onBuy} className={`btn btn-primary ${actionButtonBase}`}>
+              {buyLabel ?? plan.cta}
             </button>
-          )}
+          ) : null}
         </div>
       ) : null}
     </div>
@@ -406,44 +416,11 @@ const SignUpPage: React.FC = () => {
   const [showFreemiumModal, setShowFreemiumModal] = useState(false);
   const [showStandardModal, setShowStandardModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<PricingPlanKey | null>(null);
+
   const { signUp, user } = useApp();
   const pricingPlans = getPricingPlans(t);
   const popularBadge = t("pricing.badges.popular", { defaultValue: "Popular" });
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (user) navigate("/dashboard", { replace: true });
-  }, [user, navigate]);
-
-  const languageOptions: { value: Locale; label: string }[] = [
-    { value: "en", label: "English" },
-    { value: "fr", label: "Français" },
-    { value: "ar", label: "العربية" },
-  ];
-
-  const roleOptions = [
-    { value: UserRole.USER, label: t("userRole.user") },
-    { value: UserRole.AGENT, label: t("userRole.agent") },
-    { value: UserRole.MANAGER, label: t("userRole.manager") },
-  ];
-
-  useEffect(() => {
-    const nextLanguage = (i18n.language as Locale) || "en";
-    setSelectedLanguage(nextLanguage);
-    const handleLanguageChanged = (lng: string) => setSelectedLanguage((lng as Locale) || "en");
-    i18n.on("languageChanged", handleLanguageChanged);
-    return () => i18n.off("languageChanged", handleLanguageChanged);
-  }, [i18n]);
-
-  const handleRoleChange = (nextRole: UserRole) => {
-    setRole(nextRole);
-    if (nextRole === UserRole.MANAGER) {
-      setSelectedPlan((current) => current);
-    } else {
-      setSelectedPlan(null);
-      setSecretCode("");
-    }
-  };
 
   const translateSignupErrorCode = useCallback(
     (code: string): string => {
@@ -476,23 +453,17 @@ const SignUpPage: React.FC = () => {
         case "company_not_found":
           return t("signup.apiErrors.company_not_found", {
             companyName: company,
-            defaultValue: t("signup.error.companyNotFound", {
-              companyName: company,
-              defaultValue: "Entreprise introuvable.",
-            }),
+            defaultValue: t("signup.error.companyNotFound", { companyName: company, defaultValue: "Entreprise introuvable." }),
           });
         case "plan_not_found":
           return t("signup.apiErrors.plan_not_found", { defaultValue: t("signup.error.generic", { defaultValue: "Une erreur est survenue." }) });
         case "activation_required":
           return t("signup.apiErrors.activation_required", { defaultValue: t("signup.error.secretCodeRequiredManager", { defaultValue: "Un code d'activation est requis." }) });
         case "invalid_activation_code":
-          return t("signup.apiErrors.invalid_activation_code", { defaultValue: t("signup.error.invalidSecretCodeManager", { defaultValue: "Code secret invalide." }) });
         case "activation_already_used":
-          return t("signup.apiErrors.activation_already_used", { defaultValue: t("signup.error.invalidSecretCodeManager", { defaultValue: "Code secret invalide." }) });
         case "activation_expired":
-          return t("signup.apiErrors.activation_expired", { defaultValue: t("signup.error.invalidSecretCodeManager", { defaultValue: "Code secret invalide." }) });
         case "activation_company_mismatch":
-          return t("signup.apiErrors.activation_company_mismatch", { defaultValue: t("signup.error.invalidSecretCodeManager", { defaultValue: "Code secret invalide." }) });
+          return t("signup.apiErrors.invalid_activation_code", { defaultValue: t("signup.error.invalidSecretCodeManager", { defaultValue: "Code secret invalide." }) });
         case "auth_create_failed":
         case "user_create_failed":
           return t("signup.apiErrors.user_create_failed", { defaultValue: t("signup.error.generic", { defaultValue: "Une erreur est survenue." }) });
@@ -501,13 +472,9 @@ const SignUpPage: React.FC = () => {
             defaultValue: t("signup.error.companyCreateFailed", { defaultValue: "La création de l'entreprise a échoué." }),
           });
         case "profile_insert_failed":
-          return t("signup.apiErrors.profile_insert_failed", { defaultValue: t("signup.error.generic", { defaultValue: "Une erreur est survenue." }) });
         case "settings_insert_failed":
-          return t("signup.apiErrors.settings_insert_failed", { defaultValue: t("signup.error.generic", { defaultValue: "Une erreur est survenue." }) });
         case "signup_failed":
-          return t("signup.apiErrors.signup_failed", { defaultValue: t("signup.error.generic", { defaultValue: "Une erreur est survenue." }) });
         case "network_error":
-          return t("signup.apiErrors.network_error", { defaultValue: t("signup.error.generic", { defaultValue: "Une erreur est survenue." }) });
         case "unexpected_error":
           return t("signup.error.generic", { defaultValue: "Une erreur est survenue." });
         default:
@@ -516,6 +483,28 @@ const SignUpPage: React.FC = () => {
     },
     [companyName, t]
   );
+
+  useEffect(() => {
+    if (user) navigate("/dashboard", { replace: true });
+  }, [user, navigate]);
+
+  useEffect(() => {
+    const nextLanguage = (i18n.language as Locale) || "en";
+    setSelectedLanguage(nextLanguage);
+    const handleLanguageChanged = (lng: string) => setSelectedLanguage((lng as Locale) || "en");
+    i18n.on("languageChanged", handleLanguageChanged);
+    return () => i18n.off("languageChanged", handleLanguageChanged);
+  }, [i18n]);
+
+  const handleRoleChange = (nextRole: UserRole) => {
+    setRole(nextRole);
+    if (nextRole === UserRole.MANAGER) {
+      setSelectedPlan((current) => current);
+    } else {
+      setSelectedPlan(null);
+      setSecretCode("");
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -541,11 +530,9 @@ const SignUpPage: React.FC = () => {
       return;
     }
     if (role === UserRole.MANAGER && !effectivePlan) {
-      setError(
-        t("signup.error.planSelectionRequired", {
-          defaultValue: "Veuillez sélectionner une offre pour votre entreprise.",
-        })
-      );
+      setError(t("signup.error.planSelectionRequired", {
+        defaultValue: "Veuillez sélectionner une offre pour votre entreprise.",
+      }));
       return;
     }
 
@@ -588,7 +575,9 @@ const SignUpPage: React.FC = () => {
       setShowFreemiumModal(false);
       return;
     }
+
     setSelectedPlan(plan);
+
     if (plan === "standard") {
       setShowStandardModal(true);
       setShowProModal(false);
@@ -622,6 +611,7 @@ const SignUpPage: React.FC = () => {
   };
 
   const offersRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (role === UserRole.MANAGER && offersRef.current) {
       offersRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -639,6 +629,7 @@ const SignUpPage: React.FC = () => {
           t={t}
         />
       )}
+
       {showFreemiumModal && (
         <FreemiumModal
           showFreemiumModal={showFreemiumModal}
@@ -648,6 +639,7 @@ const SignUpPage: React.FC = () => {
           t={t}
         />
       )}
+
       {showStandardModal && (
         <StandardModal
           showStandardModal={showStandardModal}
@@ -672,12 +664,11 @@ const SignUpPage: React.FC = () => {
                 <p className="text-textSecondary mt-1">{t("signup.subtitle")}</p>
               </div>
 
-              {error && (
-                <p className="mb-4 text-center text-red-600 bg-red-100 p-3 rounded-md border border-red-200">
-                  {error}
-                </p>
-              )}
-              {success && (
+              {error ? (
+                <p className="mb-4 text-center text-red-600 bg-red-100 p-3 rounded-md border border-red-200">{error}</p>
+              ) : null}
+
+              {success ? (
                 <div className="mb-4 text-center text-green-600 bg-green-100 p-3 rounded-md border border-green-200">
                   <div className="flex items-center justify-center mb-2">
                     <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -692,7 +683,7 @@ const SignUpPage: React.FC = () => {
                   <p className="text-sm">{success}</p>
                   <p className="text-xs mt-2 text-green-500">Redirection vers la connexion...</p>
                 </div>
-              )}
+              ) : null}
 
               {role === UserRole.MANAGER && !success && (
                 <div className="mb-8" ref={offersRef}>
@@ -701,9 +692,7 @@ const SignUpPage: React.FC = () => {
                       {t("signupPlans.title", { defaultValue: "Choisissez votre plan" })}
                     </h2>
                     <p className="text-textSecondary">
-                      {t("signupPlans.subtitle", {
-                        defaultValue: "Sélectionnez le plan qui correspond le mieux aux besoins de votre équipe.",
-                      })}
+                      {t("signupPlans.subtitle", { defaultValue: "Sélectionnez le plan qui correspond le mieux aux besoins de votre équipe." })}
                     </p>
                   </div>
 
@@ -715,9 +704,7 @@ const SignUpPage: React.FC = () => {
                       onSelect={handlePlanSelect}
                       t={t}
                       showBuyNow
-                      buyLabel={t("signupPlans.freemium.modal.buttons.subscribe", {
-                        defaultValue: pricingPlans.freemium.cta,
-                      })}
+                      buyLabel={t("signupPlans.freemium.modal.buttons.subscribe", { defaultValue: pricingPlans.freemium.cta })}
                       onBuy={() => {
                         setSelectedPlan("freemium");
                         setShowFreemiumModal(true);
@@ -733,9 +720,7 @@ const SignUpPage: React.FC = () => {
                       badgeText={popularBadge}
                       showBuyNow
                       buyHref={paypalLinks.standard}
-                      buyLabel={t("signupPlans.standard.modal.buttons.subscribe", {
-                        defaultValue: pricingPlans.standard.cta,
-                      })}
+                      buyLabel={t("signupPlans.standard.modal.buttons.subscribe", { defaultValue: pricingPlans.standard.cta })}
                     />
 
                     <PlanCard
@@ -746,18 +731,14 @@ const SignUpPage: React.FC = () => {
                       t={t}
                       showBuyNow
                       buyHref={paypalLinks.pro}
-                      buyLabel={t("signupPlans.pro.modal.buttons.subscribe", {
-                        defaultValue: pricingPlans.pro.cta,
-                      })}
+                      buyLabel={t("signupPlans.pro.modal.buttons.subscribe", { defaultValue: pricingPlans.pro.cta })}
                     />
                   </div>
 
                   {selectedPlan === "freemium" && (
                     <div className="mb-8 rounded-lg border border-green-300 bg-green-50 p-5 text-left">
                       <h3 className="text-lg font-semibold text-green-900">
-                        {t("signupPlans.freemium.autoSelected.title", {
-                          defaultValue: "Freemium sélectionné automatiquement",
-                        })}
+                        {t("signupPlans.freemium.autoSelected.title", { defaultValue: "Freemium sélectionné automatiquement" })}
                       </h3>
                       <p className="mt-2 text-sm text-green-800">
                         {t("signupPlans.freemium.autoSelected.description", {
@@ -826,7 +807,11 @@ const SignUpPage: React.FC = () => {
                       id="role"
                       value={role}
                       onChange={(e) => handleRoleChange(e.target.value as UserRole)}
-                      options={roleOptions}
+                      options={[
+                        { value: UserRole.USER, label: t("userRole.user") },
+                        { value: UserRole.AGENT, label: t("userRole.agent") },
+                        { value: UserRole.MANAGER, label: t("userRole.manager") },
+                      ]}
                       required
                       disabled={isLoading}
                     />
@@ -910,21 +895,16 @@ const SignUpPage: React.FC = () => {
                         setSelectedLanguage(nextLocale);
                         void i18n.changeLanguage(nextLocale);
                       }}
-                      options={languageOptions.map((opt) => ({
-                        ...opt,
-                        label: t(`language.${opt.value}`, { defaultValue: opt.label }),
-                      }))}
+                      options={[
+                        { value: "en", label: t("language.en", { defaultValue: "English" }) },
+                        { value: "fr", label: t("language.fr", { defaultValue: "Français" }) },
+                        { value: "ar", label: t("language.ar", { defaultValue: "العربية" }) },
+                      ]}
                       required
                       disabled={isLoading}
                     />
 
-                    <Button
-                      type="submit"
-                      className="w-full !mt-8"
-                      size="lg"
-                      isLoading={isLoading}
-                      disabled={isLoading}
-                    >
+                    <Button type="submit" className="w-full !mt-8" size="lg" isLoading={isLoading} disabled={isLoading}>
                       {t("signup.signUpButton")}
                     </Button>
                   </form>
@@ -955,9 +935,11 @@ const SignUpPage: React.FC = () => {
                   </Link>
                 </p>
               </div>
+
               <p className="mt-4 text-xs text-center text-slate-400">
                 {t("login.demoNotes.supabase.production")}
               </p>
+
               <div className="mt-6 pt-4 border-t border-slate-200 text-center">
                 <Link to="/legal" className="text-xs text-slate-500 hover:text-primary hover:underline">
                   {t("footer.legalLink", { defaultValue: "Legal & Documentation" })}
