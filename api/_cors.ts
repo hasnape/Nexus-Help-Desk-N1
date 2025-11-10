@@ -1,69 +1,38 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from "@vercel/node";
+import {
+  createAllowedOriginSet,
+  isOriginAllowed as isOriginAllowedInternal,
+  resolveAllowOrigin as resolveAllowOriginInternal,
+} from "../supabase/functions/_shared/originUtils";
 
-type CorsHeaders = Record<string, string>;
+export const allowedOrigins = createAllowedOriginSet(
+  process.env.STATIC_ALLOWED_ORIGINS,
+  process.env.ALLOWED_ORIGINS,
+  process.env.SUPABASE_ALLOWED_ORIGINS
+);
 
-const STATIC_ALLOWED_ORIGINS = [
-  'https://www.nexussupporthub.eu',
-  'https://nexus-help-desk-n1.vercel.app',
-  'http://localhost:5173',
-];
+export const isOriginAllowed = (origin?: string | null): boolean =>
+  isOriginAllowedInternal(origin, allowedOrigins);
 
-function parseEnvList(value?: string | null): string[] {
-  if (!value) {
-    return [];
-  }
+export const resolveAllowOrigin = (origin?: string | null): string =>
+  resolveAllowOriginInternal(origin, allowedOrigins);
 
-  return value
-    .split(',')
-    .map((entry) => entry.trim())
-    .filter((entry) => entry.length > 0);
-}
+export const applyCors = (req: VercelRequest, res: VercelResponse): boolean => {
+  const origin = (req.headers["origin"] as string | undefined) ?? null;
+  res.setHeader("Access-Control-Allow-Origin", resolveAllowOrigin(origin));
+  res.setHeader("Access-Control-Allow-Headers", "authorization, x-client-info, apikey, content-type");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Vary", "Origin");
 
-const mergedOrigins = new Set<string>([
-  ...STATIC_ALLOWED_ORIGINS,
-  ...parseEnvList(process.env.ALLOWED_ORIGINS),
-  ...parseEnvList(process.env.SUPABASE_ALLOWED_ORIGINS),
-]);
-
-function buildCorsHeaders(origin: string | null | undefined): CorsHeaders | null {
-  if (!origin) {
-    return { Vary: 'Origin' };
-  }
-
-  if (!mergedOrigins.has(origin)) {
-    return null;
-  }
-
-  return {
-    'Access-Control-Allow-Origin': origin,
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Credentials': 'true',
-    Vary: 'Origin',
-  } satisfies CorsHeaders;
-}
-
-export function prepareCors(
-  req: VercelRequest,
-  res: VercelResponse,
-): { finished: boolean; cors: CorsHeaders } {
-  const origin = typeof req.headers.origin === 'string' ? req.headers.origin : undefined;
-  const cors = buildCorsHeaders(origin ?? null);
-
-  if (req.method === 'OPTIONS') {
-    const headers = cors ?? { Vary: 'Origin' };
-    Object.entries(headers).forEach(([key, value]) => res.setHeader(key, value));
+  if (req.method === "OPTIONS") {
     res.status(204).end();
-    return { finished: true, cors: headers };
+    return true;
   }
 
-  if (origin && !cors) {
-    res.setHeader('Vary', 'Origin');
-    res.status(403).json({ error: 'forbidden' });
-    return { finished: true, cors: { Vary: 'Origin' } };
+  if (!isOriginAllowed(origin)) {
+    res.status(403).json({ ok: false, reason: "origin_not_allowed" });
+    return true;
   }
 
-  const headers = cors ?? { Vary: 'Origin' };
-  Object.entries(headers).forEach(([key, value]) => res.setHeader(key, value));
-  return { finished: false, cors: headers };
-}
+  return false;
+};

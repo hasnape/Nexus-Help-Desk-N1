@@ -7,8 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "merge-locales": "node scripts/merge-locales.mjs",
-    "i18n:check": "node scripts/locales-csv-report.mjs"
+    "test": "node --loader ./tools/ts-test-loader.mjs --test tests/**/*.test.ts"
   },
   "dependencies": {
     "@azure/identity": "^4.1.0",
@@ -18,7 +17,7 @@
     "@headlessui/react": "^2.2.1",
     "@paypal/react-paypal-js": "^8.8.3",
     "@supabase/supabase-js": "^2.44.4",
-    "@vercel/node": "^2.15.10",
+    "@vercel/node": "^2.3.0",
     "axios": "^1.11.0",
     "chart.js": "^4.4.3",
     "firebase": "^12.1.0",

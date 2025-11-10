@@ -1,8 +1,8 @@
 import type { Session } from "@supabase/supabase-js";
-import { supabase } from "./supabaseClient";
-import { ensureUserProfile } from "./authService";
-import type { User } from "../types";
-import { invokeWithFallback } from "./functionInvoker";
+import { supabase } from '@/services/supabaseClient';
+import { ensureUserProfile } from '@/services/authService';
+import type { User } from '@/types';
+import { invokeWithFallback } from '@/utils/invokeWithFallback';
 
 type GuardReason = "company_mismatch" | "company_not_found" | "unknown_email" | "invalid_login" | "unknown";
 
@@ -19,6 +19,18 @@ export type GuardedLoginErrorKey =
   | "login.error.companyNotFound"
   | "login.error.unknownEmail"
   | "login.error.profileFetchFailed";
+
+export class EdgeFunctionAuthError extends Error {
+  readonly code: string;
+  readonly context?: Record<string, unknown>;
+
+  constructor(code: string, message?: string, context?: Record<string, unknown>) {
+    super(message ?? code);
+    this.name = 'EdgeFunctionAuthError';
+    this.code = code;
+    this.context = context;
+  }
+}
 
 export class GuardedLoginError extends Error {
   readonly translationKey: GuardedLoginErrorKey;
@@ -60,29 +72,31 @@ export const guardedLogin = async (
   password: string,
   companyName: string
 ): Promise<GuardedLoginSuccess> => {
-  const guardResult = await invokeWithFallback<GuardCheckResponse>(
-    "login-guard",
-    { email, company: companyName },
-    "/api/login-guard"
-  );
+  const guardResult = await invokeWithFallback<GuardCheckResponse>('login-guard', {
+    email,
+    company: companyName,
+  });
 
   if (guardResult.error) {
-    const { status, context, message, isNetworkError } = guardResult.error;
+    const { context, message } = guardResult.error;
+    const status = typeof context?.status === 'number' ? (context.status as number) : undefined;
     const reason = (context?.reason ?? context?.error) as GuardReason | undefined;
+    const code =
+      (typeof context?.error === 'string' && context.error) ||
+      (typeof context?.reason === 'string' && context.reason) ||
+      (typeof context?.code === 'string' && context.code) ||
+      (typeof message === 'string' && message) ||
+      'auth.errors.generic';
 
     if (status === 403) {
       throw new GuardedLoginError(mapReasonToErrorKey(reason));
-    }
-
-    if (isNetworkError) {
-      throw new GuardedLoginError("login.error.invalidCompanyCredentials", message);
     }
 
     if (status && status >= 400) {
       throw new GuardedLoginError(mapReasonToErrorKey(reason));
     }
 
-    throw new GuardedLoginError("login.error.invalidCompanyCredentials", message);
+    throw new EdgeFunctionAuthError(code, typeof message === 'string' ? message : undefined, context);
   }
 
   const preloginPayload = guardResult.data ?? null;

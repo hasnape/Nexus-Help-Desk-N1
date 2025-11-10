@@ -1,12 +1,8 @@
-import React, { createContext, useState, useContext, ReactNode, useCallback, useEffect, useRef } from "react";
-import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
-import { Ticket, User, ChatMessage, TicketStatus, UserRole, Locale as AppLocale, AppointmentDetails } from "./types";
+import React, { createContext, useState, useContext, ReactNode, useCallback, useEffect } from "react";
+import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation, Link } from "react-router-dom";
+import { Ticket, User, ChatMessage, TicketStatus, UserRole, Locale as AppLocale, AppointmentDetails } from "@types";
 import { getFollowUpHelpResponse, getTicketSummary } from "./services/geminiService";
-import { supabase } from "@/services/supabaseClient";
-import { ensureUserProfile } from "./services/authService";
-import { guardedLogin, GuardedLoginError } from "./services/guardedLogin";
-import type { GuardedLoginErrorKey } from "./services/guardedLogin";
-import { invokeWithFallback } from "@/services/functionInvoker";
+import { supabase } from "./src/services/supabaseClient";
 import PricingPage from "./pages/PricingPage";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
@@ -20,19 +16,35 @@ import LegalPage from "./pages/LegalPage";
 import UserManualPage from "./pages/UserManualPage";
 import PromotionalPage from "./pages/PromotionalPage";
 import LandingPage from "./pages/LandingPage";
-import AccessibilitePage from "./pages/AccessibilitePage";
 import SubscriptionPage from "./pages/SubscriptionPage";
 import ContactPage from "./pages/ContactPage";
 import AboutPage from "./pages/AboutPage";
 import TestimonialsPage from "./pages/TestimonialsPage";
 import PartnersPage from "./pages/PartnersPage";
 import InfographiePage from "./pages/InfographiePage";
-import DemoPage from "./pages/DemoPage";
 import { DEFAULT_AI_LEVEL, DEFAULT_USER_ROLE, TICKET_STATUS_KEYS } from "./constants";
-import { LanguageProvider, useLanguage } from "./contexts/LanguageContext";
+import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
 import LoadingSpinner from "./components/LoadingSpinner";
 import CookieConsentBanner from "./components/CookieConsentBanner";
 import type { Session } from "@supabase/supabase-js";
+import { sendWelcomeManagerEmail, generateLoginUrl, formatRegistrationDate } from "./services/emailService";
+import {
+  isFreemiumCompanyOnDevice,
+  loadFreemiumTickets,
+  saveFreemiumTickets,
+  recordFreemiumSession,
+  getStoredFreemiumCompany,
+  setStoredFreemiumCompany,
+  createFreemiumManagerAccount,
+  validateFreemiumCredentials,
+  convertFreemiumAccountToUser,
+  findFreemiumAccountByEmail,
+  findFreemiumAccountById,
+  getFreemiumSessionMeta,
+  clearFreemiumSessionMeta,
+} from "./services/freemiumStorage";
+import { callEdgeWithFallback } from "./services/functionClient";
+import { mapSignupError } from "./services/signupErrorMapper";
 import PageLayout from './components/PageLayout';
 
 
@@ -75,26 +87,6 @@ interface AppContextType {
     proposedBy: "agent" | "user",
     newStatus: AppointmentDetails["status"]
   ) => Promise<void>;
-  restoreAppointment: (
-    appointment: {
-      id: string;
-      ticket_id: string;
-      proposed_by: "agent" | "user";
-      status:
-        | "pending_user_approval"
-        | "pending_agent_approval"
-        | "confirmed"
-        | "cancelled_by_user"
-        | "cancelled_by_agent"
-        | "rescheduled_by_user"
-        | "rescheduled_by_agent";
-      proposed_date: string;
-      proposed_time: string;
-      location_or_method: string;
-    },
-    ticketId: string
-  ) => Promise<boolean>;
-  deleteAppointment: (appointmentId: string, ticketId: string) => Promise<boolean>;
   deleteTicket: (ticketId: string) => Promise<void>;
   updateUserRole: (userIdToUpdate: string, newRole: UserRole) => Promise<boolean>;
   deleteUserById: (userId: string) => Promise<void>;
@@ -103,73 +95,20 @@ interface AppContextType {
   updateCompanyName: (newName: string) => Promise<boolean>;
   consentGiven: boolean;
   giveConsent: () => void;
+  isFreemiumDevice: boolean;
+  isLocalFreemiumSession: boolean;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-type ChatStorageMode = "unknown" | "embedded" | "messages_table" | "unavailable";
-
-type TicketMessageRow = {
-  id?: string;
-  ticket_id: string;
-  sender?: string | null;
-  content?: string | null;
-  message_text?: string | null;
-  text?: string | null;
-  body?: string | null;
-  created_at?: string | null;
-  inserted_at?: string | null;
-  timestamp?: string | null;
-  agent_id?: string | null;
-};
-
-type SignupFunctionResponse = {
-  ok?: boolean | null;
-  error?: string | null;
-  user_id?: string | null;
-  company_id?: string | number | null;
-  mode?: string | null;
-};
-
-const reviveTicketDates = (data: any, chatHistoryOverride?: ChatMessage[]): Ticket => ({
+const reviveTicketDates = (data: any): Ticket => ({
   ...data,
   created_at: new Date(data.created_at),
   updated_at: new Date(data.updated_at),
-  chat_history: chatHistoryOverride
-    ? chatHistoryOverride
-    : data.chat_history
-    ? data.chat_history.map((c: any) => ({ ...c, timestamp: new Date(c.timestamp) }))
-    : [],
+  chat_history: data.chat_history ? data.chat_history.map((c: any) => ({ ...c, timestamp: new Date(c.timestamp) })) : [],
   internal_notes: data.internal_notes || [],
   current_appointment: data.current_appointment || undefined,
 });
-
-const mapTicketMessageRowToChatMessage = (row: TicketMessageRow): ChatMessage => {
-  const textContent =
-    row.content ?? row.message_text ?? row.text ?? row.body ?? "";
-  const timestampString = row.created_at ?? row.inserted_at ?? row.timestamp ?? new Date().toISOString();
-  return {
-    id: row.id || crypto.randomUUID(),
-    sender: (row.sender as ChatMessage["sender"]) || "system_summary",
-    text: textContent,
-    timestamp: new Date(timestampString),
-    agentId: row.agent_id ?? undefined,
-  };
-};
-
-const groupMessagesByTicket = (rows: TicketMessageRow[]): Map<string, ChatMessage[]> => {
-  const grouped = new Map<string, ChatMessage[]>();
-  rows.forEach((row) => {
-    if (!row.ticket_id) {
-      return;
-    }
-    const message = mapTicketMessageRowToChatMessage(row);
-    const existing = grouped.get(row.ticket_id) ?? [];
-    existing.push(message);
-    grouped.set(row.ticket_id, existing);
-  });
-  return grouped;
-};
 
 const isOfflineNetworkError = (error: any): boolean => {
   if (!error) return false;
@@ -189,32 +128,11 @@ const isOfflineNetworkError = (error: any): boolean => {
   );
 };
 
+const isOnlineRequiredService = (fnName: string) =>
+  fnName === "getFollowUpHelpResponse" || fnName === "getTicketSummary";
+
 const isAbortError = (e: any) =>
   !!e && ((e.name === "AbortError") || String(e).includes("AbortError"));
-
-// -- QUOTA RPC ------------------------------------
-type QuotaResult = {
-  used: number;
-  limit: number | null;
-  unlimited: boolean;
-  timezone: string | null;
-  percent_used?: number;
-  plan_name?: string | null;
-};
-
-const getCompanyQuota = async (): Promise<QuotaResult | null> => {
-  try {
-    const { data, error } = await supabase.rpc("get_my_company_month_quota");
-    if (error) {
-      console.warn("[quota] RPC error:", error);
-      return null;
-    }
-    return data as QuotaResult;
-  } catch (e) {
-    console.warn("[quota] RPC exception:", e);
-    return null;
-  }
-};
 
 const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [allUsers, setAllUsers] = useState<User[]>([]);
@@ -224,135 +142,76 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [consentGiven, setConsentGiven] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingAi, setIsLoadingAi] = useState(false);
+  const [isFreemiumDevice, setIsFreemiumDevice] = useState<boolean>(false);
+  const [isLocalFreemiumSession, setIsLocalFreemiumSession] = useState<boolean>(false);
   const [isAutoReadEnabled, setIsAutoReadEnabled] = useState<boolean>(() => {
     const storedAutoRead = localStorage.getItem("aiHelpDeskAutoRead");
     return storedAutoRead ? JSON.parse(storedAutoRead) : true;
   });
-  const [chatStorageMode, setChatStorageMode] = useState<ChatStorageMode>("unknown");
-  const chatStorageModeRef = useRef<ChatStorageMode>(chatStorageMode);
-  useEffect(() => {
-    chatStorageModeRef.current = chatStorageMode;
-  }, [chatStorageMode]);
-  const [messageContentColumn, setMessageContentColumn] = useState<"content" | "message_text" | "text" | "body" | null>(null);
-  const messageContentColumnRef = useRef<typeof messageContentColumn>(messageContentColumn);
-  useEffect(() => {
-    messageContentColumnRef.current = messageContentColumn;
-  }, [messageContentColumn]);
-  const [ticketMessageAgentColumn, setTicketMessageAgentColumn] = useState<"agent_id" | null>(null);
-  const ticketMessageAgentColumnRef = useRef<"agent_id" | null>(ticketMessageAgentColumn);
-  useEffect(() => {
-    ticketMessageAgentColumnRef.current = ticketMessageAgentColumn;
-  }, [ticketMessageAgentColumn]);
-  const [hasInternalNotesColumn, setHasInternalNotesColumn] = useState<boolean | null>(null);
-  const hasInternalNotesColumnRef = useRef<boolean | null>(hasInternalNotesColumn);
-  useEffect(() => {
-    hasInternalNotesColumnRef.current = hasInternalNotesColumn;
-  }, [hasInternalNotesColumn]);
-  const [hasCurrentAppointmentColumn, setHasCurrentAppointmentColumn] = useState<boolean | null>(null);
-  const hasCurrentAppointmentColumnRef = useRef<boolean | null>(hasCurrentAppointmentColumn);
-  useEffect(() => {
-    hasCurrentAppointmentColumnRef.current = hasCurrentAppointmentColumn;
-  }, [hasCurrentAppointmentColumn]);
 
   const { language, setLanguage: setAppLanguage, t: translateHook } = useLanguage();
 
-  const shouldShortCircuitNetwork = useCallback((operation?: string) => false, []);
-
-  const updateTicketsState = useCallback(
-    (updater: (prevTickets: Ticket[]) => Ticket[], _forceLocalOnly?: boolean) => {
-      setTickets((prevTickets) => updater(prevTickets));
-    },
-    []
+  const shouldShortCircuitNetwork = useCallback(
+    (serviceName: string) => isLocalFreemiumSession && !isOnlineRequiredService(serviceName),
+    [isLocalFreemiumSession]
   );
 
-  const setTicketsDirect = useCallback((nextTickets: Ticket[]) => {
-    setTickets(nextTickets);
-  }, []);
-
-  const pruneApptInState = (ticketId: string, appointmentId: string) => {
-    updateTicketsState((prev) =>
-      prev.map((t) => {
-        if (t.id !== ticketId) return t;
-
-        const nextCurrent =
-          t.current_appointment?.id === appointmentId ? undefined : t.current_appointment;
-
-        const nextAppointments = Array.isArray((t as any).appointments)
-          ? (t as any).appointments.filter((a: any) => a?.id !== appointmentId)
-          : (t as any).appointments;
-
-        return {
-          ...t,
-          current_appointment: nextCurrent,
-          ...(nextAppointments !== undefined ? { appointments: nextAppointments } : {}),
-        };
-      })
-    );
-  };
-
-  const restoreAppointment: AppContextType["restoreAppointment"] = async (appointment, ticketId) => {
-    const applyRestore = (prev: Ticket[]) =>
-      prev.map((t) => {
-        if (t.id !== ticketId) return t;
-
-        const restoredAppointment = {
-          id: appointment.id,
-          proposedBy: appointment.proposed_by,
-          proposedDate: appointment.proposed_date,
-          proposedTime: appointment.proposed_time,
-          locationOrMethod: appointment.location_or_method,
-          status: appointment.status,
-        } as AppointmentDetails & Record<string, any>;
-
-        (restoredAppointment as any).proposed_by = appointment.proposed_by;
-        (restoredAppointment as any).proposed_date = appointment.proposed_date;
-        (restoredAppointment as any).proposed_time = appointment.proposed_time;
-        (restoredAppointment as any).location_or_method = appointment.location_or_method;
-
-        const existingAppointments = Array.isArray((t as any).appointments)
-          ? (t as any).appointments
-          : undefined;
-
-        const nextAppointments = existingAppointments
-          ? [...existingAppointments.filter((a: any) => a?.id !== appointment.id), restoredAppointment]
-          : existingAppointments;
-
-        return {
-          ...t,
-          current_appointment: restoredAppointment,
-          ...(nextAppointments !== undefined ? { appointments: nextAppointments } : {}),
-        };
+  const updateTicketsState = useCallback(
+    (updater: (prevTickets: Ticket[]) => Ticket[], forceLocalSync = false) => {
+      setTickets((prevTickets) => {
+        const updatedTickets = updater(prevTickets);
+        if (isFreemiumDevice || forceLocalSync) {
+          saveFreemiumTickets(updatedTickets);
+          if (user) {
+            recordFreemiumSession(user.id, user.email, user.company_id);
+          }
+        }
+        return updatedTickets;
       });
+    },
+    [isFreemiumDevice, user]
+  );
 
-    if (shouldShortCircuitNetwork("supabase.appointment_details.insert")) {
-      updateTicketsState(applyRestore, true);
-      return true;
-    }
+  const setTicketsDirect = useCallback(
+    (nextTickets: Ticket[], forceLocalSync = false) => {
+      setTickets(nextTickets);
+      if (isFreemiumDevice || forceLocalSync) {
+        saveFreemiumTickets(nextTickets);
+        if (user) {
+          recordFreemiumSession(user.id, user.email, user.company_id);
+        }
+      }
+    },
+    [isFreemiumDevice, user]
+  );
 
-    const { id, ticket_id, proposed_by, status, proposed_date, proposed_time, location_or_method } = appointment;
-
-    const { error } = await supabase
-      .from("appointment_details")
-      .insert([
-        {
-          id,
-          ticket_id,
-          proposed_by,
-          status,
-          proposed_date,
-          proposed_time,
-          location_or_method,
-        },
-      ]);
-
-    if (error) {
-      console.error("Error restoring appointment:", error);
+  const hydrateLocalFreemiumSession = useCallback(() => {
+    const sessionMeta = getFreemiumSessionMeta();
+    if (!sessionMeta) {
       return false;
     }
 
-    updateTicketsState(applyRestore);
+    const account =
+      (sessionMeta.userId && findFreemiumAccountById(sessionMeta.userId)) ||
+      findFreemiumAccountByEmail(sessionMeta.email);
+
+    if (!account) {
+      return false;
+    }
+
+    const localUser = convertFreemiumAccountToUser(account);
+    setUser(localUser);
+    setAllUsers([localUser]);
+    setIsFreemiumDevice(true);
+    setIsLocalFreemiumSession(true);
+
+    const localTickets = loadFreemiumTickets();
+    const normalizedTickets = localTickets ?? [];
+    setTicketsDirect(normalizedTickets, true);
+    recordFreemiumSession(localUser.id, localUser.email, localUser.company_id);
+
     return true;
-  };
+  }, [setTicketsDirect]);
 
   useEffect(() => {
     const storedConsent = localStorage.getItem("cookieConsent");
@@ -360,217 +219,6 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       setConsentGiven(true);
     }
   }, []);
-
-  const detectChatStorageMode = useCallback(async (): Promise<"embedded" | "messages_table" | "unavailable"> => {
-    try {
-      const { error } = await supabase.from("tickets").select("id, chat_history").limit(1);
-      if (!error) {
-        return "embedded";
-      }
-      const message = (error.message || "").toLowerCase();
-      const isMissingChatColumn =
-        error.code === "42703" ||
-        error.code === "PGRST204" ||
-        message.includes("chat_history") ||
-        (message.includes("column") && message.includes("chat"));
-      if (isMissingChatColumn) {
-        const { error: messagesTableError } = await supabase
-          .from("ticket_messages")
-          .select("ticket_id")
-          .limit(1);
-        if (!messagesTableError) {
-          return "messages_table";
-        }
-        console.warn("ticket_messages table inaccessible:", messagesTableError);
-        return "unavailable";
-      }
-      console.warn("Unexpected chat storage detection error:", error);
-      return "unavailable";
-    } catch (err) {
-      console.warn("Failed to detect chat storage mode:", err);
-      return "unavailable";
-    }
-  }, []);
-
-  const resolveTicketMessageColumn = useCallback(async (): Promise<"content" | "message_text" | "text" | "body" | null> => {
-    const candidates: Array<"content" | "message_text" | "text" | "body"> = [
-      "content",
-      "message_text",
-      "text",
-      "body",
-    ];
-    for (const candidate of candidates) {
-      try {
-        const { error } = await supabase.from("ticket_messages").select(candidate).limit(1);
-        if (!error) {
-          return candidate;
-        }
-        const message = (error.message || "").toLowerCase();
-        if (error.code === "42703" || message.includes("does not exist") || message.includes("column")) {
-          continue;
-        }
-        console.warn(`Unexpected error probing ticket_messages.${candidate}:`, error);
-        return null;
-      } catch (err) {
-        console.warn(`Failed to probe ticket_messages.${candidate}:`, err);
-        return null;
-      }
-    }
-    return null;
-  }, []);
-
-  const ensureChatStorageMode = useCallback(async (): Promise<"embedded" | "messages_table" | "unavailable"> => {
-    if (chatStorageModeRef.current === "unknown") {
-      const detected = await detectChatStorageMode();
-      chatStorageModeRef.current = detected;
-      setChatStorageMode(detected);
-      return detected;
-    }
-    return chatStorageModeRef.current;
-  }, [detectChatStorageMode]);
-
-  const ensureMessageContentColumn = useCallback(async () => {
-    if (messageContentColumnRef.current) {
-      return messageContentColumnRef.current;
-    }
-    const resolved = await resolveTicketMessageColumn();
-    if (resolved) {
-      messageContentColumnRef.current = resolved;
-      setMessageContentColumn(resolved);
-    }
-    return resolved;
-  }, [resolveTicketMessageColumn]);
-
-  const ensureTicketMessageAgentColumn = useCallback(async () => {
-    if (ticketMessageAgentColumnRef.current !== null) {
-      return ticketMessageAgentColumnRef.current;
-    }
-    try {
-      const { error } = await supabase.from("ticket_messages").select("agent_id").limit(1);
-      if (!error) {
-        ticketMessageAgentColumnRef.current = "agent_id";
-        setTicketMessageAgentColumn("agent_id");
-        return "agent_id";
-      }
-      const message = (error.message || "").toLowerCase();
-      if (error.code === "42703" || message.includes("column") || message.includes("agent_id")) {
-        ticketMessageAgentColumnRef.current = null;
-        setTicketMessageAgentColumn(null);
-        return null;
-      }
-      console.warn("Unexpected error probing ticket_messages.agent_id:", error);
-      ticketMessageAgentColumnRef.current = null;
-      setTicketMessageAgentColumn(null);
-      return null;
-    } catch (err) {
-      console.warn("Failed to probe ticket_messages.agent_id:", err);
-      ticketMessageAgentColumnRef.current = null;
-      setTicketMessageAgentColumn(null);
-      return null;
-    }
-  }, []);
-
-  const ensureInternalNotesColumn = useCallback(async (): Promise<boolean> => {
-    if (hasInternalNotesColumnRef.current !== null) {
-      return Boolean(hasInternalNotesColumnRef.current);
-    }
-    try {
-      const { error } = await supabase.from("tickets").select("internal_notes").limit(1);
-      if (!error) {
-        hasInternalNotesColumnRef.current = true;
-        setHasInternalNotesColumn(true);
-        return true;
-      }
-      const message = (error.message || "").toLowerCase();
-      if (
-        error.code === "42703" ||
-        error.code === "PGRST204" ||
-        message.includes("internal_notes") ||
-        message.includes("column")
-      ) {
-        hasInternalNotesColumnRef.current = false;
-        setHasInternalNotesColumn(false);
-        return false;
-      }
-      console.warn("Unexpected error probing tickets.internal_notes:", error);
-      hasInternalNotesColumnRef.current = false;
-      setHasInternalNotesColumn(false);
-      return false;
-    } catch (err) {
-      console.warn("Failed to probe tickets.internal_notes:", err);
-      hasInternalNotesColumnRef.current = false;
-      setHasInternalNotesColumn(false);
-      return false;
-    }
-  }, []);
-
-  const ensureCurrentAppointmentColumn = useCallback(async (): Promise<boolean> => {
-    if (hasCurrentAppointmentColumnRef.current !== null) {
-      return Boolean(hasCurrentAppointmentColumnRef.current);
-    }
-    try {
-      const { error } = await supabase.from("tickets").select("current_appointment").limit(1);
-      if (!error) {
-        hasCurrentAppointmentColumnRef.current = true;
-        setHasCurrentAppointmentColumn(true);
-        return true;
-      }
-      const message = (error.message || "").toLowerCase();
-      if (
-        error.code === "42703" ||
-        error.code === "PGRST204" ||
-        message.includes("current_appointment") ||
-        message.includes("column")
-      ) {
-        hasCurrentAppointmentColumnRef.current = false;
-        setHasCurrentAppointmentColumn(false);
-        return false;
-      }
-      console.warn("Unexpected error probing tickets.current_appointment:", error);
-      hasCurrentAppointmentColumnRef.current = false;
-      setHasCurrentAppointmentColumn(false);
-      return false;
-    } catch (err) {
-      console.warn("Failed to probe tickets.current_appointment:", err);
-      hasCurrentAppointmentColumnRef.current = false;
-      setHasCurrentAppointmentColumn(false);
-      return false;
-    }
-  }, []);
-
-  const persistTicketMessages = useCallback(
-    async (ticketId: string, messages: ChatMessage[]) => {
-      if (!messages.length) {
-        return;
-      }
-      const mode = chatStorageModeRef.current;
-      if (mode !== "messages_table") {
-        return;
-      }
-      const contentColumn = await ensureMessageContentColumn();
-      if (!contentColumn) {
-        console.warn("Unable to resolve ticket message content column. Skipping persistence.");
-        return;
-      }
-      const agentColumn = await ensureTicketMessageAgentColumn();
-      const payload = messages.map((message) => {
-        const record: Record<string, any> = {
-          ticket_id: ticketId,
-          sender: message.sender,
-        };
-        record[contentColumn] = message.text;
-        if (agentColumn && message.agentId) {
-          record[agentColumn] = message.agentId;
-        }
-        return record;
-      });
-      const { error } = await supabase.from("ticket_messages").insert(payload);
-      if (error) {
-        console.error("Error persisting ticket messages:", error);
-      }
-    },
-    [ensureMessageContentColumn, ensureTicketMessageAgentColumn]
-  );
 
   const loadUserData = useCallback(
     async (session: Session | null) => {
@@ -580,7 +228,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
           const { data: userProfile, error: profileError } = await supabase
             .from("users")
             .select("*")
-            .eq("auth_uid", session.user.id)
+            .eq("id", session.user.id)
             .single();
 
           if (profileError || !userProfile) {
@@ -588,119 +236,76 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
           }
           setUser(userProfile);
 
-          const [storageMode, internalNotesAvailable, currentAppointmentAvailable] = await Promise.all([
-            ensureChatStorageMode(),
-            ensureInternalNotesColumn(),
-            ensureCurrentAppointmentColumn(),
-          ]);
-          const baseTicketColumns = [
-            "id",
-            "user_id",
-            "title",
-            "description",
-            "category",
-            "priority",
-            "status",
-            "assigned_ai_level",
-            "assigned_agent_id",
-            "workstation_id",
-            "created_at",
-            "updated_at",
-          ];
-          if (internalNotesAvailable) {
-            baseTicketColumns.push("internal_notes");
+          const storedFreemiumCompany = getStoredFreemiumCompany();
+          let freemiumOnDevice = isFreemiumCompanyOnDevice(userProfile.company_id);
+          if (!storedFreemiumCompany && userProfile.role !== UserRole.MANAGER && userProfile.company_id) {
+            setStoredFreemiumCompany(userProfile.company_id);
+            freemiumOnDevice = true;
           }
-          if (storageMode === "embedded") {
-            baseTicketColumns.push("chat_history");
-          }
-          if (currentAppointmentAvailable) {
-            baseTicketColumns.push("current_appointment");
-          }
-          const ticketColumns = baseTicketColumns.join(", ");
+          setIsFreemiumDevice(freemiumOnDevice);
 
           const [usersResponse, ticketsResponse] = await Promise.all([
-            supabase
-              .from("users")
-              .select("id, auth_uid, email, full_name, role, language_preference, company_id"),
-            supabase.from("tickets").select(ticketColumns),
+            supabase.from("users").select("*"),
+            supabase.from("tickets").select("*"),
           ]);
 
           setAllUsers(usersResponse.data || []);
 
-          let fetchedTickets: Ticket[] = [];
-          if (storageMode === "embedded") {
-            fetchedTickets = ticketsResponse.data ? ticketsResponse.data.map((row: any) => reviveTicketDates(row)) : [];
-          } else if (storageMode === "messages_table") {
-            const ticketRows = ticketsResponse.data || [];
-            let messagesByTicket = new Map<string, ChatMessage[]>();
-            if (ticketRows.length > 0) {
-              const ticketIds = ticketRows.map((row: any) => row.id);
-              const { data: messageRows, error: messagesError } = await supabase
-                .from("ticket_messages")
-                .select(
-                  "id, ticket_id, sender, content, message_text, text, body, created_at, inserted_at, timestamp, agent_id"
-                )
-                .in("ticket_id", ticketIds)
-                .order("created_at", { ascending: true });
-              let resolvedRows = messageRows;
-              let resolvedError = messagesError;
-              if (messagesError) {
-                const lowerMessage = (messagesError.message || "").toLowerCase();
-                if (messagesError.code === "42703" || lowerMessage.includes("created_at")) {
-                  const { data: retryRows, error: retryError } = await supabase
-                    .from("ticket_messages")
-                    .select(
-                      "id, ticket_id, sender, content, message_text, text, body, created_at, inserted_at, timestamp, agent_id"
-                    )
-                    .in("ticket_id", ticketIds);
-                  resolvedRows = retryRows;
-                  resolvedError = retryError;
-                }
-              }
-              if (resolvedError) {
-                console.error("Error loading ticket messages:", resolvedError);
-              } else if (resolvedRows) {
-                messagesByTicket = groupMessagesByTicket(resolvedRows as TicketMessageRow[]);
-              }
-            }
-            fetchedTickets = ticketRows.map((row: any) => {
-              const messages = messagesByTicket.get(row.id) ?? [];
-              const sortedMessages = messages.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
-              return reviveTicketDates(row, sortedMessages);
-            });
-          } else {
-            fetchedTickets = ticketsResponse.data
-              ? ticketsResponse.data.map((row: any) => reviveTicketDates(row, []))
-              : [];
-          }
+          const fetchedTickets = ticketsResponse.data ? ticketsResponse.data.map(reviveTicketDates) : [];
 
-          setTicketsDirect(fetchedTickets);
+          if (freemiumOnDevice) {
+            const localTickets = loadFreemiumTickets();
+            const initialTickets = localTickets && localTickets.length > 0 ? localTickets : fetchedTickets;
+            setTicketsDirect(initialTickets, true);
+            recordFreemiumSession(userProfile.id, userProfile.email, userProfile.company_id);
+          } else {
+            setTicketsDirect(fetchedTickets);
+          }
+          setIsLocalFreemiumSession(false);
         } else {
+          const restored = hydrateLocalFreemiumSession();
+          if (restored) {
+            return;
+          }
+          setIsLocalFreemiumSession(false);
           setUser(null);
           setTicketsDirect([]);
           setAllUsers([]);
+          setIsFreemiumDevice(false);
         }
       } catch (error: any) {
         console.error("Error loading user data:", error);
-        if (error?.message?.includes?.("Invalid Refresh Token")) {
+        if (error.message.includes("Invalid Refresh Token")) {
           await supabase.auth.signOut();
         }
+        const restored = hydrateLocalFreemiumSession();
+        if (restored) {
+          return;
+        }
+        setIsLocalFreemiumSession(false);
         setUser(null);
         setTicketsDirect([]);
         setAllUsers([]);
+        setIsFreemiumDevice(false);
       } finally {
         setIsLoading(false);
       }
     },
-    [ensureChatStorageMode, ensureInternalNotesColumn, ensureCurrentAppointmentColumn, setTicketsDirect]
+    [setTicketsDirect, hydrateLocalFreemiumSession]
   );
 
   useEffect(() => {
+    const restored = hydrateLocalFreemiumSession();
+    if (restored) {
+      setIsLoading(false);
+      return;
+    }
+
     let isMounted = true;
 
     supabase.auth
       .getSession()
-      .then(async ({ data: { session }, error }) => {
+      .then(({ data: { session }, error }) => {
         if (!isMounted) {
           return;
         }
@@ -708,9 +313,6 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
           console.error("Error fetching session:", error);
           loadUserData(null);
           return;
-        }
-        if (session) {
-          await ensureUserProfile().catch(console.warn);
         }
         loadUserData(session);
       })
@@ -728,12 +330,9 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       if (!isMounted) {
         return;
       }
-      if (session) {
-        ensureUserProfile().catch(console.warn);
-      }
       if (event === "TOKEN_REFRESHED" && !session) {
         loadUserData(null);
-      } else if (session?.user?.id !== user?.auth_uid) {
+      } else if (session?.user?.id !== user?.id) {
         loadUserData(session);
       }
     });
@@ -742,7 +341,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       isMounted = false;
       subscription.unsubscribe();
     };
-  }, [loadUserData, user?.id]);
+  }, [hydrateLocalFreemiumSession, loadUserData, user?.id]);
 
   useEffect(() => {
     if (user?.language_preference && user.language_preference !== language) {
@@ -763,60 +362,77 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     setConsentGiven(true);
   };
 
-  const translateGuardError = useCallback(
-    (key: GuardedLoginErrorKey): string => {
-      switch (key) {
-        case "login.error.companyIdMismatch":
-          return translateHook("login.error.companyIdMismatch", {
-            default: "La compagnie ne correspond pas à votre compte.",
-          });
-        case "login.error.companyNotFound":
-          return translateHook("login.error.companyNotFound", {
-            default: "Cette compagnie n'existe pas.",
-          });
-        case "login.error.unknownEmail":
-          return translateHook("login.error.unknownEmail", {
-            default: "Cet email n'est pas reconnu.",
-          });
-        case "login.error.invalidCredentials":
-          return translateHook("login.error.invalidCredentials", {
-            default: "Invalid email or password. Please try again.",
-          });
-        case "login.error.profileFetchFailed":
-          return translateHook("login.error.profileFetchFailed", {
-            default: "Impossible de récupérer votre profil utilisateur pour la vérification.",
-          });
-        case "login.error.invalidCompanyCredentials":
-        default:
-          return translateHook("login.error.invalidCompanyCredentials", {
-            default: "Identifiants invalides (email/compagnie).",
-          });
+  const login = async (email: string, password: string, companyName: string): Promise<string | true> => {
+    const applyLocalLogin = (account: ReturnType<typeof validateFreemiumCredentials>): string | true => {
+      if (!account) {
+        return translateHook("login.error.invalidCredentials");
       }
-    },
-    [translateHook]
-  );
 
-  const login = useCallback(
-    (email: string, password: string, companyName: string): Promise<string | true> =>
-      guardedLogin(email, password, companyName)
-        .then(({ session, profile }) => {
-          setUser(profile);
-          return loadUserData(session)
-            .then(() => true)
-            .catch((loadError) => {
-              console.error("Unexpected error while loading user data after login:", loadError);
-              return translateGuardError("login.error.profileFetchFailed");
-            });
-        })
-        .catch((authError: unknown) => {
-          if (authError instanceof GuardedLoginError) {
-            return translateGuardError(authError.translationKey);
-          }
-          console.error("Unexpected login error:", authError);
-          return translateGuardError("login.error.invalidCompanyCredentials");
-        }),
-    [loadUserData, translateGuardError]
-  );
+      const localUser = convertFreemiumAccountToUser(account);
+      setUser(localUser);
+      setAllUsers([localUser]);
+      setIsFreemiumDevice(true);
+      setIsLocalFreemiumSession(true);
+
+      const localTickets = loadFreemiumTickets();
+      const normalizedTickets = localTickets ?? [];
+      setTicketsDirect(normalizedTickets, true);
+      recordFreemiumSession(localUser.id, localUser.email, localUser.company_id);
+
+      return true;
+    };
+
+    const localAccount = validateFreemiumCredentials(email, password, companyName);
+    if (localAccount) {
+      return applyLocalLogin(localAccount);
+    }
+
+    const attemptLocalLogin = (): string | true => {
+      const fallbackAccount = validateFreemiumCredentials(email, password, companyName);
+      return applyLocalLogin(fallbackAccount);
+    };
+
+    try {
+      const { data: authData, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        if (isOfflineNetworkError(error)) {
+          return attemptLocalLogin();
+        }
+        console.error("Supabase login error:", error.message);
+        return translateHook("login.error.invalidCredentials");
+      }
+
+      if (authData.user) {
+        const { data: userProfile, error: profileError } = await supabase
+          .from("users")
+          .select("company_id")
+          .eq("id", authData.user.id)
+          .single();
+
+        if (profileError || !userProfile) {
+          console.error("Could not fetch user profile for company verification:", profileError);
+          await supabase.auth.signOut();
+          return translateHook("login.error.profileFetchFailed");
+        }
+
+        if (userProfile.company_id !== companyName) {
+          await supabase.auth.signOut();
+          return translateHook("login.error.companyIdMismatch");
+        }
+      } else {
+        return translateHook("login.error.invalidCredentials");
+      }
+
+      setIsLocalFreemiumSession(false);
+      return true;
+    } catch (authError: any) {
+      if (isOfflineNetworkError(authError)) {
+        return attemptLocalLogin();
+      }
+      console.error("Unexpected login error:", authError);
+      return translateHook("login.error.invalidCredentials");
+    }
+  };
 
   const signUp = async (
     email: string,
@@ -832,54 +448,133 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
   ): Promise<string | true> => {
     const { lang, role, companyName, secretCode, plan } = options;
 
-    try {
-      const result = await invokeWithFallback<SignupFunctionResponse>(
-        "auth-signup",
-        {
+    if (role === UserRole.MANAGER) {
+      if (!plan) {
+        return translateHook("signup.error.planSelectionRequired");
+      }
+
+      if (plan === "freemium") {
+        const creation = createFreemiumManagerAccount({
+          email,
+          password,
+          fullName,
+          language: lang,
+          companyName,
+        });
+
+        if (!creation.success) {
+          if (creation.error === "DEVICE_LOCKED") {
+            const storedCompany = getStoredFreemiumCompany();
+            return translateHook("signup.error.freemiumDeviceLocked", {
+              company: storedCompany || companyName,
+            });
+          }
+          if (creation.error === "EMAIL_EXISTS") {
+            return translateHook("signup.error.emailInUse");
+          }
+          return creation.error || translateHook("signup.error.generic");
+        }
+
+        try {
+          const emailData = {
+            managerName: fullName,
+            managerEmail: email,
+            companyName,
+            secretCode: "Freemium (aucun code requis)", // Informationnel uniquement
+            registrationDate: formatRegistrationDate(new Date()),
+            loginUrl: generateLoginUrl(),
+          };
+          const emailResult = await sendWelcomeManagerEmail(emailData);
+          if (!emailResult.success) {
+            console.warn("Failed to send welcome email for freemium manager:", emailResult.error);
+          }
+        } catch (emailError) {
+          console.warn("Unexpected error sending freemium welcome email:", emailError);
+        }
+
+        setNewlyCreatedCompanyName(companyName);
+        return true;
+      }
+
+      if (!secretCode) {
+        return translateHook("signup.error.secretCodeRequiredManager");
+      }
+      try {
+        const { response } = await callEdgeWithFallback("auth-signup", {
+          email,
+          password,
+          full_name: fullName,
+          role: "manager",
+          companyName,
+          language: lang,
+          plan,
+          secretCode,
+        });
+        const body = await response.json().catch(() => ({}));
+        if (!response.ok || !body?.ok) {
+          return mapSignupError(translateHook, body?.code ?? body?.reason, body?.message, {
+            companyName,
+          });
+        }
+
+        try {
+          const emailData = {
+            managerName: fullName,
+            managerEmail: email,
+            companyName,
+            secretCode,
+            registrationDate: formatRegistrationDate(new Date()),
+            loginUrl: generateLoginUrl(),
+          };
+          const emailResult = await sendWelcomeManagerEmail(emailData);
+          if (!emailResult.success) {
+            console.warn("⚠️ L'inscription manager a réussi mais l'email a échoué:", emailResult.error);
+          }
+        } catch (emailError) {
+          console.error("Erreur lors de l'envoi de l'email manager:", emailError);
+        }
+
+        setNewlyCreatedCompanyName(companyName);
+        return true;
+        } catch (error) {
+          console.error("auth-signup manager error", error);
+          return mapSignupError(
+            translateHook,
+            undefined,
+            (error as Error)?.message,
+            { companyName }
+          );
+        }
+
+    } else {
+      try {
+        const { response } = await callEdgeWithFallback("auth-signup", {
           email,
           password,
           full_name: fullName,
           role,
-          company_name: companyName,
-          language_preference: lang,
-          plan,
-          secretCode,
-        },
-        "/api/auth-signup"
-      );
-
-      if (result.error) {
-        const { context, message, isNetworkError } = result.error;
-        if (isNetworkError) {
-          return "network_error";
+          companyName,
+          language: lang,
+        });
+        const body = await response.json().catch(() => ({}));
+        if (!response.ok || !body?.ok) {
+          return mapSignupError(translateHook, body?.code ?? body?.reason, body?.message, {
+            companyName,
+          });
         }
-        const code =
-          (context?.error as string | undefined) ??
-          (context?.reason as string | undefined) ??
-          (typeof message === "string" ? message : undefined) ??
-          "signup_failed";
-        return code;
-      }
 
-      const payload = result.data;
-      if (!payload?.ok) {
-        const code = (payload?.error ?? "signup_failed") as string;
-        return code;
+        return true;
+        } catch (error) {
+          console.error("auth-signup user error", error);
+          return mapSignupError(
+            translateHook,
+            undefined,
+            (error as Error)?.message,
+            { companyName }
+          );
+        }
       }
-
-      if (role === UserRole.MANAGER && payload.mode === "manager_new") {
-        setNewlyCreatedCompanyName(companyName);
-      }
-
-      return true;
-    } catch (e: any) {
-      const message = e?.context?.error ?? e?.message;
-      if (typeof message === "string" && message.trim().length > 0) {
-        return message;
-      }
-      return "network_error";
-    }
-  };
+    };
 
   const logout = async () => {
     try {
@@ -891,10 +586,13 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         console.error("Supabase logout error:", error);
       }
     } finally {
+      clearFreemiumSessionMeta();
       setUser(null);
       setNewlyCreatedCompanyName(null);
-      setTicketsDirect([]);
+      setTicketsDirect([], true);
       setAllUsers([]);
+      setIsFreemiumDevice(false);
+      setIsLocalFreemiumSession(false);
     }
   };
 
@@ -917,12 +615,15 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     if (user?.role !== UserRole.MANAGER) return;
     if (shouldShortCircuitNetwork("supabase.rpc.delete_user_by_manager")) {
       setAllUsers((prev) => prev.filter((u) => u.id !== userId));
-      updateTicketsState((prev) => {
-        const ticketsAfterUserRemoval = prev.filter((t) => t.user_id !== userId);
-        return ticketsAfterUserRemoval.map((t) =>
-          t.assigned_agent_id === userId ? { ...t, assigned_agent_id: undefined } : t
-        );
-      });
+      updateTicketsState(
+        (prev) => {
+          const ticketsAfterUserRemoval = prev.filter((t) => t.user_id !== userId);
+          return ticketsAfterUserRemoval.map((t) =>
+            t.assigned_agent_id === userId ? { ...t, assigned_agent_id: undefined } : t
+          );
+        },
+        true
+      );
       return;
     }
     try {
@@ -971,71 +672,24 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
           created_at: now,
           updated_at: now,
         };
-        updateTicketsState((prevTickets) => [...prevTickets, createdTicket]);
+        updateTicketsState((prevTickets) => [...prevTickets, createdTicket], true);
         return createdTicket;
       }
 
-      const [storageMode, internalNotesAvailable, currentAppointmentAvailable] = await Promise.all([
-        ensureChatStorageMode(),
-        ensureInternalNotesColumn(),
-        ensureCurrentAppointmentColumn(),
-      ]);
-      const newTicketDataBase: Record<string, any> = {
+      const newTicketData = {
         ...ticketData,
         user_id: creatorUserId,
+        chat_history: normalizedChatHistory,
         assigned_ai_level: DEFAULT_AI_LEVEL,
         assigned_agent_id: undefined,
+        internal_notes: [],
+        current_appointment: undefined,
         created_at: now.toISOString(),
         updated_at: now.toISOString(),
       };
-      if (internalNotesAvailable) {
-        newTicketDataBase.internal_notes = [];
-      }
-      if (currentAppointmentAvailable) {
-        newTicketDataBase.current_appointment = null;
-      }
-      if (storageMode === "embedded") {
-        newTicketDataBase.chat_history = normalizedChatHistory;
-      }
-      // --- quota pre-check (front) ---
-      const quota = await getCompanyQuota();
-      if (quota && !quota.unlimited && quota.limit !== null && quota.used >= quota.limit) {
-        alert(
-          translateHook("dashboard.quota.blockedUi", {
-            default:
-              "Votre quota mensuel de tickets est atteint. Passez à l'offre supérieure pour continuer.",
-          })
-        );
-        setIsLoading(false);
-        return null;
-      }
-
-      const { data, error } = await supabase
-        .from("tickets")
-        .insert(newTicketDataBase)
-        .select()
-        .single();
-
-      if (error) {
-        const msg = (error.message || "").toLowerCase();
-        if (msg.includes("quota") || msg.includes("limit")) {
-          alert(
-            translateHook("dashboard.quota.blockedUi", {
-              default: "Création refusée: quota mensuel atteint.",
-            })
-          );
-          setIsLoading(false);
-          return null;
-        }
-        throw error;
-      }
-      const createdTicket = reviveTicketDates(
-        data,
-        storageMode === "embedded" ? undefined : normalizedChatHistory
-      );
-      if (storageMode === "messages_table" && normalizedChatHistory.length > 0) {
-        await persistTicketMessages(createdTicket.id, normalizedChatHistory);
-      }
+      const { data, error } = await supabase.from("tickets").insert(newTicketData).select().single();
+      if (error) throw error;
+      const createdTicket = reviveTicketDates(data);
       updateTicketsState((prevTickets) => [...prevTickets, createdTicket]);
       return createdTicket;
     } catch (error) {
@@ -1049,8 +703,12 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
   const updateTicketStatus = async (ticketId: string, status: TicketStatus) => {
     if (shouldShortCircuitNetwork("supabase.tickets.update")) {
       const updatedAtDate = new Date();
-      updateTicketsState((prev) =>
-        prev.map((t) => (t.id === ticketId ? { ...t, status, updated_at: updatedAtDate } : t))
+      updateTicketsState(
+        (prev) =>
+          prev.map((t) =>
+            t.id === ticketId ? { ...t, status, updated_at: updatedAtDate } : t
+          ),
+        true
       );
       return;
     }
@@ -1063,7 +721,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const deleteTicket = async (ticketId: string): Promise<void> => {
     if (shouldShortCircuitNetwork("supabase.tickets.delete")) {
-      updateTicketsState((prev) => prev.filter((t) => t.id !== ticketId));
+      updateTicketsState((prev) => prev.filter((t) => t.id !== ticketId), true);
       return;
     }
     try {
@@ -1104,56 +762,45 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     const updatedChatHistory = summaryMessage ? [...ticketToUpdate.chat_history, summaryMessage] : ticketToUpdate.chat_history;
     if (shouldShortCircuitNetwork("supabase.tickets.update")) {
       const updatedAtDate = new Date();
-      updateTicketsState((prev) =>
-        prev.map((t) =>
-          t.id === ticketId
-            ? {
-                ...t,
-                assigned_agent_id: agentId || undefined,
-                chat_history: updatedChatHistory,
-                updated_at: updatedAtDate,
-              }
-            : t
-        )
+      updateTicketsState(
+        (prev) =>
+          prev.map((t) =>
+            t.id === ticketId
+              ? {
+                  ...t,
+                  assigned_agent_id: agentId || undefined,
+                  chat_history: updatedChatHistory,
+                  updated_at: updatedAtDate,
+                }
+              : t
+          ),
+        true
       );
       return;
     }
-    const storageMode = await ensureChatStorageMode();
-    const updatePayload: Record<string, any> = {
-      assigned_agent_id: agentId || null,
-      updated_at: new Date().toISOString(),
-    };
-    if (storageMode === "embedded") {
-      updatePayload.chat_history = updatedChatHistory;
-    }
     const { data, error } = await supabase
       .from("tickets")
-      .update(updatePayload)
+      .update({ assigned_agent_id: agentId || null, updated_at: new Date().toISOString(), chat_history: updatedChatHistory })
       .eq("id", ticketId)
       .select()
       .single();
-    if (error) {
-      console.error("Error assigning ticket:", error);
-    } else {
-      if (storageMode === "messages_table" && summaryMessage) {
-        await persistTicketMessages(ticketId, [summaryMessage]);
-      }
-      updateTicketsState((prev) =>
-        prev.map((t) =>
-          t.id === ticketId
-            ? reviveTicketDates(data, storageMode === "embedded" ? undefined : updatedChatHistory)
-            : t
-        )
-      );
-    }
+    if (error) console.error("Error assigning ticket:", error);
+    else
+      updateTicketsState((prev) => prev.map((t) => (t.id === ticketId ? reviveTicketDates(data) : t)));
   };
 
   const agentTakeTicket = async (ticketId: string): Promise<void> => {
     if (!user || user.role !== UserRole.AGENT) return;
     if (shouldShortCircuitNetwork("supabase.tickets.update")) {
       const updatedAtDate = new Date();
-      updateTicketsState((prev) =>
-        prev.map((t) => (t.id === ticketId ? { ...t, assigned_agent_id: user.id, updated_at: updatedAtDate } : t))
+      updateTicketsState(
+        (prev) =>
+          prev.map((t) =>
+            t.id === ticketId
+              ? { ...t, assigned_agent_id: user.id, updated_at: updatedAtDate }
+              : t
+          ),
+        true
       );
       return;
     }
@@ -1207,34 +854,15 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       );
       return;
     }
-    const storageMode = chatStorageModeRef.current === "unknown" ? await ensureChatStorageMode() : chatStorageModeRef.current;
-    const updatePayload: Record<string, any> = {
-      status: newStatus,
-      updated_at: new Date().toISOString(),
-    };
-    if (storageMode === "embedded") {
-      updatePayload.chat_history = updated_chat_history;
-    }
     const { data, error } = await supabase
       .from("tickets")
-      .update(updatePayload)
+      .update({ chat_history: updated_chat_history, status: newStatus, updated_at: new Date().toISOString() })
       .eq("id", ticketId)
       .select()
       .single();
-    if (error) {
-      console.error("Error sending agent message:", error);
-    } else {
-      if (storageMode === "messages_table") {
-        await persistTicketMessages(ticketId, [agentMessage]);
-      }
-      updateTicketsState((prev) =>
-        prev.map((t) =>
-          t.id === ticketId
-            ? reviveTicketDates(data, storageMode === "embedded" ? undefined : updated_chat_history)
-            : t
-        )
-      );
-    }
+    if (error) console.error("Error sending agent message:", error);
+    else
+      updateTicketsState((prev) => prev.map((t) => (t.id === ticketId ? reviveTicketDates(data) : t)));
   };
 
   const addChatMessage = async (ticketId: string, userMessageText: string, onAiMessageAdded?: (aiMessage: ChatMessage) => void) => {
@@ -1248,48 +876,23 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         ? TICKET_STATUS_KEYS.IN_PROGRESS
         : ticket.status;
     const tempUpdatedChatHistory = [...ticket.chat_history, userMessage];
-    updateTicketsState((prev) =>
-      prev.map((t) =>
-        t.id === ticketId
-          ? { ...t, chat_history: tempUpdatedChatHistory, status: newStatus, updated_at: timestamp }
-          : t
-      )
+    updateTicketsState(
+      (prev) =>
+        prev.map((t) =>
+          t.id === ticketId
+            ? { ...t, chat_history: tempUpdatedChatHistory, status: newStatus, updated_at: timestamp }
+            : t
+        ),
+      isLocalFreemiumSession
     );
-    let storageMode = chatStorageModeRef.current;
-    if (storageMode === "unknown") {
-      storageMode = await ensureChatStorageMode();
-    }
     if (ticket.assigned_agent_id) {
       if (shouldShortCircuitNetwork("supabase.tickets.update")) {
         return;
       }
-      const updatePayload: Record<string, any> = {
-        status: newStatus,
-        updated_at: new Date().toISOString(),
-      };
-      if (storageMode === "embedded") {
-        updatePayload.chat_history = tempUpdatedChatHistory;
-      }
-      const { data, error } = await supabase
+      await supabase
         .from("tickets")
-        .update(updatePayload)
-        .eq("id", ticketId)
-        .select()
-        .single();
-      if (error) {
-        console.error("Error updating ticket after user message:", error);
-      } else {
-        if (storageMode === "messages_table") {
-          await persistTicketMessages(ticketId, [userMessage]);
-        }
-        updateTicketsState((prev) =>
-          prev.map((t) =>
-            t.id === ticketId
-              ? reviveTicketDates(data, storageMode === "embedded" ? undefined : tempUpdatedChatHistory)
-              : t
-          )
-        );
-      }
+        .update({ chat_history: tempUpdatedChatHistory, status: newStatus, updated_at: new Date().toISOString() })
+        .eq("id", ticketId);
       return;
     }
     setIsLoadingAi(true);
@@ -1316,46 +919,27 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       finalChatHistory = [...tempUpdatedChatHistory, fallbackMessage];
     } finally {
       if (shouldShortCircuitNetwork("supabase.tickets.update")) {
-        updateTicketsState((prev) =>
-          prev.map((t) =>
-            t.id === ticketId
-              ? { ...t, chat_history: finalChatHistory, status: newStatus, updated_at: new Date() }
-              : t
-          )
+        updateTicketsState(
+          (prev) =>
+            prev.map((t) =>
+              t.id === ticketId
+                ? { ...t, chat_history: finalChatHistory, status: newStatus, updated_at: new Date() }
+                : t
+            ),
+          true
         );
         setIsLoadingAi(false);
         return;
       }
-      const updatePayload: Record<string, any> = {
-        status: newStatus,
-        updated_at: new Date().toISOString(),
-      };
-      if (storageMode === "embedded") {
-        updatePayload.chat_history = finalChatHistory;
-      }
       const { data, error } = await supabase
         .from("tickets")
-        .update(updatePayload)
+        .update({ chat_history: finalChatHistory, status: newStatus, updated_at: new Date().toISOString() })
         .eq("id", ticketId)
         .select()
         .single();
-      if (error) {
-        console.error("Error saving AI response:", error);
-      } else {
-        if (storageMode === "messages_table") {
-          const messagesToPersist = finalChatHistory.filter((message) =>
-            message.timestamp.getTime() >= userMessage.timestamp.getTime()
-          );
-          await persistTicketMessages(ticketId, messagesToPersist);
-        }
-        updateTicketsState((prev) =>
-          prev.map((t) =>
-            t.id === ticketId
-              ? reviveTicketDates(data, storageMode === "embedded" ? undefined : finalChatHistory)
-              : t
-          )
-        );
-      }
+      if (error) console.error("Error saving AI response:", error);
+      else
+        updateTicketsState((prev) => prev.map((t) => (t.id === ticketId ? reviveTicketDates(data) : t)));
       setIsLoadingAi(false);
     }
   };
@@ -1395,117 +979,72 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     const updatedChatHistory = chatMessageText ? [...ticket.chat_history, systemMessage] : ticket.chat_history;
     if (shouldShortCircuitNetwork("supabase.tickets.update")) {
       const updatedAtDate = new Date();
-      updateTicketsState((prev) =>
-        prev.map((t) =>
-          t.id === ticketId
-            ? {
-                ...t,
-                current_appointment: newAppointment,
-                chat_history: updatedChatHistory,
-                updated_at: updatedAtDate,
-              }
-            : t
-        )
+      updateTicketsState(
+        (prev) =>
+          prev.map((t) =>
+            t.id === ticketId
+              ? {
+                  ...t,
+                  current_appointment: newAppointment,
+                  chat_history: updatedChatHistory,
+                  updated_at: updatedAtDate,
+                }
+              : t
+          ),
+        true
       );
       return;
     }
-    const storageMode = chatStorageModeRef.current === "unknown" ? await ensureChatStorageMode() : chatStorageModeRef.current;
-    const currentAppointmentAvailable =
-      hasCurrentAppointmentColumnRef.current !== null
-        ? Boolean(hasCurrentAppointmentColumnRef.current)
-        : await ensureCurrentAppointmentColumn();
-    const updatePayload: Record<string, any> = {
-      updated_at: new Date().toISOString(),
-    };
-    if (currentAppointmentAvailable) {
-      updatePayload.current_appointment = newAppointment;
-    } else {
-      console.warn("tickets.current_appointment column unavailable; skipping persistence of appointment details.");
-    }
-    if (storageMode === "embedded") {
-      updatePayload.chat_history = updatedChatHistory;
-    }
     const { data, error } = await supabase
       .from("tickets")
-      .update(updatePayload)
+      .update({ current_appointment: newAppointment, chat_history: updatedChatHistory, updated_at: new Date().toISOString() })
       .eq("id", ticketId)
       .select()
       .single();
-    if (error) {
-      console.error("Error proposing appointment:", error);
-    } else {
-      if (storageMode === "messages_table" && chatMessageText) {
-        await persistTicketMessages(ticketId, [systemMessage]);
-      }
-      updateTicketsState((prev) =>
-        prev.map((t) => {
-          if (t.id !== ticketId) {
-            return t;
-          }
-          if (currentAppointmentAvailable) {
-            return reviveTicketDates(data, storageMode === "embedded" ? undefined : updatedChatHistory);
-          }
-          return {
-            ...t,
-            chat_history: updatedChatHistory,
-            updated_at: new Date(updatePayload.updated_at),
-            current_appointment: newAppointment,
-          };
-        })
-      );
-    }
-  };
-
-  const deleteAppointment = async (appointmentId: string, ticketId: string): Promise<boolean> => {
-    if (shouldShortCircuitNetwork("supabase.appointment_details.delete")) {
-      pruneApptInState(ticketId, appointmentId);
-      return true;
-    }
-
-    const { error } = await supabase
-      .from("appointment_details")
-      .delete()
-      .eq("id", appointmentId);
-
-    if (error) {
-      console.error("Error deleting appointment:", error);
-      return false;
-    }
-
-    pruneApptInState(ticketId, appointmentId);
-    return true;
+    if (error) console.error("Error proposing appointment:", error);
+    else
+      updateTicketsState((prev) => prev.map((t) => (t.id === ticketId ? reviveTicketDates(data) : t)));
   };
 
   const getTicketById = useCallback((ticketId: string) => tickets.find((t) => t.id === ticketId), [tickets]);
 
   const updateCompanyName = async (newName: string): Promise<boolean> => {
     if (!user || user.role !== UserRole.MANAGER || !user.company_id) return false;
-
-    const { data: companyRow, error: findError } = await supabase
-      .from("companies")
-      .select("id,name")
-      .eq("id", user.company_id)  // UUID
-      .single();
-
-    if (findError || !companyRow) {
-      console.error("Company not found (by id)", findError);
+    if (shouldShortCircuitNetwork("supabase.companies.update")) {
+      setUser((prevUser) => (prevUser ? { ...prevUser, company_id: newName } : null));
+      setAllUsers((prevUsers) => prevUsers.map((u) => (u.id === user.id ? { ...u, company_id: newName } : u)));
+      setStoredFreemiumCompany(newName);
+      recordFreemiumSession(user.id, user.email, newName);
+      return true;
+    }
+    const oldName = user.company_id;
+    const { data: companyResults, error: findError } = await supabase.from("companies").select("id").eq("name", oldName).limit(1);
+    if (findError) {
+      console.error("Error finding company to update:", findError);
       alert(translateHook("managerDashboard.companyInfo.updateError", { default: "Could not find the company to update." }));
       return false;
     }
-
-    const { error: updateCompanyError } = await supabase
-      .from("companies")
-      .update({ name: newName })
-      .eq("id", companyRow.id);
-
+    if (!companyResults || companyResults.length === 0) {
+      console.error("Data integrity error: company not found with name", oldName);
+      alert(translateHook("managerDashboard.companyInfo.updateError", { default: "Could not find the company to update." }));
+      return false;
+    }
+    const companyData = companyResults[0];
+    const { error: updateCompanyError } = await supabase.from("companies").update({ name: newName }).eq("id", companyData.id);
     if (updateCompanyError) {
       console.error("Error updating company name:", updateCompanyError);
       alert(translateHook("managerDashboard.companyInfo.updateError", { default: "Failed to update company name. The new name might be taken." }));
       return false;
     }
-
-    // lightweight UI refresh
-    setAllUsers((prev) => [...prev]);
+    const { error: updateUserError } = await supabase.from("users").update({ company_id: newName }).eq("company_id", oldName);
+    if (updateUserError) {
+      console.error("CRITICAL: Failed to update users' company_id. Data is now inconsistent.", updateUserError);
+      await supabase.from("companies").update({ name: oldName }).eq("id", companyData.id);
+      alert(translateHook("managerDashboard.companyInfo.updateError", { default: "Failed to update company name for all users. The change has been rolled back." }));
+      return false;
+    }
+    setUser((prevUser) => (prevUser ? { ...prevUser, company_id: newName } : null));
+    setAllUsers((prevUsers) => prevUsers.map((u) => (u.company_id === oldName ? { ...u, company_id: newName } : u)));
     return true;
   };
 
@@ -1530,8 +1069,6 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         getAgents,
         getAllUsers,
         proposeOrUpdateAppointment,
-        restoreAppointment,
-        deleteAppointment,
         deleteTicket,
         updateUserRole,
         agentTakeTicket,
@@ -1541,6 +1078,8 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         updateCompanyName,
         consentGiven,
         giveConsent,
+        isFreemiumDevice,
+        isLocalFreemiumSession,
       }}
     >
       {children}
@@ -1610,12 +1149,10 @@ const MainAppContent: React.FC = () => {
     <Route path="/manual" element={<UserManualPage />} />
     <Route path="/presentation" element={<PromotionalPage />} />
     <Route path="/contact" element={<ContactPage />} />
-    <Route path="/accessibilite" element={<AccessibilitePage />} />
     <Route path="/about" element={<AboutPage />} />
     <Route path="/testimonials" element={<TestimonialsPage />} />
     <Route path="/partners" element={<PartnersPage />} />
     <Route path="/infographie" element={<InfographiePage />} />
-    <Route path="/demo" element={<DemoPage />} />
 
     {/* PricingPage */}
     <Route path="/pricing" element={<PricingPage />} />

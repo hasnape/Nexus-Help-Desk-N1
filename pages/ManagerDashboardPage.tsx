@@ -1,31 +1,13 @@
 import ManagerInviteUserCard from '@/components/ManagerInviteUserCard';
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Link, Navigate } from 'react-router-dom';
-import { useApp } from '../App';
-import { Ticket, User, UserRole, TicketPriority, Locale, TicketStatus } from '../types';
+import { useApp } from '@/contexts/AppContext';
+import { Ticket, User, UserRole, TicketPriority, Locale, TicketStatus } from '@/types';
 import { Button, Select, Input } from '../components/FormElements';
-import { useLanguage } from '../contexts/LanguageContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import LoadingSpinner from '../components/LoadingSpinner';
 import FloatingActionButton from '../components/FloatingActionButton';
-import { formatQuota } from '@/utils/formatQuota';
-import { supabase } from '@/services/supabaseClient';
-
-
-const isAbortFetchError = (error: unknown): boolean => {
-  if (!error) return false;
-  if (typeof error === 'string') {
-    return error.toLowerCase().includes('abort');
-  }
-
-  const anyError = error as { name?: unknown; message?: unknown };
-  if (typeof anyError.name === 'string' && anyError.name.toLowerCase() === 'aborterror') {
-    return true;
-  }
-  if (typeof anyError.message === 'string' && anyError.message.toLowerCase().includes('abort')) {
-    return true;
-  }
-  return false;
-};
+import { supabase } from '../src/services/supabaseClient';
 
 // --- ICONS ---
 const PlusIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
@@ -331,10 +313,20 @@ const UserManagementRow: React.FC<UserManagementRowProps> = ({ userToManage, cur
 
 // --- MAIN DASHBOARD COMPONENT ---
 const ManagerDashboardPage: React.FC = () => {
-    const { 
-        tickets, user, assignTicket, getAgents, getAllUsers, isLoading, deleteTicket, 
-        updateUserRole, deleteUserById, newlyCreatedCompanyName, setNewlyCreatedCompanyName,
-        updateCompanyName
+    const {
+        tickets,
+        user,
+        assignTicket,
+        getAgents,
+        getAllUsers,
+        isLoading,
+        deleteTicket,
+        updateUserRole,
+        deleteUserById,
+        newlyCreatedCompanyName,
+        setNewlyCreatedCompanyName,
+        updateCompanyName,
+        isLocalFreemiumSession,
     } = useApp();
     const { t, getBCP47Locale } = useLanguage();
 
@@ -384,30 +376,42 @@ const ManagerDashboardPage: React.FC = () => {
         const controller = new AbortController();
 
         const fetchCompanyDetails = async () => {
-            if (user?.role === UserRole.MANAGER && user.company_id) {
-                try {
-                    const { data: companies, error } = await supabase
-                        .from('companies')
-                        .select('id, name')
-                        .eq('id', user.company_id)
-                        .abortSignal(controller.signal)
-                        .limit(1);
+            if (!(user?.role === UserRole.MANAGER && user.company_id)) {
+                return;
+            }
 
-                    if (error) {
-                        if (!isAbortFetchError(error)) {
-                            console.error("Error fetching company details:", JSON.stringify(error, null, 2));
-                        }
-                    } else if (companies && companies.length > 0) {
-                        const companyData = companies[0];
-                        setCompany(companyData);
-                        setNewCompanyName(companyData.name);
-                    } else {
-                        console.error(`Data integrity issue: No company found with id "${user.company_id}" for manager ${user.id}`);
+            if (isLocalFreemiumSession) {
+                setCompany((prev) =>
+                    prev && prev.name === user.company_id
+                        ? prev
+                        : { id: `local-${user.company_id}`, name: user.company_id }
+                );
+                setNewCompanyName((prev) => (prev === user.company_id ? prev : user.company_id));
+                return;
+            }
+
+            try {
+                const { data: companies, error } = await supabase
+                    .from('companies')
+                    .select('id, name')
+                    .eq('name', user.company_id)
+                    .abortSignal(controller.signal)
+                    .limit(1);
+
+                if (error) {
+                    if (error.name !== 'AbortError') {
+                        console.error("Error fetching company details:", JSON.stringify(error, null, 2));
                     }
-                } catch (e: any) {
-                    if (!isAbortFetchError(e)) {
-                        console.error("Critical error fetching company details:", JSON.stringify(e, null, 2));
-                    }
+                } else if (companies && companies.length > 0) {
+                    const companyData = companies[0];
+                    setCompany(companyData);
+                    setNewCompanyName((prev) => (prev === companyData.name ? prev : companyData.name));
+                } else {
+                    console.error(`Data integrity issue: No company found with name "${user.company_id}" for manager ${user.id}`);
+                }
+            } catch (e: any) {
+                if (e.name !== 'AbortError') {
+                    console.error("Critical error fetching company details:", JSON.stringify(e, null, 2));
                 }
             }
         };
@@ -417,7 +421,7 @@ const ManagerDashboardPage: React.FC = () => {
         return () => {
             controller.abort();
         };
-    }, [user]);
+    }, [user, isLocalFreemiumSession]);
 
     useEffect(() => {
         if (!user?.company_id || user.role !== UserRole.MANAGER) {
@@ -618,9 +622,51 @@ const ManagerDashboardPage: React.FC = () => {
         }
     }, [quotaSeverity]);
 
-    const quotaValueLabel = useMemo(() => {
+    const progressBarColor = quotaSeverity === 'blocked'
+        ? 'bg-red-500'
+        : quotaSeverity === 'near'
+        ? 'bg-amber-500'
+        : 'bg-emerald-500';
+
+    const infinityLabel = t('dashboard.quota.unlimitedBadge', { default: 'Illimité' });
+    const infinitySrLabel = t('dashboard.quota.infinity_badge_sr', { default: 'Illimité' });
+    const unlimitedAriaLabel = t('dashboard.quota.aria_unlimited_label', {
+        default: 'Offre illimitée : aucun plafond de tickets ce mois-ci',
+    });
+    const loadingAriaLabel = t('dashboard.quota.loadingAria', { default: 'Quota en cours de chargement' });
+
+    const progressAriaLabel = !quotaState.loading && !normalizedQuota.unlimited && normalizedQuota.limit !== null && normalizedQuota.percent !== null
+        ? t('dashboard.quota.aria_progress_label', {
+            default: 'Vous avez utilisé {{used}} sur {{limit}} tickets ({{percent}}%)',
+            values: {
+                used: normalizedQuota.used,
+                limit: normalizedQuota.limit,
+                percent: normalizedQuota.percent,
+            },
+            used: normalizedQuota.used,
+            limit: normalizedQuota.limit,
+            percent: normalizedQuota.percent,
+        })
+        : null;
+
+    const quotaCardAriaLabel = quotaState.loading ? loadingAriaLabel : progressAriaLabel ?? unlimitedAriaLabel;
+
+    const progressBarProps = quotaState.loading || normalizedQuota.unlimited || normalizedQuota.limit === null || normalizedQuota.percent === null
+        ? { 'aria-hidden': true as const }
+        : {
+            role: 'progressbar' as const,
+            'aria-valuemin': 0,
+            'aria-valuemax': normalizedQuota.limit,
+            'aria-valuenow': normalizedQuota.used,
+            'aria-label': progressAriaLabel ?? undefined,
+        };
+
+    const quotaDisplayLabel = useMemo(() => {
         if (quotaState.loading) {
-            return '…';
+            return {
+                quotaDisplayLabel: '…',
+                quotaAriaLabel: t('dashboard.quota.loadingAria', { default: 'Quota en cours de chargement' }),
+            };
         }
 
         const percentChunk = normalizedQuota.percent !== null
@@ -631,7 +677,7 @@ const ManagerDashboardPage: React.FC = () => {
             })
             : '';
 
-        return t('dashboard.quota.remaining', {
+        const quotaDisplay = t('dashboard.quota.remaining', {
             default: '{{remaining}} / {{limit}}{{percentChunk}}',
             values: {
                 remaining: normalizedQuota.remainingLabel,
@@ -642,7 +688,7 @@ const ManagerDashboardPage: React.FC = () => {
             limit: normalizedQuota.limitLabel,
             percentChunk,
         });
-    }, [normalizedQuota, quotaState.loading, t]);
+    }, [normalizedQuota.limitLabel, normalizedQuota.percent, normalizedQuota.remainingLabel, quotaState.loading, t]);
 
     const quotaMessage = useMemo(() => {
         if (quotaState.loading || normalizedQuota.unlimited || normalizedQuota.limit === null) {
@@ -734,13 +780,30 @@ const ManagerDashboardPage: React.FC = () => {
             <section
                 className={`border shadow-lg rounded-lg p-4 sm:p-6 transition-colors ${quotaStyles.container}`}
                 aria-live="polite"
+                aria-label={quotaCardAriaLabel}
             >
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <p className="text-sm font-semibold uppercase tracking-wide text-slate-600">
                             {t('dashboard.quota.title')}
                         </p>
-                        <p className="text-2xl font-bold text-slate-800 mt-1">{quotaValueLabel}</p>
+                        <p
+                            className="text-2xl font-bold text-slate-800 mt-1"
+                            aria-label={quotaCardAriaLabel}
+                        >
+                            {quotaDisplayLabel}
+                            {normalizedQuota.unlimited && (
+                                <span className="sr-only">{infinitySrLabel}</span>
+                            )}
+                        </p>
+                        <div className="mt-3 w-full h-2 rounded bg-slate-200 overflow-hidden" {...progressBarProps}>
+                            {!quotaState.loading && !normalizedQuota.unlimited && normalizedQuota.percent !== null && (
+                                <div
+                                    className={`h-2 ${progressBarColor}`}
+                                    style={{ width: `${normalizedQuota.percent}%` }}
+                                />
+                            )}
+                        </div>
                         {quotaMessage && (
                             <p className={`mt-2 text-sm ${quotaStyles.message}`}>{quotaMessage}</p>
                         )}

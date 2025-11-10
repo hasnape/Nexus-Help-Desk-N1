@@ -1,72 +1,71 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { createClient } from '@supabase/supabase-js';
+import type { VercelRequest, VercelResponse } from "@vercel/node";
+import { createClient } from "@supabase/supabase-js";
+import { applyCors } from "./_cors";
 
-import { prepareCors } from './_cors';
-
-const SUPABASE_URL =
-  process.env.PROJECT_URL ??
-  process.env.SUPABASE_URL ??
-  process.env.VITE_SUPABASE_URL ??
-  '';
-
-const SUPABASE_ANON_KEY =
-  process.env.ANON_KEY ??
-  process.env.SUPABASE_ANON_KEY ??
-  process.env.VITE_SUPABASE_ANON_KEY ??
-  '';
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-type GuardReason = 'company_mismatch' | 'company_not_found' | 'unknown_email' | 'invalid_login' | 'unknown';
-
-type GuardPayload = {
-  ok?: boolean | null;
-  allowed?: boolean | null;
-  reason?: GuardReason | null;
+type GuardBody = {
+  email?: string;
+  company?: string;
 };
 
-function parseBody(req: VercelRequest): { email: string; company: string } {
-  const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body ?? {};
-  const email = typeof body.email === 'string' ? body.email.trim() : '';
-  const company = typeof body.company === 'string' ? body.company.trim() : '';
-  return { email, company };
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error("Missing Supabase configuration for login-guard API route.");
 }
 
+const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: { persistSession: false },
+});
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const { finished } = prepareCors(req, res);
-  if (finished) {
+  if (applyCors(req, res)) {
     return;
   }
 
-  if (req.method !== 'POST') {
-    res.status(405).json({ ok: false, error: 'method_not_allowed' });
+  if (req.method !== "POST") {
+    res.status(405).json({ ok: false, reason: "method_not_allowed" });
     return;
   }
 
-  const { email, company } = parseBody(req);
+  const body: GuardBody = req.body ?? {};
+  const email = typeof body.email === "string" ? body.email.trim() : "";
+  const company = typeof body.company === "string" ? body.company.trim() : "";
+
   if (!email || !company) {
-    res.status(400).json({ ok: false, error: 'missing_fields' });
+    res.status(400).json({ ok: false, reason: "bad_request", message: "Missing email or company" });
     return;
   }
 
-  try {
-    const { data, error } = await supabase.rpc<GuardPayload>('prelogin_check_company', {
-      p_email: email,
-      p_company_name: company,
-    });
+  const { data, error } = await supabase.rpc("prelogin_check_company", {
+    email,
+    company,
+  });
 
-    if (error) {
-      res.status(500).json({ ok: false, error: 'rpc_failed' });
-      return;
-    }
-
-    if (!data?.allowed) {
-      res.status(403).json({ ok: false, reason: data?.reason ?? 'forbidden' });
-      return;
-    }
-
-    res.status(200).json({ ok: true });
-  } catch (error) {
-    res.status(500).json({ ok: false, error: 'unexpected_error' });
+  if (error) {
+    res.status(500).json({ ok: false, reason: "rpc_failed", message: error.message });
+    return;
   }
+
+  if (typeof data === "boolean") {
+    if (data) {
+      res.status(200).json({ ok: true });
+    } else {
+      res.status(403).json({ ok: false, reason: "not_allowed" });
+    }
+    return;
+  }
+
+  if (data && typeof data === "object" && "ok" in data) {
+    if ((data as { ok: boolean }).ok) {
+      res.status(200).json({ ok: true });
+    } else {
+      const reason = (data as { reason?: string; message?: string }).reason ?? "not_allowed";
+      const message = (data as { message?: string }).message;
+      res.status(403).json({ ok: false, reason, message });
+    }
+    return;
+  }
+
+  res.status(200).json({ ok: true });
 }
