@@ -14,7 +14,6 @@ const paypalLinks = {
   pro: "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-7HP75881LB3608938NBTBGUA",
 };
 
-
 const FreemiumModal = ({
   showFreemiumModal,
   setShowFreemiumModal,
@@ -242,6 +241,14 @@ const PlanCard: React.FC<{
   onSelect: (plan: PricingPlanKey) => void;
   t: (key: string, options?: { [key: string]: any }) => string;
   badgeText?: string;
+  /** lien vers la démo (route interne) */
+  demoHref?: string;
+  /** lien d’achat externe (ex: PayPal) */
+  buyHref?: string;
+  /** libellé du bouton d’achat */
+  buyLabel?: string;
+  /** callback d’achat si pas de lien (ex: ouvre un modal) */
+  onBuy?: () => void;
 }> = ({
   planKey,
   plan,
@@ -249,6 +256,10 @@ const PlanCard: React.FC<{
   onSelect,
   t,
   badgeText,
+  demoHref,
+  buyHref,
+  buyLabel,
+  onBuy,
 }) => {
   const isSelectable = planKey !== "pro";
   const buttonKey = isSelectable ? `pricing.select_${planKey}` : "pricing.view_pro_details";
@@ -369,6 +380,38 @@ const PlanCard: React.FC<{
           ) : null}
         </button>
       </div>
+
+      {(demoHref || buyHref || onBuy) ? (
+        <div className="mt-3 d-flex flex-column gap-2">
+          {demoHref ? (
+            <Link
+              to={demoHref}
+              className={`btn btn-outline-secondary ${actionButtonBase}`}
+              aria-label={t("cta.demo", { defaultValue: "Demander une démo" })}
+              data-i18n="cta.demo"
+            >
+              {t("cta.demo", { defaultValue: "Demander une démo" })}
+            </Link>
+          ) : null}
+
+          {buyHref ? (
+            <a
+              href={buyHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`btn btn-primary ${actionButtonBase}`}
+              aria-label={buyLabel ?? plan.cta}
+              data-i18n={`pricing.plans.${planKey}.buy`}
+            >
+              {buyLabel ?? plan.cta}
+            </a>
+          ) : onBuy ? (
+            <button type="button" onClick={onBuy} className={`btn btn-primary ${actionButtonBase}`}>
+              {buyLabel ?? plan.cta}
+            </button>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 };
@@ -501,7 +544,6 @@ const SignUpPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // 2. Les validations de base (champs vides, mots de passe) restent ici. C'est une bonne pratique.
     if (!email.trim() || !fullName.trim() || !password || !confirmPassword || !companyName.trim()) {
       setError(t("signup.error.allFieldsRequired"));
       return;
@@ -516,8 +558,7 @@ const SignUpPage: React.FC = () => {
     }
     const effectivePlan: PricingPlanKey | undefined =
       role === UserRole.MANAGER && selectedPlan ? selectedPlan : undefined;
-    // Si le rôle est Manager, on s'assure que le champ du code n'est pas vide.
-    // La VRAIE validation (si le code est bon) se fera sur le serveur.
+
     if (
       role === UserRole.MANAGER &&
       effectivePlan &&
@@ -537,20 +578,16 @@ const SignUpPage: React.FC = () => {
         );
         return;
       }
-
     }
 
     setError("");
     setSuccess("");
     setIsLoading(true);
 
-    // 3. L'appel à signUp reste le même. C'est parfait.
-    // On envoie toutes les données au serveur, y compris le plan et, si besoin, le secretCode.
     const result = await signUp(email.trim(), fullName.trim(), password, {
       lang: selectedLanguage,
       role: role,
       companyName: companyName.trim(),
-      // On envoie le code SEULEMENT si le rôle est Manager sur un plan payant.
       secretCode:
         role === UserRole.MANAGER && effectivePlan && effectivePlan !== "freemium"
           ? secretCode.trim()
@@ -563,14 +600,9 @@ const SignUpPage: React.FC = () => {
 
     setIsLoading(false);
 
-    // 4. On fait confiance à la réponse du serveur.
-    // Si le serveur dit que le code est mauvais, `result` contiendra un message d'erreur.
     if (result !== true) {
-      // Le `result` contiendra le message d'erreur renvoyé par le serveur,
-      // par exemple : "Code d'activation invalide ou déjà utilisé."
       setError(translateSignupApiError(result));
     } else {
-      // Le serveur a tout validé, l'inscription est réussie !
       if (role === UserRole.MANAGER) {
         setSuccess(t("signup.success.emailSentManager", { email: email.trim() }));
       } else {
@@ -1012,4 +1044,4 @@ const SignUpPage: React.FC = () => {
   );
 };
 
-  export default SignUpPage;
+export default SignUpPage;
