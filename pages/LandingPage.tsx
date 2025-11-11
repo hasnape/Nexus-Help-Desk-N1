@@ -332,6 +332,7 @@ const LandingPage: React.FC = () => {
           </div>
         </section>
       </main>
+      </div>
     </Layout>
   );
 };
