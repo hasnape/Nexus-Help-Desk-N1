@@ -19,7 +19,7 @@
     "@headlessui/react": "^2.2.1",
     "@paypal/react-paypal-js": "^8.8.3",
     "@supabase/supabase-js": "^2.44.4",
-    "@vercel/node": "^2.15.10",
+    "@vercel/node": "^2.3.0",
     "axios": "^1.11.0",
     "chart.js": "^4.4.3",
     "firebase": "^12.1.0",

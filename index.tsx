@@ -1,16 +1,26 @@
+// index.tsx (racine)
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
 
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './App';
+import App, { AppProvider } from "@/App";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 
-const rootElement = document.getElementById('root');
-if (!rootElement) {
-  throw new Error("Could not find root element to mount to");
-}
+import "@/index.css";
+import "@/styles/bootstrap-lite.css";
+import "@/i18n";
 
-const root = ReactDOM.createRoot(rootElement);
-root.render(
+const root = document.getElementById("root");
+if (!root) throw new Error("Could not find #root");
+
+ReactDOM.createRoot(root).render(
   <React.StrictMode>
-    <App />
+    <LanguageProvider>
+      <AppProvider>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </AppProvider>
+    </LanguageProvider>
   </React.StrictMode>
 );

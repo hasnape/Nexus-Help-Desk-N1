@@ -1,4 +1,4 @@
-import { TicketPriority, TicketStatus, UserRole } from './types';
+import { TicketPriority, TicketStatus, UserRole } from '@/types';
 
 // APP_NAME is now handled by translations: t('appName')
 
@@ -29,3 +29,4 @@ export const USER_ROLE_KEYS = UserRole;
 
 export const DEFAULT_AI_LEVEL: 1 | 2 = 1;
 export const DEFAULT_USER_ROLE: UserRole = UserRole.USER;
+
