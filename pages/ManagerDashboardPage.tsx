@@ -7,7 +7,7 @@ import { Button, Select, Input } from '../components/FormElements';
 import { useLanguage } from '../contexts/LanguageContext';
 import LoadingSpinner from '../components/LoadingSpinner';
 import FloatingActionButton from '../components/FloatingActionButton';
-import { supabase } from '../src/services/supabaseClient';
+import { supabase } from '@src/services/supabaseClient';
 
 // --- ICONS ---
 const PlusIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (

@@ -12,4 +12,8 @@ declare module 'i18next' {
       options?: Record<string, unknown>
     ): string;
   }
+
+  interface TranslateOptions {
+    [key: string]: unknown;
+  }
 }

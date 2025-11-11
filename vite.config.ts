@@ -1,11 +1,8 @@
-import path from 'path';
+import path from 'node:path';
 import { defineConfig, loadEnv } from 'vite';
 
 export default defineConfig(({ mode }) => {
-  // Charge toutes les variables .env
   const env = loadEnv(mode, process.cwd(), '');
-
-  // Filtrer uniquement celles qui commencent par VITE_
   const viteEnv = Object.fromEntries(
     Object.entries(env).filter(([key]) => key.startsWith('VITE_'))
   );
@@ -20,6 +17,8 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
+        '@src': path.resolve(__dirname, 'src'),
+        '@types': path.resolve(__dirname, 'types'),
       },
     },
   };
