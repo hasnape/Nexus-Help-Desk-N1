@@ -144,10 +144,15 @@ export async function invokeWithFallback<T>(
   signal?: AbortSignal
 ): Promise<InvokeWithFallbackResult<T>> {
   try {
-    const { data, error } = await supabase.functions.invoke<T>(fnName, {
-      body,
-      signal,
-    });
+    const invokeOptions: { body?: any } & Record<string, unknown> = {};
+    if (body !== undefined) {
+      invokeOptions.body = body;
+    }
+    if (signal) {
+      invokeOptions.signal = signal;
+    }
+
+    const { data, error } = await supabase.functions.invoke<T>(fnName, invokeOptions as any);
 
     if (!error) {
       return { data: data ?? undefined };

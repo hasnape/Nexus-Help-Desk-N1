@@ -1,8 +1,8 @@
-import React, { createContext, useState, useContext, ReactNode, useCallback, useEffect } from "react";
-import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation, Link } from "react-router-dom";
+import React, { useState, ReactNode, useCallback, useEffect } from "react";
+import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import { Ticket, User, ChatMessage, TicketStatus, UserRole, Locale as AppLocale, AppointmentDetails } from "@types";
 import { getFollowUpHelpResponse, getTicketSummary } from "./services/geminiService";
-import { supabase } from "./src/services/supabaseClient";
+import { supabase } from "@/services/supabaseClient";
 import PricingPage from "./pages/PricingPage";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
@@ -22,8 +22,9 @@ import AboutPage from "./pages/AboutPage";
 import TestimonialsPage from "./pages/TestimonialsPage";
 import PartnersPage from "./pages/PartnersPage";
 import InfographiePage from "./pages/InfographiePage";
-import { DEFAULT_AI_LEVEL, DEFAULT_USER_ROLE, TICKET_STATUS_KEYS } from "./constants";
+import { DEFAULT_AI_LEVEL, TICKET_STATUS_KEYS } from "./constants";
 import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
+import { AppContext, useApp } from "@/contexts/AppContext";
 import LoadingSpinner from "./components/LoadingSpinner";
 import CookieConsentBanner from "./components/CookieConsentBanner";
 import type { Session } from "@supabase/supabase-js";
@@ -46,60 +47,6 @@ import {
 import { callEdgeWithFallback } from "./services/functionClient";
 import { mapSignupError } from "./services/signupErrorMapper";
 import PageLayout from './components/PageLayout';
-
-
-interface AppContextType {
-  user: User | null;
-  login: (email: string, password: string, companyName: string) => Promise<string | true>;
-  logout: () => Promise<void>;
-  signUp: (
-    email: string,
-    fullName: string,
-    password: string,
-    options: {
-      lang: AppLocale;
-      role: UserRole;
-      companyName: string;
-      secretCode?: string;
-      plan?: "freemium" | "standard" | "pro";
-    }
-  ) => Promise<string | true>;
-  tickets: Ticket[];
-  addTicket: (
-    ticketData: Omit<Ticket, "id" | "created_at" | "updated_at" | "user_id" | "assigned_agent_id" | "internal_notes" | "current_appointment" | "assigned_ai_level" | "chat_history">,
-    initialChatHistory: ChatMessage[]
-  ) => Promise<Ticket | null>;
-  updateTicketStatus: (ticketId: string, status: TicketStatus) => Promise<void>;
-  addChatMessage: (ticketId: string, userMessageText: string, onAiMessageAdded?: (aiMessage: ChatMessage) => void) => Promise<void>;
-  sendAgentMessage: (ticketId: string, agentMessageText: string) => Promise<void>;
-  isLoading: boolean;
-  isLoadingAi: boolean;
-  getTicketById: (ticketId: string) => Ticket | undefined;
-  isAutoReadEnabled: boolean;
-  toggleAutoRead: () => void;
-  assignTicket: (ticketId: string, agentId: string | null) => Promise<void>;
-  agentTakeTicket: (ticketId: string) => Promise<void>;
-  getAgents: () => User[];
-  getAllUsers: () => User[];
-  proposeOrUpdateAppointment: (
-    ticketId: string,
-    details: Omit<AppointmentDetails, "proposedBy" | "id" | "history">,
-    proposedBy: "agent" | "user",
-    newStatus: AppointmentDetails["status"]
-  ) => Promise<void>;
-  deleteTicket: (ticketId: string) => Promise<void>;
-  updateUserRole: (userIdToUpdate: string, newRole: UserRole) => Promise<boolean>;
-  deleteUserById: (userId: string) => Promise<void>;
-  newlyCreatedCompanyName: string | null;
-  setNewlyCreatedCompanyName: (name: string | null) => void;
-  updateCompanyName: (newName: string) => Promise<boolean>;
-  consentGiven: boolean;
-  giveConsent: () => void;
-  isFreemiumDevice: boolean;
-  isLocalFreemiumSession: boolean;
-}
-
-const AppContext = createContext<AppContextType | undefined>(undefined);
 
 const reviveTicketDates = (data: any): Ticket => ({
   ...data,
@@ -144,6 +91,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [isLoadingAi, setIsLoadingAi] = useState(false);
   const [isFreemiumDevice, setIsFreemiumDevice] = useState<boolean>(false);
   const [isLocalFreemiumSession, setIsLocalFreemiumSession] = useState<boolean>(false);
+  const [quotaUsagePercent, setQuotaUsagePercent] = useState<number | null>(null);
   const [isAutoReadEnabled, setIsAutoReadEnabled] = useState<boolean>(() => {
     const storedAutoRead = localStorage.getItem("aiHelpDeskAutoRead");
     return storedAutoRead ? JSON.parse(storedAutoRead) : true;
@@ -156,6 +104,11 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     [isLocalFreemiumSession]
   );
 
+  const resolveCompanyIdentifier = useCallback(
+    (targetUser: User | null) => targetUser?.company_id ?? targetUser?.company_name ?? targetUser?.email ?? "freemium",
+    []
+  );
+
   const updateTicketsState = useCallback(
     (updater: (prevTickets: Ticket[]) => Ticket[], forceLocalSync = false) => {
       setTickets((prevTickets) => {
@@ -163,13 +116,13 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         if (isFreemiumDevice || forceLocalSync) {
           saveFreemiumTickets(updatedTickets);
           if (user) {
-            recordFreemiumSession(user.id, user.email, user.company_id);
+            recordFreemiumSession(user.id, user.email, resolveCompanyIdentifier(user));
           }
         }
         return updatedTickets;
       });
     },
-    [isFreemiumDevice, user]
+    [isFreemiumDevice, user, resolveCompanyIdentifier]
   );
 
   const setTicketsDirect = useCallback(
@@ -178,11 +131,11 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       if (isFreemiumDevice || forceLocalSync) {
         saveFreemiumTickets(nextTickets);
         if (user) {
-          recordFreemiumSession(user.id, user.email, user.company_id);
+          recordFreemiumSession(user.id, user.email, resolveCompanyIdentifier(user));
         }
       }
     },
-    [isFreemiumDevice, user]
+    [isFreemiumDevice, user, resolveCompanyIdentifier]
   );
 
   const hydrateLocalFreemiumSession = useCallback(() => {
@@ -204,14 +157,15 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     setAllUsers([localUser]);
     setIsFreemiumDevice(true);
     setIsLocalFreemiumSession(true);
+    setQuotaUsagePercent(null);
 
     const localTickets = loadFreemiumTickets();
     const normalizedTickets = localTickets ?? [];
     setTicketsDirect(normalizedTickets, true);
-    recordFreemiumSession(localUser.id, localUser.email, localUser.company_id);
+    recordFreemiumSession(localUser.id, localUser.email, resolveCompanyIdentifier(localUser));
 
     return true;
-  }, [setTicketsDirect]);
+  }, [setTicketsDirect, resolveCompanyIdentifier]);
 
   useEffect(() => {
     const storedConsent = localStorage.getItem("cookieConsent");
@@ -257,11 +211,12 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
             const localTickets = loadFreemiumTickets();
             const initialTickets = localTickets && localTickets.length > 0 ? localTickets : fetchedTickets;
             setTicketsDirect(initialTickets, true);
-            recordFreemiumSession(userProfile.id, userProfile.email, userProfile.company_id);
+            recordFreemiumSession(userProfile.id, userProfile.email, resolveCompanyIdentifier(userProfile));
           } else {
             setTicketsDirect(fetchedTickets);
           }
           setIsLocalFreemiumSession(false);
+          void refreshQuotaUsage();
         } else {
           const restored = hydrateLocalFreemiumSession();
           if (restored) {
@@ -373,11 +328,12 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       setAllUsers([localUser]);
       setIsFreemiumDevice(true);
       setIsLocalFreemiumSession(true);
+      setQuotaUsagePercent(null);
 
       const localTickets = loadFreemiumTickets();
       const normalizedTickets = localTickets ?? [];
       setTicketsDirect(normalizedTickets, true);
-      recordFreemiumSession(localUser.id, localUser.email, localUser.company_id);
+      recordFreemiumSession(localUser.id, localUser.email, resolveCompanyIdentifier(localUser));
 
       return true;
     };
@@ -593,6 +549,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       setAllUsers([]);
       setIsFreemiumDevice(false);
       setIsLocalFreemiumSession(false);
+      setQuotaUsagePercent(null);
     }
   };
 
@@ -1006,7 +963,155 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       updateTicketsState((prev) => prev.map((t) => (t.id === ticketId ? reviveTicketDates(data) : t)));
   };
 
+  const deleteAppointment = useCallback(
+    async (appointmentId: string, ticketId: string): Promise<boolean> => {
+      const ticket = tickets.find((t) => t.id === ticketId);
+      if (!ticket || !ticket.current_appointment || ticket.current_appointment.id !== appointmentId) {
+        return false;
+      }
+
+      const skipNetwork = shouldShortCircuitNetwork("supabase.tickets.update");
+      const previousTickets = tickets;
+      const updatedAt = new Date();
+
+      updateTicketsState(
+        (prev) =>
+          prev.map((t) =>
+            t.id === ticketId ? { ...t, current_appointment: undefined, updated_at: updatedAt } : t
+          ),
+        skipNetwork
+      );
+
+      if (skipNetwork) {
+        return true;
+      }
+
+      const { error } = await supabase
+        .from("tickets")
+        .update({ current_appointment: null, updated_at: updatedAt.toISOString() })
+        .eq("id", ticketId);
+
+      if (error) {
+        console.error("Error deleting appointment:", error);
+        setTicketsDirect(previousTickets, true);
+        return false;
+      }
+
+      return true;
+    },
+    [tickets, shouldShortCircuitNetwork, updateTicketsState, setTicketsDirect]
+  );
+
+  const restoreAppointment = useCallback(
+    async (
+      appointment: {
+        id: string;
+        ticket_id: string;
+        proposed_by: "agent" | "user";
+        status:
+          | "pending_user_approval"
+          | "pending_agent_approval"
+          | "confirmed"
+          | "cancelled_by_user"
+          | "cancelled_by_agent"
+          | "rescheduled_by_user"
+          | "rescheduled_by_agent";
+        proposed_date: string;
+        proposed_time: string;
+        location_or_method: string;
+      },
+      ticketId: string
+    ): Promise<boolean> => {
+      const ticket = tickets.find((t) => t.id === ticketId);
+      if (!ticket) {
+        return false;
+      }
+
+      const restoredAppointment: AppointmentDetails = {
+        id: appointment.id,
+        proposedBy: appointment.proposed_by,
+        proposedDate: appointment.proposed_date,
+        proposedTime: appointment.proposed_time,
+        locationOrMethod: appointment.location_or_method,
+        status: appointment.status,
+      };
+
+      const skipNetwork = shouldShortCircuitNetwork("supabase.tickets.update");
+      const previousTickets = tickets;
+      const updatedAt = new Date();
+
+      updateTicketsState(
+        (prev) =>
+          prev.map((t) =>
+            t.id === ticketId
+              ? { ...t, current_appointment: restoredAppointment, updated_at: updatedAt }
+              : t
+          ),
+        skipNetwork
+      );
+
+      if (skipNetwork) {
+        return true;
+      }
+
+      const { error } = await supabase
+        .from("tickets")
+        .update({ current_appointment: restoredAppointment, updated_at: updatedAt.toISOString() })
+        .eq("id", ticketId);
+
+      if (error) {
+        console.error("Error restoring appointment:", error);
+        setTicketsDirect(previousTickets, true);
+        return false;
+      }
+
+      return true;
+    },
+    [tickets, shouldShortCircuitNetwork, updateTicketsState, setTicketsDirect]
+  );
+
   const getTicketById = useCallback((ticketId: string) => tickets.find((t) => t.id === ticketId), [tickets]);
+
+  const refreshQuotaUsage = useCallback(
+    async (_companyId?: string | null) => {
+      if (!user) {
+        setQuotaUsagePercent(null);
+        return;
+      }
+
+      if (shouldShortCircuitNetwork("supabase.rpc.get_my_company_month_quota")) {
+        setQuotaUsagePercent(null);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase.rpc("get_my_company_month_quota");
+        if (error) {
+          console.error("Error fetching quota usage:", error);
+          setQuotaUsagePercent(null);
+          return;
+        }
+
+        const quota = (data ?? {}) as { used?: number; limit?: number | null; unlimited?: boolean };
+        if (quota.unlimited || quota.limit == null || quota.limit <= 0) {
+          setQuotaUsagePercent(null);
+          return;
+        }
+
+        const used = typeof quota.used === "number" ? quota.used : 0;
+        const percent = (used / quota.limit) * 100;
+        setQuotaUsagePercent(Number.isFinite(percent) ? Math.min(100, Math.max(0, percent)) : null);
+      } catch (error) {
+        console.error("Error refreshing quota usage:", error);
+        setQuotaUsagePercent(null);
+      }
+    },
+    [user, shouldShortCircuitNetwork]
+  );
+
+  useEffect(() => {
+    void refreshQuotaUsage();
+  }, [refreshQuotaUsage]);
 
   const updateCompanyName = async (newName: string): Promise<boolean> => {
     if (!user || user.role !== UserRole.MANAGER || !user.company_id) return false;
@@ -1069,6 +1174,8 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         getAgents,
         getAllUsers,
         proposeOrUpdateAppointment,
+        deleteAppointment,
+        restoreAppointment,
         deleteTicket,
         updateUserRole,
         agentTakeTicket,
@@ -1080,6 +1187,8 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         giveConsent,
         isFreemiumDevice,
         isLocalFreemiumSession,
+        quotaUsagePercent,
+        refreshQuotaUsage,
       }}
     >
       {children}
@@ -1089,14 +1198,6 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   return <AppProviderContent>{children}</AppProviderContent>;
-};
-
-export const useApp = (): AppContextType => {
-  const context = useContext(AppContext);
-  if (context === undefined) {
-    throw new Error("useApp must be used within an AppProvider");
-  }
-  return context;
 };
 
 interface ProtectedRouteProps {

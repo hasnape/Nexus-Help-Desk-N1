@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useApp } from "../App";
+import { useApp } from "@/contexts/AppContext";
 import PayPalButton from "../components/PayPalButton";
 import { UserRole } from "@/types";
 import { Link, useLocation } from "react-router-dom";
@@ -8,6 +8,8 @@ import FreemiumPlanIcon from "../components/plan_images/FreemiumPlanIcon";
 import StandardPlanIcon from "../components/plan_images/StandardPlanIcon";
 import ProPlanIcon from "../components/plan_images/ProPlanIcon";
 import { getFreemiumBackupMeta, getFreemiumSessionMeta } from "../services/freemiumStorage";
+import { getPricingPlans, type PricingPlanKey } from "@/utils/pricing";
+import type { TFunction } from "i18next";
 
 const ArrowLeftIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg
@@ -48,48 +50,25 @@ const SubscriptionPage: React.FC = () => {
   const { t, language: currentLanguage } = useLanguage();
   const { user } = useApp();
   const location = useLocation();
-  const pricingPlans = getPricingPlans(translate);
+  const pricingPlans = getPricingPlans(t as unknown as TFunction);
 
   // In a real app, this would come from the user's profile or subscription status in the DB.
   // For this demo, we assume all non-managers are on Freemium.
-  const currentUserPlan = user?.role === UserRole.MANAGER ? "Pro" : "Freemium";
-  const currentUserPlanKey = `pricing.${currentUserPlan.toLowerCase()}.name`;
+  const currentUserPlanKey: PricingPlanKey = user?.role === UserRole.MANAGER ? "pro" : "freemium";
 
   const [freemiumBackupMeta, setFreemiumBackupMeta] = useState<ReturnType<typeof getFreemiumBackupMeta>>(null);
   const [freemiumSessionMeta, setFreemiumSessionMeta] = useState<ReturnType<typeof getFreemiumSessionMeta>>(null);
 
   useEffect(() => {
-    if (currentUserPlan === "Freemium") {
+    if (currentUserPlanKey === "freemium") {
       setFreemiumBackupMeta(getFreemiumBackupMeta());
       setFreemiumSessionMeta(getFreemiumSessionMeta());
     }
-  }, [currentUserPlan]);
+  }, [currentUserPlanKey]);
 
-  const plans = [
-    {
-      nameKey: "pricing.standard.name",
-      priceKey: "pricing.standard.price",
-      descKey: "pricing.standard.desc",
-      features: [
-        "pricing.standard.feature1",
-        "pricing.standard.feature2",
-        "pricing.standard.feature3",
-        "pricing.standard.feature4",
-      ],
-      paypalPlanId: "P-3TE12345AB678901CDE2FGHI",
-    },
-    {
-      nameKey: "pricing.pro.name",
-      priceKey: "pricing.pro.price",
-      descKey: "pricing.pro.desc",
-      features: [
-        "pricing.pro.feature1",
-        "pricing.pro.feature2",
-        "pricing.pro.feature3",
-        "pricing.pro.feature4",
-      ],
-      paypalPlanId: "P-9JI87654LK3210FEDCBA",
-    },
+  const plans: Array<{ key: PricingPlanKey; paypalPlanId: string }> = [
+    { key: "standard", paypalPlanId: "P-3TE12345AB678901CDE2FGHI" },
+    { key: "pro", paypalPlanId: "P-9JI87654LK3210FEDCBA" },
   ];
 
   const backLinkDestination =
@@ -135,7 +114,7 @@ const SubscriptionPage: React.FC = () => {
             <p className="text-3xl font-bold text-primary">
               {pricingPlans[currentUserPlanKey].name}
             </p>
-            {currentUserPlan === "Freemium" && (
+            {currentUserPlanKey === "freemium" && (
               <div className="text-slate-500 mt-1 text-sm space-y-1">
                 <p>
                   {t("subscription.currentPlan.freemiumDesc", {

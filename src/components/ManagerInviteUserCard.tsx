@@ -48,8 +48,7 @@ export default function ManagerInviteUserCard({ companyId }: Props) {
         .from('users')
         .select('id', { count: 'exact', head: true })
         .eq('company_id', companyId)
-        .eq('role', 'agent')
-        .abortSignal(controller.signal);
+        .eq('role', 'agent');
 
       if (!controller.signal.aborted && isMounted.current) {
         if (cntErr) setErr(t('manager.invite.errors.countAgents'));
@@ -61,8 +60,7 @@ export default function ManagerInviteUserCard({ companyId }: Props) {
         .from('companies')
         .select('plan_id')
         .eq('id', companyId)
-        .single()
-        .abortSignal(controller.signal);
+        .single();
 
       if (controller.signal.aborted || !isMounted.current) return;
 
@@ -75,8 +73,7 @@ export default function ManagerInviteUserCard({ companyId }: Props) {
         .from('plans')
         .select('max_agents')
         .eq('id', comp.plan_id)
-        .single()
-        .abortSignal(controller.signal);
+        .single();
 
       if (!controller.signal.aborted && isMounted.current) {
         if (planErr || !plan) setErr(t('manager.invite.errors.planLimit'));

@@ -14,6 +14,12 @@ interface DemoFormState {
   message: string;
 }
 
+const FeatureIcon: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 text-primary">
+    {children}
+  </div>
+);
+
 const LandingPage: React.FC = () => {
   const { t } = useTranslation();
   const demoSectionRef = useRef<HTMLDivElement | null>(null);
@@ -75,6 +81,97 @@ const LandingPage: React.FC = () => {
               strokeLinejoin="round"
               d="M12 12.75a3 3 0 0 0 3-3v-1.5a3 3 0 0 0-6 0v1.5a3 3 0 0 0 3 3Z"
             />
+          </svg>
+        ),
+      },
+    ],
+    [t]
+  );
+
+  const advantages = useMemo(
+    () => [
+      {
+        title: t("landing.advantages.analytics.title", { defaultValue: "Advanced analytics & statistics" }),
+        description: t("landing.advantages.analytics.desc", {
+          defaultValue: "Track your support performance with detailed dashboards and key metrics.",
+        }),
+        icon: (
+          <svg className="h-10 w-10 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 19.5h15" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 16.5v-6M12 16.5v-9M17.25 16.5v-3" />
+          </svg>
+        ),
+      },
+      {
+        title: t("landing.advantages.security.title", { defaultValue: "Enterprise-grade security" }),
+        description: t("landing.advantages.security.desc", {
+          defaultValue: "Isolated data, strict access control and GDPR compliance for peace of mind.",
+        }),
+        icon: (
+          <svg className="h-10 w-10 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 3.75c-2.458 1.886-5.27 2.31-8.25 2.4v6.09c0 4.194 2.874 7.986 8.25 9.51 5.376-1.524 8.25-5.316 8.25-9.51v-6.09c-2.98-.09-5.792-.514-8.25-2.4Z"
+            />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75" />
+          </svg>
+        ),
+      },
+      {
+        title: t("landing.advantages.voice.title", { defaultValue: "Voice accessibility" }),
+        description: t("landing.advantages.voice.desc", {
+          defaultValue: "Voice commands and synthesis for a smooth, inclusive experience.",
+        }),
+        icon: (
+          <svg className="h-10 w-10 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 0 0 6-6v-1.5" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 0 1-6-6v-1.5" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 12.75a3 3 0 0 0 3-3v-1.5a3 3 0 0 0-6 0v1.5a3 3 0 0 0 3 3Z" />
+          </svg>
+        ),
+      },
+      {
+        title: t("landing.advantages.multilingual.title", { defaultValue: "Multilingual support" }),
+        description: t("landing.advantages.multilingual.desc", {
+          defaultValue: "Interface and assistance available in French, English and Arabic.",
+        }),
+        icon: (
+          <svg className="h-10 w-10 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 21c4.97 0 9-3.806 9-8.5S16.97 4 12 4 3 7.806 3 12.5 7.03 21 12 21Z" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3.5 9.5h17" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3.5 15.5h17" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4c2.625 3.5 2.625 10.5 0 14" />
+          </svg>
+        ),
+      },
+      {
+        title: t("landing.advantages.dashboard.title", { defaultValue: "Intuitive dashboards" }),
+        description: t("landing.advantages.dashboard.desc", {
+          defaultValue: "Dedicated portals for each role with tailored tools for optimal management.",
+        }),
+        icon: (
+          <svg className="h-10 w-10 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <rect x="3" y="4" width="7.5" height="7.5" rx="1.5" />
+            <rect x="13.5" y="4" width="7.5" height="5" rx="1.5" />
+            <rect x="13.5" y="11" width="7.5" height="9" rx="1.5" />
+            <rect x="3" y="13.5" width="7.5" height="6.5" rx="1.5" />
+          </svg>
+        ),
+      },
+      {
+        title: t("landing.advantages.cost.title", { defaultValue: "Cost optimization" }),
+        description: t("landing.advantages.cost.desc", {
+          defaultValue: "Automate repetitive tasks and focus your resources on high-value work.",
+        }),
+        icon: (
+          <svg className="h-10 w-10 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 3c-2.355 0-4.5 1.521-4.5 3.75 0 2.106 1.725 3.21 3.75 3.57l1.5.27c2.025.36 3.75 1.464 3.75 3.57 0 2.229-2.145 3.75-4.5 3.75s-4.5-1.521-4.5-3.75"
+            />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v18" />
           </svg>
         ),
       },
@@ -180,10 +277,10 @@ const LandingPage: React.FC = () => {
                   >
                     <FeatureIcon>{feature.icon}</FeatureIcon>
                     <h3 className="mt-6 text-xl font-bold text-slate-800">
-                      {t(feature.titleKey)}
+                      {feature.title}
                     </h3>
                     <p className="mt-2 text-slate-600 text-sm md:text-base">
-                      {t(feature.descKey)}
+                      {feature.description}
                     </p>
                   </div>
                 ))}
@@ -215,10 +312,10 @@ const LandingPage: React.FC = () => {
                   >
                     <div className="mb-4">{advantage.icon}</div>
                     <h3 className="text-xl font-bold text-slate-800 mb-2">
-                      {t(advantage.titleKey)}
+                      {advantage.title}
                     </h3>
                     <p className="text-slate-600 text-sm md:text-base">
-                      {t(advantage.descKey)}
+                      {advantage.description}
                     </p>
                   </div>
                 ))}

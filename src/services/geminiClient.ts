@@ -1,4 +1,4 @@
-import { ChatMessage, Ticket, TicketPriority } from '@/types';
+import { ChatMessage, Ticket } from '@/types';
 import { Locale } from "@/contexts/LanguageContext";
 
 const API_ENDPOINT = "/api/gemini";

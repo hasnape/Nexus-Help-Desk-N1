@@ -123,7 +123,7 @@ const StatCard: React.FC<{ title: string; value: string | number; icon: React.Re
 const priorityColors: Record<TicketPriority, string> = {
   [TicketPriority.LOW]: 'text-green-600',
   [TicketPriority.MEDIUM]: 'text-yellow-600',
-  [TicketPriority.High]: 'text-red-600', // ensure matches enum casing; adjust if needed
+  [TicketPriority.HIGH]: 'text-red-600',
 } as unknown as Record<TicketPriority, string>; // adjust if enum is string-union
 
 interface QuotaState {

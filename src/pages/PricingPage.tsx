@@ -4,7 +4,6 @@ import { Link, useLocation } from "react-router-dom";
 
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useApp } from "@/contexts/AppContext";
-import { getPricingPlans, type PricingPlanKey } from "@/utils/pricing";
 
 const ArrowLeftIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" {...props}>
