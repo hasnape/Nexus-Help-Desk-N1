@@ -5,12 +5,13 @@ import { useApp } from '@/contexts/AppContext';
 import ChatMessageComponent from '../components/ChatMessage';
 import { Button, Textarea, Select, Input } from '../components/FormElements'; // Added Input
 import { TicketStatus, ChatMessage as ChatMessageType, TicketPriority, UserRole, AppointmentDetails } from '@/types';
-import { TICKET_STATUS_KEYS, TICKET_PRIORITY_KEYS } from '../constants';
+import { TICKET_STATUS_KEYS, TICKET_PRIORITY_KEYS } from "constants";
 import LoadingSpinner from '../components/LoadingSpinner';
 import useSpeechRecognition from '../hooks/useSpeechRecognition';
 import useTextToSpeech from '../hooks/useTextToSpeech';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from 'react-i18next';
+
 
 
 

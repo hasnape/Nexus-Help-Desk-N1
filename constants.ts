@@ -29,3 +29,4 @@ export const USER_ROLE_KEYS = UserRole;
 
 export const DEFAULT_AI_LEVEL: 1 | 2 = 1;
 export const DEFAULT_USER_ROLE: UserRole = UserRole.USER;
+
