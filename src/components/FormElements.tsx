@@ -100,16 +100,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             {label}
           </label>
         )}
-        <input
-          ref={ref}
-          id={inputId}
-          className={cn(
-            baseFieldClasses,
-            className,
-            error ? 'border-red-400 focus:border-red-500 focus:ring-red-200' : undefined
-          )}
-          {...props}
-        />
+        <input ref={ref} id={inputId} className={cn(baseFieldClasses, className, error && 'border-red-400 focus:border-red-500 focus:ring-red-200')} {...props} />
         {helperText && <p className="text-xs text-slate-500">{helperText}</p>}
         {error && <p className="text-xs text-red-500">{error}</p>}
       </div>
@@ -132,12 +123,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         <textarea
           ref={ref}
           id={textareaId}
-          className={cn(
-            baseFieldClasses,
-            'min-h-[120px] resize-vertical',
-            className,
-            error ? 'border-red-400 focus:border-red-500 focus:ring-red-200' : undefined
-          )}
+          className={cn(baseFieldClasses, 'min-h-[120px] resize-vertical', className, error && 'border-red-400 focus:border-red-500 focus:ring-red-200')}
           {...props}
         />
         {helperText && <p className="text-xs text-slate-500">{helperText}</p>}
@@ -162,11 +148,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
         <select
           ref={ref}
           id={selectId}
-          className={cn(
-            baseFieldClasses,
-            className,
-            error ? 'border-red-400 focus:border-red-500 focus:ring-red-200' : undefined
-          )}
+          className={cn(baseFieldClasses, className, error && 'border-red-400 focus:border-red-500 focus:ring-red-200')}
           {...props}
         >
           {placeholder && (
