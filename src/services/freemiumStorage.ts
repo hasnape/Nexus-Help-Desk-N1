@@ -271,6 +271,9 @@ const encodeString = (input: string): string => {
   }
 };
 
+const toIsoString = (value: string | Date): string =>
+  value instanceof Date ? value.toISOString() : new Date(value).toISOString();
+
 const serializeTicket = (ticket: Ticket): FreemiumStoredTicket => {
   const serializedChat: SerializedChatMessage[] = ticket.chat_history.map((message) => ({
     ...message,
@@ -288,8 +291,8 @@ const serializeTicket = (ticket: Ticket): FreemiumStoredTicket => {
     id: ticket.id,
     title: ticket.title,
     status: ticket.status,
-    createdAt: ticket.created_at.toISOString(),
-    updatedAt: ticket.updated_at.toISOString(),
+    createdAt: toIsoString(ticket.created_at),
+    updatedAt: toIsoString(ticket.updated_at),
     messages: ticket.chat_history.map((message) => ({
       id: message.id,
       text: message.text,
@@ -299,8 +302,8 @@ const serializeTicket = (ticket: Ticket): FreemiumStoredTicket => {
     })),
     payload: {
       ...ticket,
-      created_at: ticket.created_at.toISOString(),
-      updated_at: ticket.updated_at.toISOString(),
+      created_at: toIsoString(ticket.created_at),
+      updated_at: toIsoString(ticket.updated_at),
       chat_history: serializedChat,
       internal_notes: serializedNotes,
     },

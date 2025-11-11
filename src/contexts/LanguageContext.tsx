@@ -18,16 +18,25 @@ export type TranslationValue =
   | { [key: string]: TranslationValue };
 export type Translations = Record<string, TranslationValue>;
 
-type TranslateOptions = {
+export type TranslateOptionPrimitive = string | number | boolean | null | undefined;
+
+export interface TranslateOptions {
   default?: string;
   defaultValue?: string;
-  values?: Record<string, string | number>;
+  values?: Record<string, TranslateOptionPrimitive>;
+  returnObjects?: boolean;
+  [key: string]: TranslateOptionPrimitive | Record<string, TranslateOptionPrimitive> | boolean | undefined;
+}
+
+type TranslateFunction = {
+  (key: string, options?: TranslateOptions): string;
+  <TResult = TranslationValue>(key: string, options: TranslateOptions & { returnObjects: true }): TResult;
 };
 
 interface LanguageContextType {
   language: Locale;
   setLanguage: (language: Locale) => void;
-  t: (key: string, options?: TranslateOptions) => string;
+  t: TranslateFunction;
   getBCP47Locale: () => string;
   isLoadingLang: boolean;
 }
@@ -138,11 +147,30 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
     });
   }, []);
 
-  const t = useCallback(
-    (key: string, options?: TranslateOptions): string => {
+  const resolveInterpolationValues = (options?: TranslateOptions): Record<string, TranslateOptionPrimitive> | undefined => {
+    if (!options) return undefined;
+    if (options.values && typeof options.values === 'object') {
+      return options.values;
+    }
+
+    const { default: _default, defaultValue, values, returnObjects, ...rest } = options;
+    const derived: Record<string, TranslateOptionPrimitive> = {};
+
+    for (const [key, rawValue] of Object.entries(rest)) {
+      if (rawValue === undefined) continue;
+      if (rawValue === null || typeof rawValue === 'string' || typeof rawValue === 'number' || typeof rawValue === 'boolean') {
+        derived[key] = rawValue;
+      }
+    }
+
+    return Object.keys(derived).length > 0 ? derived : undefined;
+  };
+
+  const translateImpl = useCallback(
+    <TResult = string>(key: string, options?: TranslateOptions): TResult | string => {
       const fallbackValue = options?.default ?? options?.defaultValue;
       if (isLoadingLang || !translations) {
-        return fallbackValue ?? key;
+        return (fallbackValue ?? key) as TResult;
       }
 
       const segments = key.split('.');
@@ -151,27 +179,46 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
         if (node && typeof node === 'object' && !Array.isArray(node) && segment in node) {
           node = (node as Record<string, TranslationValue>)[segment];
         } else {
-          return fallbackValue ?? key;
+          return (fallbackValue ?? key) as TResult;
         }
       }
+
+      const interpolationValues = resolveInterpolationValues(options);
 
       if (typeof node === 'string') {
-        if (options?.values) {
-          return Object.entries(options.values).reduce<string>((acc, [placeholder, value]) => {
-            return acc.replace(new RegExp(`{{\\s*${placeholder}\\s*}}`, 'g'), String(value));
-          }, node);
+        if (interpolationValues) {
+          return Object.entries(interpolationValues).reduce<string>((acc, [placeholder, value]) => {
+            const replacement = value == null ? '' : String(value);
+            return acc.replace(new RegExp(`{{\\s*${placeholder}\\s*}}`, 'g'), replacement);
+          }, node) as TResult;
         }
-        return node;
+        return node as TResult;
       }
 
-      if (node == null) {
-        return fallbackValue ?? key;
+      if (typeof node === 'number' || typeof node === 'boolean') {
+        return String(node) as TResult;
       }
 
-      return typeof node === 'string' ? node : fallbackValue ?? key;
+      if (Array.isArray(node)) {
+        if (options?.returnObjects) {
+          return node as unknown as TResult;
+        }
+        return (fallbackValue ?? key) as TResult;
+      }
+
+      if (node && typeof node === 'object') {
+        if (options?.returnObjects) {
+          return node as unknown as TResult;
+        }
+        return (fallbackValue ?? key) as TResult;
+      }
+
+      return (fallbackValue ?? key) as TResult;
     },
     [translations, isLoadingLang]
   );
+
+  const t = translateImpl as TranslateFunction;
 
   const getBCP47Locale = useCallback((): string => {
     switch (language) {

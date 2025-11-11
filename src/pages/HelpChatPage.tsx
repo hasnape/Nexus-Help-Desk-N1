@@ -1,11 +1,11 @@
 
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import ChatMessageComponent from '../components/ChatMessage';
 import { Button, Textarea } from '../components/FormElements';
-import { ChatMessage, UserRole } from '@/types';
+import { ChatMessage } from '@/types';
 import LoadingSpinner from '../components/LoadingSpinner';
 import useSpeechRecognition from '../hooks/useSpeechRecognition';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -35,7 +35,7 @@ const SpeakerOffIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 
 const HelpChatPage: React.FC = () => {
     const { user, isAutoReadEnabled, toggleAutoRead } = useApp();
-    const { t, language } = useLanguage();
+    const { t } = useLanguage();
     const navigate = useNavigate();
     const location = useLocation();
 

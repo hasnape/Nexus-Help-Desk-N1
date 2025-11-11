@@ -83,12 +83,12 @@ const PayPalButton: React.FC<PayPalButtonProps> = ({ planId }) => {
 
         try {
             window.paypal.Buttons({
-                createSubscription: function(data: any, actions: any) {
+                createSubscription: function(_data: any, actions: any) {
                     return actions.subscription.create({
                         'plan_id': planId
                     });
                 },
-                onApprove: function(data: any, actions: any) {
+                onApprove: function(data: any) {
                     // This function is called when the user successfully approves the subscription in the PayPal popup.
                     // 'data.subscriptionID' is the unique identifier for the subscription.
                     // In a real application, you would send this subscriptionID to your backend server.
