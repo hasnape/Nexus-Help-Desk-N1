@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, ReactNode, useCallback, useEffect } from "react";
+import React, { useState, ReactNode, useCallback, useEffect } from "react";
 import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation, Link } from "react-router-dom";
 import { Ticket, User, ChatMessage, TicketStatus, UserRole, Locale as AppLocale, AppointmentDetails } from "@types";
 import { getFollowUpHelpResponse, getTicketSummary } from "./services/geminiService";
@@ -24,6 +24,7 @@ import PartnersPage from "./pages/PartnersPage";
 import InfographiePage from "./pages/InfographiePage";
 import { DEFAULT_AI_LEVEL, DEFAULT_USER_ROLE, TICKET_STATUS_KEYS } from "./constants";
 import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
+import { AppContext, useApp } from "@/contexts/AppContext";
 import LoadingSpinner from "./components/LoadingSpinner";
 import CookieConsentBanner from "./components/CookieConsentBanner";
 import type { Session } from "@supabase/supabase-js";
@@ -1089,14 +1090,6 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   return <AppProviderContent>{children}</AppProviderContent>;
-};
-
-export const useApp = (): AppContextType => {
-  const context = useContext(AppContext);
-  if (context === undefined) {
-    throw new Error("useApp must be used within an AppProvider");
-  }
-  return context;
 };
 
 interface ProtectedRouteProps {

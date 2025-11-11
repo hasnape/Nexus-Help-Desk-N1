@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useApp } from "../App";
+import { useApp } from "@/contexts/AppContext";
 import PayPalButton from "../components/PayPalButton";
 import { UserRole } from "@/types";
 import { Link, useLocation } from "react-router-dom";
