@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useApp } from "@/contexts/AppContext";
-import TicketCard from "../../components/TicketCard";
-import { Button } from "../../components/FormElements";
+import TicketCard from "@/components/TicketCard";
+import { Button } from "@/components/FormElements";
 import { useLanguage } from "@/contexts/LanguageContext";
-import FloatingActionButton from "../../components/FloatingActionButton";
+import FloatingActionButton from "@/components/FloatingActionButton";
 import { supabase } from "@/services/supabaseClient";
 
 const PlusIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (

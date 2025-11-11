@@ -1,8 +1,8 @@
-import React, { createContext, useState, useContext, ReactNode, useCallback, useEffect } from "react";
+import React, { useState, ReactNode, useCallback, useEffect } from "react";
 import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation, Link } from "react-router-dom";
 import { Ticket, User, ChatMessage, TicketStatus, UserRole, Locale as AppLocale, AppointmentDetails } from "@types";
 import { getFollowUpHelpResponse, getTicketSummary } from "./services/geminiService";
-import { supabase } from "./src/services/supabaseClient";
+import { supabase } from "@/services/supabaseClient";
 import PricingPage from "./pages/PricingPage";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
@@ -24,6 +24,7 @@ import PartnersPage from "./pages/PartnersPage";
 import InfographiePage from "./pages/InfographiePage";
 import { DEFAULT_AI_LEVEL, DEFAULT_USER_ROLE, TICKET_STATUS_KEYS } from "./constants";
 import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
+import { AppContext, useApp } from "@/contexts/AppContext";
 import LoadingSpinner from "./components/LoadingSpinner";
 import CookieConsentBanner from "./components/CookieConsentBanner";
 import type { Session } from "@supabase/supabase-js";
@@ -46,60 +47,6 @@ import {
 import { callEdgeWithFallback } from "./services/functionClient";
 import { mapSignupError } from "./services/signupErrorMapper";
 import PageLayout from './components/PageLayout';
-
-
-interface AppContextType {
-  user: User | null;
-  login: (email: string, password: string, companyName: string) => Promise<string | true>;
-  logout: () => Promise<void>;
-  signUp: (
-    email: string,
-    fullName: string,
-    password: string,
-    options: {
-      lang: AppLocale;
-      role: UserRole;
-      companyName: string;
-      secretCode?: string;
-      plan?: "freemium" | "standard" | "pro";
-    }
-  ) => Promise<string | true>;
-  tickets: Ticket[];
-  addTicket: (
-    ticketData: Omit<Ticket, "id" | "created_at" | "updated_at" | "user_id" | "assigned_agent_id" | "internal_notes" | "current_appointment" | "assigned_ai_level" | "chat_history">,
-    initialChatHistory: ChatMessage[]
-  ) => Promise<Ticket | null>;
-  updateTicketStatus: (ticketId: string, status: TicketStatus) => Promise<void>;
-  addChatMessage: (ticketId: string, userMessageText: string, onAiMessageAdded?: (aiMessage: ChatMessage) => void) => Promise<void>;
-  sendAgentMessage: (ticketId: string, agentMessageText: string) => Promise<void>;
-  isLoading: boolean;
-  isLoadingAi: boolean;
-  getTicketById: (ticketId: string) => Ticket | undefined;
-  isAutoReadEnabled: boolean;
-  toggleAutoRead: () => void;
-  assignTicket: (ticketId: string, agentId: string | null) => Promise<void>;
-  agentTakeTicket: (ticketId: string) => Promise<void>;
-  getAgents: () => User[];
-  getAllUsers: () => User[];
-  proposeOrUpdateAppointment: (
-    ticketId: string,
-    details: Omit<AppointmentDetails, "proposedBy" | "id" | "history">,
-    proposedBy: "agent" | "user",
-    newStatus: AppointmentDetails["status"]
-  ) => Promise<void>;
-  deleteTicket: (ticketId: string) => Promise<void>;
-  updateUserRole: (userIdToUpdate: string, newRole: UserRole) => Promise<boolean>;
-  deleteUserById: (userId: string) => Promise<void>;
-  newlyCreatedCompanyName: string | null;
-  setNewlyCreatedCompanyName: (name: string | null) => void;
-  updateCompanyName: (newName: string) => Promise<boolean>;
-  consentGiven: boolean;
-  giveConsent: () => void;
-  isFreemiumDevice: boolean;
-  isLocalFreemiumSession: boolean;
-}
-
-const AppContext = createContext<AppContextType | undefined>(undefined);
 
 const reviveTicketDates = (data: any): Ticket => ({
   ...data,
@@ -1089,14 +1036,6 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   return <AppProviderContent>{children}</AppProviderContent>;
-};
-
-export const useApp = (): AppContextType => {
-  const context = useContext(AppContext);
-  if (context === undefined) {
-    throw new Error("useApp must be used within an AppProvider");
-  }
-  return context;
 };
 
 interface ProtectedRouteProps {

@@ -80,6 +80,8 @@ export interface AppContextType {
   updateCompanyName: (newName: string) => Promise<boolean>;
   consentGiven: boolean;
   giveConsent: () => void;
+  isFreemiumDevice: boolean;
+  isLocalFreemiumSession: boolean;
   quotaUsagePercent: number | null;
   refreshQuotaUsage: (companyId?: string | null) => Promise<void>;
 }
@@ -93,4 +95,3 @@ export const useApp = (): AppContextType => {
   }
   return context;
 };
-
