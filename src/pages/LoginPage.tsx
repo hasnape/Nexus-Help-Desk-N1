@@ -4,6 +4,10 @@ import { useApp } from "@/contexts/AppContext";
 import { Button, Input } from "@/components/FormElements";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Layout from "@/components/Layout";
+import { callEdgeWithFallback } from "@/services/functionClient";
+import { mapLoginGuardError } from "@/services/loginGuardErrorMapper";
+
+type LocationState = { from?: { pathname: string } } | null;
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -12,13 +16,17 @@ const LoginPage: React.FC = () => {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Dans le navigateur, setTimeout retourne un number.
+  const toastTimeoutRef = useRef<number | null>(null);
+
   const { login, user } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useLanguage();
 
-  const from = (location.state as any)?.from?.pathname || "/";
+  const state = location.state as LocationState;
+  const from = state?.from?.pathname ?? "/";
 
   useEffect(() => {
     if (user) {
@@ -29,19 +37,18 @@ const LoginPage: React.FC = () => {
   useEffect(() => {
     return () => {
       if (toastTimeoutRef.current) {
-        clearTimeout(toastTimeoutRef.current);
-        toastTimeoutRef.current = null;
+        window.clearTimeout(toastTimeoutRef.current);
       }
     };
   }, []);
 
-  const showErrorToast = (message: string) => {
-    setToastMessage(message);
-    setError(message);
-    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
-    toastTimeoutRef.current = setTimeout(() => {
+  const showErrorToast = (msg: string) => {
+    setToastMessage(msg);
+    if (toastTimeoutRef.current) {
+      window.clearTimeout(toastTimeoutRef.current);
+    }
+    toastTimeoutRef.current = window.setTimeout(() => {
       setToastMessage(null);
-      toastTimeoutRef.current = null;
     }, 4000);
   };
 
@@ -54,14 +61,43 @@ const LoginPage: React.FC = () => {
 
     setIsLoading(true);
     setError("");
-    const loginResult = await login(email.trim(), password, companyName.trim());
-    setIsLoading(false);
 
+    const trimmedEmail = email.trim();
+    const trimmedCompany = companyName.trim();
+
+    try {
+      const guardResult = await callEdgeWithFallback("login-guard", {
+        email: trimmedEmail,
+        company: trimmedCompany,
+      });
+
+      if (guardResult.response.status === 403) {
+        const body = await guardResult.response.json().catch(() => ({}));
+        setError(mapLoginGuardError(t, body.reason, body.message));
+        setIsLoading(false);
+        return;
+      }
+
+      if (!guardResult.response.ok) {
+        const body = await guardResult.response.json().catch(() => ({}));
+        setError(mapLoginGuardError(t, body.reason, body.message));
+        setIsLoading(false);
+        return;
+      }
+    } catch (guardError: any) {
+      console.error("login guard error", guardError);
+      setError(mapLoginGuardError(t, undefined, guardError?.message));
+      setIsLoading(false);
+      return;
+    }
+
+    const loginResult = await login(trimmedEmail, password, trimmedCompany);
+
+    setIsLoading(false);
     if (loginResult !== true) {
       showErrorToast(loginResult);
     } else {
       setToastMessage(null);
-      // la redirection se fait déjà dans le useEffect via `user`
     }
   };
 
@@ -77,10 +113,10 @@ const LoginPage: React.FC = () => {
           </div>
         </div>
       )}
-
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-700 p-4">
         <div className="bg-surface p-6 sm:p-8 rounded-xl shadow-2xl w-full max-w-md">
           <div className="text-center mb-6">
+            {/* Logo */}
             <div className="flex justify-center items-center mb-4">
               <img
                 src="https://yt3.ggpht.com/vbfaZncvDLBv7B4Xo9mFggNozPaGAaGMkwciDaL-UtdLClEQmWB5blCibQacHzdrI1RL_5C9_g=s108-c-k-c0x00ffffff-no-rj"
@@ -88,7 +124,7 @@ const LoginPage: React.FC = () => {
                 className="w-16 h-16 rounded-full object-cover mr-3"
                 onError={(e) => {
                   e.currentTarget.style.display = "none";
-                  const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                  const fallback = e.currentTarget.nextElementSibling as HTMLElement | null;
                   if (fallback) fallback.style.display = "block";
                 }}
               />
@@ -108,8 +144,12 @@ const LoginPage: React.FC = () => {
                 />
               </svg>
             </div>
-            <h1 className="text-3xl font-bold text-textPrimary">{t("login.title")}</h1>
-            <p className="text-textSecondary mt-1">{t("login.subtitleSimple")}</p>
+            <h1 className="text-3xl font-bold text-textPrimary">
+              {t("login.title")}
+            </h1>
+            <p className="text-textSecondary mt-1">
+              {t("login.subtitleSimple")}
+            </p>
           </div>
 
           <div className="mb-6 text-sm bg-primary/5 border border-primary/20 text-slate-700 p-4 rounded-lg text-center">
@@ -175,19 +215,27 @@ const LoginPage: React.FC = () => {
 
           <p className="mt-6 text-sm text-center text-slate-500">
             {t("login.noAccount")}{" "}
-            <Link to="/signup" className="font-medium text-primary hover:text-primary-dark">
+            <Link
+              to="/signup"
+              className="font-medium text-primary hover:text-primary-dark"
+            >
               {t("login.signUpLink")}
             </Link>
           </p>
 
+          {/* Back to landing */}
           <div className="mt-6 text-sm text-center text-slate-500 space-y-2">
             <p>
               <Link
                 to="/landing"
                 className="inline-flex items-center font-medium text-slate-600 hover:text-primary-dark"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                     fill="currentColor" className="w-4 h-4 me-1">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  className="w-4 h-4 me-1"
+                >
                   <path
                     fillRule="evenodd"
                     d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z"
@@ -199,12 +247,17 @@ const LoginPage: React.FC = () => {
             </p>
           </div>
 
+          {/* Note démo */}
           <p className="mt-4 text-xs text-center text-slate-400">
             {t("login.demoNotes.supabase.production")}
           </p>
 
+          {/* Footer legal */}
           <div className="mt-6 pt-4 border-t border-slate-200 text-center">
-            <Link to="/legal" className="text-xs text-slate-500 hover:text-primary hover:underline">
+            <Link
+              to="/legal"
+              className="text-xs text-slate-500 hover:text-primary hover:underline"
+            >
               {t("footer.legalLink", { default: "Legal & Documentation" })}
             </Link>
           </div>

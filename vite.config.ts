@@ -6,6 +6,7 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "src"),
       "@types": path.resolve(__dirname, "src/types"),
+      "constants": path.resolve(__dirname, "constants.ts"),
     },
   },
 });

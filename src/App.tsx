@@ -1,33 +1,33 @@
 import React, { createContext, useState, useContext, ReactNode, useCallback, useEffect } from "react";
-import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation, Link } from "react-router-dom";
+import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import { Ticket, User, ChatMessage, TicketStatus, UserRole, Locale as AppLocale, AppointmentDetails } from "@types";
-import { getFollowUpHelpResponse, getTicketSummary } from "./services/geminiService";
-import { supabase } from "./src/services/supabaseClient";
-import PricingPage from "./pages/PricingPage";
-import LoginPage from "./pages/LoginPage";
-import DashboardPage from "./pages/DashboardPage";
-import NewTicketPage from "./pages/NewTicketPage";
-import TicketDetailPage from "./pages/TicketDetailPage";
-import SignUpPage from "./pages/SignUpPage";
-import AgentDashboardPage from "./pages/AgentDashboardPage";
-import ManagerDashboardPage from "./pages/ManagerDashboardPage";
-import HelpChatPage from "./pages/HelpChatPage";
-import LegalPage from "./pages/LegalPage";
-import UserManualPage from "./pages/UserManualPage";
-import PromotionalPage from "./pages/PromotionalPage";
-import LandingPage from "./pages/LandingPage";
-import SubscriptionPage from "./pages/SubscriptionPage";
-import ContactPage from "./pages/ContactPage";
-import AboutPage from "./pages/AboutPage";
-import TestimonialsPage from "./pages/TestimonialsPage";
-import PartnersPage from "./pages/PartnersPage";
-import InfographiePage from "./pages/InfographiePage";
-import { DEFAULT_AI_LEVEL, DEFAULT_USER_ROLE, TICKET_STATUS_KEYS } from "./constants";
+import { getFollowUpHelpResponse, getTicketSummary } from "@/services/geminiService";
+import { supabase } from "@/services/supabaseClient";
+import PricingPage from "@/pages/PricingPage";
+import LoginPage from "@/pages/LoginPage";
+import DashboardPage from "@/pages/DashboardPage";
+import NewTicketPage from "@/pages/NewTicketPage";
+import TicketDetailPage from "@/pages/TicketDetailPage";
+import SignUpPage from "@/pages/SignUpPage";
+import AgentDashboardPage from "@/pages/AgentDashboardPage";
+import ManagerDashboardPage from "@/pages/ManagerDashboardPage";
+import HelpChatPage from "@/pages/HelpChatPage";
+import LegalPage from "@/pages/LegalPage";
+import UserManualPage from "@/pages/UserManualPage";
+import PromotionalPage from "@/pages/PromotionalPage";
+import LandingPage from "@/pages/LandingPage";
+import SubscriptionPage from "@/pages/SubscriptionPage";
+import ContactPage from "@/pages/ContactPage";
+import AboutPage from "@/pages/AboutPage";
+import TestimonialsPage from "@/pages/TestimonialsPage";
+import PartnersPage from "@/pages/PartnersPage";
+import InfographiePage from "@/pages/InfographiePage";
+import { DEFAULT_AI_LEVEL, TICKET_STATUS_KEYS } from "constants.ts";
 import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
-import LoadingSpinner from "./components/LoadingSpinner";
-import CookieConsentBanner from "./components/CookieConsentBanner";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import CookieConsentBanner from "@/components/CookieConsentBanner";
 import type { Session } from "@supabase/supabase-js";
-import { sendWelcomeManagerEmail, generateLoginUrl, formatRegistrationDate } from "./services/emailService";
+import { sendWelcomeManagerEmail, generateLoginUrl, formatRegistrationDate } from "@/services/emailService";
 import {
   isFreemiumCompanyOnDevice,
   loadFreemiumTickets,
@@ -42,11 +42,10 @@ import {
   findFreemiumAccountById,
   getFreemiumSessionMeta,
   clearFreemiumSessionMeta,
-} from "./services/freemiumStorage";
-import { callEdgeWithFallback } from "./services/functionClient";
-import { mapSignupError } from "./services/signupErrorMapper";
-import PageLayout from './components/PageLayout';
-
+} from "@/services/freemiumStorage";
+import { callEdgeWithFallback } from "@/services/functionClient";
+import { mapSignupError } from "@/services/signupErrorMapper";
+import PageLayout from "./components/PageLayout";
 
 interface AppContextType {
   user: User | null;
@@ -66,7 +65,18 @@ interface AppContextType {
   ) => Promise<string | true>;
   tickets: Ticket[];
   addTicket: (
-    ticketData: Omit<Ticket, "id" | "created_at" | "updated_at" | "user_id" | "assigned_agent_id" | "internal_notes" | "current_appointment" | "assigned_ai_level" | "chat_history">,
+    ticketData: Omit<
+      Ticket,
+      | "id"
+      | "created_at"
+      | "updated_at"
+      | "user_id"
+      | "assigned_agent_id"
+      | "internal_notes"
+      | "current_appointment"
+      | "assigned_ai_level"
+      | "chat_history"
+    >,
     initialChatHistory: ChatMessage[]
   ) => Promise<Ticket | null>;
   updateTicketStatus: (ticketId: string, status: TicketStatus) => Promise<void>;
@@ -112,13 +122,7 @@ const reviveTicketDates = (data: any): Ticket => ({
 
 const isOfflineNetworkError = (error: any): boolean => {
   if (!error) return false;
-  const message =
-    typeof error === "string"
-      ? error
-      : typeof error?.message === "string"
-      ? error.message
-      : "";
-
+  const message = typeof error === "string" ? error : typeof error?.message === "string" ? error.message : "";
   const lower = message.toLowerCase();
   return (
     lower.includes("failed to fetch") ||
@@ -128,11 +132,9 @@ const isOfflineNetworkError = (error: any): boolean => {
   );
 };
 
-const isOnlineRequiredService = (fnName: string) =>
-  fnName === "getFollowUpHelpResponse" || fnName === "getTicketSummary";
+const isOnlineRequiredService = (fnName: string) => fnName === "getFollowUpHelpResponse" || fnName === "getTicketSummary";
 
-const isAbortError = (e: any) =>
-  !!e && ((e.name === "AbortError") || String(e).includes("AbortError"));
+const isAbortError = (e: any) => !!e && (e.name === "AbortError" || String(e).includes("AbortError"));
 
 const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [allUsers, setAllUsers] = useState<User[]>([]);
@@ -151,6 +153,17 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const { language, setLanguage: setAppLanguage, t: translateHook } = useLanguage();
 
+  const safeRecordSession = useCallback(
+    (u?: User | null) => {
+      if (!u) return;
+      const companyKey = (u as any).company_name ?? (u.company_id ?? undefined);
+      if (companyKey && typeof companyKey === "string") {
+        recordFreemiumSession(u.id, u.email, companyKey);
+      }
+    },
+    []
+  );
+
   const shouldShortCircuitNetwork = useCallback(
     (serviceName: string) => isLocalFreemiumSession && !isOnlineRequiredService(serviceName),
     [isLocalFreemiumSession]
@@ -162,14 +175,12 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         const updatedTickets = updater(prevTickets);
         if (isFreemiumDevice || forceLocalSync) {
           saveFreemiumTickets(updatedTickets);
-          if (user) {
-            recordFreemiumSession(user.id, user.email, user.company_id);
-          }
+          safeRecordSession(user);
         }
         return updatedTickets;
       });
     },
-    [isFreemiumDevice, user]
+    [isFreemiumDevice, safeRecordSession, user]
   );
 
   const setTicketsDirect = useCallback(
@@ -177,27 +188,20 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       setTickets(nextTickets);
       if (isFreemiumDevice || forceLocalSync) {
         saveFreemiumTickets(nextTickets);
-        if (user) {
-          recordFreemiumSession(user.id, user.email, user.company_id);
-        }
+        safeRecordSession(user);
       }
     },
-    [isFreemiumDevice, user]
+    [isFreemiumDevice, safeRecordSession, user]
   );
 
   const hydrateLocalFreemiumSession = useCallback(() => {
     const sessionMeta = getFreemiumSessionMeta();
-    if (!sessionMeta) {
-      return false;
-    }
+    if (!sessionMeta) return false;
 
     const account =
-      (sessionMeta.userId && findFreemiumAccountById(sessionMeta.userId)) ||
-      findFreemiumAccountByEmail(sessionMeta.email);
+      (sessionMeta.userId && findFreemiumAccountById(sessionMeta.userId)) || findFreemiumAccountByEmail(sessionMeta.email);
 
-    if (!account) {
-      return false;
-    }
+    if (!account) return false;
 
     const localUser = convertFreemiumAccountToUser(account);
     setUser(localUser);
@@ -208,10 +212,10 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     const localTickets = loadFreemiumTickets();
     const normalizedTickets = localTickets ?? [];
     setTicketsDirect(normalizedTickets, true);
-    recordFreemiumSession(localUser.id, localUser.email, localUser.company_id);
+    safeRecordSession(localUser);
 
     return true;
-  }, [setTicketsDirect]);
+  }, [setTicketsDirect, safeRecordSession]);
 
   useEffect(() => {
     const storedConsent = localStorage.getItem("cookieConsent");
@@ -234,14 +238,18 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
           if (profileError || !userProfile) {
             throw profileError || new Error("User profile not found");
           }
-          setUser(userProfile);
+
+          setUser(userProfile as any);
 
           const storedFreemiumCompany = getStoredFreemiumCompany();
-          let freemiumOnDevice = isFreemiumCompanyOnDevice(userProfile.company_id);
-          if (!storedFreemiumCompany && userProfile.role !== UserRole.MANAGER && userProfile.company_id) {
-            setStoredFreemiumCompany(userProfile.company_id);
+          const companyKey = (userProfile as any).company_name ?? userProfile.company_id ?? "";
+          let freemiumOnDevice = isFreemiumCompanyOnDevice(companyKey);
+
+          if (!storedFreemiumCompany && userProfile.role !== UserRole.MANAGER && companyKey) {
+            setStoredFreemiumCompany(companyKey);
             freemiumOnDevice = true;
           }
+
           setIsFreemiumDevice(freemiumOnDevice);
 
           const [usersResponse, ticketsResponse] = await Promise.all([
@@ -249,7 +257,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
             supabase.from("tickets").select("*"),
           ]);
 
-          setAllUsers(usersResponse.data || []);
+          setAllUsers((usersResponse.data as any) || []);
 
           const fetchedTickets = ticketsResponse.data ? ticketsResponse.data.map(reviveTicketDates) : [];
 
@@ -257,16 +265,16 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
             const localTickets = loadFreemiumTickets();
             const initialTickets = localTickets && localTickets.length > 0 ? localTickets : fetchedTickets;
             setTicketsDirect(initialTickets, true);
-            recordFreemiumSession(userProfile.id, userProfile.email, userProfile.company_id);
+            safeRecordSession(userProfile as any);
           } else {
             setTicketsDirect(fetchedTickets);
           }
+
           setIsLocalFreemiumSession(false);
         } else {
           const restored = hydrateLocalFreemiumSession();
-          if (restored) {
-            return;
-          }
+          if (restored) return;
+
           setIsLocalFreemiumSession(false);
           setUser(null);
           setTicketsDirect([]);
@@ -275,13 +283,12 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         }
       } catch (error: any) {
         console.error("Error loading user data:", error);
-        if (error.message.includes("Invalid Refresh Token")) {
+        if (error?.message?.includes("Invalid Refresh Token")) {
           await supabase.auth.signOut();
         }
         const restored = hydrateLocalFreemiumSession();
-        if (restored) {
-          return;
-        }
+        if (restored) return;
+
         setIsLocalFreemiumSession(false);
         setUser(null);
         setTicketsDirect([]);
@@ -291,7 +298,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         setIsLoading(false);
       }
     },
-    [setTicketsDirect, hydrateLocalFreemiumSession]
+    [setTicketsDirect, hydrateLocalFreemiumSession, safeRecordSession]
   );
 
   useEffect(() => {
@@ -306,9 +313,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     supabase.auth
       .getSession()
       .then(({ data: { session }, error }) => {
-        if (!isMounted) {
-          return;
-        }
+        if (!isMounted) return;
         if (error) {
           console.error("Error fetching session:", error);
           loadUserData(null);
@@ -317,9 +322,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         loadUserData(session);
       })
       .catch((error) => {
-        if (!isMounted || isAbortError(error)) {
-          return;
-        }
+        if (!isMounted || isAbortError(error)) return;
         console.error("Unexpected session fetch error:", error);
         loadUserData(null);
       });
@@ -327,9 +330,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      if (!isMounted) {
-        return;
-      }
+      if (!isMounted) return;
       if (event === "TOKEN_REFRESHED" && !session) {
         loadUserData(null);
       } else if (session?.user?.id !== user?.id) {
@@ -344,8 +345,8 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
   }, [hydrateLocalFreemiumSession, loadUserData, user?.id]);
 
   useEffect(() => {
-    if (user?.language_preference && user.language_preference !== language) {
-      setAppLanguage(user.language_preference);
+    if (user && (user as any).language_preference && (user as any).language_preference !== language) {
+      setAppLanguage((user as any).language_preference);
     }
   }, [user, language, setAppLanguage]);
 
@@ -353,9 +354,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     localStorage.setItem("aiHelpDeskAutoRead", JSON.stringify(isAutoReadEnabled));
   }, [isAutoReadEnabled]);
 
-  const toggleAutoRead = () => {
-    setIsAutoReadEnabled((prev) => !prev);
-  };
+  const toggleAutoRead = () => setIsAutoReadEnabled((prev) => !prev);
 
   const giveConsent = () => {
     localStorage.setItem("cookieConsent", "true");
@@ -369,15 +368,15 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
 
       const localUser = convertFreemiumAccountToUser(account);
-      setUser(localUser);
-      setAllUsers([localUser]);
+      setUser(localUser as any);
+      setAllUsers([localUser as any]);
       setIsFreemiumDevice(true);
       setIsLocalFreemiumSession(true);
 
       const localTickets = loadFreemiumTickets();
       const normalizedTickets = localTickets ?? [];
       setTicketsDirect(normalizedTickets, true);
-      recordFreemiumSession(localUser.id, localUser.email, localUser.company_id);
+      safeRecordSession(localUser as any);
 
       return true;
     };
@@ -405,7 +404,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       if (authData.user) {
         const { data: userProfile, error: profileError } = await supabase
           .from("users")
-          .select("company_id")
+          .select("company_name")
           .eq("id", authData.user.id)
           .single();
 
@@ -415,7 +414,8 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
           return translateHook("login.error.profileFetchFailed");
         }
 
-        if (userProfile.company_id !== companyName) {
+        const normalize = (s: string) => s.trim().toLowerCase();
+        if (!userProfile.company_name || normalize(userProfile.company_name) !== normalize(companyName)) {
           await supabase.auth.signOut();
           return translateHook("login.error.companyIdMismatch");
         }
@@ -480,7 +480,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
             managerName: fullName,
             managerEmail: email,
             companyName,
-            secretCode: "Freemium (aucun code requis)", // Informationnel uniquement
+            secretCode: "Freemium (aucun code requis)",
             registrationDate: formatRegistrationDate(new Date()),
             loginUrl: generateLoginUrl(),
           };
@@ -536,16 +536,10 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
 
         setNewlyCreatedCompanyName(companyName);
         return true;
-        } catch (error) {
-          console.error("auth-signup manager error", error);
-          return mapSignupError(
-            translateHook,
-            undefined,
-            (error as Error)?.message,
-            { companyName }
-          );
-        }
-
+      } catch (error) {
+        console.error("auth-signup manager error", error);
+        return mapSignupError(translateHook, undefined, (error as Error)?.message, { companyName });
+      }
     } else {
       try {
         const { response } = await callEdgeWithFallback("auth-signup", {
@@ -562,19 +556,13 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
             companyName,
           });
         }
-
         return true;
-        } catch (error) {
-          console.error("auth-signup user error", error);
-          return mapSignupError(
-            translateHook,
-            undefined,
-            (error as Error)?.message,
-            { companyName }
-          );
-        }
+      } catch (error) {
+        console.error("auth-signup user error", error);
+        return mapSignupError(translateHook, undefined, (error as Error)?.message, { companyName });
       }
-    };
+    }
+  };
 
   const logout = async () => {
     try {
@@ -618,9 +606,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       updateTicketsState(
         (prev) => {
           const ticketsAfterUserRemoval = prev.filter((t) => t.user_id !== userId);
-          return ticketsAfterUserRemoval.map((t) =>
-            t.assigned_agent_id === userId ? { ...t, assigned_agent_id: undefined } : t
-          );
+          return ticketsAfterUserRemoval.map((t) => (t.assigned_agent_id === userId ? { ...t, assigned_agent_id: undefined } : t));
         },
         true
       );
@@ -635,7 +621,9 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         setAllUsers((prev) => prev.filter((u) => u.id !== userId));
         updateTicketsState((prev) => {
           const ticketsAfterUserRemoval = prev.filter((t) => t.user_id !== userId);
-          return ticketsAfterUserRemoval.map((t) => (t.assigned_agent_id === userId ? { ...t, assigned_agent_id: undefined } : t));
+          return ticketsAfterUserRemoval.map((t) =>
+            t.assigned_agent_id === userId ? { ...t, assigned_agent_id: undefined } : t
+          );
         });
       }
     } catch (e: any) {
@@ -645,7 +633,18 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const addTicket = async (
-    ticketData: Omit<Ticket, "id" | "created_at" | "updated_at" | "user_id" | "assigned_agent_id" | "internal_notes" | "current_appointment" | "assigned_ai_level" | "chat_history">,
+    ticketData: Omit<
+      Ticket,
+      | "id"
+      | "created_at"
+      | "updated_at"
+      | "user_id"
+      | "assigned_agent_id"
+      | "internal_notes"
+      | "current_appointment"
+      | "assigned_ai_level"
+      | "chat_history"
+    >,
     initialChatHistory: ChatMessage[]
   ): Promise<Ticket | null> => {
     if (!user) return null;
@@ -671,7 +670,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
           current_appointment: undefined,
           created_at: now,
           updated_at: now,
-        };
+        } as Ticket;
         updateTicketsState((prevTickets) => [...prevTickets, createdTicket], true);
         return createdTicket;
       }
@@ -704,10 +703,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     if (shouldShortCircuitNetwork("supabase.tickets.update")) {
       const updatedAtDate = new Date();
       updateTicketsState(
-        (prev) =>
-          prev.map((t) =>
-            t.id === ticketId ? { ...t, status, updated_at: updatedAtDate } : t
-          ),
+        (prev) => prev.map((t) => (t.id === ticketId ? { ...t, status, updated_at: updatedAtDate } : t)),
         true
       );
       return;
@@ -715,8 +711,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     const updated_at = new Date().toISOString();
     const { data, error } = await supabase.from("tickets").update({ status, updated_at }).eq("id", ticketId).select().single();
     if (error) console.error("Error updating ticket status:", error);
-    else
-      updateTicketsState((prev) => prev.map((t) => (t.id === ticketId ? reviveTicketDates(data) : t)));
+    else updateTicketsState((prev) => prev.map((t) => (t.id === ticketId ? reviveTicketDates(data) : t)));
   };
 
   const deleteTicket = async (ticketId: string): Promise<void> => {
@@ -742,6 +737,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     const ticketToUpdate = tickets.find((t) => t.id === ticketId);
     if (!ticketToUpdate || user?.role !== "manager") return;
     let summaryMessage: ChatMessage | null = null;
+
     if (agentId && (!ticketToUpdate.assigned_agent_id || ticketToUpdate.assigned_agent_id !== agentId)) {
       setIsLoadingAi(true);
       try {
@@ -759,7 +755,9 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         setIsLoadingAi(false);
       }
     }
+
     const updatedChatHistory = summaryMessage ? [...ticketToUpdate.chat_history, summaryMessage] : ticketToUpdate.chat_history;
+
     if (shouldShortCircuitNetwork("supabase.tickets.update")) {
       const updatedAtDate = new Date();
       updateTicketsState(
@@ -778,15 +776,16 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       );
       return;
     }
+
     const { data, error } = await supabase
       .from("tickets")
       .update({ assigned_agent_id: agentId || null, updated_at: new Date().toISOString(), chat_history: updatedChatHistory })
       .eq("id", ticketId)
       .select()
       .single();
+
     if (error) console.error("Error assigning ticket:", error);
-    else
-      updateTicketsState((prev) => prev.map((t) => (t.id === ticketId ? reviveTicketDates(data) : t)));
+    else updateTicketsState((prev) => prev.map((t) => (t.id === ticketId ? reviveTicketDates(data) : t)));
   };
 
   const agentTakeTicket = async (ticketId: string): Promise<void> => {
@@ -794,12 +793,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     if (shouldShortCircuitNetwork("supabase.tickets.update")) {
       const updatedAtDate = new Date();
       updateTicketsState(
-        (prev) =>
-          prev.map((t) =>
-            t.id === ticketId
-              ? { ...t, assigned_agent_id: user.id, updated_at: updatedAtDate }
-              : t
-          ),
+        (prev) => prev.map((t) => (t.id === ticketId ? { ...t, assigned_agent_id: user.id, updated_at: updatedAtDate } : t)),
         true
       );
       return;
@@ -824,6 +818,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     if (!user || (user.role !== UserRole.AGENT && user.role !== UserRole.MANAGER)) return;
     const ticket = tickets.find((t) => t.id === ticketId);
     if (!ticket) return;
+
     const agentMessage: ChatMessage = {
       id: crypto.randomUUID(),
       sender: "agent",
@@ -831,11 +826,13 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       timestamp: new Date(),
       agentId: user.id,
     };
+
     const updated_chat_history = [...ticket.chat_history, agentMessage];
     const newStatus =
       ticket.status === TICKET_STATUS_KEYS.OPEN || ticket.status === TICKET_STATUS_KEYS.RESOLVED
         ? TICKET_STATUS_KEYS.IN_PROGRESS
         : ticket.status;
+
     if (shouldShortCircuitNetwork("supabase.tickets.update")) {
       const updatedAtDate = new Date();
       updateTicketsState(
@@ -854,37 +851,44 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       );
       return;
     }
+
     const { data, error } = await supabase
       .from("tickets")
       .update({ chat_history: updated_chat_history, status: newStatus, updated_at: new Date().toISOString() })
       .eq("id", ticketId)
       .select()
       .single();
+
     if (error) console.error("Error sending agent message:", error);
-    else
-      updateTicketsState((prev) => prev.map((t) => (t.id === ticketId ? reviveTicketDates(data) : t)));
+    else updateTicketsState((prev) => prev.map((t) => (t.id === ticketId ? reviveTicketDates(data) : t)));
   };
 
-  const addChatMessage = async (ticketId: string, userMessageText: string, onAiMessageAdded?: (aiMessage: ChatMessage) => void) => {
+  const addChatMessage = async (
+    ticketId: string,
+    userMessageText: string,
+    onAiMessageAdded?: (aiMessage: ChatMessage) => void
+  ) => {
     if (!user) return;
     const ticket = tickets.find((t) => t.id === ticketId);
     if (!ticket) return;
+
     const timestamp = new Date();
     const userMessage: ChatMessage = { id: crypto.randomUUID(), sender: "user", text: userMessageText, timestamp };
     const newStatus =
       ticket.status === TICKET_STATUS_KEYS.RESOLVED || ticket.status === TICKET_STATUS_KEYS.CLOSED
         ? TICKET_STATUS_KEYS.IN_PROGRESS
         : ticket.status;
+
     const tempUpdatedChatHistory = [...ticket.chat_history, userMessage];
+
     updateTicketsState(
       (prev) =>
         prev.map((t) =>
-          t.id === ticketId
-            ? { ...t, chat_history: tempUpdatedChatHistory, status: newStatus, updated_at: timestamp }
-            : t
+          t.id === ticketId ? { ...t, chat_history: tempUpdatedChatHistory, status: newStatus, updated_at: timestamp } : t
         ),
       isLocalFreemiumSession
     );
+
     if (ticket.assigned_agent_id) {
       if (shouldShortCircuitNetwork("supabase.tickets.update")) {
         return;
@@ -895,17 +899,24 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         .eq("id", ticketId);
       return;
     }
+
     setIsLoadingAi(true);
     let finalChatHistory = tempUpdatedChatHistory;
+
     try {
       const aiResponse = await getFollowUpHelpResponse(
         ticket.title,
         ticket.category,
         tempUpdatedChatHistory,
         ticket.assigned_ai_level,
-        user.language_preference
+        (user as any).language_preference
       );
-      const aiResponseMessage: ChatMessage = { id: crypto.randomUUID(), sender: "ai", text: aiResponse.text, timestamp: new Date() };
+      const aiResponseMessage: ChatMessage = {
+        id: crypto.randomUUID(),
+        sender: "ai",
+        text: aiResponse.text,
+        timestamp: new Date(),
+      };
       finalChatHistory = [...tempUpdatedChatHistory, aiResponseMessage];
       if (onAiMessageAdded) onAiMessageAdded(aiResponseMessage);
     } catch (error: any) {
@@ -922,24 +933,24 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         updateTicketsState(
           (prev) =>
             prev.map((t) =>
-              t.id === ticketId
-                ? { ...t, chat_history: finalChatHistory, status: newStatus, updated_at: new Date() }
-                : t
+              t.id === ticketId ? { ...t, chat_history: finalChatHistory, status: newStatus, updated_at: new Date() } : t
             ),
           true
         );
         setIsLoadingAi(false);
         return;
       }
+
       const { data, error } = await supabase
         .from("tickets")
         .update({ chat_history: finalChatHistory, status: newStatus, updated_at: new Date().toISOString() })
         .eq("id", ticketId)
         .select()
         .single();
+
       if (error) console.error("Error saving AI response:", error);
-      else
-        updateTicketsState((prev) => prev.map((t) => (t.id === ticketId ? reviveTicketDates(data) : t)));
+      else updateTicketsState((prev) => prev.map((t) => (t.id === ticketId ? reviveTicketDates(data) : t)));
+
       setIsLoadingAi(false);
     }
   };
@@ -953,22 +964,26 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     if (!user) return;
     const ticket = tickets.find((t) => t.id === ticketId);
     if (!ticket) return;
+
     const newAppointment: AppointmentDetails = {
       ...details,
       id: crypto.randomUUID(),
       proposedBy,
       status: newStatus,
-      history: ticket.current_appointment ? [...(ticket.current_appointment.history || []), ticket.current_appointment] : [],
-    };
+      history: ticket.current_appointment ? [...(ticket.current_appointment as any)?.history || [], ticket.current_appointment] : [],
+    } as any;
+
     let chatMessageText = "";
     const { proposedDate, proposedTime, locationOrMethod } = details;
     const apptDateStr = new Date(proposedDate).toLocaleDateString(language, { weekday: "long", month: "long", day: "numeric" });
+
     if (newStatus === "pending_user_approval")
       chatMessageText = translateHook("appointment.chat.agentProposed", { date: apptDateStr, time: proposedTime, location: locationOrMethod });
     else if (newStatus === "confirmed")
       chatMessageText = translateHook("appointment.chat.userConfirmed", { date: apptDateStr, time: proposedTime, location: locationOrMethod });
     else if (newStatus === "rescheduled_by_user")
       chatMessageText = translateHook("appointment.chat.userWantsToReschedule", { date: apptDateStr, time: proposedTime, location: locationOrMethod });
+
     const systemMessage: ChatMessage = {
       id: crypto.randomUUID(),
       sender: proposedBy === "agent" ? "agent" : "user",
@@ -976,7 +991,9 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       text: chatMessageText,
       timestamp: new Date(),
     };
+
     const updatedChatHistory = chatMessageText ? [...ticket.chat_history, systemMessage] : ticket.chat_history;
+
     if (shouldShortCircuitNetwork("supabase.tickets.update")) {
       const updatedAtDate = new Date();
       updateTicketsState(
@@ -985,7 +1002,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
             t.id === ticketId
               ? {
                   ...t,
-                  current_appointment: newAppointment,
+                  current_appointment: newAppointment as any,
                   chat_history: updatedChatHistory,
                   updated_at: updatedAtDate,
                 }
@@ -995,56 +1012,66 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       );
       return;
     }
+
     const { data, error } = await supabase
       .from("tickets")
-      .update({ current_appointment: newAppointment, chat_history: updatedChatHistory, updated_at: new Date().toISOString() })
+      .update({
+        current_appointment: newAppointment as any,
+        chat_history: updatedChatHistory,
+        updated_at: new Date().toISOString(),
+      })
       .eq("id", ticketId)
       .select()
       .single();
+
     if (error) console.error("Error proposing appointment:", error);
-    else
-      updateTicketsState((prev) => prev.map((t) => (t.id === ticketId ? reviveTicketDates(data) : t)));
+    else updateTicketsState((prev) => prev.map((t) => (t.id === ticketId ? reviveTicketDates(data) : t)));
   };
 
   const getTicketById = useCallback((ticketId: string) => tickets.find((t) => t.id === ticketId), [tickets]);
 
   const updateCompanyName = async (newName: string): Promise<boolean> => {
     if (!user || user.role !== UserRole.MANAGER || !user.company_id) return false;
+
     if (shouldShortCircuitNetwork("supabase.companies.update")) {
-      setUser((prevUser) => (prevUser ? { ...prevUser, company_id: newName } : null));
-      setAllUsers((prevUsers) => prevUsers.map((u) => (u.id === user.id ? { ...u, company_id: newName } : u)));
+      setUser((prev) => (prev ? { ...prev, company_name: newName } as any : null));
+      setAllUsers((prev) => prev.map((u) => (u.company_id === user.company_id ? ({ ...u, company_name: newName } as any) : u)));
       setStoredFreemiumCompany(newName);
-      recordFreemiumSession(user.id, user.email, newName);
+      safeRecordSession({ ...(user as any), company_name: newName } as any);
       return true;
     }
-    const oldName = user.company_id;
-    const { data: companyResults, error: findError } = await supabase.from("companies").select("id").eq("name", oldName).limit(1);
-    if (findError) {
-      console.error("Error finding company to update:", findError);
-      alert(translateHook("managerDashboard.companyInfo.updateError", { default: "Could not find the company to update." }));
-      return false;
-    }
-    if (!companyResults || companyResults.length === 0) {
-      console.error("Data integrity error: company not found with name", oldName);
-      alert(translateHook("managerDashboard.companyInfo.updateError", { default: "Could not find the company to update." }));
-      return false;
-    }
-    const companyData = companyResults[0];
-    const { error: updateCompanyError } = await supabase.from("companies").update({ name: newName }).eq("id", companyData.id);
+
+    // Online: update companies.name via UUID, then denormalize users.company_name
+    const { error: updateCompanyError } = await supabase.from("companies").update({ name: newName }).eq("id", user.company_id);
     if (updateCompanyError) {
       console.error("Error updating company name:", updateCompanyError);
-      alert(translateHook("managerDashboard.companyInfo.updateError", { default: "Failed to update company name. The new name might be taken." }));
+      alert(
+        translateHook("managerDashboard.companyInfo.updateError", {
+          default: "Failed to update company name. The new name might be taken.",
+        })
+      );
       return false;
     }
-    const { error: updateUserError } = await supabase.from("users").update({ company_id: newName }).eq("company_id", oldName);
-    if (updateUserError) {
-      console.error("CRITICAL: Failed to update users' company_id. Data is now inconsistent.", updateUserError);
-      await supabase.from("companies").update({ name: oldName }).eq("id", companyData.id);
-      alert(translateHook("managerDashboard.companyInfo.updateError", { default: "Failed to update company name for all users. The change has been rolled back." }));
+
+    const { error: updateUsersError } = await supabase
+      .from("users")
+      .update({ company_name: newName })
+      .eq("company_id", user.company_id);
+
+    if (updateUsersError) {
+      console.error("CRITICAL: Failed to update users' company_name.", updateUsersError);
+      alert(
+        translateHook("managerDashboard.companyInfo.updateError", {
+          default: "Failed to update company name for all users.",
+        })
+      );
       return false;
     }
-    setUser((prevUser) => (prevUser ? { ...prevUser, company_id: newName } : null));
-    setAllUsers((prevUsers) => prevUsers.map((u) => (u.company_id === oldName ? { ...u, company_id: newName } : u)));
+
+    setUser((prev) => (prev ? ({ ...prev, company_name: newName } as any) : null));
+    setAllUsers((prev) => prev.map((u) => (u.company_id === user.company_id ? ({ ...u, company_name: newName } as any) : u)));
+    setStoredFreemiumCompany(newName);
+
     return true;
   };
 
@@ -1127,7 +1154,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles 
 const MainAppContent: React.FC = () => {
   const { user, isLoading, consentGiven, giveConsent } = useApp();
   const { isLoadingLang, t } = useLanguage();
-  const location = useLocation(); // Moved to top level
+  const location = useLocation();
 
   const noLayoutPages = ["/login", "/signup", "/landing"];
   const specialLayoutPages = ["/legal", "/manual", "/presentation", "/contact", "/about", "/testimonials", "/partners", "/infographie"];
@@ -1141,103 +1168,102 @@ const MainAppContent: React.FC = () => {
   }
 
   const renderRoutes = () => (
-  <Routes>
-    <Route path="/landing" element={<LandingPage />} />
-    <Route path="/login" element={<LoginPage />} />
-    <Route path="/signup" element={<SignUpPage />} />
-    <Route path="/legal" element={<LegalPage />} />
-    <Route path="/manual" element={<UserManualPage />} />
-    <Route path="/presentation" element={<PromotionalPage />} />
-    <Route path="/contact" element={<ContactPage />} />
-    <Route path="/about" element={<AboutPage />} />
-    <Route path="/testimonials" element={<TestimonialsPage />} />
-    <Route path="/partners" element={<PartnersPage />} />
-    <Route path="/infographie" element={<InfographiePage />} />
+    <Routes>
+      <Route path="/landing" element={<LandingPage />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/signup" element={<SignUpPage />} />
+      <Route path="/legal" element={<LegalPage />} />
+      <Route path="/manual" element={<UserManualPage />} />
+      <Route path="/presentation" element={<PromotionalPage />} />
+      <Route path="/contact" element={<ContactPage />} />
+      <Route path="/about" element={<AboutPage />} />
+      <Route path="/testimonials" element={<TestimonialsPage />} />
+      <Route path="/partners" element={<PartnersPage />} />
+      <Route path="/infographie" element={<InfographiePage />} />
 
-    {/* PricingPage */}
-    <Route path="/pricing" element={<PricingPage />} />
+      {/* PricingPage */}
+      <Route path="/pricing" element={<PricingPage />} />
 
-    <Route path="/subscribe" element={<ProtectedRoute><SubscriptionPage /></ProtectedRoute>} />
+      <Route path="/subscribe" element={<ProtectedRoute><SubscriptionPage /></ProtectedRoute>} />
 
-    <Route
-      path="/dashboard"
-      element={
-        <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
-          {user?.role === UserRole.AGENT ? (
-            <Navigate to="/agent/dashboard" replace />
-          ) : user?.role === UserRole.MANAGER ? (
-            <Navigate to="/manager/dashboard" replace />
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
+            {user?.role === UserRole.AGENT ? (
+              <Navigate to="/agent/dashboard" replace />
+            ) : user?.role === UserRole.MANAGER ? (
+              <Navigate to="/manager/dashboard" replace />
+            ) : (
+              <DashboardPage />
+            )}
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/help"
+        element={
+          <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
+            <HelpChatPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/ticket/new"
+        element={
+          <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
+            <NewTicketPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/ticket/:ticketId"
+        element={
+          <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
+            <TicketDetailPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/agent/dashboard"
+        element={
+          <ProtectedRoute allowedRoles={[UserRole.AGENT, UserRole.MANAGER]}>
+            <AgentDashboardPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/manager/dashboard"
+        element={
+          <ProtectedRoute allowedRoles={[UserRole.MANAGER]}>
+            <ManagerDashboardPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/"
+        element={
+          user ? (
+            user.role === UserRole.AGENT ? (
+              <Navigate to="/agent/dashboard" replace />
+            ) : user.role === UserRole.MANAGER ? (
+              <Navigate to="/manager/dashboard" replace />
+            ) : (
+              <Navigate to="/dashboard" replace />
+            )
           ) : (
-            <DashboardPage />
-          )}
-        </ProtectedRoute>
-      }
-    />
-
-    <Route
-      path="/help"
-      element={
-        <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
-          <HelpChatPage />
-        </ProtectedRoute>
-      }
-    />
-
-    <Route
-      path="/ticket/new"
-      element={
-        <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
-          <NewTicketPage />
-        </ProtectedRoute>
-      }
-    />
-
-    <Route
-      path="/ticket/:ticketId"
-      element={
-        <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
-          <TicketDetailPage />
-        </ProtectedRoute>
-      }
-    />
-
-    <Route
-      path="/agent/dashboard"
-      element={
-        <ProtectedRoute allowedRoles={[UserRole.AGENT, UserRole.MANAGER]}>
-          <AgentDashboardPage />
-        </ProtectedRoute>
-      }
-    />
-
-    <Route
-      path="/manager/dashboard"
-      element={
-        <ProtectedRoute allowedRoles={[UserRole.MANAGER]}>
-          <ManagerDashboardPage />
-        </ProtectedRoute>
-      }
-    />
-
-    <Route
-      path="/"
-      element={
-        user ? (
-          user.role === UserRole.AGENT ? (
-            <Navigate to="/agent/dashboard" replace />
-          ) : user.role === UserRole.MANAGER ? (
-            <Navigate to="/manager/dashboard" replace />
-          ) : (
-            <Navigate to="/dashboard" replace />
+            <Navigate to="/landing" replace />
           )
-        ) : (
-          <Navigate to="/landing" replace />
-        )
-      }
-    />
-  </Routes>
-);
-
+        }
+      />
+    </Routes>
+  );
 
   if (noLayoutPages.includes(location.pathname)) {
     return (
@@ -1253,12 +1279,11 @@ const MainAppContent: React.FC = () => {
   }
 
   return (
-  <PageLayout>
-    {renderRoutes()}
-    {!consentGiven && <CookieConsentBanner onAccept={giveConsent} />}
-  </PageLayout>
-);
-
+    <PageLayout>
+      {renderRoutes()}
+      {!consentGiven && <CookieConsentBanner onAccept={giveConsent} />}
+    </PageLayout>
+  );
 };
 
 function App() {

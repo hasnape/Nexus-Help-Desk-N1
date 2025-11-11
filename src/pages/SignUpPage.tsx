@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
-import { useApp } from "../App";
+import { useApp } from "@/App";
 import { Button, Input, Select } from "../components/FormElements";
 import { UserRole, type Locale } from "@types";
 import Layout from "../components/Layout";

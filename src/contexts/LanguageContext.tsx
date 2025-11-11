@@ -18,11 +18,12 @@ export type TranslationValue =
   | { [key: string]: TranslationValue };
 export type Translations = Record<string, TranslationValue>;
 
+// ⬇️ Type élargi: autorise des props arbitraires (company, message, error, date, etc.)
 type TranslateOptions = {
   default?: string;
   defaultValue?: string;
   values?: Record<string, string | number>;
-};
+} & Record<string, unknown>;
 
 interface LanguageContextType {
   language: Locale;
@@ -55,9 +56,7 @@ if (!i18next.isInitialized) {
 
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [language, setLanguageState] = useState<Locale>(() => {
-    if (typeof window === 'undefined') {
-      return 'en';
-    }
+    if (typeof window === 'undefined') return 'en';
     const storedLang = localStorage.getItem('aiHelpDeskLang') as Locale | null;
     return storedLang && ['en', 'fr', 'ar'].includes(storedLang) ? storedLang : 'en';
   });
@@ -73,9 +72,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
     const loadLanguage = async (target: Locale) => {
       try {
         const response = await fetch(`./locales/${target}.json`, { signal: controller.signal });
-        if (!response.ok) {
-          throw new Error(`Failed to load ${target}.json: ${response.statusText}`);
-        }
+        if (!response.ok) throw new Error(`Failed to load ${target}.json: ${response.statusText}`);
         const data: Translations = await response.json();
         if (!isMounted) return;
         setTranslations(data);
@@ -114,9 +111,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
 
     loadLanguage(language).catch((error) => {
       console.error('Failed to change language', error);
-      if (isMounted) {
-        setTranslations(emptyTranslations);
-      }
+      if (isMounted) setTranslations(emptyTranslations);
     });
 
     if (typeof window !== 'undefined') {
@@ -130,20 +125,13 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
   }, [language]);
 
   const setLanguage = useCallback((lang: Locale) => {
-    setLanguageState((prev) => {
-      if (prev === lang) {
-        return prev;
-      }
-      return lang;
-    });
+    setLanguageState((prev) => (prev === lang ? prev : lang));
   }, []);
 
   const t = useCallback(
     (key: string, options?: TranslateOptions): string => {
       const fallbackValue = options?.default ?? options?.defaultValue;
-      if (isLoadingLang || !translations) {
-        return fallbackValue ?? key;
-      }
+      if (isLoadingLang || !translations) return fallbackValue ?? key;
 
       const segments = key.split('.');
       let node: TranslationValue | undefined = translations;
@@ -156,18 +144,13 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
       }
 
       if (typeof node === 'string') {
-        if (options?.values) {
-          return Object.entries(options.values).reduce<string>((acc, [placeholder, value]) => {
-            return acc.replace(new RegExp(`{{\\s*${placeholder}\\s*}}`, 'g'), String(value));
-          }, node);
-        }
-        return node;
+        const values = (options?.values ?? {}) as Record<string, string | number>;
+        return Object.entries(values).reduce<string>((acc, [placeholder, value]) => {
+          return acc.replace(new RegExp(`{{\\s*${placeholder}\\s*}}`, 'g'), String(value));
+        }, node);
       }
 
-      if (node == null) {
-        return fallbackValue ?? key;
-      }
-
+      if (node == null) return fallbackValue ?? key;
       return typeof node === 'string' ? node : fallbackValue ?? key;
     },
     [translations, isLoadingLang]
@@ -185,9 +168,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
   }, [language]);
 
   return (
-    <LanguageContext.Provider
-      value={{ language, setLanguage, t, getBCP47Locale, isLoadingLang }}
-    >
+    <LanguageContext.Provider value={{ language, setLanguage, t, getBCP47Locale, isLoadingLang }}>
       {children}
     </LanguageContext.Provider>
   );
@@ -195,9 +176,6 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
 
 export const useLanguage = (): LanguageContextType => {
   const context = useContext(LanguageContext);
-  if (!context) {
-    throw new Error('useLanguage must be used within a LanguageProvider');
-  }
+  if (!context) throw new Error('useLanguage must be used within a LanguageProvider');
   return context;
 };
-

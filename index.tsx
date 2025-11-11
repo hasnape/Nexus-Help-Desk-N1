@@ -4,7 +4,7 @@ import './src/styles/bootstrap-lite.css';
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App';
+import App from './src/App';
 
 import '@/i18n';
 
