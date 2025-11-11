@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useApp } from "../App";
+import { useApp } from "@/contexts/AppContext";
 import { Button, Input, Select } from "../components/FormElements";
 import { useLanguage, Locale } from "@/contexts/LanguageContext";
 import { UserRole } from "@/types";
