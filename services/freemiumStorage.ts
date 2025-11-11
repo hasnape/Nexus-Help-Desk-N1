@@ -7,7 +7,7 @@ import {
   UserRole,
   TicketStatus,
   TicketPriority,
-} from "../types";
+} from "@/types";
 
 const STORAGE_KEY = "nsh_freemium_session";
 const DEFAULT_SESSION_VERSION = "1.0.0";
