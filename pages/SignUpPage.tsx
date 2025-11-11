@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useApp } from "../App";
 import { Button, Input, Select } from "../components/FormElements";
 import { useLanguage, Locale } from "@/contexts/LanguageContext";
-import { UserRole } from "../types";
+import { UserRole } from "@/types";
 import Layout from "../components/Layout";
 import { getStoredFreemiumCompany, setStoredFreemiumCompany } from "../services/freemiumStorage";
 
