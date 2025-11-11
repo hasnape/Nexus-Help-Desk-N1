@@ -261,7 +261,6 @@ const LandingPage: React.FC = () => {
                 </ul>
               </div>
             </div>
-          </div>
         </section>
 
         <section className="bg-white py-16 text-slate-900">
