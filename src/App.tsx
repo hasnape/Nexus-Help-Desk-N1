@@ -2,7 +2,7 @@ import React, { createContext, useState, useContext, ReactNode, useCallback, use
 import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation, Link } from "react-router-dom";
 import { Ticket, User, ChatMessage, TicketStatus, UserRole, Locale as AppLocale, AppointmentDetails } from "@types";
 import { getFollowUpHelpResponse, getTicketSummary } from "./services/geminiService";
-import { supabase } from "./src/services/supabaseClient";
+import { supabase } from "@/services/supabaseClient";
 import PricingPage from "./pages/PricingPage";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
@@ -48,7 +48,7 @@ import { mapSignupError } from "./services/signupErrorMapper";
 import PageLayout from './components/PageLayout';
 
 
-interface AppContextType {
+export interface AppContextType {
   user: User | null;
   login: (email: string, password: string, companyName: string) => Promise<string | true>;
   logout: () => Promise<void>;
