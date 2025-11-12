@@ -105,9 +105,14 @@ serve(async (req) => {
   }
 
   if (mode === "invite") {
+    const fallbackRedirectOrigin =
+      Deno.env.get("FRONTEND_URL") ?? "https://www.nexussupporthub.eu";
+    const redirectOrigin = origin || fallbackRedirectOrigin;
+    const redirectTo = new URL("/#/login", redirectOrigin).toString();
+
     const { data: invite, error: invErr } = await admin.auth.admin.inviteUserByEmail(email, {
       data: { company_id: meRow.company_id, role, language_preference },
-      redirectTo: `${new URL(req.url).origin}/#/login`,
+      redirectTo,
     });
     if (invErr || !invite?.user) return json({ error: "invite_failed", details: invErr?.message }, 500, origin);
 
