@@ -95,5 +95,4 @@ export const useApp = (): AppContextType => {
   }
   return context;
 };
-export { AppProvider, useApp } from '@/App';
-export type { AppContextType } from '@/App';
+export { AppProvider } from '@/App';
