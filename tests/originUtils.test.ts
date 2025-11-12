@@ -6,6 +6,7 @@ import {
   isOriginAllowed,
   resolveAllowOrigin,
 } from "../supabase/functions/_shared/originUtils";
+
 import {
   filterBlockedOrigins,
   isOriginBlocked,
@@ -13,10 +14,23 @@ import {
 } from "../shared/blockedOrigins";
 
 test("origin utilities trim and deduplicate lists", () => {
-  const parsed = parseOrigins([" https://example.com ", "https://example.com,https://foo.dev "]); 
-  assert.deepEqual(parsed, ["https://example.com", "https://example.com", "https://foo.dev"]);
+  const parsed = parseOrigins([
+    " https://example.com ",
+    "https://example.com,https://foo.dev ",
+  ]);
+  // parseOrigins returns flattened entries (may include duplicates)
+  assert.deepEqual(parsed, [
+    "https://example.com",
+    "https://example.com",
+    "https://foo.dev",
+  ]);
 
-  const allowed = createAllowedOriginSet("https://example.com, https://foo.dev", "https://foo.dev", ["https://bar.test"]);
+  const allowed = createAllowedOriginSet(
+    "https://example.com, https://foo.dev",
+    "https://foo.dev",
+    ["https://bar.test"],
+  );
+  // Set preserves insertion order of first occurrences
   assert.deepEqual(Array.from(allowed), [
     "https://example.com",
     "https://foo.dev",
@@ -41,7 +55,10 @@ test("origin utilities validate membership", () => {
 test("blocked origins are filtered and rejected", () => {
   const blocked = "https://infragrid.v.network";
   assert.equal(isOriginBlocked(blocked), true);
-  assert.deepEqual(parseOrigins(blocked), []);
+
+  // parseOrigins should drop blocked entries
+  const parsed = parseOrigins(blocked as unknown as string[] | string);
+  assert.deepEqual(parsed, []);
 
   const allowed = createAllowedOriginSet(blocked, "https://safe.test");
   assert.deepEqual(Array.from(allowed), ["https://safe.test"]);
