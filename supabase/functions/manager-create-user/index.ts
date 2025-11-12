@@ -6,6 +6,8 @@ const ALLOWED_ORIGINS = new Set<string>([
   "https://www.nexussupporthub.eu",
   "https://nexus-help-desk-n1.vercel.app",
 ]);
+const FALLBACK_REDIRECT_ORIGIN =
+  Deno.env.get("FRONTEND_URL") ?? "https://www.nexussupporthub.eu";
 
 function corsHeaders(origin: string) {
   if (!ALLOWED_ORIGINS.has(origin)) return null;
@@ -105,9 +107,17 @@ serve(async (req) => {
   }
 
   if (mode === "invite") {
+    const redirectOrigin = origin || FALLBACK_REDIRECT_ORIGIN;
+    let redirectTo: string;
+    try {
+      redirectTo = new URL("/#/login", redirectOrigin).toString();
+    } catch {
+      redirectTo = new URL("/#/login", FALLBACK_REDIRECT_ORIGIN).toString();
+    }
+
     const { data: invite, error: invErr } = await admin.auth.admin.inviteUserByEmail(email, {
       data: { company_id: meRow.company_id, role, language_preference },
-      redirectTo: `${new URL(req.url).origin}/#/login`,
+      redirectTo,
     });
     if (invErr || !invite?.user) return json({ error: "invite_failed", details: invErr?.message }, 500, origin);
 
