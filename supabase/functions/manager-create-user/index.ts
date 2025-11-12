@@ -1,106 +1,143 @@
-// deno-lint-ignore-file no-explicit-any
-import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.200.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { handleCors } from "../_shared/cors.ts";
 
-const ALLOWED_ORIGINS = new Set<string>([
-  "https://www.nexussupporthub.eu",
-  "https://nexus-help-desk-n1.vercel.app",
-]);
+type CreateUserPayload = {
+  mode?: "invite" | "create";
+  email?: string;
+  full_name?: string;
+  role?: string;
+  language?: string;
+  password?: string;
+};
 
-function corsHeaders(origin: string) {
-  if (!ALLOWED_ORIGINS.has(origin)) return null;
-  return {
-    "Access-Control-Allow-Origin": origin,
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    Vary: "Origin",
-  };
-}
+type ErrorBody = {
+  ok: false;
+  code: string;
+  message?: string;
+  details?: Record<string, unknown>;
+};
 
-function json(body: unknown, status = 200, origin?: string) {
-  const base = origin ? corsHeaders(origin) ?? {} : {};
-  return new Response(JSON.stringify(body), {
+type SuccessBody = {
+  ok: true;
+  userId: string;
+  mode: "invite" | "create";
+};
+
+const respond = (headers: HeadersInit, status: number, body: ErrorBody | SuccessBody) =>
+  new Response(JSON.stringify(body), {
     status,
-    headers: { ...base, "content-type": "application/json; charset=utf-8" },
+    headers: { ...headers, "Content-Type": "application/json" },
   });
+
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY");
+
+if (!SUPABASE_URL || !SERVICE_ROLE_KEY || !ANON_KEY) {
+  throw new Error("Missing Supabase configuration for manager-create-user function.");
 }
 
-serve(async (req) => {
-  const origin = req.headers.get("Origin") ?? "";
-  const cors = corsHeaders(origin);
-  if (!cors) return new Response("Forbidden", { status: 403 });
+const adminClient = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
+  global: { fetch },
+  auth: { persistSession: false },
+});
 
-  if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
-  if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405, origin);
+const authClient = createClient(SUPABASE_URL, ANON_KEY, {
+  global: { fetch },
+  auth: { persistSession: false },
+});
 
-  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-  const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+serve(async (req: Request) => {
+  const corsResult = handleCors(req);
+  if (corsResult instanceof Response) {
+    return corsResult;
+  }
+  const { headers } = corsResult;
 
-  const authHeader = req.headers.get("Authorization") ?? "";
-  const userClient = createClient(supabaseUrl, anonKey, {
-    global: { headers: { Authorization: authHeader } },
-  });
-  const admin = createClient(supabaseUrl, serviceKey);
-
-  // 1) Caller must be authenticated
-  const { data: authData, error: authErr } = await userClient.auth.getUser();
-  if (authErr || !authData?.user) return json({ error: "unauthorized" }, 401, origin);
-
-  // 2) Caller must be manager and have a company_id
-  const { data: meRow, error: meErr } = await admin
-    .from("users")
-    .select("id, role, company_id")
-    .eq("auth_uid", authData.user.id)
-    .single();
-  if (meErr || !meRow) return json({ error: "profile_not_found" }, 403, origin);
-  if (meRow.role !== "manager") return json({ error: "forbidden" }, 403, origin);
-
-  // 3) Parse body
-  let body: any = {};
-  try {
-    body = await req.json();
-  } catch {
-    // ignore
+  if (req.method !== "POST") {
+    return respond(headers, 405, { ok: false, code: "method_not_allowed" });
   }
 
-  const mode = (body.mode === "create" ? "create" : "invite") as "invite" | "create";
-  const email = String(body.email || "").trim().toLowerCase();
-  const full_name = String(body.full_name || "").trim();
-  const role = String(body.role || "");
-  const language_preference = ["fr", "en", "ar"].includes(body.language_preference)
-    ? body.language_preference
-    : "fr";
+  const authHeader = req.headers.get("Authorization") || req.headers.get("authorization");
+  if (!authHeader) {
+    return respond(headers, 401, { ok: false, code: "missing_auth" });
+  }
 
-  if (!email || !full_name || !role) return json({ error: "missing_fields" }, 400, origin);
-  if (!["agent", "user"].includes(role)) return json({ error: "invalid_role" }, 400, origin);
+  const token = authHeader.replace(/^Bearer\s+/i, "");
+  if (!token) {
+    return respond(headers, 401, { ok: false, code: "missing_auth" });
+  }
 
-  // 4) Agent cap if role=agent
-  if (role === "agent") {
-    const { data: comp, error: cErr } = await admin
-      .from("companies")
-      .select("plan_id")
-      .eq("id", meRow.company_id)
-      .single();
-    if (cErr || !comp) return json({ error: "company_not_found" }, 400, origin);
+  const { data: authUser, error: authError } = await authClient.auth.getUser(token);
+  if (authError || !authUser?.user) {
+    return respond(headers, 401, { ok: false, code: "invalid_token", message: authError?.message });
+  }
 
-    const { data: plan, error: pErr } = await admin
-      .from("plans")
-      .select("max_agents")
-      .eq("id", comp.plan_id)
-      .single();
-    if (pErr || !plan) return json({ error: "plan_not_found" }, 400, origin);
+  const { data: managerProfile, error: profileError } = await adminClient
+    .from("users")
+    .select("id, role, company_id")
+    .eq("id", authUser.user.id)
+    .single();
 
-    const { count: agentCount, error: cntErr } = await admin
+  if (profileError || !managerProfile) {
+    return respond(headers, 403, { ok: false, code: "profile_missing", message: profileError?.message });
+  }
+
+  if (managerProfile.role !== "manager") {
+    return respond(headers, 403, { ok: false, code: "forbidden", message: "Only managers can create users" });
+  }
+
+  let payload: CreateUserPayload;
+  try {
+    payload = await req.json();
+  } catch (error) {
+    return respond(headers, 400, { ok: false, code: "invalid_json", message: "Invalid JSON body" });
+  }
+
+  const mode = payload.mode ?? "invite";
+  const email = payload.email?.trim();
+  const fullName = payload.full_name?.trim();
+  const role = payload.role?.trim();
+  const language = payload.language?.trim() || "en";
+
+  if (!email || !fullName || !role) {
+    return respond(headers, 400, { ok: false, code: "missing_fields" });
+  }
+
+  if (!["agent", "user"].includes(role)) {
+    return respond(headers, 400, { ok: false, code: "invalid_role" });
+  }
+
+  const { data: companyRecord, error: companyError } = await adminClient
+    .from("companies")
+    .select("id, name, plan_id, plans(max_agents)")
+    .eq("name", managerProfile.company_id)
+    .single();
+
+  if (companyError || !companyRecord) {
+    return respond(headers, 500, { ok: false, code: "company_lookup_failed", message: companyError?.message });
+  }
+
+  const planInfo = Array.isArray(companyRecord.plans) ? companyRecord.plans[0] : companyRecord.plans;
+  const maxAgents = planInfo?.max_agents ?? null;
+  if (role === "agent" && typeof maxAgents === "number") {
+    const { count: agentCount, error: agentCountError } = await adminClient
       .from("users")
       .select("id", { count: "exact", head: true })
-      .eq("company_id", meRow.company_id)
+      .eq("company_id", managerProfile.company_id)
       .eq("role", "agent");
-    if (cntErr) return json({ error: "count_failed" }, 500, origin);
 
-    const maxAgents = plan.max_agents ?? 0;
-    if ((agentCount ?? 0) >= maxAgents) {
-      return json({ error: "agent_limit_reached", details: { agentCount, maxAgents } }, 409, origin);
+    if (agentCountError) {
+      return respond(headers, 500, { ok: false, code: "agent_count_failed", message: agentCountError.message });
+    }
+
+    if (typeof agentCount === "number" && agentCount >= maxAgents) {
+      return respond(headers, 409, {
+        ok: false,
+        code: "agent_limit_reached",
+        details: { agentCount, maxAgents },
+      });
     }
   }
 
@@ -116,43 +153,38 @@ serve(async (req) => {
     });
     if (invErr || !invite?.user) return json({ error: "invite_failed", details: invErr?.message }, 500, origin);
 
-    const auth_uid = invite.user.id;
-    const { error: insErr } = await admin.from("users").insert({
-      auth_uid,
+    const { data: createdUser, error: createError } = await adminClient.auth.admin.createUser({
       email,
-      full_name,
-      role,
-      language_preference,
-      company_id: meRow.company_id,
+      password: payload.password,
+      email_confirm: false,
+      user_metadata: {
+        full_name: fullName,
+        role,
+        company_id: managerProfile.company_id,
+        language_preference: language,
+      },
     });
-    if (insErr) return json({ error: "profile_insert_failed", details: insErr.message }, 409, origin);
 
-    return json({ ok: true, mode, user_id: auth_uid }, 200, origin);
+    if (createError || !createdUser?.user) {
+      return respond(headers, 500, { ok: false, code: "create_failed", message: createError?.message });
+    }
+
+    const { error: profileInsertError } = await adminClient.from("users").insert({
+      id: createdUser.user.id,
+      email,
+      full_name: fullName,
+      role,
+      company_id: managerProfile.company_id,
+      language_preference: language,
+    });
+
+    if (profileInsertError) {
+      return respond(headers, 500, { ok: false, code: "profile_insert_failed", message: profileInsertError.message });
+    }
+
+    return respond(headers, 200, { ok: true, userId: createdUser.user.id, mode: "create" });
+  } catch (error) {
+    console.error("manager-create-user: unexpected error", error);
+    return respond(headers, 500, { ok: false, code: "unknown_error", message: "An unexpected error occurred" });
   }
-
-  const password = String(body.password || "");
-  const password_confirm = String(body.password_confirm || "");
-  if (password.length < 8) return json({ error: "weak_password" }, 400, origin);
-  if (password !== password_confirm) return json({ error: "password_mismatch" }, 400, origin);
-
-  const { data: created, error: createErr } = await admin.auth.admin.createUser({
-    email,
-    password,
-    email_confirm: true,
-    user_metadata: { company_id: meRow.company_id, role, language_preference },
-  });
-  if (createErr || !created?.user) return json({ error: "create_failed", details: createErr?.message }, 500, origin);
-
-  const auth_uid = created.user.id;
-  const { error: insErr } = await admin.from("users").insert({
-    auth_uid,
-    email,
-    full_name,
-    role,
-    language_preference,
-    company_id: meRow.company_id,
-  });
-  if (insErr) return json({ error: "profile_insert_failed", details: insErr.message }, 409, origin);
-
-  return json({ ok: true, mode, user_id: auth_uid }, 200, origin);
 });
