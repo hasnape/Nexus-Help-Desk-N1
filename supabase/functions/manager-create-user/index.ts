@@ -141,40 +141,12 @@ serve(async (req: Request) => {
     }
   }
 
-  try {
-    if (mode === "invite") {
-      const { data: inviteResult, error: inviteError } = await adminClient.auth.admin.inviteUserByEmail(email, {
-        data: {
-          full_name: fullName,
-          role,
-          company_id: managerProfile.company_id,
-          language_preference: language,
-        },
-      });
-
-      if (inviteError || !inviteResult?.user) {
-        return respond(headers, 500, { ok: false, code: "invite_failed", message: inviteError?.message });
-      }
-
-      const { error: profileInsertError } = await adminClient.from("users").insert({
-        id: inviteResult.user.id,
-        email,
-        full_name: fullName,
-        role,
-        company_id: managerProfile.company_id,
-        language_preference: language,
-      });
-
-      if (profileInsertError) {
-        return respond(headers, 500, { ok: false, code: "profile_insert_failed", message: profileInsertError.message });
-      }
-
-      return respond(headers, 200, { ok: true, userId: inviteResult.user.id, mode: "invite" });
-    }
-
-    if (!payload.password) {
-      return respond(headers, 400, { ok: false, code: "missing_fields", message: "Password required for create mode" });
-    }
+  if (mode === "invite") {
+    const { data: invite, error: invErr } = await admin.auth.admin.inviteUserByEmail(email, {
+      data: { company_id: meRow.company_id, role, language_preference },
+      redirectTo: `${new URL(req.url).origin}/#/login`,
+    });
+    if (invErr || !invite?.user) return json({ error: "invite_failed", details: invErr?.message }, 500, origin);
 
     const { data: createdUser, error: createError } = await adminClient.auth.admin.createUser({
       email,
