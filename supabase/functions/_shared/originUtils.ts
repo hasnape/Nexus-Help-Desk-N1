@@ -1,12 +1,16 @@
+import { filterBlockedOrigins, isOriginBlocked } from "./blockedOrigins.ts";
+
 export type OriginInput = string | string[] | null | undefined;
 
 export const parseOrigins = (value: OriginInput): string[] => {
   if (!value) return [];
   const sources = Array.isArray(value) ? value : [value];
-  return sources
+  const expanded = sources
     .flatMap((entry) => entry.split(","))
     .map((origin) => origin.trim())
     .filter((origin) => origin.length > 0);
+
+  return filterBlockedOrigins(expanded);
 };
 
 export const createAllowedOriginSet = (...values: OriginInput[]): Set<string> => {
@@ -23,13 +27,13 @@ export const isOriginAllowed = (
   origin: string | null | undefined,
   allowed: Set<string>
 ): boolean => {
-  if (!origin) {
+  if (!origin || isOriginBlocked(origin)) {
     return allowed.size === 0;
   }
   if (allowed.size === 0) {
     return true;
   }
-  return allowed.has(origin);
+  return allowed.has(origin) && !isOriginBlocked(origin);
 };
 
 export const resolveAllowOrigin = (
@@ -39,6 +43,10 @@ export const resolveAllowOrigin = (
   if (origin && isOriginAllowed(origin, allowed)) {
     return origin;
   }
-  const first = allowed.values().next().value as string | undefined;
-  return first ?? "*";
+  for (const candidate of allowed.values()) {
+    if (!isOriginBlocked(candidate)) {
+      return candidate;
+    }
+  }
+  return "*";
 };

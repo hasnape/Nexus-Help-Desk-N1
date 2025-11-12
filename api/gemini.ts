@@ -11,7 +11,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     try {
-        const { action, chatHistory, language, ticket, ticketTitle, ticketCategoryKey, assignedAiLevel, additionalSystemContext } = req.body;
+        const { action, chatHistory } = req.body ?? {};
 
         if (!action) {
             return res.status(400).json({ error: "Missing action type" });

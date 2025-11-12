@@ -2,23 +2,27 @@
 // Invite/Créer un user côté Admin (service-role) avec normalisation & CORS
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { filterBlockedOrigins, isOriginBlocked } from "../_shared/blockedOrigins.ts";
 
 // CORS standardisé
-const STATIC_ALLOWED_ORIGINS = [
+const STATIC_ALLOWED_ORIGINS = filterBlockedOrigins([
   "https://www.nexussupporthub.eu",
   "https://nexus-help-desk-n1.vercel.app",
   "http://localhost:5173",
-] as const;
+]);
 
-const additional = (
+const additional = filterBlockedOrigins((
   Deno.env.get("ALLOWED_ORIGINS") ??
   Deno.env.get("SUPABASE_ALLOWED_ORIGINS") ??
   ""
-).split(",").map((s) => s.trim()).filter(Boolean);
+)
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean));
 
 const ALLOWED = new Set<string>([...STATIC_ALLOWED_ORIGINS, ...additional]);
 function corsHeaders(origin: string | null) {
-  if (!origin || !ALLOWED.has(origin)) return null;
+  if (!origin || isOriginBlocked(origin) || !ALLOWED.has(origin)) return null;
   return {
     "Access-Control-Allow-Origin": origin,
     "Access-Control-Allow-Methods": "POST, OPTIONS",
