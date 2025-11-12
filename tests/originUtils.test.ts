@@ -6,7 +6,7 @@ import {
   isOriginAllowed,
   resolveAllowOrigin,
 } from "../supabase/functions/_shared/originUtils";
-import { isOriginBlocked } from "../supabase/functions/_shared/blockedOrigins";
+import { isOriginBlocked } from "../shared/blockedOrigins";
 
 test("origin utilities trim and deduplicate lists", () => {
   const parsed = parseOrigins([" https://example.com ", "https://example.com,https://foo.dev "]); 

@@ -1,5 +1,5 @@
 // api/_shared/cors.ts
-import { filterBlockedOrigins, isOriginBlocked } from "../supabase/functions/_shared/blockedOrigins";
+import { filterBlockedOrigins, isOriginBlocked } from "../../shared/blockedOrigins";
 
 export function getAllowedOrigins() {
   const raw = (process.env.ALLOWED_ORIGINS || process.env.SUPABASE_ALLOWED_ORIGINS || '').trim();
