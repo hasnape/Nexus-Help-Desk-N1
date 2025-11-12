@@ -1,14 +1,17 @@
 // api/_shared/cors.ts
+import { filterBlockedOrigins, isOriginBlocked } from "../supabase/functions/_shared/blockedOrigins";
+
 export function getAllowedOrigins() {
   const raw = (process.env.ALLOWED_ORIGINS || process.env.SUPABASE_ALLOWED_ORIGINS || '').trim();
-  return raw.split(',').map(s => s.trim()).filter(Boolean);
+  return filterBlockedOrigins(raw.split(',').map(s => s.trim()).filter(Boolean));
 }
 
 const ALLOW_HEADERS = 'authorization, apikey, content-type, x-client-info';
 
 export function corsHeaders(origin: string | null) {
   const allowed = getAllowedOrigins();
-  const resolved = origin && allowed.includes(origin) ? origin : (allowed[0] || '*');
+  const safeOrigin = origin && !isOriginBlocked(origin) ? origin : null;
+  const resolved = safeOrigin && allowed.includes(safeOrigin) ? safeOrigin : (allowed[0] || '*');
   return {
     'Access-Control-Allow-Origin': resolved,
     'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',

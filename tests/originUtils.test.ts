@@ -6,6 +6,7 @@ import {
   isOriginAllowed,
   resolveAllowOrigin,
 } from "../supabase/functions/_shared/originUtils";
+import { isOriginBlocked } from "../supabase/functions/_shared/blockedOrigins";
 
 test("origin utilities trim and deduplicate lists", () => {
   const parsed = parseOrigins([" https://example.com ", "https://example.com,https://foo.dev "]); 
@@ -31,4 +32,16 @@ test("origin utilities validate membership", () => {
   assert.equal(isOriginAllowed("https://one.test", allowed), true);
   assert.equal(isOriginAllowed("https://three.test", allowed), false);
   assert.equal(resolveAllowOrigin("https://three.test", allowed), "https://one.test");
+});
+
+test("blocked origins are filtered and rejected", () => {
+  const blocked = "https://infragrid.v.network";
+  assert.equal(isOriginBlocked(blocked), true);
+  assert.deepEqual(parseOrigins(blocked), []);
+
+  const allowed = createAllowedOriginSet(blocked, "https://safe.test");
+  assert.deepEqual(Array.from(allowed), ["https://safe.test"]);
+
+  assert.equal(isOriginAllowed(blocked, allowed), false);
+  assert.equal(resolveAllowOrigin(blocked, allowed), "https://safe.test");
 });

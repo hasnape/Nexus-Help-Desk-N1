@@ -1,17 +1,25 @@
-const STATIC_ALLOWED = [
+import { filterBlockedOrigins, isOriginBlocked } from "./blockedOrigins.ts";
+
+const STATIC_ALLOWED = filterBlockedOrigins([
   "https://www.nexussupporthub.eu",
   "https://nexus-help-desk-n1.vercel.app",
   "http://localhost:5173",
-];
+]);
 
 function parseEnv(name: string) {
-  return (Deno.env.get(name) ?? "").split(",").map(s=>s.trim()).filter(Boolean);
+  const values = (Deno.env.get(name) ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return filterBlockedOrigins(values);
 }
 
 const ALLOWED = new Set<string>([...STATIC_ALLOWED, ...parseEnv("ALLOWED_ORIGINS")]);
 
 export function corsHeaders(origin: string) {
-  if (!origin || !ALLOWED.has(origin)) return { Vary: "Origin" } as Record<string,string>;
+  if (!origin || isOriginBlocked(origin) || !ALLOWED.has(origin)) {
+    return { Vary: "Origin" } as Record<string, string>;
+  }
   return {
     "Access-Control-Allow-Origin": origin,
     "Access-Control-Allow-Headers": "authorization, apikey, content-type, x-client-info",
