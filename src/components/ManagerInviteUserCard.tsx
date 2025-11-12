@@ -2,6 +2,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { supabase } from '@/services/supabaseClient';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { invokeWithFallback } from '@/utils/invokeWithFallback';
 
 type Mode = 'invite' | 'create';
 type Role = 'agent' | 'user';
@@ -47,8 +48,7 @@ export default function ManagerInviteUserCard({ companyId }: Props) {
         .from('users')
         .select('id', { count: 'exact', head: true })
         .eq('company_id', companyId)
-        .eq('role', 'agent')
-        .abortSignal(controller.signal);
+        .eq('role', 'agent');
 
       if (!controller.signal.aborted && isMounted.current) {
         if (cntErr) setErr(t('manager.invite.errors.countAgents'));
@@ -60,8 +60,7 @@ export default function ManagerInviteUserCard({ companyId }: Props) {
         .from('companies')
         .select('plan_id')
         .eq('id', companyId)
-        .single()
-        .abortSignal(controller.signal);
+        .single();
 
       if (controller.signal.aborted || !isMounted.current) return;
 
@@ -74,8 +73,7 @@ export default function ManagerInviteUserCard({ companyId }: Props) {
         .from('plans')
         .select('max_agents')
         .eq('id', comp.plan_id)
-        .single()
-        .abortSignal(controller.signal);
+        .single();
 
       if (!controller.signal.aborted && isMounted.current) {
         if (planErr || !plan) setErr(t('manager.invite.errors.planLimit'));
@@ -113,13 +111,19 @@ export default function ManagerInviteUserCard({ companyId }: Props) {
       case 'count_failed': return t('manager.invite.errors.countAgents');
       case 'weak_password': return t('manager.invite.errors.weakPassword');
       case 'password_mismatch': return t('manager.invite.errors.passwordMismatch');
+      case 'profile_not_found':
+      case 'invalid_role':
+        return t('manager.invite.errors.generic');
       case 'unauthorized':
       case 'forbidden':
-      case 'profile_not_found':
-      case 'invalid_role': return t('manager.invite.errors.generic');
+        return t('manager.invite.errors.generic');
       case 'invite_failed':
       case 'create_failed':
       case 'profile_insert_failed': return details ?? t('manager.invite.errors.generic');
+      case 'ORIGIN_NOT_ALLOWED':
+        return t('auth.errors.ORIGIN_NOT_ALLOWED', {
+          default: t('manager.invite.errors.generic'),
+        });
       default: return details ?? t('manager.invite.errors.generic');
     }
   }
@@ -177,32 +181,45 @@ export default function ManagerInviteUserCard({ companyId }: Props) {
     }
 
     try {
-      const { data, error } = await supabase.functions.invoke<EdgeSuccess | EdgeError>(
-        'manager-create-user',
-        { body: payload }
-      );
+      const result = await invokeWithFallback<EdgeSuccess | EdgeError>('manager-create-user', payload);
 
       if (!isMounted.current) return;
 
-      if (error) {
-        // Supabase Functions renvoie souvent error.message (ex: 403/500)
-        setErr(translateApiError((error as any)?.message));
+      if (result.error) {
+        const { context, message } = result.error;
+        const errorCode =
+          (typeof context?.error === 'string' && context.error) ||
+          (typeof context?.code === 'string' && context.code) ||
+          (typeof message === 'string' && message) ||
+          'generic';
+        const detailFromContext = (() => {
+          if (typeof context?.details === 'string') return context.details;
+          const body = context?.body as unknown;
+          if (body && typeof body === 'object' && 'details' in body && typeof (body as any).details === 'string') {
+            return (body as any).details as string;
+          }
+          return undefined;
+        })();
+
+        if (errorCode === 'network_error' || errorCode === 'aborted') {
+          setErr(t('manager.invite.errors.timeout'));
+          return;
+        }
+
+        setErr(translateApiError(errorCode, detailFromContext));
         return;
       }
 
-      if (!data) {
-        // Réponse vide mais 200 → considérer OK
+      const payloadResponse = result.data;
+      if (!payloadResponse) {
         setMsg(mode === 'invite' ? t('manager.invite.success') : t('manager.invite.created'));
-      } else if ('error' in data) {
-        // Erreur applicative renvoyée par la fonction
-        setErr(translateApiError(data.error, 'details' in data ? data.details : undefined));
+      } else if ('error' in payloadResponse) {
+        setErr(translateApiError(payloadResponse.error, 'details' in payloadResponse ? payloadResponse.details : undefined));
         return;
       } else {
-        // Succès explicite
         setMsg(mode === 'invite' ? t('manager.invite.success') : t('manager.invite.created'));
       }
 
-      // Reset + refresh compteur
       setEmail('');
       setFullName('');
       if (mode === 'create') {

@@ -1,4 +1,5 @@
 import type { Locale } from '@/contexts/LanguageContext';
+export type { Locale };
 
 export enum TicketStatus {
   OPEN = 'Open',

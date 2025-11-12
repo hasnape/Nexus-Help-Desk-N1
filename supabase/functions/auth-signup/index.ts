@@ -1,287 +1,250 @@
-// deno-lint-ignore-file no-explicit-any
-import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.200.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { handleCors } from "../_shared/cors.ts";
 
-const STATIC_ALLOWED_ORIGINS = [
-  "https://www.nexussupporthub.eu",
-  "https://nexus-help-desk-n1.vercel.app",
-  "http://localhost:5173",
-];
-
-const additionalOrigins = (Deno.env.get("ALLOWED_ORIGINS") ?? "")
-  .split(",")
-  .map((o) => o.trim())
-  .filter((o) => o.length > 0);
-
-const ALLOWED_ORIGINS = new Set<string>([...STATIC_ALLOWED_ORIGINS, ...additionalOrigins]);
-
-function corsHeaders(origin: string | null) {
-  if (!origin) return { Vary: "Origin" } as Record<string, string>;
-  if (!ALLOWED_ORIGINS.has(origin)) return null;
-  return {
-    "Access-Control-Allow-Origin": origin,
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Credentials": "true",
-    Vary: "Origin",
-  } as Record<string, string>;
-}
-
-function json(body: unknown, status = 200, cors: Record<string, string> = { Vary: "Origin" }) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...cors, "content-type": "application/json; charset=utf-8" },
-  });
-}
-
-const SUPABASE_URL = Deno.env.get("PROJECT_URL") ?? Deno.env.get("SUPABASE_URL")!;
-const SERVICE_KEY =
-  Deno.env.get("NSH_SERVICE_ROLE_KEY") ??
-  Deno.env.get("SERVICE_ROLE_KEY") ??
-  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-
-const admin = createClient(SUPABASE_URL, SERVICE_KEY);
-
-type PlanKey = "freemium" | "standard" | "pro";
-
-type Role = "manager" | "agent" | "user";
-
-type ManagerActivationRow = {
-  id: string;
-  company_name: string | null;
-  consumed: boolean | null;
-  expires_at: string | null;
+type SignupPayload = {
+  email?: string;
+  password?: string;
+  full_name?: string;
+  role?: string;
+  companyName?: string;
+  language?: string;
+  plan?: string;
+  secretCode?: string;
 };
 
-const SUPPORTED_LANGUAGES = new Set(["fr", "en", "ar"]);
+type ErrorResponse = {
+  ok: false;
+  code: string;
+  message?: string;
+};
 
-const DEFAULT_TIMEZONE = "Europe/Paris";
+type SuccessResponse = {
+  ok: true;
+  userId: string;
+  companyId: string;
+};
 
-function normalizeCompanyName(input: string | null | undefined) {
-  if (!input) return { original: "", normalized: "", lower: "" };
-  const trimmed = input.trim().replace(/\s+/g, " ");
-  return { original: input, normalized: trimmed, lower: trimmed.toLowerCase() };
+const respond = (headers: HeadersInit, status: number, body: ErrorResponse | SuccessResponse) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { ...headers, "Content-Type": "application/json" },
+  });
+
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY");
+
+if (!SUPABASE_URL || !SERVICE_ROLE_KEY || !ANON_KEY) {
+  throw new Error("Missing Supabase configuration for auth-signup function.");
 }
 
-async function findCompanyByLowerName(nameNormalized: string, lowerName: string) {
-  const { data, error } = await admin
-    .from("companies")
-    .select("id, name")
-    .ilike("name", nameNormalized)
-    .limit(10);
+const adminClient = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
+  global: { fetch },
+  auth: { persistSession: false },
+});
 
-  if (error) throw error;
-  const row = (data ?? []).find((item) => (item.name ?? "").trim().toLowerCase() === lowerName) ?? null;
-  return row;
-}
+const anonClient = createClient(SUPABASE_URL, ANON_KEY, {
+  global: { fetch },
+  auth: { persistSession: false },
+});
 
-async function resolvePlanId(planKey: PlanKey): Promise<string | number | null> {
-  const { data, error } = await admin
-    .from("plans")
-    .select("id")
-    .eq("name", planKey)
-    .single();
-  if (error || !data?.id) return null;
-  return data.id as string | number;
-}
+const normalizeCompanyName = (name: string): string => name.trim();
 
-async function validateActivationCode(secretCode: string, companyLower: string) {
-  const { data, error } = await admin
-    .from("manager_activation_codes")
-    .select("id, company_name, consumed, expires_at")
-    .eq("code", secretCode)
-    .limit(1);
-
-  if (error || !data || data.length === 0) {
-    return { ok: false as const, error: "invalid_activation_code" };
+serve(async (req: Request) => {
+  const corsResult = handleCors(req);
+  if (corsResult instanceof Response) {
+    return corsResult;
   }
-
-  const row = data[0] as ManagerActivationRow;
-  if (row.consumed) return { ok: false as const, error: "invalid_activation_code" };
-  if (row.expires_at && new Date(row.expires_at).getTime() < Date.now()) {
-    return { ok: false as const, error: "invalid_activation_code" };
-  }
-  if ((row.company_name ?? "").toLowerCase() !== companyLower) {
-    return { ok: false as const, error: "invalid_activation_code" };
-  }
-
-  return { ok: true as const, row };
-}
-
-async function consumeActivationCode(id: string, authUid: string) {
-  await admin
-    .from("manager_activation_codes")
-    .update({
-      consumed: true,
-      consumed_by: authUid,
-      consumed_at: new Date().toISOString(),
-    })
-    .eq("id", id);
-}
-
-serve(async (req) => {
-  const origin = req.headers.get("Origin");
-  const cors = corsHeaders(origin);
-
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { status: 204, headers: cors ?? { Vary: "Origin" } });
-  }
-
-  if (origin && !cors) {
-    return new Response("Forbidden", { status: 403, headers: { Vary: "Origin" } });
-  }
+  const { headers } = corsResult;
 
   if (req.method !== "POST") {
-    return json({ error: "method_not_allowed" }, 405, cors ?? { Vary: "Origin" });
+    return respond(headers, 405, { ok: false, code: "method_not_allowed" });
   }
 
-  let payload: any;
+  let payload: SignupPayload;
   try {
     payload = await req.json();
-  } catch {
-    payload = null;
+  } catch (error) {
+    console.error("auth-signup: invalid JSON payload", error);
+    return respond(headers, 400, { ok: false, code: "invalid_json", message: "Invalid JSON payload" });
   }
 
-  const email = String(payload?.email ?? "").trim().toLowerCase();
-  const password = String(payload?.password ?? "");
-  const fullName = String(payload?.full_name ?? payload?.fullName ?? "").trim();
-  const role = String(payload?.role ?? "").toLowerCase() as Role;
-  const languageRaw = String(payload?.language_preference ?? payload?.language ?? "fr").toLowerCase();
-  const companyInput = String(payload?.company_name ?? payload?.companyName ?? "");
-  const planRaw = String(payload?.plan ?? "").toLowerCase();
-  const secretCode = String(payload?.secretCode ?? payload?.secret_code ?? "").trim();
+  const email = payload.email?.trim();
+  const password = payload.password;
+  const fullName = payload.full_name?.trim();
+  const role = payload.role?.trim();
+  const companyNameRaw = payload.companyName?.trim();
+  const language = payload.language?.trim() || "en";
+  const plan = payload.plan?.trim();
 
-  if (!email || !password || !fullName || !role || !companyInput) {
-    return json({ error: "missing_fields" }, 400, cors ?? { Vary: "Origin" });
-  }
-
-  if (password.length < 8) {
-    return json({ error: "weak_password" }, 400, cors ?? { Vary: "Origin" });
-  }
-
-  const language = SUPPORTED_LANGUAGES.has(languageRaw) ? languageRaw : "fr";
-  const { normalized: companyName, lower: companyLower } = normalizeCompanyName(companyInput);
-
-  if (!companyName) {
-    return json({ error: "missing_fields" }, 400, cors ?? { Vary: "Origin" });
+  if (!email || !password || !fullName || !role || !companyNameRaw) {
+    return respond(headers, 400, { ok: false, code: "missing_fields" });
   }
 
   if (!["manager", "agent", "user"].includes(role)) {
-    return json({ error: "invalid_role" }, 400, cors ?? { Vary: "Origin" });
+    return respond(headers, 400, { ok: false, code: "invalid_role" });
   }
+
+  const companyName = normalizeCompanyName(companyNameRaw);
 
   try {
     if (role === "manager") {
-      const planKey: PlanKey = planRaw === "standard" || planRaw === "pro" ? (planRaw as PlanKey) : "freemium";
-      const existing = await findCompanyByLowerName(companyName, companyLower);
-      if (existing) {
-        return json({ error: "company_name_taken" }, 409, cors ?? { Vary: "Origin" });
+      const { data: existingCompany, error: companyLookupError } = await adminClient
+        .from("companies")
+        .select("id, name")
+        .ilike("name", companyName)
+        .maybeSingle();
+
+      if (companyLookupError) {
+        console.error("auth-signup: company lookup failed", companyLookupError);
+        return respond(headers, 500, { ok: false, code: "company_lookup_failed", message: companyLookupError.message });
       }
 
-      if ((planKey === "standard" || planKey === "pro") && !secretCode) {
-        return json({ error: "invalid_activation_code" }, 400, cors ?? { Vary: "Origin" });
-      }
+      if (!existingCompany) {
+        const { data: createdCompany, error: companyInsertError } = await adminClient
+          .from("companies")
+          .insert({ name: companyName, plan_name: plan ?? null })
+          .select("id, name")
+          .single();
 
-      let activationRow: ManagerActivationRow | null = null;
-      if (planKey === "standard" || planKey === "pro") {
-        const activation = await validateActivationCode(secretCode, companyLower);
-        if (!activation.ok) {
-          return json({ error: activation.error }, 400, cors ?? { Vary: "Origin" });
+        if (companyInsertError || !createdCompany) {
+          console.error("auth-signup: failed to create company", companyInsertError);
+          return respond(headers, 500, { ok: false, code: "company_create_failed", message: companyInsertError?.message });
         }
-        activationRow = activation.row;
+
+        const { data: userCreation, error: createError } = await adminClient.auth.admin.createUser({
+          email,
+          password,
+          email_confirm: false,
+          user_metadata: {
+            full_name: fullName,
+            role,
+            company_id: createdCompany.name,
+            language_preference: language,
+          },
+        });
+
+        if (createError || !userCreation.user) {
+          console.error("auth-signup: createUser failed", createError);
+          return respond(headers, 500, { ok: false, code: "user_create_failed", message: createError?.message });
+        }
+
+        const { error: profileInsertError } = await adminClient.from("users").insert({
+          id: userCreation.user.id,
+          email,
+          full_name: fullName,
+          role,
+          company_id: createdCompany.name,
+          language_preference: language,
+        });
+
+        if (profileInsertError) {
+          console.error("auth-signup: profile insert failed", profileInsertError);
+          return respond(headers, 500, { ok: false, code: "profile_insert_failed", message: profileInsertError.message });
+        }
+
+        return respond(headers, 200, { ok: true, userId: userCreation.user.id, companyId: createdCompany.id });
       }
 
-      const planId = await resolvePlanId(planKey);
-      if (!planId) {
-        return json({ error: "plan_not_found" }, 400, cors ?? { Vary: "Origin" });
+      const { count: managerCount, error: managerLookupError } = await adminClient
+        .from("users")
+        .select("id", { count: "exact", head: true })
+        .eq("company_id", existingCompany.name)
+        .eq("role", "manager");
+
+      if (managerLookupError) {
+        console.error("auth-signup: manager lookup failed", managerLookupError);
+        return respond(headers, 500, { ok: false, code: "manager_lookup_failed", message: managerLookupError.message });
       }
 
-      const { data: auth, error: authError } = await admin.auth.admin.createUser({
+      if (typeof managerCount === "number" && managerCount > 0) {
+        return respond(headers, 409, { ok: false, code: "company_conflict", message: "Manager already exists" });
+      }
+
+      const { data: userCreation, error: createError } = await adminClient.auth.admin.createUser({
         email,
         password,
-        email_confirm: true,
-        user_metadata: { role: "manager", language_preference: language },
+        email_confirm: false,
+        user_metadata: {
+          full_name: fullName,
+          role,
+          company_id: existingCompany.name,
+          language_preference: language,
+        },
       });
-      if (authError || !auth?.user) {
-        return json({ error: "create_failed", details: authError?.message }, 500, cors ?? { Vary: "Origin" });
+
+      if (createError || !userCreation.user) {
+        console.error("auth-signup: createUser failed", createError);
+        return respond(headers, 500, { ok: false, code: "user_create_failed", message: createError?.message });
       }
 
-      const authUid = auth.user.id;
-
-      const { data: company, error: companyError } = await admin
-        .from("companies")
-        .insert({ name: companyName, plan_id: planId })
-        .select("id")
-        .single();
-      if (companyError || !company?.id) {
-        await admin.auth.admin.deleteUser(authUid).catch(() => {});
-        return json({ error: "create_failed", details: companyError?.message }, 500, cors ?? { Vary: "Origin" });
-      }
-
-      const companyId = company.id as string;
-
-      const settingsResult = await admin
-        .from("company_settings")
-        .insert({ company_id: companyId, timezone: DEFAULT_TIMEZONE, plan_tier: planKey });
-      if (settingsResult.error) {
-        await admin.auth.admin.deleteUser(authUid).catch(() => {});
-        await admin.from("companies").delete().eq("id", companyId).catch(() => {});
-        return json({ error: "create_failed", details: settingsResult.error.message }, 500, cors ?? { Vary: "Origin" });
-      }
-
-      const { error: profileError } = await admin.from("users").insert({
-        auth_uid: authUid,
+      const { error: profileInsertError } = await adminClient.from("users").insert({
+        id: userCreation.user.id,
         email,
         full_name: fullName,
-        role: "manager",
+        role,
+        company_id: existingCompany.name,
         language_preference: language,
-        company_id: companyId,
       });
-      if (profileError) {
-        await admin.from("company_settings").delete().eq("company_id", companyId).catch(() => {});
-        await admin.from("companies").delete().eq("id", companyId).catch(() => {});
-        await admin.auth.admin.deleteUser(authUid).catch(() => {});
-        return json({ error: "profile_insert_failed", details: profileError.message }, 500, cors ?? { Vary: "Origin" });
+
+      if (profileInsertError) {
+        console.error("auth-signup: profile insert failed", profileInsertError);
+        return respond(headers, 500, { ok: false, code: "profile_insert_failed", message: profileInsertError.message });
       }
 
-      if (activationRow) {
-        await consumeActivationCode(activationRow.id, authUid).catch(() => {});
-      }
-
-      return json({ ok: true, company_id: companyId, user_id: authUid }, 200, cors ?? { Vary: "Origin" });
+      return respond(headers, 200, { ok: true, userId: userCreation.user.id, companyId: existingCompany.id });
     }
 
-    const company = await findCompanyByLowerName(companyName, companyLower);
-    if (!company?.id) {
-      return json({ error: "company_not_found" }, 400, cors ?? { Vary: "Origin" });
+    const { data: company, error: companyFetchError } = await anonClient
+      .from("companies")
+      .select("id, name")
+      .ilike("name", companyName)
+      .maybeSingle();
+
+    if (companyFetchError) {
+      console.error("auth-signup: company fetch failed", companyFetchError);
+      return respond(headers, 500, { ok: false, code: "company_lookup_failed", message: companyFetchError.message });
     }
 
-    const { data: auth, error: authError } = await admin.auth.admin.createUser({
+    if (!company) {
+      return respond(headers, 404, { ok: false, code: "company_missing", message: "Company not found" });
+    }
+
+    const { data: userCreation, error: createError } = await adminClient.auth.admin.createUser({
       email,
       password,
-      email_confirm: true,
-      user_metadata: { role, language_preference: language },
+      email_confirm: false,
+      user_metadata: {
+        full_name: fullName,
+        role,
+        company_id: company.name,
+        language_preference: language,
+      },
     });
-    if (authError || !auth?.user) {
-      return json({ error: "create_failed", details: authError?.message }, 500, cors ?? { Vary: "Origin" });
+
+    if (createError || !userCreation.user) {
+      console.error("auth-signup: createUser failed", createError);
+      return respond(headers, 500, { ok: false, code: "user_create_failed", message: createError?.message });
     }
 
-    const { error: profileError } = await admin.from("users").insert({
-      auth_uid: auth.user.id,
+    const { error: profileInsertError } = await adminClient.from("users").insert({
+      id: userCreation.user.id,
       email,
       full_name: fullName,
       role,
+      company_id: company.name,
       language_preference: language,
-      company_id: company.id,
     });
-    if (profileError) {
-      await admin.auth.admin.deleteUser(auth.user.id).catch(() => {});
-      return json({ error: "profile_insert_failed", details: profileError.message }, 500, cors ?? { Vary: "Origin" });
+
+    if (profileInsertError) {
+      console.error("auth-signup: profile insert failed", profileInsertError);
+      return respond(headers, 500, { ok: false, code: "profile_insert_failed", message: profileInsertError.message });
     }
 
-    return json({ ok: true, company_id: company.id, user_id: auth.user.id }, 200, cors ?? { Vary: "Origin" });
+    return respond(headers, 200, { ok: true, userId: userCreation.user.id, companyId: company.id });
   } catch (error) {
-    console.error("auth-signup unexpected error", error);
-    return json({ error: "create_failed" }, 500, cors ?? { Vary: "Origin" });
+    console.error("auth-signup: unexpected error", error);
+    return respond(headers, 500, { ok: false, code: "unknown_error", message: String(error) });
   }
 });
