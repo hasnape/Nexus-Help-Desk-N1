@@ -172,7 +172,6 @@ const routes: RouteLike[] = [
   {
     path: "/",
     element: <AppLayout />,
-    // En cas d'erreur de routing non interceptée
     children: [
       { index: true, element: assertElement(<RootRedirect />, "RootRedirect") },
 
@@ -283,7 +282,6 @@ export function AppRouter() {
     <RouterProvider
       router={router}
       fallbackElement={<div style={{ padding: 24 }}>Chargement du routeur…</div>}
-      // page d'erreur globale pour erreurs de routing runtime
       future={{ v7_startTransition: true }}
     />
   );
