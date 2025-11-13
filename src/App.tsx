@@ -120,8 +120,7 @@ const reviveTicketDates = (data: any): Ticket => ({
 
 const isOfflineNetworkError = (error: any): boolean => {
   if (!error) return false;
-  const message =
-    typeof error === "string" ? error : typeof error?.message === "string" ? error.message : "";
+  const message = typeof error === "string" ? error : typeof error?.message === "string" ? error.message : "";
   const lower = message.toLowerCase();
   return (
     lower.includes("failed to fetch") ||
@@ -260,18 +259,13 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
           ]);
 
           setAllUsers(usersResponse.data || []);
-
           const fetchedTickets = ticketsResponse.data ? ticketsResponse.data.map(reviveTicketDates) : [];
 
           if (freemiumOnDevice) {
             const localTickets = loadFreemiumTickets();
             const initialTickets = localTickets && localTickets.length > 0 ? localTickets : fetchedTickets;
             setTicketsDirect(initialTickets, true);
-            recordFreemiumSession(
-              userProfile.id,
-              userProfile.email,
-              resolveCompanyIdentifier(userProfile)
-            );
+            recordFreemiumSession(userProfile.id, userProfile.email, resolveCompanyIdentifier(userProfile));
           } else {
             setTicketsDirect(fetchedTickets);
           }
@@ -369,14 +363,8 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     setConsentGiven(true);
   };
 
-  const login = async (
-    email: string,
-    password: string,
-    companyName: string
-  ): Promise<string | true> => {
-    const applyLocalLogin = (
-      account: ReturnType<typeof validateFreemiumCredentials>
-    ): string | true => {
+  const login = async (email: string, password: string, companyName: string): Promise<string | true> => {
+    const applyLocalLogin = (account: ReturnType<typeof validateFreemiumCredentials>): string | true => {
       if (!account) {
         return translateHook("login.error.invalidCredentials");
       }
@@ -728,17 +716,17 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         (prev) => prev.map((t) => (t.id === ticketId ? { ...t, status, updated_at: updatedAtDate } : t)),
         true
       );
-      return;
+    } else {
+      const updated_at = new Date().toISOString();
+      const { data, error } = await supabase
+        .from("tickets")
+        .update({ status, updated_at })
+        .eq("id", ticketId)
+        .select()
+        .single();
+      if (error) console.error("Error updating ticket status:", error);
+      else updateTicketsState((prev) => prev.map((t) => (t.id === ticketId ? reviveTicketDates(data) : t)));
     }
-    const updated_at = new Date().toISOString();
-    const { data, error } = await supabase
-      .from("tickets")
-      .update({ status, updated_at })
-      .eq("id", ticketId)
-      .select()
-      .single();
-    if (error) console.error("Error updating ticket status:", error);
-    else updateTicketsState((prev) => prev.map((t) => (t.id === ticketId ? reviveTicketDates(data) : t)));
   };
 
   const deleteTicket = async (ticketId: string): Promise<void> => {
@@ -763,6 +751,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
   const assignTicket = async (ticketId: string, agentId: string | null): Promise<void> => {
     const ticketToUpdate = tickets.find((t) => t.id === ticketId);
     if (!ticketToUpdate || user?.role !== "manager") return;
+
     let summaryMessage: ChatMessage | null = null;
     if (agentId && (!ticketToUpdate.assigned_agent_id || ticketToUpdate.assigned_agent_id !== agentId)) {
       setIsLoadingAi(true);
@@ -786,6 +775,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         setIsLoadingAi(false);
       }
     }
+
     const updatedChatHistory = summaryMessage
       ? [...ticketToUpdate.chat_history, summaryMessage]
       : ticketToUpdate.chat_history;
@@ -808,6 +798,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       );
       return;
     }
+
     const { data, error } = await supabase
       .from("tickets")
       .update({
@@ -828,9 +819,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       const updatedAtDate = new Date();
       updateTicketsState(
         (prev) =>
-          prev.map((t) =>
-            t.id === ticketId ? { ...t, assigned_agent_id: user.id, updated_at: updatedAtDate } : t
-          ),
+          prev.map((t) => (t.id === ticketId ? { ...t, assigned_agent_id: user.id, updated_at: updatedAtDate } : t)),
         true
       );
       return;
@@ -855,6 +844,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     if (!user || (user.role !== UserRole.AGENT && user.role !== UserRole.MANAGER)) return;
     const ticket = tickets.find((t) => t.id === ticketId);
     if (!ticket) return;
+
     const agentMessage: ChatMessage = {
       id: crypto.randomUUID(),
       sender: "agent",
@@ -886,6 +876,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       );
       return;
     }
+
     const { data, error } = await supabase
       .from("tickets")
       .update({
@@ -910,19 +901,13 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     if (!ticket) return;
 
     const timestamp = new Date();
-    const userMessage: ChatMessage = {
-      id: crypto.randomUUID(),
-      sender: "user",
-      text: userMessageText,
-      timestamp,
-    };
+    const userMessage: ChatMessage = { id: crypto.randomUUID(), sender: "user", text: userMessageText, timestamp };
     const newStatus =
       ticket.status === TICKET_STATUS_KEYS.RESOLVED || ticket.status === TICKET_STATUS_KEYS.CLOSED
         ? TICKET_STATUS_KEYS.IN_PROGRESS
         : ticket.status;
 
     const tempUpdatedChatHistory = [...ticket.chat_history, userMessage];
-
     updateTicketsState(
       (prev) =>
         prev.map((t) =>
@@ -939,11 +924,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
       await supabase
         .from("tickets")
-        .update({
-          chat_history: tempUpdatedChatHistory,
-          status: newStatus,
-          updated_at: new Date().toISOString(),
-        })
+        .update({ chat_history: tempUpdatedChatHistory, status: newStatus, updated_at: new Date().toISOString() })
         .eq("id", ticketId);
       return;
     }
@@ -981,12 +962,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
           (prev) =>
             prev.map((t) =>
               t.id === ticketId
-                ? {
-                    ...t,
-                    chat_history: finalChatHistory,
-                    status: newStatus,
-                    updated_at: new Date(),
-                  }
+                ? { ...t, chat_history: finalChatHistory, status: newStatus, updated_at: new Date() }
                 : t
             ),
           true
@@ -1025,9 +1001,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       id: crypto.randomUUID(),
       proposedBy,
       status: newStatus,
-      history: ticket.current_appointment
-        ? [...(ticket.current_appointment.history || []), ticket.current_appointment]
-        : [],
+      history: ticket.current_appointment ? [...(ticket.current_appointment.history || []), ticket.current_appointment] : [],
     };
 
     let chatMessageText = "";
@@ -1180,7 +1154,9 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       updateTicketsState(
         (prev) =>
           prev.map((t) =>
-            t.id === ticketId ? { ...t, current_appointment: restoredAppointment, updated_at: updatedAt } : t
+            t.id === ticketId
+              ? { ...t, current_appointment: restoredAppointment, updated_at: updatedAt }
+              : t
           ),
         skipNetwork
       );

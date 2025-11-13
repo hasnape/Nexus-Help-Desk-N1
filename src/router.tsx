@@ -1,11 +1,12 @@
+// src/router.tsx
 import React from "react";
 import {
   createBrowserRouter,
   RouterProvider,
   Navigate,
   Outlet,
-  RouteObject,
   useLocation,
+  useParams,
 } from "react-router-dom";
 
 import LoadingSpinner from "@/components/LoadingSpinner";
@@ -14,6 +15,7 @@ import PageLayout from "@/components/PageLayout";
 import { useApp } from "@/contexts/AppContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { UserRole } from "@/types";
+
 import LandingPage from "@/pages/LandingPage";
 import LoginPage from "@/pages/LoginPage";
 import SignUpPage from "@/pages/SignUpPage";
@@ -36,6 +38,7 @@ import ManagerDashboardPage from "@/pages/ManagerDashboardPage";
 import NotFoundPage from "@/pages/NotFoundPage";
 import ErrorPage from "@/pages/ErrorPage";
 
+// Chemins sans chrome ou avec layout spécial
 const noLayoutPaths = new Set(["/landing", "/login", "/signup"]);
 const specialLayoutPaths = new Set([
   "/legal",
@@ -83,6 +86,7 @@ function validateRoutes(routes: RouteLike[], trail = "root") {
   }
 }
 
+// Layout racine conscient du consentement + du chrome
 const AppLayout: React.FC = () => {
   const { isLoading, consentGiven, giveConsent } = useApp();
   const { isLoadingLang, t } = useLanguage();
@@ -107,52 +111,34 @@ const AppLayout: React.FC = () => {
     </>
   );
 
-  if (skipLayout) {
-    return outlet;
-  }
-
-  if (skipChrome) {
-    return contentWithConsent;
-  }
+  if (skipLayout) return outlet;
+  if (skipChrome) return contentWithConsent;
 
   return <PageLayout>{contentWithConsent}</PageLayout>;
 };
 
+// Redirection racine selon rôle
 const RootRedirect: React.FC = () => {
   const { user } = useApp();
 
-  if (!user) {
-    return <Navigate to="/landing" replace />;
-  }
+  if (!user) return <Navigate to="/landing" replace />;
 
-  if (user.role === UserRole.AGENT) {
-    return <Navigate to="/agent/dashboard" replace />;
-  }
-
-  if (user.role === UserRole.MANAGER) {
-    return <Navigate to="/manager/dashboard" replace />;
-  }
+  if (user.role === UserRole.AGENT) return <Navigate to="/agent/dashboard" replace />;
+  if (user.role === UserRole.MANAGER) return <Navigate to="/manager/dashboard" replace />;
 
   return <Navigate to="/dashboard" replace />;
 };
 
+// Garde de route
 interface ProtectedRouteProps {
   children: React.ReactElement;
   allowedRoles?: UserRole[];
 }
-
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles }) => {
   const { user, isLoading } = useApp();
   const location = useLocation();
-
-  if (isLoading) {
-    return null;
-  }
-
-  if (!user) {
-    return <Navigate to="/login" replace state={{ from: location }} />;
-  }
-
+  if (isLoading) return null;
+  if (!user) return <Navigate to="/login" replace state={{ from: location }} />;
   if (allowedRoles && !allowedRoles.includes(user.role)) {
     const target =
       user.role === UserRole.AGENT
@@ -162,17 +148,33 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles 
         : "/dashboard";
     return <Navigate to={target} replace />;
   }
-
   return children;
 };
 
-const routes: RouteObject[] = [
+/**
+ * Aliases / redirections de compatibilité :
+ * - /help-chat        -> /help
+ * - /tickets/new      -> /ticket/new
+ * - /tickets/:id      -> /ticket/:id
+ */
+const HelpChatAlias: React.FC = () => <Navigate to="/help" replace />;
+
+const TicketsNewAlias: React.FC = () => <Navigate to="/ticket/new" replace />;
+
+const TicketsIdAlias: React.FC = () => {
+  const { id } = useParams();
+  return <Navigate to={`/ticket/${id ?? ""}`} replace />;
+};
+
+const routes: RouteLike[] = [
   {
     path: "/",
     element: <AppLayout />,
-    errorElement: <ErrorPage />,
+    // En cas d'erreur de routing non interceptée
     children: [
       { index: true, element: assertElement(<RootRedirect />, "RootRedirect") },
+
+      // Public / marketing
       { path: "landing", element: assertElement(<LandingPage />, "LandingPage") },
       { path: "login", element: assertElement(<LoginPage />, "LoginPage") },
       { path: "signup", element: assertElement(<SignUpPage />, "SignUpPage") },
@@ -185,6 +187,8 @@ const routes: RouteObject[] = [
       { path: "partners", element: assertElement(<PartnersPage />, "PartnersPage") },
       { path: "infographie", element: assertElement(<InfographiePage />, "InfographiePage") },
       { path: "pricing", element: assertElement(<PricingPage />, "PricingPage") },
+
+      // Abonnement (protégé)
       {
         path: "subscribe",
         element: assertElement(
@@ -194,6 +198,8 @@ const routes: RouteObject[] = [
           "SubscriptionPage"
         ),
       },
+
+      // Tableaux de bord (protégés)
       {
         path: "dashboard",
         element: assertElement(
@@ -201,33 +207,6 @@ const routes: RouteObject[] = [
             <DashboardPage />
           </ProtectedRoute>,
           "DashboardPage"
-        ),
-      },
-      {
-        path: "help",
-        element: assertElement(
-          <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
-            <HelpChatPage />
-          </ProtectedRoute>,
-          "HelpChatPage"
-        ),
-      },
-      {
-        path: "ticket/new",
-        element: assertElement(
-          <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
-            <NewTicketPage />
-          </ProtectedRoute>,
-          "NewTicketPage"
-        ),
-      },
-      {
-        path: "ticket/:ticketId",
-        element: assertElement(
-          <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
-            <TicketDetailPage />
-          </ProtectedRoute>,
-          "TicketDetailPage"
         ),
       },
       {
@@ -248,15 +227,60 @@ const routes: RouteObject[] = [
           "ManagerDashboardPage"
         ),
       },
+
+      // Help chat (protégé) + alias
+      {
+        path: "help",
+        element: assertElement(
+          <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
+            <HelpChatPage />
+          </ProtectedRoute>,
+          "HelpChatPage"
+        ),
+      },
+      { path: "help-chat", element: <HelpChatAlias /> }, // compat
+
+      // Création ticket (protégé) + alias
+      {
+        path: "ticket/new",
+        element: assertElement(
+          <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT]}>
+            <NewTicketPage />
+          </ProtectedRoute>,
+          "NewTicketPage"
+        ),
+      },
+      { path: "tickets/new", element: <TicketsNewAlias /> }, // compat
+
+      // Détail ticket (protégé) + alias
+      {
+        path: "ticket/:id",
+        element: assertElement(
+          <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
+            <TicketDetailPage />
+          </ProtectedRoute>,
+          "TicketDetailPage"
+        ),
+      },
+      { path: "tickets/:id", element: <TicketsIdAlias /> }, // compat
+
+      // 404
       { path: "*", element: assertElement(<NotFoundPage />, "NotFoundPage") },
     ],
   },
 ];
 
-validateRoutes(routes as RouteLike[]);
+validateRoutes(routes);
 
-export const router = createBrowserRouter(routes);
+export const router = createBrowserRouter(routes as any);
 
 export function AppRouter() {
-  return <RouterProvider router={router} fallbackElement={<div>Loading…</div>} />;
+  return (
+    <RouterProvider
+      router={router}
+      fallbackElement={<div style={{ padding: 24 }}>Chargement du routeur…</div>}
+      // page d'erreur globale pour erreurs de routing runtime
+      future={{ v7_startTransition: true }}
+    />
+  );
 }
