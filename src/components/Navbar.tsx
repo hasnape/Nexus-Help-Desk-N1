@@ -35,6 +35,12 @@ const SpeakerOffIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   </svg>
 );
 
+type NavLinkItem = {
+  href: string;
+  label: string;
+  external?: boolean;
+};
+
 const Navbar: React.FC = () => {
   const { user, logout, isAutoReadEnabled, toggleAutoRead } = useApp();
   const { language, setLanguage, t } = useLanguage();
@@ -56,60 +62,66 @@ const Navbar: React.FC = () => {
   const shouldHideSubscriptionLink =
     user?.role === UserRole.AGENT || user?.role === UserRole.USER;
 
-  const mainLinks = [
-    { to: "/landing", label: t("navbar.home", { default: "Accueil" }) },
+  const mainLinks: NavLinkItem[] = [
+    { href: "/landing", label: t("navbar.home", { default: "Accueil" }) },
     {
-      to: "/presentation",
+      href: "/presentation",
       label: t("navbar.presentation", { default: "Présentation" }),
     },
     {
-      to: "/accessibilite",
+      href: "/accessibilite",
       label: t("navbar.AccessibilitePage", { default: "Déclaration d’accessibilité" }),
     },
     {
-      to: "/pricing",
-      label: t("navbar.pricingpage", { default: "Tarifes" }),
+      href: "/pricing",
+      label: t("navbar.pricingpage", { default: "Tarifs" }),
     },
     {
-      to: "/demo",
+      href: "/demo",
       label: t("navbar.demo", { default: "Demander une démo" }),
     },
     {
-      to: "/infographie",
+      href: "/infographie",
       label: t("navbar.infographie", { default: "Infographie" }),
     },
     {
-      to: "/manual",
+      href: "/manual",
       label: t("navbar.userManual", { default: "Manuel utilisateur" }),
     },
     {
-      to: "/help",
+      href: "/guide-onboarding",
+      label: t("navbar.guide", { default: "Guide d'onboarding" }),
+    },
+    {
+      href: "/help",
       label: t("navbar.helpCenter", { default: "Centre d'aide" }),
     },
-    { to: "/support", label: t("navbar.support", { default: "Support" }) },
-    { to: "/contact", label: t("navbar.contact", { default: "Contact" }) },
+    { href: "/help", label: t("navbar.support", { default: "Support" }) },
+    { href: "/contact", label: t("navbar.contact", { default: "Contact" }) },
     {
-      to: "/legal",
+      href: "/legal",
       label: t("navbar.legal", { default: "Légal & Documentation" }),
     },
     {
-      to: "/email-support",
+      href: "mailto:hubnexusinfo@gmail.com",
       label: t("navbar.emailSupport", { default: "Support par email" }),
+      external: true,
     },
     {
-      to: "/presentation-video",
+      href: "https://youtu.be/OnfUuaRlukQ",
       label: t("navbar.demoVideo", { default: "Démonstration vidéo" }),
+      external: true,
     },
   ];
 
   if (!shouldHideSubscriptionLink) {
     mainLinks.push({
-      to: "/subscribe",
+      href: "/subscribe",
       label: t("navbar.pricing", { default: "Abonnement" }),
     });
   }
 
-  const navGroups = [
+  const navGroups: { key: string; title: string; links: NavLinkItem[] }[] = [
     {
       key: "main",
       title: t("navbar.group.main", { default: "Navigation" }),
@@ -120,11 +132,11 @@ const Navbar: React.FC = () => {
       title: t("navbar.group.community", { default: "Communauté" }),
       links: [
         {
-          to: "/testimonials",
+          href: "/testimonials",
           label: t("navbar.testimonials", { default: "Témoignages" }),
         },
         {
-          to: "/partners",
+          href: "/partners",
           label: t("navbar.partners", { default: "Partenaires" }),
         },
       ],
@@ -137,7 +149,7 @@ const Navbar: React.FC = () => {
             ...(!shouldHideSubscriptionLink
               ? [
                   {
-                    to: "/subscribe",
+                    href: "/subscribe",
                     label: t("navbar.subscriptionButton", { default: "Abonnement" }),
                   },
                 ]
@@ -145,7 +157,7 @@ const Navbar: React.FC = () => {
             ...(user.role === UserRole.AGENT
               ? [
                   {
-                    to: "/agent/dashboard",
+                    href: "/agent/dashboard",
                     label: t("navbar.agentPortalButton", {
                       default: "Espace Agent",
                     }),
@@ -155,7 +167,7 @@ const Navbar: React.FC = () => {
             ...(user.role === UserRole.MANAGER
               ? [
                   {
-                    to: "/manager/dashboard",
+                    href: "/manager/dashboard",
                     label: t("navbar.managerPortalButton", {
                       default: "Espace Manager",
                     }),
@@ -165,16 +177,40 @@ const Navbar: React.FC = () => {
           ]
         : [
             {
-              to: "/login",
+              href: "/login",
               label: t("navbar.loginButton", { default: "Connexion" }),
             },
             {
-              to: "/signup",
+              href: "/signup",
               label: t("navbar.signUpButton", { default: "Créer un compte" }),
             },
           ],
     },
   ];
+
+  const renderNavLink = (link: NavLinkItem, className: string, onClick?: () => void) => {
+    if (link.external) {
+      const isExternalHttp = /^https?:/i.test(link.href);
+      return (
+        <a
+          key={link.href}
+          href={link.href}
+          className={className}
+          onClick={onClick}
+          target={isExternalHttp ? "_blank" : undefined}
+          rel={isExternalHttp ? "noopener noreferrer" : undefined}
+        >
+          {link.label}
+        </a>
+      );
+    }
+
+    return (
+      <Link key={link.href} to={link.href} className={className} onClick={onClick}>
+        {link.label}
+      </Link>
+    );
+  };
 
   // Gestion des groupes repliables sur mobile
   const toggleGroup = (key: string) => {
@@ -399,16 +435,13 @@ const Navbar: React.FC = () => {
                       className="flex flex-col pl-2"
                       id={`group-${group.key}`}
                     >
-                      {group.links.map((link) => (
-                        <Link
-                          key={link.to}
-                          to={link.to}
-                          className="block py-2 px-3 rounded text-slate-200 hover:bg-sky-700 hover:text-white transition"
-                          onClick={() => setMenuOpen(false)}
-                        >
-                          {link.label}
-                        </Link>
-                      ))}
+                      {group.links.map((link) =>
+                        renderNavLink(
+                          link,
+                          "block py-2 px-3 rounded text-slate-200 hover:bg-sky-700 hover:text-white transition",
+                          () => setMenuOpen(false)
+                        )
+                      )}
                     </div>
                   </Transition>
                 </div>

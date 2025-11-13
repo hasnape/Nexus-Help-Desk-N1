@@ -29,6 +29,7 @@ import PartnersPage from "@/pages/PartnersPage";
 import InfographiePage from "@/pages/InfographiePage";
 import PricingPage from "@/pages/PricingPage";
 import SubscriptionPage from "@/pages/SubscriptionPage";
+import GuideOnboardingPage from "@/pages/GuideOnboardingPage";
 import DashboardPage from "@/pages/DashboardPage";
 import HelpChatPage from "@/pages/HelpChatPage";
 import NewTicketPage from "@/pages/NewTicketPage";
@@ -36,7 +37,8 @@ import TicketDetailPage from "@/pages/TicketDetailPage";
 import AgentDashboardPage from "@/pages/AgentDashboardPage";
 import ManagerDashboardPage from "@/pages/ManagerDashboardPage";
 import NotFoundPage from "@/pages/NotFoundPage";
-import ErrorPage from "@/pages/ErrorPage";
+import AccessibilitePage from "@/pages/AccessibilitePage";
+import DemoPage from "@/pages/DemoPage";
 
 // Chemins sans chrome ou avec layout spécial
 const noLayoutPaths = new Set(["/landing", "/login", "/signup"]);
@@ -49,6 +51,8 @@ const specialLayoutPaths = new Set([
   "/testimonials",
   "/partners",
   "/infographie",
+  "/accessibilite",
+  "/guide-onboarding",
 ]);
 
 function assertElement(el: React.ReactNode, name: string) {
@@ -186,7 +190,13 @@ const routes: RouteLike[] = [
       { path: "testimonials", element: assertElement(<TestimonialsPage />, "TestimonialsPage") },
       { path: "partners", element: assertElement(<PartnersPage />, "PartnersPage") },
       { path: "infographie", element: assertElement(<InfographiePage />, "InfographiePage") },
+      { path: "accessibilite", element: assertElement(<AccessibilitePage />, "AccessibilitePage") },
+      {
+        path: "guide-onboarding",
+        element: assertElement(<GuideOnboardingPage />, "GuideOnboardingPage"),
+      },
       { path: "pricing", element: assertElement(<PricingPage />, "PricingPage") },
+      { path: "demo", element: assertElement(<DemoPage />, "DemoPage") },
 
       // Abonnement (protégé)
       {

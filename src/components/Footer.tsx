@@ -156,7 +156,7 @@ const Footer: React.FC = () => {
             <ul className="space-y-2">
                 <li>
                 <Link
-                  to="accessibilite"
+                  to="/accessibilite"
                   className="text-slate-300 hover:text-primary transition-colors"
                 >
                   {t("footer.AccessibilitePage", { default: "Déclaration d’accessibilité" })}
@@ -176,6 +176,14 @@ const Footer: React.FC = () => {
                   className="text-slate-300 hover:text-primary transition-colors"
                 >
                   {t("footer.userManual", { default: "Manuel utilisateur" })}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/guide-onboarding"
+                  className="text-slate-300 hover:text-primary transition-colors"
+                >
+                  {t("footer.guide", { default: "Guide d'onboarding" })}
                 </Link>
               </li>
               <li>
