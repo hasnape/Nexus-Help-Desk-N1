@@ -419,7 +419,7 @@
   "landing.advantages.multilingual.title": "دعم متعدد اللغات",
   "landing.advantages.multilingual.desc": "واجهة ومساعدة متوفرة بالفرنسية والإنجليزية والعربية لخدمة جميع عملائك دون حواجز.",
   "landing.advantages.dashboard.title": "لوحات تحكم بديهية",
-  "landing.advantages.dashboard.desc": "بوابات مخصصة لكل دور، مع أدوات مصممة لإدارة مثالية.", 
+  "landing.advantages.dashboard.desc": "بوابات مخصصة لكل دور، مع أدوات مصممة لإدارة مثالية.",
   "landing.advantages.cost.title": "تحسين التكاليف",
   "landing.advantages.cost.desc": "أتمتة المهام المتكررة: ركز مواردك على الأهم وقلل من نفقاتك.",
   "landing.features.title": "كل ما تحتاجه في مكتب مساعدة حديث",
@@ -530,12 +530,12 @@
   "signupPlans.pro.payment.payButton": "ادفع الآن عبر PayPal",
   "footer.logoAlt": "شعار محور دعم نيكسوس",
   "footer.logoTitle": "محور دعم نيكسوس",
-  "footer.description": "مركز دعم ذكي مع الذكاء الاصطناعي لإدارة فعالة للتذاكر ودعم عملاء محسن.",
+  "footer.description": "مركز دعم ذكي يعتمد على الذكاء الاصطناعي لإدارة التذاكر بكفاءة وتحسين خدمة العملاء.",
   "footer.demoVideo": "🎥 شاهد العرض التوضيحي",
   "footer.quickLinks": "روابط سريعة",
   "footer.home": "الرئيسية",
-  "footer.presentation": "عرض تقديمي",
-  "footer.contact": "اتصل بنا",
+  "footer.presentation": "العرض",
+  "footer.contact": "اتصال",
   "footer.userManual": "دليل المستخدم",
   "footer.pricing": "الأسعار",
   "footer.support": "الدعم",
@@ -604,5 +604,93 @@
   "landing.hero.watchDemo": "شاهد العرض",
   "landing.video.title": "اكتشفمحور دعم نيكسوس ",
   "landing.video.watchOnYouTube": "شاهد على يوتيوب",
-   "activationKey.help": "للحصول على رمز التفعيل، يرجى التواصل مع دعم نيكسوس أو مراجعة بريدك الإلكتروني الترحيبي بعد شراء الخطة."
+  "activationKey.help": "للحصول على رمز التفعيل، يرجى التواصل مع دعم نيكسوس أو مراجعة بريدك الإلكتروني الترحيبي بعد شراء الخطة.",
+  "navbar.AccessibilitePage": "تصريح إمكانية الوصول",
+  "navbar.pricingpage": "الخطط والأسعار",
+  "navbar.demo": "طلب عرض توضيحي",
+  "footer.demo": "طلب عرض توضيحي",
+  "footer.infographie": "إنفوجرافيك",
+  "footer.AccessibilitePage": "تصريح إمكانية الوصول",
+  "accessibility.skipToContent": "الانتقال إلى المحتوى الرئيسي",
+  "accessibility.title": "تصريح إمكانية الوصول",
+  "accessibility.intro": "تلتزم {{orgName}} الواقعة في {{address}} بضمان أن الخدمة الرقمية {{serviceUrl}} متاحة للجميع، بما في ذلك الأشخاص ذوو الإعاقة. يمكنكم مراسلتنا على {{email}} للإبلاغ عن أي مشكلة.",
+  "accessibility.onThisPage": "في هذه الصفحة",
+  "accessibility.toc.state": "حالة المطابقة",
+  "accessibility.toc.results": "نتائج التدقيق",
+  "accessibility.toc.nonAccessible": "محتوى غير متاح",
+  "accessibility.toc.alternatives": "حلول بديلة",
+  "accessibility.toc.technologies": "التقنيات المستخدمة",
+  "accessibility.toc.improvementContact": "تحسين التجربة",
+  "accessibility.toc.remedies": "طرق التظلّم",
+  "accessibility.toc.updated": "آخر تحديث",
+  "accessibility.state.title": "حالة المطابقة",
+  "accessibility.state.content": "الخدمة متوافقة جزئياً مع المعيار الأوروبي EN 301 549 وإطار RGAA 4.1.",
+  "accessibility.results.title": "نتائج التدقيق",
+  "accessibility.results.rate": "مستوى المطابقة: مطابقة جزئية بعد التدقيق الداخلي بتاريخ 12/02/2024.",
+  "accessibility.results.pages": "شمل التدقيق الصفحات الرئيسية للمستخدمين بالإضافة إلى صفحات التسويق في المنصة.",
+  "accessibility.nonAccessible.title": "محتوى غير متاح",
+  "accessibility.nonAccessible.item1": "بعض الأيقونات الزخرفية لا تحتوي بعد على نص بديل واضح.",
+  "accessibility.nonAccessible.item2": "لا تزال بعض تباينات الألوان قيد التحسين في الأقسام القديمة.",
+  "accessibility.nonAccessible.item3": "مقاطع الفيديو المضمّنة لا توفر بعد ترجمة أو نصاً كاملاً.",
+  "accessibility.nonAccessible.derogations": "يتم تصحيح هذه العناصر تدريجياً، وأي استثناءات تبقى مؤقتة.",
+  "accessibility.alternatives.title": "حلول بديلة",
+  "accessibility.alternatives.item1": "تواصل مع الدعم عبر الدردشة أو البريد الإلكتروني للحصول على مساعدة شخصية.",
+  "accessibility.alternatives.item2": "اطلب مكالمة من أحد الوكلاء للحصول على المعلومات شفهياً.",
+  "accessibility.alternatives.item3": "استخدم دليل المستخدم القابل للتنزيل والمتوافق مع برامج قراءة الشاشة.",
+  "accessibility.tech.title": "التقنيات المستخدمة",
+  "accessibility.tech.content": "تعتمد الخدمة على HTML5 وCSS (Tailwind) وJavaScript وReact، ويتم اختبارها على أحدث إصدارات Chromium وFirefox وSafari.",
+  "accessibility.contact.title": "ساعدونا على التحسين",
+  "accessibility.contact.content": "إذا واجهتم عائقاً في إمكانية الوصول، راسلونا على {{email}} أو استخدموا نموذج الاتصال.",
+  "accessibility.contact.formLink": "صفحة الاتصال الخاصة بنا",
+  "accessibility.remedies.title": "طرق التظلّم",
+  "accessibility.remedies.content": "إذا لم تحصلوا على رد مرضٍ، يمكنكم تصعيد الشكوى إلى وسيط الجمهورية أو الجهة المختصة في بلدكم.",
+  "accessibility.updated.title": "آخر تحديث",
+  "accessibility.updated.content": "تم نشر وتحديث هذا التصريح بتاريخ {{date}}.",
+  "navbar.guide": "دليل الإعداد",
+  "footer.guide": "دليل الإعداد",
+  "guideOnboarding.hero.eyebrow": "دليل الإعداد",
+  "guideOnboarding.hero.title": "أطلق Nexus Support Hub خلال دقائق",
+  "guideOnboarding.hero.subtitle": "دليل تدريجي لمواءمة الفرق، وتدفقات الذكاء الاصطناعي، ومتطلبات RGAA منذ اليوم الأول.",
+  "guideOnboarding.hero.ctaGroupLabel": "الإجراءات الأساسية",
+  "guideOnboarding.hero.ctaDemo": "اطلب عرضًا توضيحيًا",
+  "guideOnboarding.hero.ctaContact": "تحدث مع خبير",
+  "guideOnboarding.pillars.eyebrow": "٤ ركائز",
+  "guideOnboarding.pillars.title": "أساسيات Nexus Support Hub",
+  "guideOnboarding.pillars.agents.eyebrow": "الركيزة 1",
+  "guideOnboarding.pillars.agents.title": "اجمع وكلاءك",
+  "guideOnboarding.pillars.agents.description": "ادعُ فرقك، أدِر الأدوار ونظّم الطوابير بدون احتكاك.",
+  "guideOnboarding.pillars.agents.points.0": "أدوار المسؤول / المشرف / الوكيل مع صلاحيات دقيقة.",
+  "guideOnboarding.pillars.agents.points.1": "توجيه حسب الطوابير والمهارات مع قواعد التصعيد.",
+  "guideOnboarding.pillars.agents.points.2": "صندوق وارد مشترك، إشارات @، قوالب وردود محفوظة.",
+  "guideOnboarding.pillars.ai.eyebrow": "الركيزة 2",
+  "guideOnboarding.pillars.ai.title": "سرّع باستخدام الذكاء الاصطناعي",
+  "guideOnboarding.pillars.ai.description": "تصنيف تلقائي، ملخصات ذكية وترجمة فورية.",
+  "guideOnboarding.pillars.ai.points.0": "كشف النية/اللغة مع أولوية تلقائية.",
+  "guideOnboarding.pillars.ai.points.1": "اقتراحات ردود وملخصات بنقرة واحدة داخل التذاكر.",
+  "guideOnboarding.pillars.ai.points.2": "بحث معزز في قاعدة المعرفة لديك.",
+  "guideOnboarding.pillars.analytics.eyebrow": "الركيزة 3",
+  "guideOnboarding.pillars.analytics.title": "قد عبر التحليلات",
+  "guideOnboarding.pillars.analytics.description": "تتبع SLA وFCR وCSAT ووقت الحل مع التصدير وواجهات الويب.",
+  "guideOnboarding.pillars.analytics.points.0": "لوحات معلومات حسب القناة والطابور والوكيل.",
+  "guideOnboarding.pillars.analytics.points.1": "تصدير CSV/JSON وواجهات webhook متوافقة مع أدوات BI.",
+  "guideOnboarding.pillars.analytics.points.2": "تنبيهات مؤشرات الأداء لخرق SLA أو ذروة الحجم أو المحادثات غير المجابة.",
+  "guideOnboarding.pillars.accessibility.eyebrow": "الركيزة 4",
+  "guideOnboarding.pillars.accessibility.title": "إمكانية الوصول والامتثال لـ RGAA",
+  "guideOnboarding.pillars.accessibility.description": "واجهة متوافقة مع RGAA 4.1 AA مع تركيز واضح وتسميات ARIA.",
+  "guideOnboarding.pillars.accessibility.points.0": "تنقل عبر لوحة المفاتيح وروابط تخطي وترتيب تبويب يمكن التنبؤ به.",
+  "guideOnboarding.pillars.accessibility.points.1": "تباين ≥ ‎4.5:1 ومكونات ملائمة لقارئ الشاشة.",
+  "guideOnboarding.pillars.accessibility.points.2": "تصريح منشور ونقطة اتصال مخصصة لإمكانية الوصول.",
+  "guideOnboarding.stepsEyebrow": "البدء",
+  "guideOnboarding.stepsTitle": "٣ خطوات للانطلاق",
+  "guideOnboarding.steps.0": "أنشئ مساحتك، ادعُ الوكلاء وحدد الأدوار.",
+  "guideOnboarding.steps.1": "اربط قناة أولى (Gmail/Outlook أو WhatsApp أو Messenger أو دردشة الويب).",
+  "guideOnboarding.steps.2": "استورد الأسئلة الشائعة/قاعدة المعرفة (CSV/Markdown) وفعّل الردود الذكية.",
+  "guideOnboarding.accessibilityEyebrow": "الامتثال",
+  "guideOnboarding.accessibilityTitle": "قائمة التحقق RGAA 4.1 AA",
+  "guideOnboarding.accessibilitySubtitle": "راجع هذه النقاط قبل نشر تصريح إمكانية الوصول.",
+  "guideOnboarding.accessibilityChecklist.0": "تركيز مرئي ورسائل أخطاء مرتبطة عبر aria-describedby.",
+  "guideOnboarding.accessibilityChecklist.1": "بدائل نصية للوسائط والأيقونات الحساسة.",
+  "guideOnboarding.accessibilityChecklist.2": "تم اختبار دعم لوحة المفاتيح وقارئ الشاشة في المسار الحرج.",
+  "guideOnboarding.accessibilityCallout": "هل تحتاج إلى نموذج تصريح RGAA أو تدقيق؟",
+  "guideOnboarding.accessibilityCta": "اطلع على تصريح الوصول الخاص بنا"
 }

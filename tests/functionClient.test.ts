@@ -69,3 +69,32 @@ test("callEdgeWithFallback returns primary response when successful", async () =
   assert.equal(calls.length, 1);
   assert.ok(String(calls[0][0]).includes("functions.supabase.co/auth-signup"));
 });
+
+test("callEdgeWithFallback picks up Supabase keys from the latest environment", async () => {
+  resetEnv();
+  const response = new Response(JSON.stringify({ ok: true }), { status: 200 });
+  const calls: Array<Parameters<typeof fetch>> = [];
+
+  await withMockedFetch((...args) => {
+    calls.push(args);
+    return Promise.resolve(response);
+  }, async () => {
+    await callEdgeWithFallback("session-sync", { attempt: 1 });
+
+    import.meta.env.VITE_SUPABASE_ANON_KEY = "rotating-key";
+    process.env.VITE_SUPABASE_ANON_KEY = "rotating-key";
+
+    await callEdgeWithFallback("session-sync", { attempt: 2 });
+  });
+
+  assert.equal(calls.length, 2);
+
+  const getAuthorizationHeader = (index: number) => {
+    const [, init] = calls[index];
+    const headers = new Headers(init?.headers);
+    return headers.get("Authorization");
+  };
+
+  assert.equal(getAuthorizationHeader(0), "Bearer anon-key");
+  assert.equal(getAuthorizationHeader(1), "Bearer rotating-key");
+});

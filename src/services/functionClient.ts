@@ -22,13 +22,14 @@ const resolveEnv = (key: string): string | undefined => {
   return undefined;
 };
 
-const supabaseAnonKey = resolveEnv("VITE_SUPABASE_ANON_KEY");
+const getSupabaseAnonKey = (): string | undefined => resolveEnv("VITE_SUPABASE_ANON_KEY");
 
 const buildHeaders = (headers?: HeadersInit): Headers => {
   const merged = new Headers(headers || {});
   if (!merged.has("Content-Type")) {
     merged.set("Content-Type", "application/json");
   }
+  const supabaseAnonKey = getSupabaseAnonKey();
   if (supabaseAnonKey) {
     if (!merged.has("apikey")) {
       merged.set("apikey", supabaseAnonKey);
