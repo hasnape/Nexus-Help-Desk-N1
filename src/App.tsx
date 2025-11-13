@@ -1,4 +1,4 @@
-import React, { useState, ReactNode, useCallback, useEffect } from "react";
+import React, { useState, ReactNode, useCallback, useEffect, createContext } from "react";
 import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation, Link } from "react-router-dom";
 import { Ticket, User, ChatMessage, TicketStatus, UserRole, Locale as AppLocale, AppointmentDetails } from "@types";
 import { getFollowUpHelpResponse, getTicketSummary } from "./services/geminiService";
