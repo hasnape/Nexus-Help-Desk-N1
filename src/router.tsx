@@ -36,7 +36,8 @@ import TicketDetailPage from "@/pages/TicketDetailPage";
 import AgentDashboardPage from "@/pages/AgentDashboardPage";
 import ManagerDashboardPage from "@/pages/ManagerDashboardPage";
 import NotFoundPage from "@/pages/NotFoundPage";
-import ErrorPage from "@/pages/ErrorPage";
+import AccessibilitePage from "@/pages/AccessibilitePage";
+import DemoPage from "@/pages/DemoPage";
 
 // Chemins sans chrome ou avec layout spécial
 const noLayoutPaths = new Set(["/landing", "/login", "/signup"]);
@@ -49,6 +50,7 @@ const specialLayoutPaths = new Set([
   "/testimonials",
   "/partners",
   "/infographie",
+  "/accessibilite",
 ]);
 
 function assertElement(el: React.ReactNode, name: string) {
@@ -186,7 +188,9 @@ const routes: RouteLike[] = [
       { path: "testimonials", element: assertElement(<TestimonialsPage />, "TestimonialsPage") },
       { path: "partners", element: assertElement(<PartnersPage />, "PartnersPage") },
       { path: "infographie", element: assertElement(<InfographiePage />, "InfographiePage") },
+      { path: "accessibilite", element: assertElement(<AccessibilitePage />, "AccessibilitePage") },
       { path: "pricing", element: assertElement(<PricingPage />, "PricingPage") },
+      { path: "demo", element: assertElement(<DemoPage />, "DemoPage") },
 
       // Abonnement (protégé)
       {

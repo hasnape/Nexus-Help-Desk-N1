@@ -4,7 +4,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import ChatMessageComponent from '../components/ChatMessage';
 import { Button, Textarea, Select, Input } from '../components/FormElements'; // Added Input
-import { TicketStatus, ChatMessage as ChatMessageType, TicketPriority, UserRole, AppointmentDetails } from '@/types';
+import { TicketStatus, ChatMessage as ChatMessageType, UserRole, AppointmentDetails } from '@/types';
 import { TICKET_STATUS_KEYS, TICKET_PRIORITY_KEYS } from "@/constants";
 import LoadingSpinner from '../components/LoadingSpinner';
 import useSpeechRecognition from '../hooks/useSpeechRecognition';
