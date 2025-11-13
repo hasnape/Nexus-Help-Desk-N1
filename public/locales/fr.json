@@ -621,52 +621,62 @@
   "accessibility.remedies.title": "Voies de recours",
   "accessibility.remedies.content": "Si vous n’obtenez pas de réponse satisfaisante, vous pouvez saisir le Défenseur des droits.",
   "accessibility.updated.title": "Dernière mise à jour",
+    "accessibility.updated.title": "Dernière mise à jour",
   "accessibility.updated.content": "Déclaration publiée et mise à jour le {{date}}.",
   "navbar.guide": "Guide d'onboarding",
   "footer.guide": "Guide d'onboarding",
+
   "guideOnboarding.hero.eyebrow": "Guide d'onboarding",
   "guideOnboarding.hero.title": "Déployez Nexus Support Hub en quelques minutes",
   "guideOnboarding.hero.subtitle": "Un parcours pas-à-pas pour aligner vos équipes, les workflows IA et vos obligations RGAA dès le premier jour.",
   "guideOnboarding.hero.ctaGroupLabel": "Actions principales",
   "guideOnboarding.hero.ctaDemo": "Demander une démo",
   "guideOnboarding.hero.ctaContact": "Parler à un expert",
+
   "guideOnboarding.pillars.eyebrow": "4 piliers",
   "guideOnboarding.pillars.title": "Les fondations de Nexus Support Hub",
+
   "guideOnboarding.pillars.agents.eyebrow": "Pilier 1",
   "guideOnboarding.pillars.agents.title": "Centralisez vos agents",
   "guideOnboarding.pillars.agents.description": "Invitez vos équipes, gérez les rôles et organisez les files sans friction.",
   "guideOnboarding.pillars.agents.points.0": "Rôles Admin / Superviseur / Agent et permissions fines.",
   "guideOnboarding.pillars.agents.points.1": "Routage par files, compétences et règles d'escalade.",
   "guideOnboarding.pillars.agents.points.2": "Boîte partagée, mentions @, macros et réponses sauvegardées.",
+
   "guideOnboarding.pillars.ai.eyebrow": "Pilier 2",
   "guideOnboarding.pillars.ai.title": "Accélérez avec l’IA",
   "guideOnboarding.pillars.ai.description": "Classement automatique, résumés intelligents et traduction instantanée.",
   "guideOnboarding.pillars.ai.points.0": "Détection d’intention/langue et priorisation automatique.",
   "guideOnboarding.pillars.ai.points.1": "Suggestions de réponses et résumés en un clic dans les tickets.",
   "guideOnboarding.pillars.ai.points.2": "Recherche augmentée dans votre base de connaissances.",
+
   "guideOnboarding.pillars.analytics.eyebrow": "Pilier 3",
   "guideOnboarding.pillars.analytics.title": "Pilotez par les analyses",
   "guideOnboarding.pillars.analytics.description": "Suivez SLA, FCR, CSAT et temps de résolution avec exports et webhooks.",
   "guideOnboarding.pillars.analytics.points.0": "Tableaux de bord par canal, file et agent.",
   "guideOnboarding.pillars.analytics.points.1": "Exports CSV/JSON et webhooks prêts pour vos outils BI.",
   "guideOnboarding.pillars.analytics.points.2": "Alertes KPI : seuils SLA, pics de volume, conversations sans réponse.",
+
   "guideOnboarding.pillars.accessibility.eyebrow": "Pilier 4",
   "guideOnboarding.pillars.accessibility.title": "Accessibilité & conformité RGAA",
   "guideOnboarding.pillars.accessibility.description": "Interface prête RGAA 4.1 AA avec focus visible et labels ARIA.",
   "guideOnboarding.pillars.accessibility.points.0": "Navigation clavier, skip-links et ordre de tabulation maîtrisé.",
   "guideOnboarding.pillars.accessibility.points.1": "Contrastes ≥ 4,5:1 et composants compatibles lecteurs d’écran.",
   "guideOnboarding.pillars.accessibility.points.2": "Déclaration publiée + point de contact accessibilité.",
+
   "guideOnboarding.stepsEyebrow": "Mise en route",
   "guideOnboarding.stepsTitle": "3 étapes pour être opérationnel",
   "guideOnboarding.steps.0": "Créez votre espace, invitez vos agents et définissez les rôles.",
   "guideOnboarding.steps.1": "Connectez un canal (Gmail/Outlook, WhatsApp, Messenger, chat web).",
   "guideOnboarding.steps.2": "Importez votre FAQ/KB (CSV/Markdown) et activez les réponses IA.",
+
   "guideOnboarding.accessibilityEyebrow": "Conformité",
   "guideOnboarding.accessibilityTitle": "Checklist RGAA 4.1 AA",
   "guideOnboarding.accessibilitySubtitle": "Contrôlez ces points avant de publier votre déclaration d’accessibilité.",
   "guideOnboarding.accessibilityChecklist.0": "Focus visible et messages d’erreur reliés via aria-describedby.",
   "guideOnboarding.accessibilityChecklist.1": "Alternatives textuelles pour les médias et icônes critiques.",
   "guideOnboarding.accessibilityChecklist.2": "Compatibilité clavier / lecteur d’écran testée sur le tunnel critique.",
+
   "guideOnboarding.accessibilityCallout": "Besoin d’un modèle de déclaration ou d’un audit ?",
   "guideOnboarding.accessibilityCta": "Consulter notre déclaration d’accessibilité"
 }
