@@ -13,46 +13,80 @@ const additionalOrigins = (Deno.env.get("ALLOWED_ORIGINS") ?? "")
   .map((o) => o.trim())
   .filter((o) => o.length > 0);
 
-const ALLOWED_ORIGINS = new Set<string>([...STATIC_ALLOWED_ORIGINS, ...additionalOrigins]);
+const ALLOWED_ORIGINS = new Set<string>([
+  ...STATIC_ALLOWED_ORIGINS,
+  ...additionalOrigins,
+]);
 
 function corsHeaders(origin: string | null) {
-  if (!origin) return { Vary: "Origin" } as Record<string, string>;
-  if (!ALLOWED_ORIGINS.has(origin)) return null;
+  if (!origin) {
+    return { Vary: "Origin" } as Record<string, string>;
+  }
+
+  if (!ALLOWED_ORIGINS.has(origin)) {
+    return null;
+  }
+
   return {
     "Access-Control-Allow-Origin": origin,
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Headers":
+      "authorization, x-client-info, apikey, content-type",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Access-Control-Allow-Credentials": "true",
     Vary: "Origin",
   } as Record<string, string>;
 }
 
-function json(body: unknown, status = 200, cors: Record<string, string> = { Vary: "Origin" }) {
+function json(
+  body: unknown,
+  status = 200,
+  cors: Record<string, string> = { Vary: "Origin" },
+) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...cors, "content-type": "application/json; charset=utf-8" },
+    headers: {
+      ...cors,
+      "Content-Type": "application/json; charset=utf-8",
+    },
   });
 }
 
-const SUPABASE_URL = Deno.env.get("PROJECT_URL") ?? Deno.env.get("SUPABASE_URL")!;
-const ANON_KEY = Deno.env.get("ANON_KEY") ?? Deno.env.get("SUPABASE_ANON_KEY")!;
+const SUPABASE_URL =
+  Deno.env.get("PROJECT_URL") ?? Deno.env.get("SUPABASE_URL")!;
+const ANON_KEY =
+  Deno.env.get("ANON_KEY") ?? Deno.env.get("SUPABASE_ANON_KEY")!;
 
 serve(async (req) => {
   const origin = req.headers.get("Origin");
   const cors = corsHeaders(origin);
 
+  // Pré-vol CORS (OPTIONS)
   if (req.method === "OPTIONS") {
-    return new Response("ok", { status: 204, headers: cors ?? { Vary: "Origin" } });
+    // ⚠️ 204 => body DOIT être null
+    return new Response(null, {
+      status: 204,
+      headers: cors ?? { Vary: "Origin" },
+    });
   }
 
+  // Origine non autorisée
   if (origin && !cors) {
-    return new Response("Forbidden", { status: 403, headers: { Vary: "Origin" } });
+    return new Response("Forbidden", {
+      status: 403,
+      headers: { Vary: "Origin" },
+    });
   }
 
+  // Méthode non autorisée
   if (req.method !== "POST") {
-    return json({ ok: false, error: "method_not_allowed" }, 405, cors ?? { Vary: "Origin" });
+    return json(
+      { ok: false, error: "method_not_allowed" },
+      405,
+      cors ?? { Vary: "Origin" },
+    );
   }
 
+  // Lecture du body
   let body: any;
   try {
     body = await req.json();
@@ -64,21 +98,35 @@ serve(async (req) => {
   const company = String(body?.company ?? "").trim();
 
   if (!email || !company) {
-    return json({ ok: false, error: "missing_fields" }, 400, cors ?? { Vary: "Origin" });
+    return json(
+      { ok: false, error: "missing_fields" },
+      400,
+      cors ?? { Vary: "Origin" },
+    );
   }
 
   const supabase = createClient(SUPABASE_URL, ANON_KEY);
+
   const { data, error } = await supabase.rpc("prelogin_check_company", {
     p_email: email,
     p_company_name: company,
   });
 
   if (error) {
-    return json({ ok: false, error: error.message ?? "rpc_failed" }, 500, cors ?? { Vary: "Origin" });
+    console.error("prelogin_check_company error", error);
+    return json(
+      { ok: false, error: error.message ?? "rpc_failed" },
+      500,
+      cors ?? { Vary: "Origin" },
+    );
   }
 
   if (!data?.allowed) {
-    return json({ ok: false, reason: data?.reason ?? "forbidden" }, 403, cors ?? { Vary: "Origin" });
+    return json(
+      { ok: false, reason: data?.reason ?? "forbidden" },
+      403,
+      cors ?? { Vary: "Origin" },
+    );
   }
 
   return json({ ok: true }, 200, cors ?? { Vary: "Origin" });
