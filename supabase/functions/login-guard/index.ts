@@ -46,6 +46,7 @@ function json(
     status,
     headers: {
       ...cors,
+      // 🔧 important : header correct
       "Content-Type": "application/json; charset=utf-8",
     },
   });
@@ -56,20 +57,18 @@ const SUPABASE_URL =
 const ANON_KEY =
   Deno.env.get("ANON_KEY") ?? Deno.env.get("SUPABASE_ANON_KEY")!;
 
-serve(async (req) => {
+serve(async (req: Request): Promise<Response> => {
   const origin = req.headers.get("Origin");
   const cors = corsHeaders(origin);
 
-  // Pré-vol CORS (OPTIONS)
+  // 🔧 important : 204 => body NULL, pas "ok"
   if (req.method === "OPTIONS") {
-    // ⚠️ 204 => body DOIT être null
     return new Response(null, {
       status: 204,
       headers: cors ?? { Vary: "Origin" },
     });
   }
 
-  // Origine non autorisée
   if (origin && !cors) {
     return new Response("Forbidden", {
       status: 403,
@@ -77,7 +76,6 @@ serve(async (req) => {
     });
   }
 
-  // Méthode non autorisée
   if (req.method !== "POST") {
     return json(
       { ok: false, error: "method_not_allowed" },
@@ -86,7 +84,6 @@ serve(async (req) => {
     );
   }
 
-  // Lecture du body
   let body: any;
   try {
     body = await req.json();
