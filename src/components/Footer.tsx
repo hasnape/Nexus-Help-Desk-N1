@@ -180,6 +180,14 @@ const Footer: React.FC = () => {
               </li>
               <li>
                 <Link
+                  to="/guide-onboarding"
+                  className="text-slate-300 hover:text-primary transition-colors"
+                >
+                  {t("footer.guide", { default: "Guide d'onboarding" })}
+                </Link>
+              </li>
+              <li>
+                <Link
                   to="/legal"
                   className="text-slate-300 hover:text-primary transition-colors"
                 >

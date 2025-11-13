@@ -29,6 +29,7 @@ import PartnersPage from "@/pages/PartnersPage";
 import InfographiePage from "@/pages/InfographiePage";
 import PricingPage from "@/pages/PricingPage";
 import SubscriptionPage from "@/pages/SubscriptionPage";
+import GuideOnboardingPage from "@/pages/GuideOnboardingPage";
 import DashboardPage from "@/pages/DashboardPage";
 import HelpChatPage from "@/pages/HelpChatPage";
 import NewTicketPage from "@/pages/NewTicketPage";
@@ -51,6 +52,7 @@ const specialLayoutPaths = new Set([
   "/partners",
   "/infographie",
   "/accessibilite",
+  "/guide-onboarding",
 ]);
 
 function assertElement(el: React.ReactNode, name: string) {
@@ -73,8 +75,12 @@ type RouteLike = {
 
 function validateRoutes(routes: RouteLike[], trail = "root") {
   for (const route of routes) {
-    const where = `${trail}${route.path ? " > " + route.path : route.index ? " > (index)" : ""}`;
-    const flags = ["element", "Component", "lazy"].filter((key) => (route as any)[key] != null);
+    const where = `${trail}${
+      route.path ? " > " + route.path : route.index ? " > (index)" : ""
+    }`;
+    const flags = ["element", "Component", "lazy"].filter(
+      (key) => (route as any)[key] != null
+    );
     if (flags.length > 1) {
       throw new Error(
         `Invalid route at ${where}: mixe ${flags.join(
@@ -109,7 +115,9 @@ const AppLayout: React.FC = () => {
   const contentWithConsent = (
     <>
       {outlet}
-      {!skipLayout && !consentGiven && <CookieConsentBanner onAccept={giveConsent} />}
+      {!skipLayout && !consentGiven && (
+        <CookieConsentBanner onAccept={giveConsent} />
+      )}
     </>
   );
 
@@ -125,8 +133,10 @@ const RootRedirect: React.FC = () => {
 
   if (!user) return <Navigate to="/landing" replace />;
 
-  if (user.role === UserRole.AGENT) return <Navigate to="/agent/dashboard" replace />;
-  if (user.role === UserRole.MANAGER) return <Navigate to="/manager/dashboard" replace />;
+  if (user.role === UserRole.AGENT)
+    return <Navigate to="/agent/dashboard" replace />;
+  if (user.role === UserRole.MANAGER)
+    return <Navigate to="/manager/dashboard" replace />;
 
   return <Navigate to="/dashboard" replace />;
 };
@@ -136,11 +146,15 @@ interface ProtectedRouteProps {
   children: React.ReactElement;
   allowedRoles?: UserRole[];
 }
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles }) => {
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  children,
+  allowedRoles,
+}) => {
   const { user, isLoading } = useApp();
   const location = useLocation();
   if (isLoading) return null;
-  if (!user) return <Navigate to="/login" replace state={{ from: location }} />;
+  if (!user)
+    return <Navigate to="/login" replace state={{ from: location }} />;
   if (allowedRoles && !allowedRoles.includes(user.role)) {
     const target =
       user.role === UserRole.AGENT
@@ -180,14 +194,36 @@ const routes: RouteLike[] = [
       { path: "login", element: assertElement(<LoginPage />, "LoginPage") },
       { path: "signup", element: assertElement(<SignUpPage />, "SignUpPage") },
       { path: "legal", element: assertElement(<LegalPage />, "LegalPage") },
-      { path: "manual", element: assertElement(<UserManualPage />, "UserManualPage") },
-      { path: "presentation", element: assertElement(<PromotionalPage />, "PromotionalPage") },
+      {
+        path: "manual",
+        element: assertElement(<UserManualPage />, "UserManualPage"),
+      },
+      {
+        path: "presentation",
+        element: assertElement(<PromotionalPage />, "PromotionalPage"),
+      },
       { path: "contact", element: assertElement(<ContactPage />, "ContactPage") },
       { path: "about", element: assertElement(<AboutPage />, "AboutPage") },
-      { path: "testimonials", element: assertElement(<TestimonialsPage />, "TestimonialsPage") },
-      { path: "partners", element: assertElement(<PartnersPage />, "PartnersPage") },
-      { path: "infographie", element: assertElement(<InfographiePage />, "InfographiePage") },
-      { path: "accessibilite", element: assertElement(<AccessibilitePage />, "AccessibilitePage") },
+      {
+        path: "testimonials",
+        element: assertElement(<TestimonialsPage />, "TestimonialsPage"),
+      },
+      {
+        path: "partners",
+        element: assertElement(<PartnersPage />, "PartnersPage"),
+      },
+      {
+        path: "infographie",
+        element: assertElement(<InfographiePage />, "InfographiePage"),
+      },
+      {
+        path: "accessibilite",
+        element: assertElement(<AccessibilitePage />, "AccessibilitePage"),
+      },
+      {
+        path: "guide-onboarding",
+        element: assertElement(<GuideOnboardingPage />, "GuideOnboardingPage"),
+      },
       { path: "pricing", element: assertElement(<PricingPage />, "PricingPage") },
       { path: "demo", element: assertElement(<DemoPage />, "DemoPage") },
 
@@ -206,7 +242,9 @@ const routes: RouteLike[] = [
       {
         path: "dashboard",
         element: assertElement(
-          <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
+          <ProtectedRoute
+            allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}
+          >
             <DashboardPage />
           </ProtectedRoute>,
           "DashboardPage"
@@ -215,7 +253,9 @@ const routes: RouteLike[] = [
       {
         path: "agent/dashboard",
         element: assertElement(
-          <ProtectedRoute allowedRoles={[UserRole.AGENT, UserRole.MANAGER]}>
+          <ProtectedRoute
+            allowedRoles={[UserRole.AGENT, UserRole.MANAGER]}
+          >
             <AgentDashboardPage />
           </ProtectedRoute>,
           "AgentDashboardPage"
@@ -235,7 +275,9 @@ const routes: RouteLike[] = [
       {
         path: "help",
         element: assertElement(
-          <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
+          <ProtectedRoute
+            allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}
+          >
             <HelpChatPage />
           </ProtectedRoute>,
           "HelpChatPage"
@@ -259,7 +301,9 @@ const routes: RouteLike[] = [
       {
         path: "ticket/:id",
         element: assertElement(
-          <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
+          <ProtectedRoute
+            allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}
+          >
             <TicketDetailPage />
           </ProtectedRoute>,
           "TicketDetailPage"
@@ -281,7 +325,9 @@ export function AppRouter() {
   return (
     <RouterProvider
       router={router}
-      fallbackElement={<div style={{ padding: 24 }}>Chargement du routeur…</div>}
+      fallbackElement={
+        <div style={{ padding: 24 }}>Chargement du routeur…</div>
+      }
       future={{ v7_startTransition: true }}
     />
   );

@@ -4,9 +4,8 @@ import { useApp } from "@/contexts/AppContext";
 import { Button } from "./FormElements";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { UserRole } from "@/types";
-import { Transition } from "@headlessui/react"; // Ajoutez cette dépendance si besoin
+import { Transition } from "@headlessui/react";
 import type { Locale } from "@/contexts/LanguageContext";
-
 
 const SpeakerLoudIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg
@@ -70,7 +69,9 @@ const Navbar: React.FC = () => {
     },
     {
       href: "/accessibilite",
-      label: t("navbar.AccessibilitePage", { default: "Déclaration d’accessibilité" }),
+      label: t("navbar.AccessibilitePage", {
+        default: "Déclaration d’accessibilité",
+      }),
     },
     {
       href: "/pricing",
@@ -87,6 +88,10 @@ const Navbar: React.FC = () => {
     {
       href: "/manual",
       label: t("navbar.userManual", { default: "Manuel utilisateur" }),
+    },
+    {
+      href: "/guide-onboarding",
+      label: t("navbar.guide", { default: "Guide d'onboarding" }),
     },
     {
       href: "/help",
@@ -146,7 +151,9 @@ const Navbar: React.FC = () => {
               ? [
                   {
                     href: "/subscribe",
-                    label: t("navbar.subscriptionButton", { default: "Abonnement" }),
+                    label: t("navbar.subscriptionButton", {
+                      default: "Abonnement",
+                    }),
                   },
                 ]
               : []),
@@ -184,7 +191,11 @@ const Navbar: React.FC = () => {
     },
   ];
 
-  const renderNavLink = (link: NavLinkItem, className: string, onClick?: () => void) => {
+  const renderNavLink = (
+    link: NavLinkItem,
+    className: string,
+    onClick?: () => void
+  ) => {
     if (link.external) {
       const isExternalHttp = /^https?:/i.test(link.href);
       return (
@@ -208,7 +219,6 @@ const Navbar: React.FC = () => {
     );
   };
 
-  // Gestion des groupes repliables sur mobile
   const toggleGroup = (key: string) => {
     setOpenGroups((prev) =>
       prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
@@ -336,7 +346,6 @@ const Navbar: React.FC = () => {
           {languages.map((lang) => (
             <Button
               key={lang.code}
-              // CORRECTED LINE: Type assertion added here
               onClick={() => setLanguage(lang.code as Locale)}
               variant="outline"
               size="sm"
@@ -351,6 +360,7 @@ const Navbar: React.FC = () => {
           ))}
         </div>
       </div>
+
       {/* Sidebar mobile & desktop */}
       <Transition show={menuOpen} as={Fragment}>
         <div
@@ -442,7 +452,7 @@ const Navbar: React.FC = () => {
                   </Transition>
                 </div>
               ))}
-              {/* Actions utilisateur */}
+
               {user ? (
                 <>
                   <Button
