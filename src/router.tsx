@@ -36,7 +36,6 @@ import TicketDetailPage from "@/pages/TicketDetailPage";
 import AgentDashboardPage from "@/pages/AgentDashboardPage";
 import ManagerDashboardPage from "@/pages/ManagerDashboardPage";
 import NotFoundPage from "@/pages/NotFoundPage";
-import ErrorPage from "@/pages/ErrorPage";
 
 // Chemins sans chrome ou avec layout spécial
 const noLayoutPaths = new Set(["/landing", "/login", "/signup"]);
