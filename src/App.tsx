@@ -1,32 +1,11 @@
 import React, { useState, ReactNode, useCallback, useEffect } from "react";
-import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation, Link } from "react-router-dom";
 import { Ticket, User, ChatMessage, TicketStatus, UserRole, Locale as AppLocale, AppointmentDetails } from "@types";
 import { getFollowUpHelpResponse, getTicketSummary } from "./services/geminiService";
 import { supabase } from "@/services/supabaseClient";
-import PricingPage from "./pages/PricingPage";
-import LoginPage from "./pages/LoginPage";
-import DashboardPage from "./pages/DashboardPage";
-import NewTicketPage from "./pages/NewTicketPage";
-import TicketDetailPage from "./pages/TicketDetailPage";
-import SignUpPage from "./pages/SignUpPage";
-import AgentDashboardPage from "./pages/AgentDashboardPage";
-import ManagerDashboardPage from "./pages/ManagerDashboardPage";
-import HelpChatPage from "./pages/HelpChatPage";
-import LegalPage from "./pages/LegalPage";
-import UserManualPage from "./pages/UserManualPage";
-import PromotionalPage from "./pages/PromotionalPage";
-import LandingPage from "./pages/LandingPage";
-import SubscriptionPage from "./pages/SubscriptionPage";
-import ContactPage from "./pages/ContactPage";
-import AboutPage from "./pages/AboutPage";
-import TestimonialsPage from "./pages/TestimonialsPage";
-import PartnersPage from "./pages/PartnersPage";
-import InfographiePage from "./pages/InfographiePage";
 import { DEFAULT_AI_LEVEL, TICKET_STATUS_KEYS } from "./constants";
 import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
-import { AppContext, useApp } from "@/contexts/AppContext";
-import LoadingSpinner from "./components/LoadingSpinner";
-import CookieConsentBanner from "./components/CookieConsentBanner";
+import { AppContext } from "@/contexts/AppContext";
+import { AppRouter } from "@/router";
 import type { Session } from "@supabase/supabase-js";
 import { sendWelcomeManagerEmail, generateLoginUrl, formatRegistrationDate } from "./services/emailService";
 import {
@@ -99,8 +78,6 @@ export interface AppContextType {
   isFreemiumDevice: boolean;
   isLocalFreemiumSession: boolean;
 }
-
-const AppContext = createContext<AppContextType | undefined>(undefined);
 
 const reviveTicketDates = (data: any): Ticket => ({
   ...data,
@@ -1254,175 +1231,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   return <AppProviderContent>{children}</AppProviderContent>;
 };
 
-interface ProtectedRouteProps {
-  children: ReactNode;
-  allowedRoles?: UserRole[];
-}
-
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles }) => {
-  const { user, isLoading } = useApp();
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  useEffect(() => {
-    if (isLoading) return;
-    if (!user) {
-      navigate("/login", { replace: true, state: { from: location } });
-    } else if (allowedRoles && !allowedRoles.includes(user.role)) {
-      const target =
-        user.role === UserRole.AGENT ? "/agent/dashboard" : user.role === UserRole.MANAGER ? "/manager/dashboard" : "/dashboard";
-      navigate(target, { replace: true });
-    }
-  }, [user, isLoading, navigate, allowedRoles, location]);
-
-  if (isLoading || !user || (allowedRoles && !allowedRoles.includes(user.role))) return null;
-  return <>{children}</>;
-};
-
-const MainAppContent: React.FC = () => {
-  const { user, isLoading, consentGiven, giveConsent } = useApp();
-  const { isLoadingLang, t } = useLanguage();
-  const location = useLocation(); // Moved to top level
-
-  const noLayoutPages = ["/login", "/signup", "/landing"];
-  const specialLayoutPages = ["/legal", "/manual", "/presentation", "/contact", "/about", "/testimonials", "/partners", "/infographie"];
-
-  if (isLoading || isLoadingLang) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-100">
-        <LoadingSpinner size="lg" text={t("appName") + "..."} />
-      </div>
-    );
-  }
-
-  const renderRoutes = () => (
-  <Routes>
-    <Route path="/landing" element={<LandingPage />} />
-    <Route path="/login" element={<LoginPage />} />
-    <Route path="/signup" element={<SignUpPage />} />
-    <Route path="/legal" element={<LegalPage />} />
-    <Route path="/manual" element={<UserManualPage />} />
-    <Route path="/presentation" element={<PromotionalPage />} />
-    <Route path="/contact" element={<ContactPage />} />
-    <Route path="/about" element={<AboutPage />} />
-    <Route path="/testimonials" element={<TestimonialsPage />} />
-    <Route path="/partners" element={<PartnersPage />} />
-    <Route path="/infographie" element={<InfographiePage />} />
-
-    {/* PricingPage */}
-    <Route path="/pricing" element={<PricingPage />} />
-
-    <Route path="/subscribe" element={<ProtectedRoute><SubscriptionPage /></ProtectedRoute>} />
-
-    <Route
-      path="/dashboard"
-      element={
-        <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
-          {user?.role === UserRole.AGENT ? (
-            <Navigate to="/agent/dashboard" replace />
-          ) : user?.role === UserRole.MANAGER ? (
-            <Navigate to="/manager/dashboard" replace />
-          ) : (
-            <DashboardPage />
-          )}
-        </ProtectedRoute>
-      }
-    />
-
-    <Route
-      path="/help"
-      element={
-        <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
-          <HelpChatPage />
-        </ProtectedRoute>
-      }
-    />
-
-    <Route
-      path="/ticket/new"
-      element={
-        <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
-          <NewTicketPage />
-        </ProtectedRoute>
-      }
-    />
-
-    <Route
-      path="/ticket/:ticketId"
-      element={
-        <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
-          <TicketDetailPage />
-        </ProtectedRoute>
-      }
-    />
-
-    <Route
-      path="/agent/dashboard"
-      element={
-        <ProtectedRoute allowedRoles={[UserRole.AGENT, UserRole.MANAGER]}>
-          <AgentDashboardPage />
-        </ProtectedRoute>
-      }
-    />
-
-    <Route
-      path="/manager/dashboard"
-      element={
-        <ProtectedRoute allowedRoles={[UserRole.MANAGER]}>
-          <ManagerDashboardPage />
-        </ProtectedRoute>
-      }
-    />
-
-    <Route
-      path="/"
-      element={
-        user ? (
-          user.role === UserRole.AGENT ? (
-            <Navigate to="/agent/dashboard" replace />
-          ) : user.role === UserRole.MANAGER ? (
-            <Navigate to="/manager/dashboard" replace />
-          ) : (
-            <Navigate to="/dashboard" replace />
-          )
-        ) : (
-          <Navigate to="/landing" replace />
-        )
-      }
-    />
-  </Routes>
-);
-
-
-  if (noLayoutPages.includes(location.pathname)) {
-    return (
-      <>
-        {renderRoutes()}
-        {!consentGiven && <CookieConsentBanner onAccept={giveConsent} />}
-      </>
-    );
-  }
-
-  if (specialLayoutPages.includes(location.pathname)) {
-    return renderRoutes();
-  }
-
-  return (
-  <PageLayout>
-    {renderRoutes()}
-    {!consentGiven && <CookieConsentBanner onAccept={giveConsent} />}
-  </PageLayout>
-);
-
-};
-
 function App() {
   return (
     <LanguageProvider>
       <AppProvider>
-        <HashRouter>
-          <MainAppContent />
-        </HashRouter>
+        <AppRouter />
       </AppProvider>
     </LanguageProvider>
   );
