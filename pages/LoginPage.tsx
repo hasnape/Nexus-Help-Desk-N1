@@ -4,6 +4,7 @@ import { useApp } from "../App";
 import { Button, Input } from "../components/FormElements";
 import { useLanguage } from "../contexts/LanguageContext";
 import Layout from "../components/Layout";
+import { sendResetPassword } from "../services/authService";
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -11,6 +12,8 @@ const LoginPage: React.FC = () => {
   const [companyName, setCompanyName] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isSendingReset, setIsSendingReset] = useState(false);
+  const [infoMessage, setInfoMessage] = useState("");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { login, user } = useApp();
@@ -38,6 +41,7 @@ const LoginPage: React.FC = () => {
   const showErrorToast = (message: string) => {
     setToastMessage(message);
     setError(message);
+    setInfoMessage("");
     if (toastTimeoutRef.current) {
       clearTimeout(toastTimeoutRef.current);
     }
@@ -63,6 +67,35 @@ const LoginPage: React.FC = () => {
       showErrorToast(loginResult);
     } else {
       setToastMessage(null);
+      setInfoMessage("");
+    }
+  };
+
+  const handlePasswordReset = async () => {
+    const trimmedEmail = email.trim();
+    if (trimmedEmail === "") {
+      showErrorToast(t("login.error.emailRequiredForReset", { default: "Veuillez saisir votre email pour réinitialiser." }));
+      return;
+    }
+
+    setIsSendingReset(true);
+    setError("");
+    setInfoMessage("");
+    try {
+      await sendResetPassword(trimmedEmail);
+      setInfoMessage(
+        t("login.resetPasswordSuccess", {
+          default: "Un email de réinitialisation a été envoyé si cette adresse existe dans notre système.",
+        })
+      );
+    } catch (resetError: any) {
+      const readableError = resetError?.message ||
+        t("login.resetPasswordError", {
+          default: "Impossible d'envoyer l'email de réinitialisation. Veuillez réessayer.",
+        });
+      showErrorToast(readableError);
+    } finally {
+      setIsSendingReset(false);
     }
   };
 
@@ -129,6 +162,11 @@ const LoginPage: React.FC = () => {
               {error}
             </p>
           )}
+          {infoMessage && (
+            <p className="mb-4 text-center text-green-600 bg-green-100 p-2 rounded-md text-sm">
+              {infoMessage}
+            </p>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <Input
@@ -156,6 +194,16 @@ const LoginPage: React.FC = () => {
               required
               disabled={isLoading}
             />
+            <div className="text-right -mt-3">
+              <button
+                type="button"
+                onClick={handlePasswordReset}
+                className="text-sm font-medium text-primary hover:text-primary-dark disabled:opacity-50"
+                disabled={isLoading || isSendingReset}
+              >
+                {t("login.forgotPasswordLink", { default: "Mot de passe oublié ?" })}
+              </button>
+            </div>
             <Input
               label={t("login.companyNameLabel", { default: "Company Name" })}
               id="companyName"

@@ -43,3 +43,16 @@ export async function ensureUserProfile() {
   if (error) console.warn('ensure_user_profile error:', error.message);
   return (data as string) ?? null;
 }
+
+export async function sendResetPassword(email: string) {
+  const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: 'https://www.nexussupporthub.eu/#/reset-password',
+  });
+
+  if (error) {
+    console.error('resetPassword error', error);
+    throw error;
+  }
+
+  return data;
+}
