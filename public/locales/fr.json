@@ -472,6 +472,9 @@
   "navbar.toggleAutoReadEnable": "Activer la lecture automatique des réponses de Nexus",
   "navbar.userManual": "Manuel utilisateur",
   "navbar.welcome": "Bienvenue, {{username}}",
+  "navbar.enterprise": "Entreprise",
+  "navbar.investors": "Investisseurs",
+  "navbar.onboardingGuide": "Guide d’onboarding"
   "newTicket.error.failedToCreate": "Échec de la création du ticket. L'assistant Nexus est peut-être indisponible.",
   "newTicket.error.summaryFailed": "Échec du résumé par le moteur Nexus : {{error}}. Veuillez remplir le formulaire manuellement.",
   "newTicket.form.cancelButton": "Annuler",
