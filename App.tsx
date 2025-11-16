@@ -34,6 +34,8 @@ import CookieConsentBanner from "./components/CookieConsentBanner";
 import type { Session } from "@supabase/supabase-js";
 import PageLayout from './components/PageLayout';
 import GuideOnboardingPage from "./pages/GuideOnboardingPage";
+import EnterprisePage from "./pages/EnterprisePage";
+import InvestorPage from "./pages/InvestorPage";
 
 
 interface AppContextType {
@@ -1600,6 +1602,8 @@ const MainAppContent: React.FC = () => {
     <Route path="/infographie" element={<InfographiePage />} />
     <Route path="/demo" element={<DemoPage />} />
     <Route path="/guide-onboarding" element={<GuideOnboardingPage />} />
+    <Route path="/entreprise" element={<EnterprisePage />} />
+    <Route path="/investisseurs" element={<InvestorPage />} />
 
     {/* PricingPage */}
     <Route path="/pricing" element={<PricingPage />} />
