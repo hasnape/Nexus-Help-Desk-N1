@@ -998,5 +998,47 @@
 "onboardingGuide.section.footer.title": "Besoin d’aide pour l’onboarding ?",
 "onboardingGuide.section.footer.p1": "Nous pouvons vous accompagner pour configurer Nexus, structurer votre base de connaissances et définir le bon parcours de support pour vos utilisateurs.",
 "onboardingGuide.section.footer.ctaDemo": "Demander une démo",
-"onboardingGuide.section.footer.ctaBack": "Retour à l’application"
+"onboardingGuide.section.footer.ctaBack": "Retour à l’application",
+  "enterprise.pageTitle": "Nexus Support Hub pour les entreprises",
+"enterprise.pageSubtitle": "Un portail unique pour toutes vos demandes de support, du N1 au N2, avec un moteur Nexus qui automatise les tâches répétitives et sécurise vos échanges.",
+"enterprise.badge": "Décideurs & équipes support",
+
+"enterprise.hero.ctaDemo": "Demander une démo",
+"enterprise.hero.ctaContact": "Parler à un expert",
+
+"enterprise.section.context.title": "Le support est saturé, vos équipes aussi",
+"enterprise.section.context.p1": "Boîtes mail partagées ingérables, tickets en doublon, demandes perdues dans les fils de discussion : pour beaucoup d’entreprises, le support N1 repose encore sur des outils généralistes pensés pour tout… sauf pour le support.",
+"enterprise.section.context.p2": "Nexus Support Hub propose un portail unique où vos utilisateurs, agents et managers partagent le même langage : un ticket clair, catégorisé, priorisé et suivi de bout en bout.",
+
+"enterprise.section.value.title": "Ce que Nexus apporte concrètement à votre organisation",
+"enterprise.section.value.item1.title": "Désengorger le N1",
+"enterprise.section.value.item1.desc": "Le moteur Nexus prend en charge les demandes répétitives : il analyse les messages, propose un premier diagnostic et prépare un ticket structuré pour vos agents.",
+"enterprise.section.value.item2.title": "Un seul point d’entrée pour le support",
+"enterprise.section.value.item2.desc": "Un lien “Support” sur votre site ou intranet suffit : vos utilisateurs arrivent sur votre portail Nexus dédié pour ouvrir, suivre et mettre à jour leurs demandes.",
+"enterprise.section.value.item3.title": "Pilotage complet pour les managers",
+"enterprise.section.value.item3.desc": "Tableaux de bord en temps réel, filtres avancés, vue globale des tickets, gestion des rôles et de l’équipe support depuis un seul espace.",
+"enterprise.section.value.item4.title": "Conformité & accessibilité intégrées",
+"enterprise.section.value.item4.desc": "Nexus est conçu selon le RGAA 4.1 niveau AA et s’aligne sur les bonnes pratiques RGPD : navigation clavier, ARIA, contrastes, et gestion responsable des données.",
+
+"enterprise.section.useCases.title": "Cas d’usage typiques",
+"enterprise.section.useCases.item1": "Centres de support internes (IT, bureautique, matériel, accès aux comptes).",
+"enterprise.section.useCases.item2": "ESN / infogérance qui gèrent plusieurs clients avec des équipes mutualisées.",
+"enterprise.section.useCases.item3": "Éditeurs SaaS qui veulent un portail support moderne, multilingue et traçable.",
+"enterprise.section.useCases.item4": "PME et ETI qui centralisent leurs demandes RH / IT / opérations dans un seul outil.",
+
+"enterprise.section.integration.title": "Intégrer Nexus à votre environnement existant",
+"enterprise.section.integration.p1": "Vous pouvez commencer simplement en ajoutant un lien ou un bouton « Support » pointant vers votre espace Nexus. Vos utilisateurs créent leur compte et ouvrent leurs tickets directement dans le portail.",
+"enterprise.section.integration.p2": "Pour les équipes plus avancées, Nexus peut être relié à vos outils via API : création automatique de comptes support, synchronisation des données ou intégration à votre application.",
+"enterprise.section.integration.list1": "Portail support accessible via un simple lien depuis votre site ou intranet.",
+"enterprise.section.integration.list2": "Création automatique de comptes clients lors de l’inscription sur votre propre plateforme (intégration backend).",
+"enterprise.section.integration.list3": "Connexion future avec vos outils existants (CRM, ITSM, etc.) via API et webhooks.",
+
+"enterprise.section.plans.title": "Une mise en route progressive, adaptée à votre taille",
+"enterprise.section.plans.p1": "Commencez avec le plan Freemium pour tester Nexus avec une petite équipe, puis migrez vers les offres Standard ou Pro dès que votre volume de tickets augmente.",
+"enterprise.section.plans.p2": "Les plans payants ajoutent des fonctionnalités clés pour les entreprises : historique étendu, automatisations plus poussées, rendez-vous intégrés, rapports avancés et webhooks.",
+
+"enterprise.section.next.title": "Prochaine étape : tester Nexus avec votre propre contexte",
+"enterprise.section.next.p1": "La meilleure façon d’évaluer Nexus est de le confronter à votre réalité : vos utilisateurs, vos tickets, vos contraintes. Nous pouvons vous accompagner pour un pilote ciblé sur un périmètre N1 (IT, applicatif, clients, etc.).",
+"enterprise.section.next.ctaDemo": "Planifier une démo",
+"enterprise.section.next.ctaContact": "Nous écrire"
 }
