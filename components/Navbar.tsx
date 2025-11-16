@@ -7,7 +7,6 @@ import { UserRole } from "../types";
 import { Transition } from "@headlessui/react"; // Ajoutez cette dépendance si besoin
 import type { Locale } from "../contexts/LanguageContext";
 
-
 const SpeakerLoudIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -64,11 +63,22 @@ const Navbar: React.FC = () => {
     },
     {
       to: "/accessibilite",
-      label: t("navbar.AccessibilitePage", { default: "Déclaration d’accessibilité" }),
+      label: t("navbar.AccessibilitePage", {
+        default: "Déclaration d’accessibilité",
+      }),
     },
     {
       to: "/pricing",
-      label: t("navbar.pricingpage", { default: "Tarifes" }),
+      label: t("navbar.pricingpage", { default: "Tarifs" }),
+    },
+    // 🔹 NOUVELLES PAGES B2B / INVEST
+    {
+      to: "/enterprise",
+      label: t("navbar.enterprise", { default: "Entreprise" }),
+    },
+    {
+      to: "/investors",
+      label: t("navbar.investors", { default: "Investisseurs" }),
     },
     {
       to: "/demo",
@@ -77,6 +87,13 @@ const Navbar: React.FC = () => {
     {
       to: "/infographie",
       label: t("navbar.infographie", { default: "Infographie" }),
+    },
+    // 🔹 Guide onboarding (pour les managers / IT)
+    {
+      to: "/guide-onboarding",
+      label: t("navbar.onboardingGuide", {
+        default: "Guide d’onboarding",
+      }),
     },
     {
       to: "/manual",
@@ -138,7 +155,9 @@ const Navbar: React.FC = () => {
               ? [
                   {
                     to: "/subscribe",
-                    label: t("navbar.subscriptionButton", { default: "Abonnement" }),
+                    label: t("navbar.subscriptionButton", {
+                      default: "Abonnement",
+                    }),
                   },
                 ]
               : []),
@@ -170,7 +189,9 @@ const Navbar: React.FC = () => {
             },
             {
               to: "/signup",
-              label: t("navbar.signUpButton", { default: "Créer un compte" }),
+              label: t("navbar.signUpButton", {
+                default: "Créer un compte",
+              }),
             },
           ],
     },
@@ -304,7 +325,6 @@ const Navbar: React.FC = () => {
           {languages.map((lang) => (
             <Button
               key={lang.code}
-              // CORRECTED LINE: Type assertion added here
               onClick={() => setLanguage(lang.code as Locale)}
               variant="outline"
               size="sm"
@@ -319,6 +339,7 @@ const Navbar: React.FC = () => {
           ))}
         </div>
       </div>
+
       {/* Sidebar mobile & desktop */}
       <Transition show={menuOpen} as={Fragment}>
         <div
@@ -470,7 +491,9 @@ const Navbar: React.FC = () => {
                       size="sm"
                       className="w-full !bg-sky-500 hover:!bg-sky-600"
                     >
-                      {t("navbar.signUpButton", { default: "Créer un compte" })}
+                      {t("navbar.signUpButton", {
+                        default: "Créer un compte",
+                      })}
                     </Button>
                   </Link>
                 </div>
@@ -492,12 +515,21 @@ const Footer: React.FC = () => {
           <img src="/logo.png" alt="Logo Nexus" className="w-8 h-8 mr-2" />
           <span className="font-bold text-lg">Nexus Support Hub</span>
         </div>
-        <div className="flex space-x-4 mb-4 md:mb-0">
+        <div className="flex flex-wrap gap-4 mb-4 md:mb-0">
           <Link to="/landing" className="hover:text-sky-400">
             Accueil
           </Link>
           <Link to="/about" className="hover:text-sky-400">
             À propos
+          </Link>
+          <Link to="/enterprise" className="hover:text-sky-400">
+            Entreprise
+          </Link>
+          <Link to="/investors" className="hover:text-sky-400">
+            Investisseurs
+          </Link>
+          <Link to="/guide-onboarding" className="hover:text-sky-400">
+            Guide d’onboarding
           </Link>
           <Link to="/testimonials" className="hover:text-sky-400">
             Témoignages
@@ -505,7 +537,7 @@ const Footer: React.FC = () => {
           <Link to="/partners" className="hover:text-sky-400">
             Partenaires
           </Link>
-          <Link to="/infographie" className="nav-link">
+          <Link to="/infographie" className="hover:text-sky-400">
             {t("navbar.infographie", { default: "Infographie" })}
           </Link>
         </div>
@@ -535,3 +567,4 @@ const Footer: React.FC = () => {
 };
 
 export default Navbar;
+
