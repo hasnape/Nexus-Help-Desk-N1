@@ -33,7 +33,7 @@ import LoadingSpinner from "./components/LoadingSpinner";
 import CookieConsentBanner from "./components/CookieConsentBanner";
 import type { Session } from "@supabase/supabase-js";
 import PageLayout from './components/PageLayout';
-import GuideOnboardingPage from './pagesGuideOnboardingPage';
+import GuideOnboardingPage from "./pages/GuideOnboardingPage";
 
 
 interface AppContextType {
