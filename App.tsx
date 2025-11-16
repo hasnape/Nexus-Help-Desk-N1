@@ -33,6 +33,7 @@ import LoadingSpinner from "./components/LoadingSpinner";
 import CookieConsentBanner from "./components/CookieConsentBanner";
 import type { Session } from "@supabase/supabase-js";
 import PageLayout from './components/PageLayout';
+import GuideOnboardingPage from './pages/GuideOnboardingPage';
 
 
 interface AppContextType {
@@ -1598,6 +1599,7 @@ const MainAppContent: React.FC = () => {
     <Route path="/partners" element={<PartnersPage />} />
     <Route path="/infographie" element={<InfographiePage />} />
     <Route path="/demo" element={<DemoPage />} />
+    <Route path="/guide-onboarding" element={<GuideOnboardingPage />} />
 
     {/* PricingPage */}
     <Route path="/pricing" element={<PricingPage />} />
