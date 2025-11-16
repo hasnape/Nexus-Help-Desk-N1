@@ -1040,5 +1040,52 @@
 "enterprise.section.next.title": "Prochaine étape : tester Nexus avec votre propre contexte",
 "enterprise.section.next.p1": "La meilleure façon d’évaluer Nexus est de le confronter à votre réalité : vos utilisateurs, vos tickets, vos contraintes. Nous pouvons vous accompagner pour un pilote ciblé sur un périmètre N1 (IT, applicatif, clients, etc.).",
 "enterprise.section.next.ctaDemo": "Planifier une démo",
-"enterprise.section.next.ctaContact": "Nous écrire"
+"enterprise.section.next.ctaContact": "Nous écrire",
+  "investor.pageTitle": "Nexus Support Hub – Dossier investisseur",
+"investor.pageSubtitle": "Une plateforme de support nouvelle génération, conçue pour automatiser le N1, structurer le N2 et répondre aux exigences d’accessibilité et de conformité des entreprises européennes.",
+"investor.badge": "Investisseurs & partenaires",
+
+"investor.hero.ctaDeck": "Recevoir le deck complet",
+"investor.hero.ctaContact": "Planifier un échange",
+
+"investor.section.problem.title": "Problème : un support fragmenté, coûteux et peu mesurable",
+"investor.section.problem.p1": "Dans la plupart des organisations, le support N1 repose encore sur des boîtes mail partagées, des chats non intégrés et des outils généralistes. Résultat : temps de traitement élevé, doublons, forte dépendance à quelques profils clés et expérience utilisateur dégradée.",
+"investor.section.problem.p2": "Parallèlement, les entreprises sont poussées à améliorer l’accessibilité de leurs interfaces (RGAA) et la conformité de leurs process (RGPD), sans disposer d’outils de support conçus dès l’origine pour ces contraintes.",
+
+"investor.section.solution.title": "Solution : un portail de support piloté par un moteur Nexus",
+"investor.section.solution.p1": "Nexus Support Hub regroupe dans une seule plateforme la gestion des tickets, un moteur d’automatisation intelligente basé sur les technologies Gemini de Google, et des tableaux de bord temps réel pour les managers.",
+"investor.section.solution.p2": "Le moteur Nexus analyse les messages, propose des réponses, structure les tickets (titre, résumé, catégorie, priorité) et prépare le travail des agents N1/N2. L’entreprise garde le contrôle : les cas complexes restent gérés par des humains, le moteur agit comme accélérateur.",
+
+"investor.section.market.title": "Marché ciblé",
+"investor.section.market.p1": "Nexus vise en priorité les équipes support internes (IT, bureautique, applicatif) des PME et ETI, les ESN / infogéreurs et les éditeurs SaaS qui ont besoin d’un help desk moderne, accessible et industrialisable.",
+"investor.section.market.p2": "Ce segment se situe à l’intersection des solutions de ticketing, des moteurs d’automatisation et des plateformes de support conversationnel, avec une attente forte sur la réduction du temps de traitement et la qualité d’expérience.",
+
+"investor.section.model.title": "Modèle économique",
+"investor.section.model.p1": "Nexus adopte un modèle SaaS par plan, adapté aux équipes de tailles différentes :",
+"investor.section.model.list1": "Freemium pour la découverte et les petites équipes (bac à sable).",
+"investor.section.model.list2": "Offre Standard pour les structures en croissance qui veulent industrialiser leur support.",
+"investor.section.model.list3": "Offre Pro pour les équipes plus matures, qui ont besoin de commandes vocales, de webhooks et de rapports avancés.",
+"investor.section.model.p2": "À terme, des options d’usage liées au volume de tickets et à la consommation du moteur Nexus peuvent compléter le modèle, tout en restant lisibles pour les clients B2B.",
+
+"investor.section.traction.title": "État actuel & feuille de route",
+"investor.section.traction.p1": "Nexus Support Hub est déjà structuré comme un produit complet : multi-entreprises, gestion fine des rôles (Utilisateur, Agent, Manager), intégration de la stack Supabase, moteur basé sur Gemini, intégration PayPal, et respect des bonnes pratiques d’accessibilité (RGAA 4.1).",
+"investor.section.traction.p2": "Les prochaines étapes portent sur : le raffinement de l’onboarding entreprise, l’industrialisation des plans payants, et l’ouverture d’intégrations plus profondes (API publiques, CRM, ITSM).",
+
+"investor.section.whyNow.title": "Pourquoi maintenant ?",
+"investor.section.whyNow.p1": "Les entreprises sont confrontées à une explosion du volume de demandes (clients / collaborateurs) et à une pression accrue sur la qualité de service, tout en devant maîtriser leurs coûts. Les technologies d’automatisation sont mûres, mais souvent livrées sous forme de briques complexes à intégrer.",
+"investor.section.whyNow.p2": "Nexus se positionne comme une solution de support prête à l’emploi, pensée dès le départ pour le N1→N2, l’accessibilité et un pilotage fin par les managers.",
+
+"investor.section.edge.title": "Différenciation de Nexus",
+"investor.section.edge.list1": "Conception centrée sur le N1→N2 : le moteur Nexus enrichit le travail des agents au lieu de tenter de les remplacer.",
+"investor.section.edge.list2": "Architecture multi-entreprises sécurisée sur Supabase avec politiques RLS et gestion avancée des rôles.",
+"investor.section.edge.list3": "Accessibilité intégrée (RGAA 4.1) et interface multilingue (FR/EN/AR).",
+"investor.section.edge.list4": "Mélange cohérent entre automatisation, pilotage managérial et expérience utilisateur.",
+
+"investor.section.contact.title": "Échanges & documentation",
+"investor.section.contact.p1": "Un dossier complet (deck, démonstration détaillée, aspects techniques et roadmap) peut être partagé sur demande, ainsi que des scénarios concrets d’implémentation dans différents types d’organisations.",
+"investor.section.contact.p2": "Pour en savoir plus ou discuter d’un partenariat / investissement, vous pouvez nous contacter directement.",
+
+"investor.section.contact.ctaMail": "Contacter par email",
+"investor.section.contact.ctaDemo": "Voir une démonstration"
+
 }
