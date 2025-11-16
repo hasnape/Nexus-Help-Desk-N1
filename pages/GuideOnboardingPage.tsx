@@ -1,6 +1,7 @@
 import React from "react";
-import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import { useLanguage } from "../contexts/LanguageContext";
+import { Link, useLocation } from "react-router-dom";
+import { useApp } from "../App";
 import Layout from "../components/Layout";
 
 const GuideOnboardingPage: React.FC = () => {
