@@ -1,6 +1,5 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import Layout from "../components/Layout";
 
 const InvestorPage: React.FC = () => {
   const { t } = useTranslation();
