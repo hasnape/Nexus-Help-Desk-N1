@@ -1602,8 +1602,9 @@ const MainAppContent: React.FC = () => {
     <Route path="/infographie" element={<InfographiePage />} />
     <Route path="/demo" element={<DemoPage />} />
     <Route path="/guide-onboarding" element={<GuideOnboardingPage />} />
-    <Route path="/entreprise" element={<EnterprisePage />} />
-    <Route path="/investisseurs" element={<InvestorPage />} />
+    <Route path="/enterprise" element={<EnterprisePage />} />
+    <Route path="/investors" element={<InvestorPage />} />
+
 
     {/* PricingPage */}
     <Route path="/pricing" element={<PricingPage />} />
