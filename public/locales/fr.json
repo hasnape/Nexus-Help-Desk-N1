@@ -942,5 +942,61 @@
   "manager.invite.errors.timeout": "Temps dépassé. Vérifiez la Function et le CORS.",
   "role.agent": "Agent",
   "role.user": "Utilisateur",
-  "agentLimitReachedInvite": "Limite d'agents atteinte. Envoyez ce lien d'invitation à l'utilisateur : {{link}}"
+  "agentLimitReachedInvite": "Limite d'agents atteinte. Envoyez ce lien d'invitation à l'utilisateur : {{link}}",
+  "onboardingGuide.pageTitle": "Guide d’onboarding Nexus – Mise en route en 7 minutes",
+"onboardingGuide.pageSubtitle": "Ce guide vous accompagne pas à pas pour préparer votre espace entreprise, inviter votre équipe et déployer Nexus comme portail unique de support.",
+"onboardingGuide.badge": "Managers & équipes support",
+
+"onboardingGuide.section.who.title": "À qui s’adresse ce guide ?",
+"onboardingGuide.section.who.manager": "Responsables support / help desk qui veulent structurer les demandes.",
+"onboardingGuide.section.who.it": "Équipes IT qui gèrent les outils internes et le support technique.",
+"onboardingGuide.section.who.ceo": "Dirigeants de PME / SaaS qui veulent un support moderne, centralisé et mesurable.",
+
+"onboardingGuide.section.overview.title": "Vue d’ensemble : 4 étapes pour démarrer",
+"onboardingGuide.section.overview.subtitle": "En pratique, la mise en route de Nexus dans votre entreprise se fait en quelques étapes simples.",
+"onboardingGuide.section.overview.step1.title": "Configurer votre espace entreprise",
+"onboardingGuide.section.overview.step1.desc": "Création du compte Manager, de l’entreprise et des premiers paramètres.",
+"onboardingGuide.section.overview.step2.title": "Inviter votre équipe support",
+"onboardingGuide.section.overview.step2.desc": "Ajoutez vos agents et utilisateurs internes avec les bons rôles.",
+"onboardingGuide.section.overview.step3.title": "Déployer votre portail support Nexus",
+"onboardingGuide.section.overview.step3.desc": "Ajoutez un bouton “Support” sur votre site ou intranet pointant vers Nexus.",
+"onboardingGuide.section.overview.step4.title": "Préparer votre base de connaissances",
+"onboardingGuide.section.overview.step4.desc": "Rassemblez vos questions fréquentes et procédures pour alimenter Nexus.",
+
+"onboardingGuide.section.step1.title": "Étape 1 — Créer votre espace entreprise et votre compte Manager",
+"onboardingGuide.section.step1.p1": "Depuis la page d’inscription, sélectionnez le rôle « Manager » pour créer votre entreprise dans Nexus Support Hub.",
+"onboardingGuide.section.step1.p2": "Renseignez un nom d’entreprise unique (ex. « Rép&Web »). Vos agents et utilisateurs devront utiliser ce nom pour rejoindre votre espace.",
+"onboardingGuide.section.step1.p3": "Validez votre inscription. Vous accédez alors au tableau de bord Manager, point central de configuration de votre help desk.",
+
+"onboardingGuide.section.step2.title": "Étape 2 — Inviter vos agents et utilisateurs",
+"onboardingGuide.section.step2.p1": "Depuis le tableau de bord Manager, ouvrez la section « Gestion des utilisateurs » ou « Inviter / Créer un membre ».",
+"onboardingGuide.section.step2.p2": "Invitez vos collaborateurs avec le rôle adapté : « Utilisateur » pour les personnes qui ouvrent des tickets, « Agent » pour celles qui les traitent.",
+"onboardingGuide.section.step2.p3": "Vos agents reçoivent un email et accèdent à leur portail dédié (vue des tickets assignés, tickets non assignés, statistiques, etc.).",
+
+"onboardingGuide.section.step3.title": "Étape 3 — Déployer Nexus comme portail unique de support",
+"onboardingGuide.section.step3.p1": "Ajoutez un bouton ou un lien « Support » sur votre site web, application ou intranet. Ce lien pointe vers votre espace Nexus Support Hub.",
+"onboardingGuide.section.step3.p2": "Vos clients ou utilisateurs internes sont redirigés vers la page de connexion Nexus. Ils peuvent créer leur compte support et ouvrir un premier ticket.",
+"onboardingGuide.section.step3.p3": "À terme, Nexus peut être intégré plus finement (SSO, création automatique de comptes) pour un parcours totalement fluide.",
+
+"onboardingGuide.section.step4.title": "Étape 4 — Préparer votre FAQ et vos procédures",
+"onboardingGuide.section.step4.p1": "Identifiez vos questions fréquentes et vos procédures récurrentes : problèmes de mot de passe, demandes bureautiques, incidents matériels, etc.",
+"onboardingGuide.section.step4.p2": "Structurez ces contenus dans un fichier simple (par exemple CSV ou Markdown) qui pourra alimenter progressivement le moteur de réponse Nexus.",
+"onboardingGuide.section.step4.p3": "Plus votre base de connaissances est claire, plus vos agents et vos utilisateurs gagnent du temps au quotidien.",
+
+"onboardingGuide.section.advanced.title": "Option avancée — Création automatique des comptes clients",
+"onboardingGuide.section.advanced.p1": "Pour les équipes produit / techniques, Nexus peut s’intégrer à votre application afin de créer un compte support automatiquement lors de l’inscription d’un nouveau client.",
+"onboardingGuide.section.advanced.p2": "Un appel API ou une intégration backend permet de créer l’utilisateur dans Nexus au moment où il est créé dans votre propre base clients.",
+"onboardingGuide.section.advanced.p3": "Résultat : vos clients disposent d’un accès support dès le premier jour, sans étape manuelle supplémentaire.",
+
+"onboardingGuide.section.checklist.title": "Checklist avant lancement",
+"onboardingGuide.section.checklist.item1": "Votre compte Manager est créé et votre entreprise apparaît correctement.",
+"onboardingGuide.section.checklist.item2": "Au moins un agent a été invité et a confirmé son accès.",
+"onboardingGuide.section.checklist.item3": "Un lien « Support » ou « Help desk » est visible depuis votre site, application ou intranet.",
+"onboardingGuide.section.checklist.item4": "Vous avez testé l’ouverture d’un ticket en tant qu’utilisateur, puis son traitement en tant qu’agent.",
+"onboardingGuide.section.checklist.item5": "Vous avez identifié les premières questions fréquentes à transformer en base de connaissances.",
+
+"onboardingGuide.section.footer.title": "Besoin d’aide pour l’onboarding ?",
+"onboardingGuide.section.footer.p1": "Nous pouvons vous accompagner pour configurer Nexus, structurer votre base de connaissances et définir le bon parcours de support pour vos utilisateurs.",
+"onboardingGuide.section.footer.ctaDemo": "Demander une démo",
+"onboardingGuide.section.footer.ctaBack": "Retour à l’application"
 }
