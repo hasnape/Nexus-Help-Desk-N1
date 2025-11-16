@@ -6,7 +6,6 @@ const EnterprisePage: React.FC = () => {
   const { t } = useTranslation();
 
   return (
-    <Layout>
       <main className="min-h-screen bg-slate-950 text-slate-50">
         <section className="container mx-auto px-4 py-10 lg:py-16">
           {/* HERO */}
@@ -201,7 +200,6 @@ const EnterprisePage: React.FC = () => {
           </div>
         </section>
       </main>
-    </Layout>
   );
 };
 
