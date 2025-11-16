@@ -1,6 +1,5 @@
-// src/services/companyKnowledgeService.ts
 import { supabase } from "./supabaseClient";
-import type { Locale as AppLocale } from "../types";
+import type { Locale } from "../contexts/LanguageContext";
 
 export type CompanyKnowledge = {
   id: string;
@@ -17,7 +16,7 @@ export type CompanyKnowledge = {
 
 export async function fetchCompanyFaqForAi(
   companyId: string,
-  lang: AppLocale,
+  lang: Locale,
   limit: number = 20
 ): Promise<CompanyKnowledge[]> {
   const { data, error } = await supabase
@@ -39,10 +38,6 @@ export async function fetchCompanyFaqForAi(
   return (data || []) as CompanyKnowledge[];
 }
 
-/**
- * Utilitaire pour fabriquer un bloc de contexte texte pour le modèle IA
- * (à partir des Q/R de company_knowledge).
- */
 export function buildFaqContextSnippet(
   faqEntries: CompanyKnowledge[]
 ): string {
@@ -51,13 +46,13 @@ export function buildFaqContextSnippet(
   const lines: string[] = [];
 
   lines.push(
-    "Connaissances spécifiques au client (FAQ Radar / éthylotests & voitures-radars) :"
+    "Company-specific FAQ knowledge (Q/R pairs). Use this as ground truth when relevant:"
   );
 
   for (const entry of faqEntries) {
     lines.push(`Q: ${entry.question}`);
-    lines.push(`R: ${entry.answer}`);
-    lines.push(""); // ligne vide entre les entrées
+    lines.push(`A: ${entry.answer}`);
+    lines.push("");
   }
 
   return lines.join("\n");
