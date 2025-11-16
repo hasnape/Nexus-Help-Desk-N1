@@ -486,7 +486,7 @@ const LandingPage: React.FC = () => {
                       {t("landing.cta.trial")}
                     </Button>
                   </Link>
-                  <Link to="/guide-onboarding">
+                  <Link to="/GuideOnboarding">
                     <Button variant="secondary" size="lg" className="px-6">
                       {t("landing.setup.ctaGuide")}
                     </Button>
