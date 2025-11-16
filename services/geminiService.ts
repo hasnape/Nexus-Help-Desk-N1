@@ -1,11 +1,8 @@
+import { fetchCompanyFaqForAi, buildFaqContextSnippet } from "./companyKnowledgeService";
 import { GoogleGenAI, GenerateContentResponse, Content } from "@google/genai";
 import { ChatMessage, Ticket, TicketPriority } from "../types";
 import { Locale } from "../contexts/LanguageContext";
 import { TICKET_CATEGORY_KEYS } from "../constants";
-import {
-  fetchCompanyFaqForAi,
-  buildFaqContextSnippet,
-} from "./companyKnowledgeService";
 
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
