@@ -1,4 +1,4 @@
-// supabase/functions/nexus-ai/index.ts
+// supabase/functions/nexus-ai/index.ts 
 
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js";
@@ -142,13 +142,18 @@ ${blocks.join("\n\n")}`;
 async function handleSummarizeAndCategorizeChat(
   body: SummarizePayload,
 ) {
-  const { language, targetLanguage, chatHistory, validCategories, validPriorities } =
-    body;
+  const {
+    language,
+    targetLanguage,
+    chatHistory,
+    validCategories,
+    validPriorities,
+  } = body;
 
   const geminiHistory = formatChatHistoryForGemini(chatHistory);
 
-  const categoryList = validCategories.join(", ");
-  const priorityList = validPriorities.join(", ");
+  const categoryList = (validCategories ?? []).join(", ");
+  const priorityList = (validPriorities ?? []).join(", ");
 
   const systemInstruction = `You are Nexus, a ticket analysis AI. Your task is to process a conversation between a user and a help desk assistant.
 Based on the full conversation, you MUST generate a JSON object with four specific keys: "title", "description", "category", and "priority".
@@ -277,51 +282,71 @@ The JSON object must have two keys: "responseText" and "escalationSuggested".
 Follow these specific role instructions to formulate your "responseText":
 ${roleInstructions}`;
 
-  const response: GenerateContentResponse = await ai.models.generateContent({
-    model: MODEL_NAME,
-    contents: geminiHistory,
-    config: {
-      systemInstruction,
-      responseMimeType: "application/json",
-      temperature: 0.7,
-      topP: 0.95,
-      topK: 50,
-    },
-  });
+  try {
+    const response: GenerateContentResponse = await ai.models.generateContent({
+      model: MODEL_NAME,
+      contents: geminiHistory,
+      config: {
+        systemInstruction,
+        responseMimeType: "application/json",
+        temperature: 0.7,
+        topP: 0.95,
+        topK: 50,
+      },
+    });
 
-  if (!response.text) {
-    throw new Error("Gemini API did not return text content for follow-up.");
+    if (!response.text) {
+      throw new Error("Gemini API did not return text content for follow-up.");
+    }
+
+    let jsonStr = response.text.trim();
+    const fenceRegex = /```(?:json)?\s*\n?(.*?)\n?\s*```/s;
+    const match = jsonStr.match(fenceRegex);
+    if (match && match[1]) {
+      jsonStr = match[1].trim();
+    }
+
+    const parsed = JSON.parse(jsonStr);
+
+    const responseText = parsed.responseText || parsed.text;
+    const escalationSuggested = parsed.escalationSuggested;
+
+    if (
+      typeof responseText !== "string" ||
+      typeof escalationSuggested !== "boolean"
+    ) {
+      throw new Error(
+        "AI response is not in the expected format. It must contain a 'responseText' (or 'text') string and an 'escalationSuggested' boolean.",
+      );
+    }
+
+    return { responseText, escalationSuggested };
+  } catch (err: any) {
+    console.error("[nexus-ai] followUp Gemini error:", err);
+
+    // On renvoie un message de fallback pour éviter le 500
+    const fallbackTextFr = `Notre assistant IA est momentanément indisponible en raison d’un problème technique.
+Vous pouvez réessayer dans quelques instants, ou laisser plus de détails : un agent humain prendra le relais si besoin.`;
+
+    const fallbackTextEn = `Our AI assistant is temporarily unavailable due to a technical problem.
+You can try again shortly, or provide more details and a human agent will follow up if needed.`;
+
+    const fallbackTextAr = `مساعد الذكاء الاصطناعي غير متوفر مؤقتًا بسبب مشكلة تقنية.
+يمكنك المحاولة لاحقًا أو تقديم مزيد من التفاصيل، وسيقوم عميل بشري بمتابعة طلبك عند الحاجة.`;
+
+    let fallbackText = fallbackTextFr;
+    if (language === "en") fallbackText = fallbackTextEn;
+    if (language === "ar") fallbackText = fallbackTextAr;
+
+    return { responseText: fallbackText, escalationSuggested: true };
   }
-
-  let jsonStr = response.text.trim();
-  const fenceRegex = /```(?:json)?\s*\n?(.*?)\n?\s*```/s;
-  const match = jsonStr.match(fenceRegex);
-  if (match && match[1]) {
-    jsonStr = match[1].trim();
-  }
-
-  const parsed = JSON.parse(jsonStr);
-
-  const responseText = parsed.responseText || parsed.text;
-  const escalationSuggested = parsed.escalationSuggested;
-
-  if (
-    typeof responseText !== "string" ||
-    typeof escalationSuggested !== "boolean"
-  ) {
-    throw new Error(
-      "AI response is not in the expected format. It must contain a 'responseText' (or 'text') string and an 'escalationSuggested' boolean.",
-    );
-  }
-
-  return { responseText, escalationSuggested };
 }
 
 // --------------------
 // 3) ticketSummary
 // --------------------
 async function handleTicketSummary(body: TicketSummaryPayload) {
-  const { language, targetLanguage, ticket } = body;
+  const { targetLanguage, ticket } = body;
 
   const ticketContext = `Ticket Title: "${ticket.title}"
 Category: "${ticket.category}" 
@@ -421,7 +446,6 @@ serve(async (req: Request) => {
     );
   } catch (err: any) {
     console.error("[nexus-ai] internal error:", err);
-    // On évite d'exposer les détails Gemini au client
     return json(
       { error: "Internal AI error" },
       500,
