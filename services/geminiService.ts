@@ -1,5 +1,5 @@
 // services/geminiService.ts
-// 🔐 Aucune clé Gemini dans le front : tout passe par la Supabase Edge Function `nexus-ai`
+// 🔐 Version sans clé Gemini côté front : tout passe par la Supabase Edge Function `nexus-ai`
 
 import { ChatMessage, Ticket, TicketPriority } from "../types";
 import { Locale } from "../contexts/LanguageContext";
@@ -11,7 +11,7 @@ const NEXUS_AI_ENDPOINT =
   import.meta.env.VITE_NEXUS_AI_ENDPOINT || "/api/edge-proxy/nexus-ai";
 
 /**
- * On ne veut pas envoyer toute la structure interne de ChatMessage,
+ * On ne veut plus envoyer toute la structure interne de ChatMessage,
  * seulement ce dont le backend a besoin.
  */
 type SerializableChatMessage = {
@@ -54,16 +54,15 @@ async function callNexusAi<TResponse>(
     headers: {
       "content-type": "application/json",
     },
-    // Si tu utilises des cookies d'auth (session Nexus)
-    credentials: "include",
+    credentials: "include", // cookies Supabase auth si présents
     body: JSON.stringify(payload),
   });
 
   let json: any = null;
   try {
     json = await res.json();
-  } catch (e) {
-    // Réponse non JSON
+  } catch {
+    // Réponse non JSON (erreur interne très grave)
   }
 
   if (!res.ok) {
@@ -105,8 +104,8 @@ export async function summarizeAndCategorizeChat(
   try {
     const data = await callNexusAi<BackendResponse>({
       mode: "summarizeAndCategorizeChat",
-      language, // "fr" | "en" | "ar"
-      targetLanguage, // label lisible pour le prompt backend
+      language, // "fr" | "en" | "ar" (le backend sait gérer)
+      targetLanguage,
       chatHistory: backendHistory,
       validCategories,
       validPriorities,
@@ -120,7 +119,7 @@ export async function summarizeAndCategorizeChat(
     let normalizedCategory = data.category;
     if (!TICKET_CATEGORY_KEYS.includes(normalizedCategory)) {
       console.warn(
-        `[summarizeAndCategorizeChat] Invalid category from AI: ${normalizedCategory}. Defaulting.`,
+        `[summarizeAndCategorizeChat] Invalid category from AI: ${normalizedCategory}. Defaulting.`
       );
       normalizedCategory =
         TICKET_CATEGORY_KEYS.find((k) => k.includes("General")) ||
@@ -130,7 +129,7 @@ export async function summarizeAndCategorizeChat(
     let normalizedPriority = data.priority as TicketPriority;
     if (!Object.values(TicketPriority).includes(normalizedPriority)) {
       console.warn(
-        `[summarizeAndCategorizeChat] Invalid priority from AI: ${data.priority}. Defaulting to Medium.`,
+        `[summarizeAndCategorizeChat] Invalid priority from AI: ${data.priority}. Defaulting to Medium.`
       );
       normalizedPriority = TicketPriority.MEDIUM;
     }
@@ -144,9 +143,7 @@ export async function summarizeAndCategorizeChat(
   } catch (error: any) {
     console.error("Error summarizing and categorizing chat (backend):", error);
     throw new Error(
-      `Failed to process chat summary. ${
-        error.message || "Unknown AI backend error"
-      }`,
+      `Failed to process chat summary. ${error.message || "Unknown AI backend error"}`
     );
   }
 }
@@ -167,7 +164,7 @@ export async function getFollowUpHelpResponse(
   }
 ): Promise<{ text: string; escalationSuggested: boolean }> {
   const backendHistory = buildBackendChatHistory(
-    fullChatHistoryIncludingCurrentUserMessage,
+    fullChatHistoryIncludingCurrentUserMessage
   );
 
   type BackendResponse = {
@@ -192,7 +189,7 @@ export async function getFollowUpHelpResponse(
       typeof data.escalationSuggested !== "boolean"
     ) {
       throw new Error(
-        "AI backend response is not in the expected format. It must contain 'responseText' (string) and 'escalationSuggested' (boolean).",
+        "AI backend response is not in the expected format. It must contain 'responseText' (string) and 'escalationSuggested' (boolean)."
       );
     }
 
@@ -203,7 +200,6 @@ export async function getFollowUpHelpResponse(
   } catch (error: any) {
     console.error("Error getting follow-up AI response from backend:", error);
 
-    // Fallback propre pour l’utilisateur, sans exposer d’erreurs internes
     const textFr = `Notre assistant IA a rencontré un problème inattendu.
 Vous pouvez réessayer dans quelques instants ou laisser plus de détails : un agent humain prendra le relais si besoin.`;
     const textEn = `Our AI assistant encountered an unexpected issue.
@@ -225,7 +221,7 @@ You can try again shortly or provide more details, and a human agent will follow
 // ---------------------------------------------------------------------------
 export async function getTicketSummary(
   ticket: Ticket,
-  language: Locale,
+  language: Locale
 ): Promise<string> {
   const targetLanguage = getLanguageName(language);
 
@@ -236,10 +232,9 @@ export async function getTicketSummary(
   try {
     const data = await callNexusAi<BackendResponse>({
       mode: "ticketSummary",
-      language, // "fr" | "en" | "ar"
+      language,
       targetLanguage,
       ticket: {
-        // On envoie seulement ce qui est utile au backend
         title: ticket.title,
         description: ticket.description,
         category: ticket.category,
