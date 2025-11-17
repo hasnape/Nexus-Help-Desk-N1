@@ -1,4 +1,4 @@
-// services/geminiService.ts
+// src/services/geminiService.ts
 // 🔐 Version sans clé Gemini côté front : tout passe par la Supabase Edge Function `nexus-ai`
 
 import { ChatMessage, Ticket, TicketPriority } from "../types";
@@ -54,7 +54,8 @@ async function callNexusAi<TResponse>(
     headers: {
       "content-type": "application/json",
     },
-    credentials: "include", // cookies Supabase auth si présents
+    // Cookies Supabase (si login via navigateur)
+    credentials: "include",
     body: JSON.stringify(payload),
   });
 
@@ -62,7 +63,7 @@ async function callNexusAi<TResponse>(
   try {
     json = await res.json();
   } catch {
-    // Réponse non JSON (erreur interne très grave)
+    // Réponse non JSON (erreur grave côté proxy / backend)
   }
 
   if (!res.ok) {
@@ -104,8 +105,8 @@ export async function summarizeAndCategorizeChat(
   try {
     const data = await callNexusAi<BackendResponse>({
       mode: "summarizeAndCategorizeChat",
-      language, // "fr" | "en" | "ar" (le backend sait gérer)
-      targetLanguage,
+      language, // "fr" | "en" | "ar"
+      targetLanguage, // "French" | "English" | "Arabic"
       chatHistory: backendHistory,
       validCategories,
       validPriorities,
@@ -115,7 +116,7 @@ export async function summarizeAndCategorizeChat(
       throw new Error("AI response is missing required fields.");
     }
 
-    // Validation/normalisation côté front (ceinture + bretelles)
+    // Validation/normalisation côté front
     let normalizedCategory = data.category;
     if (!TICKET_CATEGORY_KEYS.includes(normalizedCategory)) {
       console.warn(
@@ -143,7 +144,9 @@ export async function summarizeAndCategorizeChat(
   } catch (error: any) {
     console.error("Error summarizing and categorizing chat (backend):", error);
     throw new Error(
-      `Failed to process chat summary. ${error.message || "Unknown AI backend error"}`
+      `Failed to process chat summary. ${
+        error.message || "Unknown AI backend error"
+      }`
     );
   }
 }
@@ -177,7 +180,8 @@ export async function getFollowUpHelpResponse(
       mode: "followUp",
       language, // "fr" | "en" | "ar"
       ticketTitle: ticketTitle || "General Support Request",
-      ticketCategoryKey: ticketCategoryKey || "ticketCategory.GeneralQuestion",
+      ticketCategoryKey:
+        ticketCategoryKey || "ticketCategory.GeneralQuestion",
       assignedAiLevel,
       chatHistory: backendHistory,
       companyId: opts?.companyId,
@@ -232,7 +236,7 @@ export async function getTicketSummary(
   try {
     const data = await callNexusAi<BackendResponse>({
       mode: "ticketSummary",
-      language,
+      language, // "fr" | "en" | "ar"
       targetLanguage,
       ticket: {
         title: ticket.title,
