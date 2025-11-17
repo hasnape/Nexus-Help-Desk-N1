@@ -221,7 +221,7 @@
   "formElements.select.placeholderDefault": "Sélectionnez une option",
   "futureContent": "<ul><li><strong>Advanced Integrations:</strong> We plan to integrate with popular CRM and messaging platforms for a smoother workflow.</li><li><strong>AI Customization:</strong> Future developments will allow businesses to train the AI with their own knowledge bases for even more accurate and specific responses.</li><li><strong>Appointment Module:</strong> An integrated system for scheduling appointments with agents will be added for more efficient management of complex interactions.</li></ul>",
   "futureTitle": "Roadmap and Future Developments",
-  "helpChat.createTicketButton": "Créer un ticket de support",
+  "helpChat.createTicketButton": "Valider la création du ticket de support",
   "helpChat.createTicketExplanation": "Si je ne parviens pas à résoudre votre problème, ce bouton apparaîtra pour créer un ticket formel avec notre conversation.",
   "helpChat.initialMessage": "Bonjour ! Je suis Nexus, votre assistant virtuel. Comment puis-je vous aider aujourd'hui ?",
   "helpChat.placeholder": "Décrivez votre problème ici...",
