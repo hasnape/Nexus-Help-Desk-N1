@@ -1,20 +1,23 @@
 // api/edge-proxy/[fn].ts
-// Proxy côté Vercel -> Supabase Edge Functions
-// - Route /api/edge-proxy/nexus-ai -> https://<project>.functions.supabase.co/functions/v1/nexus-ai
-// - Propage l'en-tête Origin du navigateur vers Supabase (pour les CORS / guardOriginOr403).
-// - N'expose aucune clé dans le front : toutes les clés restent côté serveur Vercel.
+// Proxy Vercel -> Supabase Edge Functions
+// Exemple :
+//   /api/edge-proxy/nexus-ai         -> Supabase function "nexus-ai"
+//   /api/edge-proxy/auth-signup      -> Supabase function "auth-signup"
+//   /api/edge-proxy/login-guard      -> Supabase function "login-guard"
+//
+// Rôle :
+//  - propage l'Origin du navigateur vers Supabase (pour guardOriginOr403 + CORS)
+//  - N'expose aucune clé côté navigateur (toutes les clés sont sur Vercel)
 
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
-// On récupère l'URL Supabase.
-// On tolère SUPABASE_URL ou VITE_SUPABASE_URL (au cas où tu n'as mis que celle-ci dans Vercel).
-const SUPABASE_URL =
-  process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL ?? "";
+// URL Supabase (ex: https://iqvshiebmusybtzbijrg.supabase.co)
+const SUPABASE_URL = process.env.SUPABASE_URL ?? "";
 
-// Base URL des Edge Functions Supabase.
-// Ex: https://iqvshiebmusybtzbijrg.supabase.co
-//  -> https://iqvshiebmusybtzbijrg.functions.supabase.co
-const SUPABASE_FUNCTIONS_BASE =
+// Base URL des Edge Functions Supabase
+// Si tu ne définis pas SUPABASE_FUNCTIONS_URL, on la dérive de SUPABASE_URL
+//  https://xxxx.supabase.co -> https://xxxx.functions.supabase.co
+const SUPABASE_FUNCTIONS_URL =
   process.env.SUPABASE_FUNCTIONS_URL ||
   (SUPABASE_URL
     ? SUPABASE_URL.replace("https://", "https://").replace(
@@ -23,23 +26,33 @@ const SUPABASE_FUNCTIONS_BASE =
       )
     : "");
 
-// Clé Anon pour invoquer la function (obligatoire côté serveur, mais jamais renvoyée au client)
+// Clé Anon utilisée SERVER-SIDE pour appeler les Supabase Functions
+// (jamais renvoyée au navigateur)
 const SUPABASE_ANON_KEY =
   process.env.SUPABASE_ANON_KEY ?? process.env.VITE_SUPABASE_ANON_KEY ?? "";
 
-if (!SUPABASE_FUNCTIONS_BASE) {
-  throw new Error(
-    "Missing SUPABASE_FUNCTIONS_URL or SUPABASE_URL env var for edge-proxy."
+if (!SUPABASE_FUNCTIONS_URL) {
+  console.warn(
+    "[edge-proxy] Missing SUPABASE_FUNCTIONS_URL or SUPABASE_URL env var."
   );
 }
+
 if (!SUPABASE_ANON_KEY) {
-  throw new Error(
-    "Missing SUPABASE_ANON_KEY (or VITE_SUPABASE_ANON_KEY) env var for edge-proxy."
+  console.warn(
+    "[edge-proxy] Missing SUPABASE_ANON_KEY (or VITE_SUPABASE_ANON_KEY) env var."
   );
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
+    if (!SUPABASE_FUNCTIONS_URL || !SUPABASE_ANON_KEY) {
+      res
+        .status(500)
+        .json({ error: "Edge proxy misconfigured on server (env vars)." });
+      return;
+    }
+
+    // /api/edge-proxy/[fn]  =>  fn = "nexus-ai", "auth-signup", etc.
     const { fn } = req.query;
     const fnName = Array.isArray(fn) ? fn[0] : fn;
 
@@ -48,49 +61,48 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return;
     }
 
-    // On reconstruit l'URL cible Supabase en gardant les query params
-    // /api/edge-proxy/nexus-ai?foo=bar -> /functions/v1/nexus-ai?foo=bar
+    // On garde les query params de la requête originale
     const originalUrl = req.url || "";
     const queryIndex = originalUrl.indexOf("?");
     const search = queryIndex >= 0 ? originalUrl.substring(queryIndex) : "";
-    const targetUrl = `${SUPABASE_FUNCTIONS_BASE}/functions/v1/${fnName}${search}`;
 
-    // ---- Headers à forward vers Supabase ----
+    const targetUrl = `${SUPABASE_FUNCTIONS_URL}/functions/v1/${fnName}${search}`;
+
+    // --------- Construction des headers à forward vers Supabase ---------
     const headers: Record<string, string> = {};
 
-    // On propage les headers utiles (sauf host, content-length, etc.)
     for (const [key, value] of Object.entries(req.headers)) {
       if (!value) continue;
       const lowerKey = key.toLowerCase();
+
+      // On évite d'écraser host / content-length
       if (lowerKey === "host" || lowerKey === "content-length") continue;
 
-      if (Array.isArray(value)) {
-        headers[lowerKey] = value.join(", ");
-      } else {
-        headers[lowerKey] = value;
-      }
+      headers[lowerKey] = Array.isArray(value) ? value.join(", ") : value;
     }
 
-    // On force l'Origin à celui du navigateur (clé pour guardOriginOr403 côté Supabase)
+    // 🔁 Propage l'Origin du navigateur (clé pour tes CORS côté Supabase)
     const origin = req.headers.origin;
-    if (origin && typeof origin === "string") {
+    if (typeof origin === "string") {
       headers["origin"] = origin;
     }
 
-    // Auth pour appeler la Supabase Edge Function (exigé en production)
+    // Auth obligatoire pour appeler la Supabase Function
     headers["apikey"] = SUPABASE_ANON_KEY;
     headers["authorization"] = `Bearer ${SUPABASE_ANON_KEY}`;
 
-    // On s'assure d'avoir un content-type cohérent si on envoie du JSON
-    if (!headers["content-type"] && req.method !== "GET" && req.method !== "HEAD") {
+    // Content-Type par défaut pour les requêtes avec body
+    if (
+      !headers["content-type"] &&
+      req.method &&
+      !["GET", "HEAD"].includes(req.method)
+    ) {
       headers["content-type"] = "application/json";
     }
 
-    // Body
+    // --------- Body ---------
     let body: BodyInit | undefined = undefined;
     if (req.method && !["GET", "HEAD"].includes(req.method)) {
-      // Sur Vercel Node, req.body est déjà parsé (object) si JSON.
-      // On le re-stringify proprement pour Supabase.
       if (typeof req.body === "string") {
         body = req.body;
       } else if (req.body != null) {
@@ -98,31 +110,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    // ---- Appel à la Supabase Edge Function ----
+    // --------- Appel à la Supabase Edge Function ---------
     const supaResponse = await fetch(targetUrl, {
       method: req.method,
       headers,
       body,
     });
 
-    // On lit le body de la réponse Supabase
     const supaBody = await supaResponse.arrayBuffer();
 
-    // On renvoie le status + headers de Supabase tels quels,
-    // pour conserver les en-têtes CORS (_shared/cors.ts).
+    // Renvoie le status + headers de Supabase tels quels
     res.status(supaResponse.status);
     supaResponse.headers.forEach((value, key) => {
       res.setHeader(key, value);
     });
 
-    // Petit header de debug facultatif
+    // Petit header de debug
     res.setHeader("x-nexus-edge-proxy", "1");
 
     res.send(Buffer.from(supaBody));
   } catch (err: any) {
     console.error("[edge-proxy] Error forwarding to Supabase function:", err);
-    res
-      .status(500)
-      .json({ error: "Edge proxy error while calling Supabase function." });
+    res.status(500).json({
+      error: "Edge proxy error while calling Supabase function.",
+    });
   }
 }
