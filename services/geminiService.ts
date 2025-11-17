@@ -275,13 +275,34 @@ ${roleInstructions}`;
     }
 
     return { text: responseText, escalationSuggested };
-  } catch (error: any) {
-    console.error("Error getting follow-up AI response from Gemini:", error);
-    const defaultErrorText = `I'm sorry, I encountered an issue trying to process your follow-up request. Details: ${
-      error.message || "Unknown error"
-    }. (Error in getFollowUpHelpResponse - Direct Client Call)`;
-    return { text: defaultErrorText, escalationSuggested: true };
+} catch (error: any) {
+  console.error("Error getting follow-up AI response from Gemini:", error);
+
+  const isOverloaded =
+    error?.error?.status === "UNAVAILABLE" ||
+    error?.error?.code === 503 ||
+    typeof error?.message === "string" &&
+      error.message.includes("The model is overloaded");
+
+  if (isOverloaded) {
+    // Message propre pour l'utilisateur final
+    const textFr = `Notre assistant IA est momentanément indisponible en raison d’une surcharge du service.
+Je continue à suivre votre demande : vous pouvez soit réessayer dans quelques instants, soit laisser un message plus détaillé et un agent humain prendra le relais.`;
+    const textEn = `Our AI assistant is temporarily unavailable due to service overload.
+You can try again shortly, or leave more details and a human agent will follow up.`;
+    const textAr = `مساعد الذكاء الاصطناعي غير متوفر مؤقتًا بسبب ضغط على الخدمة.
+يمكنك المحاولة لاحقًا أو ترك مزيد من التفاصيل وسيقوم عميل بشري بمتابعة طلبك.`;
+
+    // choisis en fonction de la langue si tu veux, ici je mets FR par défaut:
+    return { text: textFr, escalationSuggested: true };
   }
+
+  const defaultErrorText = `I'm sorry, I encountered an issue trying to process your follow-up request. Details: ${
+    error.message || "Unknown error"
+  }. (Error in getFollowUpHelpResponse - Direct Client Call)`;
+
+  return { text: defaultErrorText, escalationSuggested: true };
+}
 }
 
 // ---------------------------------------------------------------------------
