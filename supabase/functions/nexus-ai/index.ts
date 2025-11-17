@@ -1,0 +1,263 @@
+// supabase/functions/nexus-ai/index.ts
+import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
+import { createClient } from "npm:@supabase/supabase-js";
+import {
+  GoogleGenAI,
+  type Content,
+  type GenerateContentResponse,
+} from "npm:@google/genai";
+
+// ⚠️ chemins OK pour ton repo : supabase/functions/_shared/cors.ts
+import {
+  handleOptions,
+  guardOriginOr403,
+  json,
+} from "../_shared/cors.ts";
+
+const MODEL_NAME = "gemini-2.5-flash";
+
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY")!;
+
+if (!SUPABASE_URL || !SERVICE_ROLE_KEY || !GEMINI_API_KEY) {
+  console.warn(
+    "[nexus-ai] Missing env vars SUPABASE_URL / SERVICE_ROLE_KEY / GEMINI_API_KEY"
+  );
+}
+
+const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
+  global: {
+    headers: {
+      "x-client-info": "nexus-ai-edge-fn",
+    },
+  },
+});
+
+const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
+
+type ChatMessage = {
+  sender: string; // "user" | "agent" | "ai" | ...
+  text: string;
+};
+
+type FollowUpPayload = {
+  mode: "followUp";
+  language: "fr" | "en" | "ar";
+  ticketTitle: string;
+  ticketCategoryKey: string;
+  assignedAiLevel: 1 | 2;
+  chatHistory: ChatMessage[];
+  companyId?: string;
+};
+
+type RequestBody = FollowUpPayload; // tu pourras rajouter d’autres modes plus tard
+
+// ---------- Helpers ----------
+
+function formatChatHistoryForGemini(history: ChatMessage[]): Content[] {
+  return history
+    .filter((m) => m.sender !== "system_summary")
+    .map((m) => ({
+      role: m.sender === "user" ? "user" : "model",
+      parts: [{ text: m.text }],
+    }));
+}
+
+function getLanguageName(locale: string): string {
+  switch (locale) {
+    case "fr":
+      return "French";
+    case "ar":
+      return "Arabic";
+    case "en":
+    default:
+      return "English";
+  }
+}
+
+async function buildCompanyKnowledgeContext(
+  companyId?: string
+): Promise<string | null> {
+  if (!companyId) return null;
+
+  const { data, error } = await supabase
+    .from("company_knowledge")
+    .select("question, answer, tags")
+    .eq("company_id", companyId)
+    .eq("is_active", true)
+    .order("created_at", { ascending: false })
+    .limit(25);
+
+  if (error || !data || data.length === 0) {
+    console.warn("[nexus-ai] company_knowledge error or empty", error);
+    return null;
+  }
+
+  const blocks = data.map((row, i) => {
+    const tags =
+      Array.isArray(row.tags) ? row.tags.join(", ") : (row.tags ?? "");
+    return `FAQ #${i + 1}
+Question: ${row.question}
+Answer: ${row.answer}${tags ? `\nTags: ${tags}` : ""}`;
+  });
+
+  return `COMPANY KNOWLEDGE BASE
+
+These Q&A entries come from the client's official documentation and MUST be used as an authoritative source when relevant.
+
+${blocks.join("\n\n")}`;
+}
+
+async function handleFollowUp(body: FollowUpPayload) {
+  const {
+    language,
+    ticketTitle,
+    ticketCategoryKey,
+    assignedAiLevel,
+    chatHistory,
+    companyId,
+  } = body;
+
+  const targetLanguage = getLanguageName(language);
+  const geminiHistory = formatChatHistoryForGemini(chatHistory);
+  const knowledgeContext = await buildCompanyKnowledgeContext(companyId);
+
+  // 🔹 Blocs N1 / N2 repris de ton geminiService.ts
+  const roleInstructions =
+    assignedAiLevel === 1
+      ? `
+You are acting as a Level 1 (N1) support agent. Your task is to continue assisting the user by focusing on common solutions for known basic issues, gathering further essential details (one or two questions at a time), or guiding the user through simple, predefined troubleshooting steps. If the issue persists after these initial attempts or if it clearly requires more advanced expertise, inform the user that you have documented all interactions and the issue will be escalated to our Level 2 (N2) technical team for further investigation.
+
+N1 Specific instructions based on category:
+- If the category is "ticketCategory.MaterialReplacementRequest", "ticketCategory.LostMaterial", or "ticketCategory.BrokenMaterial":
+  - If the specific item isn't identified yet, ask for it.
+  - If the item is identified but, for example, the circumstances (if "LostMaterial" or "BrokenMaterial") are unknown, ask: "Thanks for confirming the item. Could you briefly describe how it was lost/broken?" (This is still N1 info gathering).
+  - Once basic info is gathered (item, very brief circumstance), state: "Thank you. I have noted these details. Your request will be forwarded to our IT hardware team for processing."
+  - Do NOT attempt to troubleshoot the hardware issue itself.
+- If the category is "ticketCategory.MaterialInvestigation":
+  - Ask one more basic clarifying question based on the user's last message. For example, if they described a "slow laptop", you could ask "Does this happen all the time, or only with specific applications?".
+  - If the issue is not immediately resolvable with a very simple suggestion (like "Have you tried restarting it?"), then state: "Thank you for the additional information. This will help our Level 2 technical team investigate further. I've documented our conversation, and they will take a closer look."
+  - Avoid making a final decision on replacement or complex troubleshooting.
+- For all other categories (Level 1): Guide through one more basic, common troubleshooting step. If it fails or if the user indicates the problem is complex, inform them: "I've noted the steps we've tried. It seems this issue requires a more in-depth look. I'll document our conversation and escalate this to our Level 2 support team."
+`
+      : `
+You are acting as a Level 2 (N2) IT Help Desk AI specialist. Your primary role is to diagnose and resolve technical incidents that require more in-depth knowledge than Level 1 support. You possess a good understanding of various systems and software. Respond professionally and technically, aiming to identify the root cause. Ask targeted diagnostic questions if needed, one or two at a time. If you propose a solution, it should be within the scope of an N2 agent (e.g., advanced configuration, specific repairs, known complex workarounds, but not architectural changes or new development which are N3 tasks). If the problem seems to exceed N2 capabilities (e.g., requires direct vendor/editor involvement or custom development), you can state that further specialized (N3) investigation might be necessary if your current approach doesn't resolve it.
+
+N2 Specific instructions based on category:
+- If the category is "ticketCategory.MaterialReplacementRequest", "ticketCategory.LostMaterial", or "ticketCategory.BrokenMaterial":
+  - (N2 typically wouldn't handle initial requests, but if escalated here) Confirm all details are present. If user has further questions about process, answer them.
+- If the category is "ticketCategory.MaterialInvestigation":
+  - Continue the diagnostic conversation with more technical questions. For example: "Could you check the driver version for [device]?" or "Are there any specific error codes in the event logs when this occurs?".
+  - Offer more specific troubleshooting steps that an N2 would perform (e.g., "Let's try reinstalling the driver for that component.").
+  - If a replacement seems likely after N2 diagnosis: "Based on these findings, it appears a replacement of [item] is the most effective solution. I can process this for you. Would you like to proceed with requesting a replacement?"
+- For all other categories (Level 2): Provide more technical or in-depth solutions. Analyze logs if conceptually provided. Guide through advanced configuration changes.
+`;
+
+  const systemInstruction = `You are Nexus, an IT Help Desk AI assistant.
+You are assisting with a ticket titled "${ticketTitle}" in category key "${ticketCategoryKey}".
+
+${
+  knowledgeContext
+    ? `
+You ALSO have access to a COMPANY KNOWLEDGE BASE (FAQ) below.
+
+IMPORTANT RULES ABOUT THE FAQ:
+- First, check if the user's latest question is clearly answered or strongly related to one or more FAQ entries.
+- If yes, you MUST base your answer primarily on that FAQ content, even if the topic is not strictly IT (for example: road safety, radars, ethylotests, internal company rules, legal obligations, etc.).
+- For example, questions like "Voitures-radars : comment sont choisis les axes sur lesquels elles évoluent ?" or about ethylotests MUST be answered using the FAQ content if relevant.
+- Only if no FAQ entry is relevant are you allowed to say that the question is outside your IT support scope.
+- Never invent laws or rules: rely on the FAQ as the primary source.
+
+${knowledgeContext}
+`
+    : `
+No company FAQ is provided for this ticket. Behave as a classic IT help desk AI assistant.
+`
+}
+
+The provided conversation history contains all previous messages, with the user's latest message being the last one in the history.
+Your entire response MUST be a single, raw JSON object, without any markdown like \`\`\`json.
+The JSON object must have two keys: "responseText" and "escalationSuggested".
+
+1.  responseText: This is the message you will show to the user. It must be helpful, empathetic, professional, and clear. Ask only one or two questions at a time if more information is needed. The response text must be in ${targetLanguage}.
+2.  escalationSuggested: This is a boolean (true/false). Set it to true ONLY if your responseText indicates that you cannot resolve the issue and are escalating it, forwarding it to another team (like N2 or hardware), or suggesting the user create a ticket. Otherwise, set it to false.
+
+Follow these specific role instructions to formulate your responseText:
+${roleInstructions}
+`;
+
+  const response: GenerateContentResponse = await ai.models.generateContent({
+    model: MODEL_NAME,
+    contents: geminiHistory,
+    config: {
+      systemInstruction,
+      responseMimeType: "application/json",
+      temperature: 0.7,
+      topP: 0.95,
+      topK: 50,
+    },
+  });
+
+  if (!response.text) {
+    throw new Error("Gemini API did not return text content for follow-up.");
+  }
+
+  let jsonStr = response.text.trim();
+  const fenceRegex = /```(?:json)?\s*\n?(.*?)\n?\s*```/s;
+  const match = jsonStr.match(fenceRegex);
+  if (match && match[1]) {
+    jsonStr = match[1].trim();
+  }
+
+  const parsed = JSON.parse(jsonStr);
+  const responseText = parsed.responseText || parsed.text;
+  const escalationSuggested = parsed.escalationSuggested;
+
+  if (
+    typeof responseText !== "string" ||
+    typeof escalationSuggested !== "boolean"
+  ) {
+    throw new Error(
+      "AI response is not in the expected format. It must contain a 'responseText' (or 'text') string and an 'escalationSuggested' boolean.",
+    );
+  }
+
+  return { responseText, escalationSuggested };
+}
+
+// ---------- HTTP handler ----------
+
+serve(async (req: Request) => {
+  // 1) OPTIONS CORS
+  const maybeOptions = handleOptions(req);
+  if (maybeOptions) return maybeOptions;
+
+  // 2) Vérification de l'Origin
+  const originCheck = guardOriginOr403(req);
+  if (originCheck instanceof Response) return originCheck;
+  const headers = originCheck as Record<string, string>;
+
+  try {
+    const body = (await req.json()) as RequestBody;
+
+    if (body.mode === "followUp") {
+      const result = await handleFollowUp(body);
+      // ⚠️ json(body, status, corsHeaders) selon TON helper
+      return json(result, 200, headers);
+    }
+
+    return json(
+      { error: "Unsupported mode" },
+      400,
+      headers,
+    );
+  } catch (err) {
+    console.error("[nexus-ai] error:", err);
+    return json(
+      { error: "Invalid request body or internal error" },
+      500,
+      headers,
+    );
+  }
+});
