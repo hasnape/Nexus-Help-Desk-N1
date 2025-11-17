@@ -56,3 +56,4 @@ export async function sendResetPassword(email: string) {
 
   return data;
 }
+
