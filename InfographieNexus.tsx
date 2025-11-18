@@ -235,43 +235,33 @@ const InfographieNexus: React.FC = () => {
           Nexus Support Hub
         </h1>
         <p className="mt-4 text-xl md:text-2xl font-light">
-          Révolutionner la Gestion du Support Client avec l'IA
+          Help desk IA autonome pour votre support N1 → N2 (Bêta / Early
+          Access)
         </p>
       </header>
       <main className="container mx-auto p-4 md:p-8">
         {/* Intro */}
         <section id="intro" className="text-center my-12">
           <h2 className="text-3xl font-bold mb-4">
-            Le défi : une expérience client exigeante
+            Nexus Support Hub en un coup d’œil
           </h2>
           <p className="max-w-3xl mx-auto text-lg text-gray-600 mb-8">
-            Dans un monde numérique, les clients attendent des réponses rapides,
-            personnalisées et efficaces. Les entreprises peinent à centraliser
-            les demandes, à réduire les temps de traitement et à offrir un
-            support multilingue de qualité. C'est ici que Nexus Support Hub
-            intervient.
+            Nexus automatise le support de niveau 1 (N1) et assiste le niveau 2
+            (N2) en Français, Anglais et Arabe. Les demandes simples sont
+            traitées par l’IA ; les tickets complexes arrivent déjà résumés,
+            catégorisés et priorisés. Architecture multi-entreprises sécurisée,
+            inspirée du RGAA 4.1 et hébergée sur Supabase (RLS, PostgreSQL).
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            <div className="stat-card rounded-lg p-6 shadow-md bg-white bg-opacity-80 backdrop-blur border border-white/20">
-              <div className="text-5xl font-extrabold text-[#bc5090]">86%</div>
-              <p className="mt-2 font-semibold text-gray-700">
-                des clients sont prêts à payer plus pour une meilleure
-                expérience.
-              </p>
-            </div>
-            <div className="stat-card rounded-lg p-6 shadow-md bg-white bg-opacity-80 backdrop-blur border border-white/20">
-              <div className="text-5xl font-extrabold text-[#ef5675]">40%</div>
-              <p className="mt-2 font-semibold text-gray-700">
-                de productivité en plus attendus grâce à l'IA dans le support.
-              </p>
-            </div>
-            <div className="stat-card rounded-lg p-6 shadow-md bg-white bg-opacity-80 backdrop-blur border border-white/20">
-              <div className="text-5xl font-extrabold text-[#ff764a]">7j/7</div>
-              <p className="mt-2 font-semibold text-gray-700">
-                est la nouvelle norme d'accessibilité attendue par les
-                utilisateurs.
-              </p>
-            </div>
+          <div className="bg-white max-w-5xl mx-auto rounded-lg shadow-md p-6 border border-white/40">
+            <p className="text-gray-700 font-semibold">
+              🧪 Statut actuel : Bêta / Early Access – MVP fonctionnel en
+              production, ouvert à quelques entreprises pilotes.
+            </p>
+            <p className="text-gray-600 mt-3">
+              Objectif : réduire la charge des équipes support, structurer les
+              demandes, et proposer un help desk accessible à tous sans ajouter
+              de promesses chiffrées non vérifiées.
+            </p>
           </div>
         </section>
 
@@ -279,23 +269,24 @@ const InfographieNexus: React.FC = () => {
         <section id="features" className="my-16">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold">
-              Une Solution Complète et Intelligente
+              Une solution complète pour le support N1 → N2
             </h2>
             <p className="max-w-3xl mx-auto text-lg text-gray-600 mt-2">
-              Nexus Support Hub centralise toutes les facettes du support client
-              dans une interface unifiée, conçue pour l'efficacité et la
-              simplicité.
+              Nexus Support Hub combine IA, gestion de tickets et architecture
+              multi-entreprises pour offrir une base solide aux équipes
+              support, sans inventer de chiffres de performance.
             </p>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             <div className="bg-white rounded-lg shadow-lg p-6">
               <h3 className="font-bold text-xl mb-4 text-center">
-                Répartition des fonctionnalités clés
+                Répartition des fonctionnalités clés (illustratif)
               </h3>
               <p className="text-center text-gray-600 mb-4">
                 La plateforme est équilibrée entre la gestion des requêtes,
                 l'intelligence artificielle et les outils analytiques pour
-                offrir une solution complète.
+                offrir une solution complète. Ces valeurs sont indicatives pour
+                montrer la couverture fonctionnelle.
               </p>
               <div
                 className="chart-container"
@@ -355,8 +346,8 @@ const InfographieNexus: React.FC = () => {
               Une Architecture Moderne et Robuste
             </h2>
             <p className="max-w-3xl mx-auto text-lg text-gray-600 mt-2">
-              Nexus est construit sur des technologies de pointe, garantissant
-              performance, scalabilité et une expérience utilisateur fluide.
+              Nexus est construit sur des technologies de pointe pour garantir
+              sécurité, scalabilité et accessibilité.
             </p>
           </div>
           <div className="bg-white rounded-lg shadow-lg p-8">
@@ -445,21 +436,23 @@ const InfographieNexus: React.FC = () => {
         <section id="security" className="my-16">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold">
-              La Sécurité comme Priorité Absolue
+              Sécurité et accessibilité par conception
             </h2>
             <p className="max-w-3xl mx-auto text-lg text-gray-600 mt-2">
-              Une approche multi-couches pour protéger vos données et celles de
-              vos clients, en conformité avec les normes les plus strictes.
+              Données isolées par entreprise via RLS Supabase, rôles (user,
+              agent, manager) et pratiques inspirées du RGAA 4.1 pour garantir
+              un usage inclusif.
             </p>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             <div className="bg-white rounded-lg shadow-lg p-6">
               <h3 className="font-bold text-xl mb-4 text-center">
-                Couverture des Domaines de Sécurité
+                Couverture des domaines de sécurité (illustratif)
               </h3>
               <p className="text-center text-gray-600 mb-4">
                 Nexus implémente des mesures robustes sur tous les fronts, de
-                l'authentification à la conformité des données.
+                l'authentification à la conformité des données. Graphique à
+                titre indicatif pour visualiser les axes couverts.
               </p>
               <div
                 className="chart-container"
@@ -532,12 +525,14 @@ const InfographieNexus: React.FC = () => {
         <section id="impact" className="my-16">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold">
-              Un Impact Mesurable sur votre Performance
+              Impact attendu (à valider avec nos pilotes)
             </h2>
             <p className="max-w-3xl mx-auto text-lg text-gray-600 mt-2">
-              L'adoption de Nexus se traduit par des gains concrets en
-              efficacité et en satisfaction client, visibles dès les premiers
-              mois.
+              Nexus est conçu pour réduire le temps passé sur les demandes N1,
+              améliorer la qualité et la cohérence des réponses, et augmenter
+              le volume de tickets traités par agent. Les premiers déploiements
+              permettront de mesurer précisément les gains et d’ajuster le
+              produit avec nos clients.
             </p>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
@@ -545,11 +540,11 @@ const InfographieNexus: React.FC = () => {
               <h3 className="font-bold text-xl mb-4 text-center">
                 Projection de la Satisfaction Client
               </h3>
-              <p className="text-center text-gray-600 mb-4">
-                L'automatisation intelligente et la rapidité de traitement ont
-                un effet direct et positif sur la perception de votre service
-                par les clients.
-              </p>
+            <p className="text-center text-gray-600 mb-4">
+                L’automatisation et la structuration des tickets visent à
+                améliorer la qualité, la cohérence et la rapidité du support,
+                sans promettre de gains chiffrés avant les retours des pilotes.
+            </p>
               <div
                 className="chart-container h-80 md:h-96"
                 style={{
@@ -566,19 +561,21 @@ const InfographieNexus: React.FC = () => {
             </div>
             <div className="lg:col-span-2 space-y-6 flex flex-col justify-center">
               <div className="stat-card rounded-lg p-6 shadow-md text-center bg-white bg-opacity-80 backdrop-blur border border-white/20">
-                <div className="text-5xl font-extrabold text-[#7a5195]">
-                  -35%
+                <div className="text-3xl font-extrabold text-[#7a5195]">
+                  Objectifs clés
                 </div>
                 <p className="mt-2 font-semibold text-gray-700">
-                  Temps de résolution moyen des tickets
+                  Réduire le temps passé sur les demandes N1 répétitives et
+                  faciliter l’escalade vers le N2.
                 </p>
               </div>
               <div className="stat-card rounded-lg p-6 shadow-md text-center bg-white bg-opacity-80 backdrop-blur border border-white/20">
-                <div className="text-5xl font-extrabold text-[#ff764a]">
-                  +25%
+                <div className="text-3xl font-extrabold text-[#ff764a]">
+                  Engagement
                 </div>
                 <p className="mt-2 font-semibold text-gray-700">
-                  Tickets traités par agent par jour
+                  Mesurer l’impact avec les entreprises pilotes, ajuster le
+                  produit et partager des résultats vérifiés.
                 </p>
               </div>
             </div>
