@@ -101,21 +101,18 @@ const LandingPage: React.FC = () => {
   const pillars = [
     {
       icon: <AiIcon />,
-      title: "IA intégrée au flux de tickets",
-      description:
-        "Automatisation des demandes simples, résumés automatiques et priorisation pour accélérer la prise en charge.",
+      title: t("landing.features.ai.title"),
+      description: t("landing.features.ai.desc"),
     },
     {
       icon: <ShieldIcon />,
-      title: "Help desk multi-entreprises & multi-langues",
-      description:
-        "Support FR / EN / AR avec isolation des données par entreprise et une architecture pensée pour les organisations multi-tenant.",
+      title: t("landing.features.secure.title"),
+      description: t("landing.features.secure.desc"),
     },
     {
       icon: <VoiceIcon />,
-      title: "Productivité & accessibilité",
-      description:
-        "Interface accessible (clavier, lecteurs d’écran, contrastes) avec saisie vocale et lecture à voix haute intégrées.",
+      title: t("landing.features.voice.title"),
+      description: t("landing.features.voice.desc"),
     },
   ];
 
@@ -137,9 +134,8 @@ const LandingPage: React.FC = () => {
           />
         </svg>
       ),
-      title: "Rapidité & automatisation",
-      description:
-        "Nexus traite automatiquement les demandes simples, crée des tickets résumés et catégorisés, et réduit le temps passé sur les tâches répétitives.",
+      title: t("landing.advantages.speed.title"),
+      description: t("landing.advantages.speed.desc"),
     },
     {
       icon: (
@@ -158,9 +154,8 @@ const LandingPage: React.FC = () => {
           />
         </svg>
       ),
-      title: "Sécurité & multi-tenant",
-      description:
-        "Les données de chaque entreprise sont isolées via les règles RLS de Supabase. Les accès sont contrôlés par rôles (utilisateur, agent, manager).",
+      title: t("landing.advantages.security.title"),
+      description: t("landing.advantages.security.desc"),
     },
     {
       icon: (
@@ -184,9 +179,8 @@ const LandingPage: React.FC = () => {
           />
         </svg>
       ),
-      title: "Accessibilité & voix",
-      description:
-        "Interface pensée pour l’accessibilité : navigation clavier, focus visible, ARIA, contrastes vérifiés. Saisie vocale des demandes et lecture à voix haute des réponses générées par Nexus.",
+      title: t("landing.advantages.voice.title"),
+      description: t("landing.advantages.voice.desc"),
     },
   ];
 
@@ -210,14 +204,13 @@ const LandingPage: React.FC = () => {
                   Help desk IA autonome pour votre support N1 → N2
                 </h1>
                 <p className="text-lg md:text-xl text-slate-200 mb-4 max-w-4xl mx-auto">
-                  Nexus Support Hub automatise le support de niveau 1 (N1) et assiste le niveau 2 (N2) en Français, Anglais et Arabe.
-                  Les demandes simples sont traitées par l’IA, les tickets complexes arrivent déjà résumés, catégorisés et priorisés.
+                  {t("landing.hero.subtitlePrimary")}
                 </p>
                 <p className="text-base text-slate-200 max-w-4xl mx-auto mb-4">
-                  Architecture multi-entreprises sécurisée, inspirée du RGAA 4.1 et entièrement hébergée sur Supabase (RLS, PostgreSQL).
+                  {t("landing.hero.subtitleSecondary")}
                 </p>
                 <div className="inline-flex items-center justify-center px-4 py-2 rounded-full bg-white/10 text-sm font-semibold mb-6">
-                  🧪 Statut actuel : Bêta / Early Access – MVP fonctionnel en production, ouvert à quelques entreprises pilotes.
+                  {t("landing.hero.betaBadge")}
                 </div>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-6 sm:mb-8">
                   <Link to="/signup" className="block">
@@ -225,7 +218,7 @@ const LandingPage: React.FC = () => {
                       size="lg"
                       className="px-8 py-4 text-lg w-full sm:w-auto"
                     >
-                      Essai gratuit – version bêta
+                      {t("landing.hero.ctaButton")}
                     </Button>
                   </Link>
                   <button
@@ -239,7 +232,7 @@ const LandingPage: React.FC = () => {
                     >
                       <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
                     </svg>
-                    Voir la démonstration
+                    {t("landing.hero.watchDemo")}
                   </button>
                   <Link to="/infographie" className="block w-full sm:w-auto">
                     <Button
@@ -247,7 +240,7 @@ const LandingPage: React.FC = () => {
                       size="lg"
                       className="px-8 py-4 text-lg w-full sm:w-auto"
                     >
-                      Voir l’infographie technique
+                      {t("landing.hero.infographieLink")}
                     </Button>
                   </Link>
                 </div>
@@ -265,7 +258,7 @@ const LandingPage: React.FC = () => {
                     <div className="bg-white rounded-lg p-4 max-w-4xl w-full max-h-full overflow-auto">
                       <div className="flex justify-between items-center mb-4">
                         <h3 className="text-xl font-bold text-gray-900">
-                          Découvrez Nexus Support Hub
+                          {t("landing.video.title")}
                         </h3>
                         <button
                           onClick={() => setShowVideo(false)}
@@ -296,7 +289,7 @@ const LandingPage: React.FC = () => {
                           rel="noopener noreferrer"
                           className="text-primary hover:underline font-semibold"
                         >
-                          Regarder sur YouTube
+                          {t("landing.video.watchOnYoutube")}
                         </a>
                       </div>
                     </div>
@@ -310,28 +303,30 @@ const LandingPage: React.FC = () => {
                 <div className="grid md:grid-cols-2 gap-10 items-center">
                   <div>
                     <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">
-                      Découvrez Nexus Support Hub
+                      {t("landing.presentation.title")}
                     </h2>
                     <p className="text-lg text-slate-700 mb-6">
-                      Nexus Support Hub est un centre d’assistance intelligent qui combine IA, gestion de tickets et architecture multi-entreprises. L’objectif : réduire la charge des équipes support, structurer les demandes et offrir un support accessible à tous.
+                      {t("landing.presentation.description")}
                     </p>
                     <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
                       <h3 className="text-xl font-semibold text-slate-800 mb-2">
-                        Pour qui est conçu Nexus ?
+                        {t("landing.presentation.forWho.title")}
                       </h3>
                       <p className="text-slate-700 mb-3">
-                        Nexus s’adresse aux organisations qui reçoivent beaucoup de demandes récurrentes :
+                        {t("landing.presentation.forWho.intro")}
                       </p>
                       <ul className="list-disc pl-5 space-y-2 text-slate-700">
-                        <li>PME / ETI avec une équipe support IT ou support client,</li>
-                        <li>Écoles, centres de formation, administrations,</li>
-                        <li>Entreprises qui ont besoin d’un support FR / EN / AR sans multiplier les équipes.</li>
+                        <li>{t("landing.presentation.forWho.items.0")}</li>
+                        <li>{t("landing.presentation.forWho.items.1")}</li>
+                        <li>{t("landing.presentation.forWho.items.2")}</li>
                       </ul>
-                      <p className="text-slate-700 font-semibold mt-4">Problèmes adressés dès aujourd’hui :</p>
+                      <p className="text-slate-700 font-semibold mt-4">
+                        {t("landing.presentation.problems.title")}
+                      </p>
                       <ul className="list-disc pl-5 space-y-2 text-slate-700 mt-2">
-                        <li>Trop de tickets N1 répétitifs (accès, mots de passe, procédures simples),</li>
-                        <li>Agents noyés dans les emails, peu de structuration par tickets,</li>
-                        <li>Besoin d’un outil accessible (clavier, lecteurs d’écran, contrastes) sans développer une solution maison.</li>
+                        <li>{t("landing.presentation.problems.items.0")}</li>
+                        <li>{t("landing.presentation.problems.items.1")}</li>
+                        <li>{t("landing.presentation.problems.items.2")}</li>
                       </ul>
                     </div>
                   </div>
@@ -346,7 +341,7 @@ const LandingPage: React.FC = () => {
                         rel="noopener noreferrer"
                         className="text-primary hover:underline font-semibold"
                       >
-                        Regarder sur YouTube
+                        {t("landing.video.watchOnYoutube")}
                       </a>
                     </div>
                   </div>
@@ -387,10 +382,10 @@ const LandingPage: React.FC = () => {
               <div className="container mx-auto px-4 max-w-screen-lg">
                 <div className="text-center max-w-3xl mx-auto mb-12">
                   <h2 className="text-3xl sm:text-4xl font-bold text-slate-800">
-                    Pourquoi choisir Nexus
+                    {t("landing.advantages.title")}
                   </h2>
                   <p className="mt-4 text-lg text-slate-600">
-                    Un help desk pensé pour réduire la charge des N1, fluidifier les N2 et garantir sécurité, accessibilité et productivité.
+                    {t("landing.advantages.subtitle")}
                   </p>
                 </div>
                 <div className="grid md:grid-cols-3 gap-8">
@@ -415,10 +410,10 @@ const LandingPage: React.FC = () => {
             <section id="impact" className="py-8 bg-slate-50">
               <div className="container mx-auto px-4 max-w-4xl text-center">
                 <h2 className="text-3xl sm:text-4xl font-bold text-slate-800">
-                  Impact attendu
+                  {t("landing.impact.title")}
                 </h2>
                 <p className="mt-4 text-lg text-slate-700">
-                  Nexus est conçu pour réduire le temps passé sur les demandes simples de niveau 1, augmenter le nombre de tickets traités par agent, améliorer la qualité et la cohérence des réponses, et offrir une meilleure expérience utilisateur. Les premiers déploiements pilotes permettront de mesurer précisément ces gains et d’ajuster le produit avec nos clients.
+                  {t("landing.impact.description")}
                 </p>
               </div>
             </section>
@@ -435,18 +430,16 @@ const LandingPage: React.FC = () => {
                 </div>
 
                 <div className="max-w-4xl mx-auto bg-slate-50 border border-slate-200 rounded-xl p-6 text-slate-700 space-y-2">
-                  <p>navigation clavier avec focus visible et ordre de tabulation logique,</p>
-                  <p>rôles et labels ARIA pertinents,</p>
-                  <p>textes alternatifs pour les images,</p>
-                  <p>contrastes vérifiés pour les éléments principaux.</p>
-                  <p className="mt-3">
-                    Notre objectif est de proposer un help desk accessible aux utilisateurs avec différents profils, en améliorant en continu sur la base des retours.
-                  </p>
+                  <p>{t("landing.rgaa.li1")}</p>
+                  <p>{t("landing.rgaa.li2")}</p>
+                  <p>{t("landing.rgaa.li3")}</p>
+                  <p>{t("landing.rgaa.li4")}</p>
+                  <p className="mt-3">{t("landing.rgaa.li5")}</p>
                 </div>
 
                 <p className="mt-6 text-center">
                   <Link to="/accessibilite" className="text-primary underline">
-                    Voir la Déclaration d’accessibilité complète
+                    {t("landing.rgaa.statementLinkFull")}
                   </Link>
                 </p>
               </div>
@@ -458,10 +451,18 @@ const LandingPage: React.FC = () => {
                   Mise en route en 7 minutes
                 </h2>
                 <ol className="list-decimal pl-6 mt-6 space-y-2 text-slate-700">
-                  <li>Créer votre espace entreprise sécurisé sur Supabase (multi-tenant, RLS activé).</li>
-                  <li>Inviter vos agents et managers, et configurer les rôles d’accès.</li>
-                  <li>Ajouter votre FAQ et vos procédures pour guider l’IA.</li>
-                  <li>Activer le bouton “Contacter le support” et commencer à traiter les tickets.</li>
+                  <li>
+                    <strong>{t("landing.setup.s1.strong")}</strong> {t("landing.setup.s1.text")}
+                  </li>
+                  <li>
+                    <strong>{t("landing.setup.s2.strong")}</strong> {t("landing.setup.s2.text")}
+                  </li>
+                  <li>
+                    <strong>{t("landing.setup.s3.strong")}</strong> {t("landing.setup.s3.text")}
+                  </li>
+                  <li>
+                    <strong>{t("landing.setup.s4.strong")}</strong> {t("landing.setup.s4.text")}
+                  </li>
                 </ol>
                 <div
                   className="mt-5 flex gap-3 justify-center"
@@ -470,7 +471,7 @@ const LandingPage: React.FC = () => {
                 >
                   <Link to="/signup">
                     <Button size="lg" className="px-6">
-                      Essai gratuit – version bêta
+                      {t("landing.hero.ctaButton")}
                     </Button>
                   </Link>
                   <Link to="/guide-onboarding">
@@ -485,14 +486,12 @@ const LandingPage: React.FC = () => {
             <section id="pricing" className="py-8 bg-white">
               <div className="container mx-auto px-4 max-w-5xl">
                 <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 mb-8 text-slate-800">
-                  <h2 className="text-2xl font-bold mb-2">Statut actuel : Bêta / Early Access</h2>
-                  <p className="text-slate-700">
-                    Les plans ci-dessous représentent la structure tarifaire prévue pour le lancement commercial. Pendant la phase bêta, nous recherchons quelques entreprises pilotes qui bénéficieront :
-                  </p>
+                  <h2 className="text-2xl font-bold mb-2">{t("landing.pricing.beta.title")}</h2>
+                  <p className="text-slate-700">{t("landing.pricing.beta.description")}</p>
                   <ul className="list-disc pl-5 mt-3 space-y-1 text-slate-700">
-                    <li>d’un accompagnement personnalisé,</li>
-                    <li>d’un tarif préférentiel,</li>
-                    <li>d’un accès prioritaire aux prochaines fonctionnalités.</li>
+                    <li>{t("landing.pricing.beta.points.0")}</li>
+                    <li>{t("landing.pricing.beta.points.1")}</li>
+                    <li>{t("landing.pricing.beta.points.2")}</li>
                   </ul>
                 </div>
                 <PricingSection />

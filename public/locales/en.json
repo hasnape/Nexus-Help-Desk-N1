@@ -1065,5 +1065,197 @@
   "investor.section.contact.p1": "Un dossier complet (deck, démonstration détaillée, aspects techniques et roadmap) peut être partagé sur demande, ainsi que des scénarios concrets d’implémentation dans différents types d’organisations.",
   "investor.section.contact.p2": "Pour en savoir plus ou discuter d’un partenariat / investissement, vous pouvez nous contacter directement.",
   "investor.section.contact.ctaMail": "Contacter par email",
-  "investor.section.contact.ctaDemo": "Voir une démonstration"
+  "investor.section.contact.ctaDemo": "Voir une démonstration",
+  "landing": {
+    "hero": {
+      "subtitlePrimary": "Nexus Support Hub automates level 1 (L1) support and assists level 2 (L2) in French, English, and Arabic. Simple requests are handled by AI; complex tickets arrive already summarized, categorized, and prioritized.",
+      "subtitleSecondary": "Secure multi-company architecture, inspired by RGAA 4.1 and fully hosted on Supabase (RLS, PostgreSQL).",
+      "betaBadge": "🧪 Current status: Beta / Early Access – Production-ready MVP open to a few pilot companies.",
+      "infographieLink": "View the technical infographic"
+    },
+    "presentation": {
+      "title": "Discover Nexus Support Hub",
+      "description": "Nexus Support Hub is an intelligent help desk that combines AI, ticket management, and a multi-company architecture. The goal: reduce support workload, structure requests, and offer accessible support for everyone.",
+      "forWho": {
+        "title": "Who is Nexus for?",
+        "intro": "Nexus is designed for organizations that receive many recurring requests:",
+        "items": [
+          "SMBs / mid-market companies with IT or customer support teams,",
+          "Schools, training centers, administrations,",
+          "Organizations needing FR / EN / AR support without multiplying teams."
+        ]
+      },
+      "problems": {
+        "title": "Problems addressed today:",
+        "items": [
+          "Too many repetitive L1 tickets (access, passwords, simple procedures),",
+          "Agents overwhelmed by emails, little ticket structuring,",
+          "Need for an accessible tool (keyboard, screen readers, contrast) without building in-house."
+        ]
+      }
+    },
+    "impact": {
+      "title": "Expected impact",
+      "description": "Nexus is built to reduce time spent on simple level 1 requests, increase tickets handled per agent, improve answer quality and consistency, and deliver a better user experience. Pilot deployments will measure these gains precisely and refine the product with our customers."
+    },
+    "rgaa": {
+      "statementLinkFull": "View the full accessibility statement"
+    },
+    "pricing": {
+      "beta": {
+        "title": "Current status: Beta / Early Access",
+        "description": "The plans below represent the pricing structure planned for launch. During the beta phase, we are looking for a few pilot companies that will benefit from:",
+        "points": [
+          "personalized onboarding,",
+          "preferred pricing,",
+          "priority access to upcoming features."
+        ]
+      }
+    }
+  },
+  "infographie": {
+    "header": {
+      "subtitle": "Autonomous AI help desk for your L1 → L2 support (Beta / Early Access)"
+    },
+    "intro": {
+      "title": "Nexus Support Hub at a glance",
+      "description": "Nexus automates level 1 (L1) support and assists level 2 (L2) in French, English, and Arabic. Simple requests are handled by AI; complex tickets arrive summarized, categorized, and prioritized. Secure multi-company architecture inspired by RGAA 4.1 and hosted on Supabase (RLS, PostgreSQL).",
+      "betaStatus": "🧪 Current status: Beta / Early Access – Production-ready MVP open to a few pilot companies.",
+      "objective": "Goal: reduce support workload, structure requests, and deliver an accessible help desk without unverified numeric promises."
+    },
+    "features": {
+      "title": "A complete solution for L1 → L2 support",
+      "subtitle": "Nexus Support Hub combines AI, ticketing, and multi-company architecture to give support teams a solid foundation, without inventing performance numbers.",
+      "chartTitle": "Key feature distribution (illustrative)",
+      "chartDescription": "The platform balances request handling, AI, and analytics to deliver a complete solution. Values are indicative to show functional coverage.",
+      "distributionLabel": "Feature distribution",
+      "labels": [
+        "Ticket Management",
+        "AI Assistant",
+        "Analytics & Reporting",
+        "Portals & Roles",
+        "Integrations"
+      ],
+      "cards": [
+        {
+          "title": "Ticket Management",
+          "description": "Create, track, and resolve requests in an optimized workflow."
+        },
+        {
+          "title": "Gemini AI Assistant",
+          "description": "Automated responses and smart suggestions to speed up resolutions."
+        },
+        {
+          "title": "Multilingual Support",
+          "description": "Interface in French, English, and Arabic for global reach."
+        },
+        {
+          "title": "Dashboards",
+          "description": "Real-time stats to monitor team performance."
+        }
+      ]
+    },
+    "tech": {
+      "title": "A modern, robust architecture",
+      "subtitle": "Nexus is built on proven technologies to ensure security, scalability, and accessibility.",
+      "frontend": {
+        "title": "Frontend",
+        "subtitle": "Fast, responsive interface",
+        "items": [
+          "React (TypeScript)",
+          "Vite",
+          "Tailwind CSS",
+          "React Router"
+        ]
+      },
+      "backend": {
+        "title": "Backend & Database",
+        "subtitle": "Secure, real-time data",
+        "items": [
+          "Supabase",
+          "Auth & JWT",
+          "PostgreSQL database",
+          "Real-time REST API"
+        ]
+      },
+      "services": {
+        "title": "Services & Integrations",
+        "subtitle": "Extended capabilities",
+        "items": [
+          "Google Gemini AI",
+          "EmailJS",
+          "i18next",
+          "PayPal API"
+        ]
+      }
+    },
+    "security": {
+      "sectionTitle": "Security and accessibility by design",
+      "sectionSubtitle": "Data isolated per company via Supabase RLS, roles (user, agent, manager), and practices inspired by RGAA 4.1 to ensure inclusive use.",
+      "title": "Security coverage (illustrative)",
+      "description": "Nexus implements robust measures across authentication through data compliance. Chart is illustrative to visualize covered areas.",
+      "coverageLabel": "Coverage level",
+      "labels": [
+        "Authentication & Sessions",
+        "Data Protection (XSS, CSRF)",
+        "Compliance (GDPR)",
+        "Permission Management",
+        "API Integration Security"
+      ],
+      "measuresTitle": "Protection measures",
+      "measuresDescription": "Each interaction is secured with standard practices to prevent common attacks.",
+      "measures": {
+        "items": [
+          {
+            "title": "Strong authentication",
+            "description": "JWT & OAuth via Supabase for secure sessions."
+          },
+          {
+            "title": "Strict CSP",
+            "description": "Protection against XSS and content hijacking."
+          },
+          {
+            "title": "Role-based permissions",
+            "description": "Data access limited by profile (user, agent, manager)."
+          },
+          {
+            "title": "GDPR alignment",
+            "description": "Good practices for personal data management."
+          }
+        ]
+      }
+    },
+    "satisfaction": {
+      "title": "Projected customer satisfaction",
+      "description": "Automation and structured tickets aim to improve quality, consistency, and speed without promising numbers before pilot feedback.",
+      "datasetLabel": "Customer Satisfaction (CSAT %)",
+      "labels": [
+        "Launch",
+        "Month 1",
+        "Month 2",
+        "Month 3",
+        "Month 4",
+        "Month 5",
+        "Month 6"
+      ]
+    },
+    "impact": {
+      "title": "Expected impact (to validate with pilots)",
+      "description": "Nexus is designed to reduce time on L1 requests, improve answer quality and consistency, and increase tickets handled per agent. Early pilots will measure gains and refine the product with customers.",
+      "cards": [
+        {
+          "title": "Key objectives",
+          "description": "Reduce time spent on repetitive L1 requests and smooth escalation to L2."
+        },
+        {
+          "title": "Commitment",
+          "description": "Measure impact with pilot companies, refine the product, and share verified results."
+        }
+      ]
+    },
+    "footer": {
+      "title": "Ready to transform your support?",
+      "description": "Nexus Support Hub is the innovative, secure, and scalable solution for teams aiming for excellence."
+    }
+  }
 }
