@@ -201,7 +201,7 @@ const LandingPage: React.FC = () => {
             <section className="py-8 px-4 sm:px-6 lg:px-8 text-white text-center">
               <div className="max-w-7xl mx-auto">
                 <h1 className="text-4xl md:text-5xl font-bold mb-4">
-                  {t("landing.hero.title")}
+                  Help desk IA autonome pour votre support N1 → N2
                 </h1>
                 <p className="text-lg md:text-xl text-slate-200 mb-4 max-w-4xl mx-auto">
                   {t("landing.hero.subtitlePrimary")}
@@ -353,10 +353,10 @@ const LandingPage: React.FC = () => {
               <div className="container mx-auto px-4 max-w-screen-lg">
                 <div className="text-center max-w-3xl mx-auto">
                   <h2 className="text-3xl sm:text-4xl font-bold text-slate-800">
-                    {t("landing.features.title")}
+                    Trois piliers pour un support N1 → N2 fiable
                   </h2>
                   <p className="mt-4 text-lg text-slate-600">
-                    {t("landing.features.subtitle")}
+                    IA intégrée, multi-entreprises, multi-langues et accessibilité pour des équipes support plus efficaces.
                   </p>
                 </div>
                 <div className="mt-16 grid md:grid-cols-3 gap-12">
@@ -422,10 +422,10 @@ const LandingPage: React.FC = () => {
               <div className="container mx-auto px-4 max-w-screen-lg">
                 <div className="text-center max-w-3xl mx-auto mb-8">
                   <h2 className="text-3xl sm:text-4xl font-bold text-slate-800">
-                    {t("landing.rgaa.title")}
+                    Accessibilité
                   </h2>
                   <p className="mt-4 text-lg text-slate-600">
-                    {t("landing.rgaa.subtitle")}
+                    L’interface de Nexus est conçue en s’inspirant du RGAA 4.1 (niveau AA) :
                   </p>
                 </div>
 
@@ -448,7 +448,7 @@ const LandingPage: React.FC = () => {
             <section id="setup-7-min" className="py-8 bg-slate-50">
               <div className="container mx-auto px-4 max-w-3xl">
                 <h2 className="text-3xl sm:text-4xl font-bold text-slate-800 text-center">
-                  {t("landing.setup.title")}
+                  Mise en route en 7 minutes
                 </h2>
                 <ol className="list-decimal pl-6 mt-6 space-y-2 text-slate-700">
                   <li>
@@ -476,7 +476,7 @@ const LandingPage: React.FC = () => {
                   </Link>
                   <Link to="/guide-onboarding">
                     <Button variant="secondary" size="lg" className="px-6">
-                      {t("landing.setup.ctaGuide")}
+                      Guide d’onboarding
                     </Button>
                   </Link>
                 </div>
