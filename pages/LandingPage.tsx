@@ -98,25 +98,27 @@ const LandingPage: React.FC = () => {
   const { t } = useTranslation();
   const [showVideo, setShowVideo] = useState(false);
 
-  const features = [
+  const pillars = [
     {
       icon: <AiIcon />,
-      titleKey: "landing.features.ai.title",
-      descKey: "landing.features.ai.desc",
+      title: "IA intégrée au flux de tickets",
+      description:
+        "Automatisation des demandes simples, résumés automatiques et priorisation pour accélérer la prise en charge.",
     },
     {
       icon: <ShieldIcon />,
-      titleKey: "landing.features.secure.title",
-      descKey: "landing.features.secure.desc",
+      title: "Help desk multi-entreprises & multi-langues",
+      description:
+        "Support FR / EN / AR avec isolation des données par entreprise et une architecture pensée pour les organisations multi-tenant.",
     },
     {
       icon: <VoiceIcon />,
-      titleKey: "landing.features.voice.title",
-      descKey: "landing.features.voice.desc",
+      title: "Productivité & accessibilité",
+      description:
+        "Interface accessible (clavier, lecteurs d’écran, contrastes) avec saisie vocale et lecture à voix haute intégrées.",
     },
   ];
 
-  // Avantages suggérés dans la revue
   const advantages = [
     {
       icon: (
@@ -131,12 +133,13 @@ const LandingPage: React.FC = () => {
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
-            d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+            d="M6 13.5 9.75 17.25 18 6.75"
           />
         </svg>
       ),
-      titleKey: "landing.advantages.speed.title",
-      descKey: "landing.advantages.speed.desc", //
+      title: "Rapidité & automatisation",
+      description:
+        "Nexus traite automatiquement les demandes simples, crée des tickets résumés et catégorisés, et réduit le temps passé sur les tâches répétitives.",
     },
     {
       icon: (
@@ -151,12 +154,13 @@ const LandingPage: React.FC = () => {
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
-            d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+            d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.286Z"
           />
         </svg>
       ),
-      titleKey: "landing.advantages.security.title", // Nouvelle clé de traduction
-      descKey: "landing.advantages.security.desc", // Nouvelle clé de traduction
+      title: "Sécurité & multi-tenant",
+      description:
+        "Les données de chaque entreprise sont isolées via les règles RLS de Supabase. Les accès sont contrôlés par rôles (utilisateur, agent, manager).",
     },
     {
       icon: (
@@ -171,26 +175,21 @@ const LandingPage: React.FC = () => {
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
-            d="M3 3v18h18"
+            d="M12 18.75a6 6 0 0 0 6-6v-1.5m-6 7.5a6 6 0 0 1-6-6v-1.5m12 0v-1.5a6 6 0 0 0-6-6v0a6 6 0 0 0-6 6v1.5"
           />
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
-            d="M6.75 14.25 10.5 18l4.5-6 3 3"
-          />
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M9 12.75V18m4.5-6.75V18m4.5-9V18"
+            d="M12 12.75a3 3 0 0 0 3-3v-1.5a3 3 0 0 0-6 0v1.5a3 3 0 0 0 3 3Z"
           />
         </svg>
       ),
-      titleKey: "landing.advantages.analytics.title", // Nouvelle clé de traduction
-      descKey: "landing.advantages.analytics.desc", // Nouvelle clé de traduction
+      title: "Accessibilité & voix",
+      description:
+        "Interface pensée pour l’accessibilité : navigation clavier, focus visible, ARIA, contrastes vérifiés. Saisie vocale des demandes et lecture à voix haute des réponses générées par Nexus.",
     },
   ];
 
-  
   return (
     <>
       <a
@@ -204,24 +203,29 @@ const LandingPage: React.FC = () => {
 
       <Layout>
         <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-700">
-         
           <main id="main" role="main" className="pt-16">
             <section className="py-8 px-4 sm:px-6 lg:px-8 text-white text-center">
-              {/* padding vertical réduit */}
               <div className="max-w-7xl mx-auto">
                 <h1 className="text-4xl md:text-5xl font-bold mb-4">
-                  {t("landing.hero.title")}
+                  Help desk IA autonome pour votre support N1 → N2
                 </h1>
-                <p className="text-lg md:text-xl text-slate-300 mb-6 max-w-3xl mx-auto">
-                  {t("landing.hero.subtitle")}
+                <p className="text-lg md:text-xl text-slate-200 mb-4 max-w-4xl mx-auto">
+                  Nexus Support Hub automatise le support de niveau 1 (N1) et assiste le niveau 2 (N2) en Français, Anglais et Arabe.
+                  Les demandes simples sont traitées par l’IA, les tickets complexes arrivent déjà résumés, catégorisés et priorisés.
                 </p>
+                <p className="text-base text-slate-200 max-w-4xl mx-auto mb-4">
+                  Architecture multi-entreprises sécurisée, inspirée du RGAA 4.1 et entièrement hébergée sur Supabase (RLS, PostgreSQL).
+                </p>
+                <div className="inline-flex items-center justify-center px-4 py-2 rounded-full bg-white/10 text-sm font-semibold mb-6">
+                  🧪 Statut actuel : Bêta / Early Access – MVP fonctionnel en production, ouvert à quelques entreprises pilotes.
+                </div>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-6 sm:mb-8">
                   <Link to="/signup" className="block">
                     <Button
                       size="lg"
                       className="px-8 py-4 text-lg w-full sm:w-auto"
                     >
-                      {t("landing.cta.trial")}
+                      Essai gratuit – version bêta
                     </Button>
                   </Link>
                   <button
@@ -235,9 +239,7 @@ const LandingPage: React.FC = () => {
                     >
                       <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
                     </svg>
-                    {t("landing.hero.watchDemo", {
-                      defaultValue: "Voir la démonstration",
-                    })}
+                    Voir la démonstration
                   </button>
                   <Link to="/infographie" className="block w-full sm:w-auto">
                     <Button
@@ -245,9 +247,7 @@ const LandingPage: React.FC = () => {
                       size="lg"
                       className="px-8 py-4 text-lg w-full sm:w-auto"
                     >
-                      {t("infographie.seeMore", {
-                        defaultValue: "Voir l’infographie",
-                      })}
+                      Voir l’infographie technique
                     </Button>
                   </Link>
                 </div>
@@ -260,15 +260,12 @@ const LandingPage: React.FC = () => {
                     {t("landing.hero.accessContact")}
                   </Link>
                 </p>
-                {/* Modal vidéo */}
                 {showVideo && (
                   <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-lg p-4 max-w-4xl w-full max-h-full overflow-auto">
                       <div className="flex justify-between items-center mb-4">
                         <h3 className="text-xl font-bold text-gray-900">
-                          {t("landing.video.title", {
-                            defaultValue: "Découvrez Nexus Support Hub",
-                          })}
+                          Découvrez Nexus Support Hub
                         </h3>
                         <button
                           onClick={() => setShowVideo(false)}
@@ -299,9 +296,7 @@ const LandingPage: React.FC = () => {
                           rel="noopener noreferrer"
                           className="text-primary hover:underline font-semibold"
                         >
-                          {t("landing.video.watchOnYouTube", {
-                            defaultValue: "Regarder sur YouTube",
-                          })}
+                          Regarder sur YouTube
                         </a>
                       </div>
                     </div>
@@ -310,63 +305,77 @@ const LandingPage: React.FC = () => {
               </div>
             </section>
 
-            {/* 2. Section Vidéo de Présentation */}
-            <section id="presentation-video" className="py-8 bg-slate-100">
-              <div className="container mx-auto px-4 max-w-3xl">
-                <div className="text-center mb-8">
-                  <h2 className="text-3xl sm:text-4xl font-bold text-slate-800">
-                    {t("landing.video.title", {
-                      defaultValue: "Découvrez Nexus Support Hub en vidéo",
-                    })}
-                  </h2>
-                  <p className="mt-4 text-lg text-slate-600">
-                    {t("landing.video.subtitle", {
-                      defaultValue:
-                        "Une présentation rapide de nos services et de notre valeur ajoutée.",
-                    })}
-                  </p>
-                </div>
-                <div className="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden shadow-lg bg-black">
-                  <VideoPlayer videoUrl="https://www.youtube.com/embed/OnfUuaRlukQ" />
-                </div>
-                <div className="mt-4 text-center">
-                  <a
-                    href="https://youtu.be/OnfUuaRlukQ"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:underline font-semibold"
-                  >
-                    {t("landing.video.watchOnYouTube", {
-                      defaultValue: "Regarder sur YouTube",
-                    })}
-                  </a>
+            <section id="presentation" className="py-8 bg-white">
+              <div className="container mx-auto px-4 max-w-5xl">
+                <div className="grid md:grid-cols-2 gap-10 items-center">
+                  <div>
+                    <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">
+                      Découvrez Nexus Support Hub
+                    </h2>
+                    <p className="text-lg text-slate-700 mb-6">
+                      Nexus Support Hub est un centre d’assistance intelligent qui combine IA, gestion de tickets et architecture multi-entreprises. L’objectif : réduire la charge des équipes support, structurer les demandes et offrir un support accessible à tous.
+                    </p>
+                    <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                      <h3 className="text-xl font-semibold text-slate-800 mb-2">
+                        Pour qui est conçu Nexus ?
+                      </h3>
+                      <p className="text-slate-700 mb-3">
+                        Nexus s’adresse aux organisations qui reçoivent beaucoup de demandes récurrentes :
+                      </p>
+                      <ul className="list-disc pl-5 space-y-2 text-slate-700">
+                        <li>PME / ETI avec une équipe support IT ou support client,</li>
+                        <li>Écoles, centres de formation, administrations,</li>
+                        <li>Entreprises qui ont besoin d’un support FR / EN / AR sans multiplier les équipes.</li>
+                      </ul>
+                      <p className="text-slate-700 font-semibold mt-4">Problèmes adressés dès aujourd’hui :</p>
+                      <ul className="list-disc pl-5 space-y-2 text-slate-700 mt-2">
+                        <li>Trop de tickets N1 répétitifs (accès, mots de passe, procédures simples),</li>
+                        <li>Agents noyés dans les emails, peu de structuration par tickets,</li>
+                        <li>Besoin d’un outil accessible (clavier, lecteurs d’écran, contrastes) sans développer une solution maison.</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div className="space-y-6">
+                    <div className="rounded-lg overflow-hidden shadow-lg bg-black aspect-w-16 aspect-h-9">
+                      <VideoPlayer videoUrl="https://www.youtube.com/embed/OnfUuaRlukQ" />
+                    </div>
+                    <div className="text-center">
+                      <a
+                        href="https://youtu.be/OnfUuaRlukQ"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline font-semibold"
+                      >
+                        Regarder sur YouTube
+                      </a>
+                    </div>
+                  </div>
                 </div>
               </div>
             </section>
 
-            {/* 3. Fonctionnalités */}
             <section id="features" className="py-8 bg-slate-50">
               <div className="container mx-auto px-4 max-w-screen-lg">
                 <div className="text-center max-w-3xl mx-auto">
                   <h2 className="text-3xl sm:text-4xl font-bold text-slate-800">
-                    {t("landing.features.title")}
+                    Trois piliers pour un support N1 → N2 fiable
                   </h2>
                   <p className="mt-4 text-lg text-slate-600">
-                    {t("landing.features.subtitle")}
+                    IA intégrée, multi-entreprises, multi-langues et accessibilité pour des équipes support plus efficaces.
                   </p>
                 </div>
                 <div className="mt-16 grid md:grid-cols-3 gap-12">
-                  {features.map((feature, index) => (
+                  {pillars.map((pillar, index) => (
                     <div
                       key={index}
                       className="flex flex-col items-center text-center"
                     >
-                      <FeatureIcon>{feature.icon}</FeatureIcon>
+                      <FeatureIcon>{pillar.icon}</FeatureIcon>
                       <h3 className="mt-6 text-xl font-bold text-slate-800">
-                        {t(feature.titleKey)}
+                        {pillar.title}
                       </h3>
                       <p className="mt-2 text-slate-600 text-sm md:text-base">
-                        {t(feature.descKey)}
+                        {pillar.description}
                       </p>
                     </div>
                   ))}
@@ -374,34 +383,28 @@ const LandingPage: React.FC = () => {
               </div>
             </section>
 
-            {/* 4. Avantages */}
             <section id="advantages" className="py-8 bg-white">
               <div className="container mx-auto px-4 max-w-screen-lg">
                 <div className="text-center max-w-3xl mx-auto mb-12">
                   <h2 className="text-3xl sm:text-4xl font-bold text-slate-800">
-                    {t("landing.advantages.title", {
-                      defaultValue: "Pourquoi choisir Nexus Support Hub ?",
-                    })}
+                    Pourquoi choisir Nexus
                   </h2>
                   <p className="mt-4 text-lg text-slate-600">
-                    {t("landing.advantages.subtitle", {
-                      defaultValue:
-                        "Découvrez les bénéfices concrets pour votre équipe et vos clients.",
-                    })}
+                    Un help desk pensé pour réduire la charge des N1, fluidifier les N2 et garantir sécurité, accessibilité et productivité.
                   </p>
                 </div>
                 <div className="grid md:grid-cols-3 gap-8">
                   {advantages.map((advantage, index) => (
                     <div
                       key={index}
-                      className="flex flex-col items-center text-center p-6 bg-slate-50 rounded-lg shadow-sm"
+                      className="p-6 bg-slate-50 rounded-xl shadow-sm border border-slate-100"
                     >
                       <div className="mb-4">{advantage.icon}</div>
                       <h3 className="text-xl font-bold text-slate-800 mb-2">
-                        {t(advantage.titleKey)}
+                        {advantage.title}
                       </h3>
                       <p className="text-slate-600 text-sm md:text-base">
-                        {t(advantage.descKey)}
+                        {advantage.description}
                       </p>
                     </div>
                   ))}
@@ -409,72 +412,56 @@ const LandingPage: React.FC = () => {
               </div>
             </section>
 
-            {/* 5. Accessibilité RGAA */}
-            <section id="accessibilite-rgaa" className="py-8 bg-slate-50">
+            <section id="impact" className="py-8 bg-slate-50">
+              <div className="container mx-auto px-4 max-w-4xl text-center">
+                <h2 className="text-3xl sm:text-4xl font-bold text-slate-800">
+                  Impact attendu
+                </h2>
+                <p className="mt-4 text-lg text-slate-700">
+                  Nexus est conçu pour réduire le temps passé sur les demandes simples de niveau 1, augmenter le nombre de tickets traités par agent, améliorer la qualité et la cohérence des réponses, et offrir une meilleure expérience utilisateur. Les premiers déploiements pilotes permettront de mesurer précisément ces gains et d’ajuster le produit avec nos clients.
+                </p>
+              </div>
+            </section>
+
+            <section id="accessibilite-rgaa" className="py-8 bg-white">
               <div className="container mx-auto px-4 max-w-screen-lg">
                 <div className="text-center max-w-3xl mx-auto mb-8">
                   <h2 className="text-3xl sm:text-4xl font-bold text-slate-800">
-                    {t("landing.rgaa.title")}
+                    Accessibilité
                   </h2>
                   <p className="mt-4 text-lg text-slate-600">
-                    {t("landing.rgaa.subtitle")}
+                    L’interface de Nexus est conçue en s’inspirant du RGAA 4.1 (niveau AA) :
                   </p>
                 </div>
 
-                <div className="grid md:grid-cols-3 gap-6">
-                  <div className="p-6 bg-white rounded-lg shadow-sm">
-                    <h3 className="font-semibold mb-2">A11y UI</h3>
-                    <ul className="list-disc pl-5 text-slate-700">
-                      <li>{t("landing.rgaa.li1")}</li>
-                      <li>{t("landing.rgaa.li2")}</li>
-                      <li>{t("landing.rgaa.li3")}</li>
-                    </ul>
-                  </div>
-                  <div className="p-6 bg-white rounded-lg shadow-sm">
-                    <h3 className="font-semibold mb-2">Formulaires</h3>
-                    <ul className="list-disc pl-5 text-slate-700">
-                      <li>{t("landing.rgaa.li4")}</li>
-                      <li>{t("landing.rgaa.li5")}</li>
-                      <li>{t("landing.rgaa.li6")}</li>
-                    </ul>
-                  </div>
-                  <div className="p-6 bg-white rounded-lg shadow-sm">
-                    <h3 className="font-semibold mb-2">Médias & Couleurs</h3>
-                    <ul className="list-disc pl-5 text-slate-700">
-                      <li>{t("landing.rgaa.li7")}</li>
-                      <li>{t("landing.rgaa.li8")}</li>
-                      <li>{t("landing.rgaa.li9")}</li>
-                    </ul>
-                  </div>
+                <div className="max-w-4xl mx-auto bg-slate-50 border border-slate-200 rounded-xl p-6 text-slate-700 space-y-2">
+                  <p>navigation clavier avec focus visible et ordre de tabulation logique,</p>
+                  <p>rôles et labels ARIA pertinents,</p>
+                  <p>textes alternatifs pour les images,</p>
+                  <p>contrastes vérifiés pour les éléments principaux.</p>
+                  <p className="mt-3">
+                    Notre objectif est de proposer un help desk accessible aux utilisateurs avec différents profils, en améliorant en continu sur la base des retours.
+                  </p>
                 </div>
 
                 <p className="mt-6 text-center">
                   <Link to="/accessibilite" className="text-primary underline">
-                    {t("landing.rgaa.statementLink")}
+                    Voir la Déclaration d’accessibilité complète
                   </Link>
                 </p>
               </div>
             </section>
 
-            {/* 6. Mise en route en 7 minutes */}
-            <section id="setup-7-min" className="py-8 bg-white">
+            <section id="setup-7-min" className="py-8 bg-slate-50">
               <div className="container mx-auto px-4 max-w-3xl">
                 <h2 className="text-3xl sm:text-4xl font-bold text-slate-800 text-center">
-                  {t("landing.setup.title")}
+                  Mise en route en 7 minutes
                 </h2>
                 <ol className="list-decimal pl-6 mt-6 space-y-2 text-slate-700">
-                  <li>
-                    <strong>{t("landing.setup.s1.strong")}</strong>{" "}
-                    {t("landing.setup.s1.text")}
-                  </li>
-                  <li>
-                    <strong>{t("landing.setup.s2.strong")}</strong>{" "}
-                    {t("landing.setup.s2.text")}
-                  </li>
-                  <li>
-                    <strong>{t("landing.setup.s3.strong")}</strong>{" "}
-                    {t("landing.setup.s3.text")}
-                  </li>
+                  <li>Créer votre espace entreprise sécurisé sur Supabase (multi-tenant, RLS activé).</li>
+                  <li>Inviter vos agents et managers, et configurer les rôles d’accès.</li>
+                  <li>Ajouter votre FAQ et vos procédures pour guider l’IA.</li>
+                  <li>Activer le bouton “Contacter le support” et commencer à traiter les tickets.</li>
                 </ol>
                 <div
                   className="mt-5 flex gap-3 justify-center"
@@ -483,21 +470,35 @@ const LandingPage: React.FC = () => {
                 >
                   <Link to="/signup">
                     <Button size="lg" className="px-6">
-                      {t("landing.cta.trial")}
+                      Essai gratuit – version bêta
                     </Button>
                   </Link>
                   <Link to="/guide-onboarding">
                     <Button variant="secondary" size="lg" className="px-6">
-                      {t("landing.setup.ctaGuide")}
+                      Guide d’onboarding
                     </Button>
                   </Link>
                 </div>
               </div>
             </section>
 
-            <PricingSection />
+            <section id="pricing" className="py-8 bg-white">
+              <div className="container mx-auto px-4 max-w-5xl">
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 mb-8 text-slate-800">
+                  <h2 className="text-2xl font-bold mb-2">Statut actuel : Bêta / Early Access</h2>
+                  <p className="text-slate-700">
+                    Les plans ci-dessous représentent la structure tarifaire prévue pour le lancement commercial. Pendant la phase bêta, nous recherchons quelques entreprises pilotes qui bénéficieront :
+                  </p>
+                  <ul className="list-disc pl-5 mt-3 space-y-1 text-slate-700">
+                    <li>d’un accompagnement personnalisé,</li>
+                    <li>d’un tarif préférentiel,</li>
+                    <li>d’un accès prioritaire aux prochaines fonctionnalités.</li>
+                  </ul>
+                </div>
+                <PricingSection />
+              </div>
+            </section>
 
-            {/* 6. Infographie Technique */}
             <section id="infographie" className="py-8 bg-white">
               <div className="container mx-auto px-4 max-w-screen-lg">
                 <div className="text-center max-w-3xl mx-auto mb-12">
@@ -521,7 +522,6 @@ const LandingPage: React.FC = () => {
                 </div>
                 <div className="flex justify-center">
                   <div className="w-full max-w-5xl">
-                    {/* Passez de max-w-3xl à max-w-5xl */}
                     <InfographieNexus />
                   </div>
                 </div>
