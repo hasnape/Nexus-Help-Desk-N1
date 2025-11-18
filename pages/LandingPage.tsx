@@ -201,16 +201,26 @@ const LandingPage: React.FC = () => {
             <section className="py-8 px-4 sm:px-6 lg:px-8 text-white text-center">
               <div className="max-w-7xl mx-auto">
                 <h1 className="text-4xl md:text-5xl font-bold mb-4">
-                  Help desk IA autonome pour votre support N1 → N2
+                  {t("landing.hero.title", {
+                    defaultValue: "Help desk IA autonome pour votre support N1 → N2",
+                  })}
                 </h1>
                 <p className="text-lg md:text-xl text-slate-200 mb-4 max-w-4xl mx-auto">
-                  {t("landing.hero.subtitlePrimary")}
+                  {t("landing.hero.subtitlePrimary", {
+                    defaultValue:
+                      "Nexus Support Hub automatise le support de niveau 1 (N1) et assiste le niveau 2 (N2) en Français, Anglais et Arabe.",
+                  })}
                 </p>
                 <p className="text-base text-slate-200 max-w-4xl mx-auto mb-4">
-                  {t("landing.hero.subtitleSecondary")}
+                  {t("landing.hero.subtitleSecondary", {
+                    defaultValue:
+                      "Architecture multi-entreprises sécurisée, inspirée du RGAA 4.1 et entièrement hébergée sur Supabase (RLS, PostgreSQL).",
+                  })}
                 </p>
                 <div className="inline-flex items-center justify-center px-4 py-2 rounded-full bg-white/10 text-sm font-semibold mb-6">
-                  {t("landing.hero.betaBadge")}
+                  {t("landing.hero.betaBadge", {
+                    defaultValue: "Bêta privée • Démo sur demande",
+                  })}
                 </div>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-6 sm:mb-8">
                   <Link to="/signup" className="block">
