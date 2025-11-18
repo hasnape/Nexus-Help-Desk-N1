@@ -226,28 +226,28 @@
   "landing.advantages.dashboard.title": "Intuitive dashboards",
   "landing.advantages.multilingual.desc": "Interface and assistance available in French, English, and Arabic to serve all your customers without barriers.",
   "landing.advantages.multilingual.title": "Multilingual support",
-  "landing.advantages.security.desc": "Benefit from advanced protection: isolated data, strictly controlled access, and GDPR compliance for total peace of mind.",
-  "landing.advantages.security.title": "Enterprise-grade security",
-  "landing.advantages.speed.desc": "Our AI handles every request in real time, drastically reducing response times and boosting customer satisfaction.",
-  "landing.advantages.speed.title": "Instant resolution",
-  "landing.advantages.subtitle": "Discover the advantages that set your customer support apart.",
-  "landing.advantages.title": "Why choose Nexus Support Hub?",
-  "landing.advantages.voice.desc": "Voice commands and speech synthesis for a smooth, inclusive, and modern experience.",
-  "landing.advantages.voice.title": "Voice accessibility",
-  "landing.cta.guide": "See onboarding guide",
-  "landing.cta.trial": "Start free trial",
-  "landing.features.ai.desc": "Our AI, Nexus, provides 24/7 support, automatically creating summarized and categorized tickets when human help is needed.",
-  "landing.features.ai.title": "Instant AI Assistance",
-  "landing.features.secure.desc": "Each company's data is completely isolated, ensuring privacy and security with robust role-based access control.",
-  "landing.features.secure.title": "Secure & Multi-Tenant",
-  "landing.features.subtitle": "From AI-powered chat to secure multi-company architecture, we've got you covered.",
-  "landing.features.title": "Everything You Need in a Modern Help Desk",
-  "landing.features.voice.desc": "Enhance accessibility with voice commands for chat and automatic text-to-speech for AI responses.",
-  "landing.features.voice.title": "Voice Enabled",
-  "landing.hero.ctaButton": "Get Started for Free",
-  "landing.hero.subtitle": "Designed to RGAA 4.1, up and running in minutes.\nAI handles L1 and assists L2; your agents manage complex cases. Controlled escalation, optimized costs.",
-  "landing.hero.title": "Autonomous AI Help Desk for L1 → L2 Support.",
-  "landing.hero.watchDemo": "🎥 Watch Demo",
+  "landing.advantages.security.desc": "Each company’s data is isolated via Supabase RLS. Access is controlled by roles (user, agent, manager).",
+  "landing.advantages.security.title": "Security & multi-tenant",
+  "landing.advantages.speed.desc": "Nexus automatically handles simple requests, creates summarized and categorized tickets, and cuts time spent on repetitive tasks.",
+  "landing.advantages.speed.title": "Speed & automation",
+  "landing.advantages.subtitle": "A help desk designed to lighten L1 workloads, streamline L2, and ensure security, accessibility, and productivity.",
+  "landing.advantages.title": "Why choose Nexus",
+  "landing.advantages.voice.desc": "Experience designed for accessibility: keyboard navigation, visible focus, ARIA, verified contrasts. Voice input for requests and text-to-speech for Nexus responses.",
+  "landing.advantages.voice.title": "Accessibility & voice",
+  "landing.cta.guide": "View the demo",
+  "landing.cta.trial": "Free trial – beta version",
+  "landing.features.ai.desc": "Automate simple requests, generate summaries, and prioritize tickets to accelerate handling.",
+  "landing.features.ai.title": "AI integrated into ticket flows",
+  "landing.features.secure.desc": "FR / EN / AR support with data isolation per company and architecture built for multi-tenant organizations.",
+  "landing.features.secure.title": "Multi-company & multilingual help desk",
+  "landing.features.subtitle": "Integrated AI, multi-tenant and multilingual with accessibility to boost support teams.",
+  "landing.features.title": "Three pillars for reliable L1 → L2 support",
+  "landing.features.voice.desc": "Accessible UI (keyboard, screen readers, contrast) with voice input and text-to-speech built in.",
+  "landing.features.voice.title": "Productivity & accessibility",
+  "landing.hero.ctaButton": "Free trial – beta version",
+  "landing.hero.subtitle": "Nexus Support Hub automates level 1 (L1) support and assists level 2 (L2) in French, English, and Arabic. Simple requests are handled by AI; complex tickets arrive summarized, categorized, and prioritized.\n\nSecure multi-tenant architecture, inspired by RGAA 4.1 and fully hosted on Supabase (RLS, PostgreSQL).",
+  "landing.hero.title": "Autonomous AI help desk for your L1 → L2 support",
+  "landing.hero.watchDemo": "Watch the demo",
   "landing.hero.accessStatement": "Accessibility statement",
   "landing.hero.accessContact": "Accessibility contact",
   "landing.stats.availability": "AI Support Available",
@@ -276,26 +276,26 @@
   "landing.whyChoose.title": "Why choose Nexus Support Hub?",
   "landing.whyChooseNexus.subtitle": "Discover the real benefits for your team and your customers.",
   "landing.whyChooseNexus.title": "Why choose Nexus Support Hub ?",
-  "landing.rgaa.title": "Accessibility & RGAA compliance",
-  "landing.rgaa.subtitle": "Interface designed per RGAA 4.1 AA: keyboard support, ARIA, visible focus and verified contrasts.",
-  "landing.rgaa.li1": "Keyboard navigation, visible focus, logical tab order",
-  "landing.rgaa.li2": "Meaningful ARIA roles/labels",
-  "landing.rgaa.li3": "Skip-link “Skip to content”",
-  "landing.rgaa.li4": "Associated labels, errors linked via aria-describedby",
-  "landing.rgaa.li5": "Clear, persistent error messages",
-  "landing.rgaa.li6": "Required fields indicated textually",
-  "landing.rgaa.li7": "Images with meaningful alt (decorative: alt=\"\")",
-  "landing.rgaa.li8": "Captions/transcripts for video & audio",
-  "landing.rgaa.li9": "Text contrast ≥ 4.5:1 (large text ≥ 3:1)",
+  "landing.rgaa.title": "Accessibility",
+  "landing.rgaa.subtitle": "Interface inspired by RGAA 4.1 (AA) with a focus on real-world accessibility.",
+  "landing.rgaa.li1": "Keyboard navigation with visible focus and logical tab order",
+  "landing.rgaa.li2": "Meaningful ARIA roles and labels",
+  "landing.rgaa.li3": "Alternative text for images",
+  "landing.rgaa.li4": "Contrast checked on key elements",
+  "landing.rgaa.li5": "Goal: an inclusive help desk, continuously improved from user feedback.",
+  "landing.rgaa.li6": "Compatible with keyboard navigation and screen readers.",
+  "landing.rgaa.li7": "Process inspired by RGAA 4.1, AA level.",
+  "landing.rgaa.li8": "Accessibility practices reviewed and updated regularly.",
+  "landing.rgaa.li9": "User feedback prioritized to improve the inclusive experience.",
   "landing.rgaa.statementLink": "View Accessibility Statement",
-  "landing.setup.title": "Set up in 7 minutes",
+  "landing.setup.title": "Getting started in 7 minutes",
   "landing.setup.actionsAria": "Onboarding actions",
   "landing.setup.s1.strong": "Create",
-  "landing.setup.s1.text": "your workspace and invite agents.",
-  "landing.setup.s2.strong": "Connect",
-  "landing.setup.s2.text": "a channel (Gmail/Outlook, WhatsApp, Messenger, Web chat).",
-  "landing.setup.s3.strong": "Import",
-  "landing.setup.s3.text": "your FAQ/KB (CSV/Markdown) and enable AI.",
+  "landing.setup.s1.text": "your secure company space on Supabase (multi-tenant with RLS enabled).",
+  "landing.setup.s2.strong": "Invite",
+  "landing.setup.s2.text": "your agents and managers, and configure role-based access.",
+  "landing.setup.s3.strong": "Add",
+  "landing.setup.s3.text": "your FAQ and procedures to guide the AI.",
   "landing.setup.ctaGuide": "View onboarding guide",
   "language.ar": "AR",
   "language.arabic": "العربية",
@@ -876,5 +876,386 @@
   "manager.invite.errors.passwordMismatch": "Passwords do not match.",
   "manager.invite.errors.timeout": "Timed out. Check Function and CORS.",
   "role.agent": "Agent",
-  "role.user": "User"
+  "role.user": "User",
+  "landing.setup.s4.strong": "Activate",
+  "landing.setup.s4.text": "the “Contact support” button and start processing tickets.",
+  "infographie.title": "Nexus technical infographic (Beta)",
+  "infographie.subtitle": "Architecture, security, and AI flows of Nexus Support Hub – L1 → L2 (illustrative).",
+  "infographie.seeMore": "View the full infographic",
+  "advantagesContent": "<ul><li><strong>Instant Resolution:</strong> The AI handles requests in real-time, drastically reducing response times and boosting customer satisfaction.</li><li><strong>Enterprise-Grade Security:</strong> Protect your data with an isolated architecture, strictly controlled access, and GDPR compliance.</li><li><strong>Advanced Analytics:</strong> Track your support performance with detailed dashboards and key metrics for informed decision-making.</li></ul>",
+  "advantagesTitle": "The Advantages That Set You Apart",
+  "appDescription": "Un centre d'assistance intelligent doté de notre assistant virtuel « Nexus ». Obtenez une aide instantanée, gérez efficacement les tickets avec des tableaux de bord adaptés à chaque rôle, et profitez des fonctionnalités vocales pour une expérience plus fluide.",
+  "backToApp": "Back to Application",
+  "conclusionContent": "<p>Nexus Support Hub is not just a tool; it's your strategic partner for revolutionizing customer support. By adopting our platform, you invest in efficiency, security, and customer satisfaction, positioning your business for sustainable growth. Join the intelligent customer support revolution today.</p>",
+  "conclusionTitle": "Conclusion: Your Partner for Excellence",
+  "contact.backToHome": "Retour à l'accueil",
+  "featuresContent": "<ul><li><strong>Instant AI Assistance:</strong> Our AI, Nexus, provides 24/7 support, capable of categorizing, summarizing, and responding to common queries. It automatically creates clear tickets for human agents when needed.</li><li><strong>Secure & Multi-Tenant:</strong> Each company has a completely isolated data environment, ensuring confidentiality and security. Our role-based access control ensures that data is seen only by authorized personnel.</li><li><strong>Voice Enabled:</strong> Enhance accessibility with voice commands for chat and automatic text-to-speech for AI responses, making support more inclusive.</li></ul>",
+  "featuresTitle": "Key Features of Nexus Support Hub",
+  "futureContent": "<ul><li><strong>Advanced Integrations:</strong> We plan to integrate with popular CRM and messaging platforms for a smoother workflow.</li><li><strong>AI Customization:</strong> Future developments will allow businesses to train the AI with their own knowledge bases for even more accurate and specific responses.</li><li><strong>Appointment Module:</strong> An integrated system for scheduling appointments with agents will be added for more efficient management of complex interactions.</li></ul>",
+  "futureTitle": "Roadmap and Future Developments",
+  "introContent": "<p>In a world where customers demand fast and personalized responses, <strong>Nexus Support Hub</strong> stands as an innovative solution. Our platform combines a powerful ticketing system with an advanced automation and conversation engine to transform customer support management. It automates repetitive tasks, enhances productivity, and guarantees high customer satisfaction, while offering professional-grade security and a multi-tenant architecture.</p>",
+  "introTitle": "Introduction: A Revolution in Intelligent Customer Support",
+  "limitsContent": "<p>While powerful, the current system is optimized for small to medium-sized businesses. Advanced integrations with third-party CRMs or ERP systems are not yet available in the standard plans. AI customization beyond basic categorization capabilities requires a custom offer.</p>",
+  "limitsTitle": "Current Version Limitations",
+  "mainSubtitle": "Promotional Document | October 26, 2025",
+  "mainTitle": "Nexus Support Hub – The Revolution in Intelligent Customer Support",
+  "navbar.enterprise": "Entreprise",
+  "navbar.investors": "Investisseurs",
+  "navbar.onboardingGuide": "Guide d’onboarding",
+  "signupPlans.freemium.modal.description": "Le plan Freemium est idéal pour les petites équipes ou pour tester la plateforme. Il inclut :",
+  "signupPlans.freemium.modal.features.agentsLimit": "3 agents",
+  "signupPlans.freemium.modal.features.basicSupport": "Support automatique de base",
+  "signupPlans.freemium.modal.features.noBilling": "Gratuit sans facturation",
+  "signupPlans.freemium.modal.features.noCost": "aucun engagement Annulation à tout moment depuis votre compte PayPal",
+  "signupPlans.freemium.modal.features.ticketsLimit": "200 tickets mois",
+  "signupPlans.freemium.modal.features.title": "Fonctionnalités Incluses",
+  "signupPlans.freemium.modal.title": "Plan Freemium - Détails",
+  "signupPlans.pro.payment.error": "Erreur lors de l'activation de l'abonnement Pro : {{error}}",
+  "signupPlans.pro.payment.success": "Abonnement Pro activé avec succès !",
+  "signupPlans.standard.modal.description": "Le plan Standard est parfait pour les équipes en croissance. Il inclut :",
+  "signupPlans.standard.modal.features.autoCategorization": "Catégorisation automatique des tickets",
+  "signupPlans.standard.modal.features.billing": "Facturation mensuelle via PayPal",
+  "signupPlans.standard.modal.features.cancelAnytime": "Annulation à tout moment depuis votre compte PayPal",
+  "signupPlans.standard.modal.features.fullAI": "Assistance intelligente complète",
+  "signupPlans.standard.modal.features.slaStandard": "SLA standard",
+  "signupPlans.standard.modal.features.unlimitedTickets": "5 Agents, 500 Tickets mois",
+  "accessStatement": "Déclaration d’accessibilité",
+  "accessContact": "Point de contact accessibilité",
+  "title": "Mise en route en 7 minutes",
+  "subtitle": "Interface conçue selon le RGAA 4.1 niveau AA : clavier, ARIA, focus visible et contrastes vérifiés.",
+  "li1": "Navigation clavier, focus visible, ordre de tabulation logique",
+  "li2": "Rôles/labels ARIA pertinents",
+  "li3": "Skip-link « Aller au contenu »",
+  "li4": "Labels associés, erreurs reliées par aria-describedby",
+  "li5": "Messages d’erreur clairs et persistants",
+  "li6": "Champs requis indiqués textuellement",
+  "li7": "Images avec alt descriptif (décoratives: alt=\"\")",
+  "li8": "Sous-titres/transcriptions pour vidéos & audio",
+  "li9": "Contrastes texte ≥ 4,5:1 (gros texte ≥ 3:1)",
+  "statementLink": "Voir la Déclaration d’accessibilité",
+  "actionsAria": "Actions d’onboarding",
+  "s1": {
+    "strong": "Créez",
+    "text": "votre espace et invitez vos agents."
+  },
+  "s2": {
+    "strong": "Connectez",
+    "text": "un canal (Gmail/Outlook, WhatsApp, Messenger, Chat web)."
+  },
+  "s3": {
+    "strong": "Importez",
+    "text": "votre FAQ/KB (CSV/Markdown) et activez le moteur Nexus."
+  },
+  "ctaGuide": "Voir le guide d’onboarding",
+  "agentLimitReachedInvite": "Limite d'agents atteinte. Envoyez ce lien d'invitation à l'utilisateur : {{link}}",
+  "onboardingGuide.pageTitle": "Guide d’onboarding Nexus – Mise en route en 7 minutes",
+  "onboardingGuide.pageSubtitle": "Ce guide vous accompagne pas à pas pour préparer votre espace entreprise, inviter votre équipe et déployer Nexus comme portail unique de support.",
+  "onboardingGuide.badge": "Managers & équipes support",
+  "onboardingGuide.section.who.title": "À qui s’adresse ce guide ?",
+  "onboardingGuide.section.who.manager": "Responsables support / help desk qui veulent structurer les demandes.",
+  "onboardingGuide.section.who.it": "Équipes IT qui gèrent les outils internes et le support technique.",
+  "onboardingGuide.section.who.ceo": "Dirigeants de PME / SaaS qui veulent un support moderne, centralisé et mesurable.",
+  "onboardingGuide.section.overview.title": "Vue d’ensemble : 4 étapes pour démarrer",
+  "onboardingGuide.section.overview.subtitle": "En pratique, la mise en route de Nexus dans votre entreprise se fait en quelques étapes simples.",
+  "onboardingGuide.section.overview.step1.title": "Configurer votre espace entreprise",
+  "onboardingGuide.section.overview.step1.desc": "Création du compte Manager, de l’entreprise et des premiers paramètres.",
+  "onboardingGuide.section.overview.step2.title": "Inviter votre équipe support",
+  "onboardingGuide.section.overview.step2.desc": "Ajoutez vos agents et utilisateurs internes avec les bons rôles.",
+  "onboardingGuide.section.overview.step3.title": "Déployer votre portail support Nexus",
+  "onboardingGuide.section.overview.step3.desc": "Ajoutez un bouton “Support” sur votre site ou intranet pointant vers Nexus.",
+  "onboardingGuide.section.overview.step4.title": "Préparer votre base de connaissances",
+  "onboardingGuide.section.overview.step4.desc": "Rassemblez vos questions fréquentes et procédures pour alimenter Nexus.",
+  "onboardingGuide.section.step1.title": "Étape 1 — Créer votre espace entreprise et votre compte Manager",
+  "onboardingGuide.section.step1.p1": "Depuis la page d’inscription, sélectionnez le rôle « Manager » pour créer votre entreprise dans Nexus Support Hub.",
+  "onboardingGuide.section.step1.p2": "Renseignez un nom d’entreprise unique (ex. « Rép&Web »). Vos agents et utilisateurs devront utiliser ce nom pour rejoindre votre espace.",
+  "onboardingGuide.section.step1.p3": "Validez votre inscription. Vous accédez alors au tableau de bord Manager, point central de configuration de votre help desk.",
+  "onboardingGuide.section.step2.title": "Étape 2 — Inviter vos agents et utilisateurs",
+  "onboardingGuide.section.step2.p1": "Depuis le tableau de bord Manager, ouvrez la section « Gestion des utilisateurs » ou « Inviter / Créer un membre ».",
+  "onboardingGuide.section.step2.p2": "Invitez vos collaborateurs avec le rôle adapté : « Utilisateur » pour les personnes qui ouvrent des tickets, « Agent » pour celles qui les traitent.",
+  "onboardingGuide.section.step2.p3": "Vos agents reçoivent un email et accèdent à leur portail dédié (vue des tickets assignés, tickets non assignés, statistiques, etc.).",
+  "onboardingGuide.section.step3.title": "Étape 3 — Déployer Nexus comme portail unique de support",
+  "onboardingGuide.section.step3.p1": "Ajoutez un bouton ou un lien « Support » sur votre site web, application ou intranet. Ce lien pointe vers votre espace Nexus Support Hub.",
+  "onboardingGuide.section.step3.p2": "Vos clients ou utilisateurs internes sont redirigés vers la page de connexion Nexus. Ils peuvent créer leur compte support et ouvrir un premier ticket.",
+  "onboardingGuide.section.step3.p3": "À terme, Nexus peut être intégré plus finement (SSO, création automatique de comptes) pour un parcours totalement fluide.",
+  "onboardingGuide.section.step4.title": "Étape 4 — Préparer votre FAQ et vos procédures",
+  "onboardingGuide.section.step4.p1": "Identifiez vos questions fréquentes et vos procédures récurrentes : problèmes de mot de passe, demandes bureautiques, incidents matériels, etc.",
+  "onboardingGuide.section.step4.p2": "Structurez ces contenus dans un fichier simple (par exemple CSV ou Markdown) qui pourra alimenter progressivement le moteur de réponse Nexus.",
+  "onboardingGuide.section.step4.p3": "Plus votre base de connaissances est claire, plus vos agents et vos utilisateurs gagnent du temps au quotidien.",
+  "onboardingGuide.section.advanced.title": "Option avancée — Création automatique des comptes clients",
+  "onboardingGuide.section.advanced.p1": "Pour les équipes produit / techniques, Nexus peut s’intégrer à votre application afin de créer un compte support automatiquement lors de l’inscription d’un nouveau client.",
+  "onboardingGuide.section.advanced.p2": "Un appel API ou une intégration backend permet de créer l’utilisateur dans Nexus au moment où il est créé dans votre propre base clients.",
+  "onboardingGuide.section.advanced.p3": "Résultat : vos clients disposent d’un accès support dès le premier jour, sans étape manuelle supplémentaire.",
+  "onboardingGuide.section.checklist.title": "Checklist avant lancement",
+  "onboardingGuide.section.checklist.item1": "Votre compte Manager est créé et votre entreprise apparaît correctement.",
+  "onboardingGuide.section.checklist.item2": "Au moins un agent a été invité et a confirmé son accès.",
+  "onboardingGuide.section.checklist.item3": "Un lien « Support » ou « Help desk » est visible depuis votre site, application ou intranet.",
+  "onboardingGuide.section.checklist.item4": "Vous avez testé l’ouverture d’un ticket en tant qu’utilisateur, puis son traitement en tant qu’agent.",
+  "onboardingGuide.section.checklist.item5": "Vous avez identifié les premières questions fréquentes à transformer en base de connaissances.",
+  "onboardingGuide.section.footer.title": "Besoin d’aide pour l’onboarding ?",
+  "onboardingGuide.section.footer.p1": "Nous pouvons vous accompagner pour configurer Nexus, structurer votre base de connaissances et définir le bon parcours de support pour vos utilisateurs.",
+  "onboardingGuide.section.footer.ctaDemo": "Demander une démo",
+  "onboardingGuide.section.footer.ctaBack": "Retour à l’application",
+  "enterprise.pageTitle": "Nexus Support Hub pour les entreprises",
+  "enterprise.pageSubtitle": "Un portail unique pour toutes vos demandes de support, du N1 au N2, avec un moteur Nexus qui automatise les tâches répétitives et sécurise vos échanges.",
+  "enterprise.badge": "Décideurs & équipes support",
+  "enterprise.hero.ctaDemo": "Demander une démo",
+  "enterprise.hero.ctaContact": "Parler à un expert",
+  "enterprise.section.context.title": "Le support est saturé, vos équipes aussi",
+  "enterprise.section.context.p1": "Boîtes mail partagées ingérables, tickets en doublon, demandes perdues dans les fils de discussion : pour beaucoup d’entreprises, le support N1 repose encore sur des outils généralistes pensés pour tout… sauf pour le support.",
+  "enterprise.section.context.p2": "Nexus Support Hub propose un portail unique où vos utilisateurs, agents et managers partagent le même langage : un ticket clair, catégorisé, priorisé et suivi de bout en bout.",
+  "enterprise.section.value.title": "Ce que Nexus apporte concrètement à votre organisation",
+  "enterprise.section.value.item1.title": "Désengorger le N1",
+  "enterprise.section.value.item1.desc": "Le moteur Nexus prend en charge les demandes répétitives : il analyse les messages, propose un premier diagnostic et prépare un ticket structuré pour vos agents.",
+  "enterprise.section.value.item2.title": "Un seul point d’entrée pour le support",
+  "enterprise.section.value.item2.desc": "Un lien “Support” sur votre site ou intranet suffit : vos utilisateurs arrivent sur votre portail Nexus dédié pour ouvrir, suivre et mettre à jour leurs demandes.",
+  "enterprise.section.value.item3.title": "Pilotage complet pour les managers",
+  "enterprise.section.value.item3.desc": "Tableaux de bord en temps réel, filtres avancés, vue globale des tickets, gestion des rôles et de l’équipe support depuis un seul espace.",
+  "enterprise.section.value.item4.title": "Conformité & accessibilité intégrées",
+  "enterprise.section.value.item4.desc": "Nexus est conçu selon le RGAA 4.1 niveau AA et s’aligne sur les bonnes pratiques RGPD : navigation clavier, ARIA, contrastes, et gestion responsable des données.",
+  "enterprise.section.useCases.title": "Cas d’usage typiques",
+  "enterprise.section.useCases.item1": "Centres de support internes (IT, bureautique, matériel, accès aux comptes).",
+  "enterprise.section.useCases.item2": "ESN / infogérance qui gèrent plusieurs clients avec des équipes mutualisées.",
+  "enterprise.section.useCases.item3": "Éditeurs SaaS qui veulent un portail support moderne, multilingue et traçable.",
+  "enterprise.section.useCases.item4": "PME et ETI qui centralisent leurs demandes RH / IT / opérations dans un seul outil.",
+  "enterprise.section.integration.title": "Intégrer Nexus à votre environnement existant",
+  "enterprise.section.integration.p1": "Vous pouvez commencer simplement en ajoutant un lien ou un bouton « Support » pointant vers votre espace Nexus. Vos utilisateurs créent leur compte et ouvrent leurs tickets directement dans le portail.",
+  "enterprise.section.integration.p2": "Pour les équipes plus avancées, Nexus peut être relié à vos outils via API : création automatique de comptes support, synchronisation des données ou intégration à votre application.",
+  "enterprise.section.integration.list1": "Portail support accessible via un simple lien depuis votre site ou intranet.",
+  "enterprise.section.integration.list2": "Création automatique de comptes clients lors de l’inscription sur votre propre plateforme (intégration backend).",
+  "enterprise.section.integration.list3": "Connexion future avec vos outils existants (CRM, ITSM, etc.) via API et webhooks.",
+  "enterprise.section.plans.title": "Une mise en route progressive, adaptée à votre taille",
+  "enterprise.section.plans.p1": "Commencez avec le plan Freemium pour tester Nexus avec une petite équipe, puis migrez vers les offres Standard ou Pro dès que votre volume de tickets augmente.",
+  "enterprise.section.plans.p2": "Les plans payants ajoutent des fonctionnalités clés pour les entreprises : historique étendu, automatisations plus poussées, rendez-vous intégrés, rapports avancés et webhooks.",
+  "enterprise.section.next.title": "Prochaine étape : tester Nexus avec votre propre contexte",
+  "enterprise.section.next.p1": "La meilleure façon d’évaluer Nexus est de le confronter à votre réalité : vos utilisateurs, vos tickets, vos contraintes. Nous pouvons vous accompagner pour un pilote ciblé sur un périmètre N1 (IT, applicatif, clients, etc.).",
+  "enterprise.section.next.ctaDemo": "Planifier une démo",
+  "enterprise.section.next.ctaContact": "Nous écrire",
+  "investor.pageTitle": "Nexus Support Hub – Dossier investisseur",
+  "investor.pageSubtitle": "Une plateforme de support nouvelle génération, conçue pour automatiser le N1, structurer le N2 et répondre aux exigences d’accessibilité et de conformité des entreprises européennes.",
+  "investor.badge": "Investisseurs & partenaires",
+  "investor.hero.ctaDeck": "Recevoir le deck complet",
+  "investor.hero.ctaContact": "Planifier un échange",
+  "investor.section.problem.title": "Problème : un support fragmenté, coûteux et peu mesurable",
+  "investor.section.problem.p1": "Dans la plupart des organisations, le support N1 repose encore sur des boîtes mail partagées, des chats non intégrés et des outils généralistes. Résultat : temps de traitement élevé, doublons, forte dépendance à quelques profils clés et expérience utilisateur dégradée.",
+  "investor.section.problem.p2": "Parallèlement, les entreprises sont poussées à améliorer l’accessibilité de leurs interfaces (RGAA) et la conformité de leurs process (RGPD), sans disposer d’outils de support conçus dès l’origine pour ces contraintes.",
+  "investor.section.solution.title": "Solution : un portail de support piloté par un moteur Nexus",
+  "investor.section.solution.p1": "Nexus Support Hub regroupe dans une seule plateforme la gestion des tickets, un moteur d’automatisation intelligente basé sur les technologies Gemini de Google, et des tableaux de bord temps réel pour les managers.",
+  "investor.section.solution.p2": "Le moteur Nexus analyse les messages, propose des réponses, structure les tickets (titre, résumé, catégorie, priorité) et prépare le travail des agents N1/N2. L’entreprise garde le contrôle : les cas complexes restent gérés par des humains, le moteur agit comme accélérateur.",
+  "investor.section.market.title": "Marché ciblé",
+  "investor.section.market.p1": "Nexus vise en priorité les équipes support internes (IT, bureautique, applicatif) des PME et ETI, les ESN / infogéreurs et les éditeurs SaaS qui ont besoin d’un help desk moderne, accessible et industrialisable.",
+  "investor.section.market.p2": "Ce segment se situe à l’intersection des solutions de ticketing, des moteurs d’automatisation et des plateformes de support conversationnel, avec une attente forte sur la réduction du temps de traitement et la qualité d’expérience.",
+  "investor.section.model.title": "Modèle économique",
+  "investor.section.model.p1": "Nexus adopte un modèle SaaS par plan, adapté aux équipes de tailles différentes :",
+  "investor.section.model.list1": "Freemium pour la découverte et les petites équipes (bac à sable).",
+  "investor.section.model.list2": "Offre Standard pour les structures en croissance qui veulent industrialiser leur support.",
+  "investor.section.model.list3": "Offre Pro pour les équipes plus matures, qui ont besoin de commandes vocales, de webhooks et de rapports avancés.",
+  "investor.section.model.p2": "À terme, des options d’usage liées au volume de tickets et à la consommation du moteur Nexus peuvent compléter le modèle, tout en restant lisibles pour les clients B2B.",
+  "investor.section.traction.title": "État actuel & feuille de route",
+  "investor.section.traction.p1": "Nexus Support Hub est déjà structuré comme un produit complet : multi-entreprises, gestion fine des rôles (Utilisateur, Agent, Manager), intégration de la stack Supabase, moteur basé sur Gemini, intégration PayPal, et respect des bonnes pratiques d’accessibilité (RGAA 4.1).",
+  "investor.section.traction.p2": "Les prochaines étapes portent sur : le raffinement de l’onboarding entreprise, l’industrialisation des plans payants, et l’ouverture d’intégrations plus profondes (API publiques, CRM, ITSM).",
+  "investor.section.whyNow.title": "Pourquoi maintenant ?",
+  "investor.section.whyNow.p1": "Les entreprises sont confrontées à une explosion du volume de demandes (clients / collaborateurs) et à une pression accrue sur la qualité de service, tout en devant maîtriser leurs coûts. Les technologies d’automatisation sont mûres, mais souvent livrées sous forme de briques complexes à intégrer.",
+  "investor.section.whyNow.p2": "Nexus se positionne comme une solution de support prête à l’emploi, pensée dès le départ pour le N1→N2, l’accessibilité et un pilotage fin par les managers.",
+  "investor.section.edge.title": "Différenciation de Nexus",
+  "investor.section.edge.list1": "Conception centrée sur le N1→N2 : le moteur Nexus enrichit le travail des agents au lieu de tenter de les remplacer.",
+  "investor.section.edge.list2": "Architecture multi-entreprises sécurisée sur Supabase avec politiques RLS et gestion avancée des rôles.",
+  "investor.section.edge.list3": "Accessibilité intégrée (RGAA 4.1) et interface multilingue (FR/EN/AR).",
+  "investor.section.edge.list4": "Mélange cohérent entre automatisation, pilotage managérial et expérience utilisateur.",
+  "investor.section.contact.title": "Échanges & documentation",
+  "investor.section.contact.p1": "Un dossier complet (deck, démonstration détaillée, aspects techniques et roadmap) peut être partagé sur demande, ainsi que des scénarios concrets d’implémentation dans différents types d’organisations.",
+  "investor.section.contact.p2": "Pour en savoir plus ou discuter d’un partenariat / investissement, vous pouvez nous contacter directement.",
+  "investor.section.contact.ctaMail": "Contacter par email",
+  "investor.section.contact.ctaDemo": "Voir une démonstration",
+  "landing": {
+    "hero": {
+      "subtitlePrimary": "Nexus Support Hub automates level 1 (L1) support and assists level 2 (L2) in French, English, and Arabic. Simple requests are handled by AI; complex tickets arrive already summarized, categorized, and prioritized.",
+      "subtitleSecondary": "Secure multi-company architecture, inspired by RGAA 4.1 and fully hosted on Supabase (RLS, PostgreSQL).",
+      "betaBadge": "🧪 Current status: Beta / Early Access – Production-ready MVP open to a few pilot companies.",
+      "infographieLink": "View the technical infographic"
+    },
+    "presentation": {
+      "title": "Discover Nexus Support Hub",
+      "description": "Nexus Support Hub is an intelligent help desk that combines AI, ticket management, and a multi-company architecture. The goal: reduce support workload, structure requests, and offer accessible support for everyone.",
+      "forWho": {
+        "title": "Who is Nexus for?",
+        "intro": "Nexus is designed for organizations that receive many recurring requests:",
+        "items": [
+          "SMBs / mid-market companies with IT or customer support teams,",
+          "Schools, training centers, administrations,",
+          "Organizations needing FR / EN / AR support without multiplying teams."
+        ]
+      },
+      "problems": {
+        "title": "Problems addressed today:",
+        "items": [
+          "Too many repetitive L1 tickets (access, passwords, simple procedures),",
+          "Agents overwhelmed by emails, little ticket structuring,",
+          "Need for an accessible tool (keyboard, screen readers, contrast) without building in-house."
+        ]
+      }
+    },
+    "impact": {
+      "title": "Expected impact",
+      "description": "Nexus is built to reduce time spent on simple level 1 requests, increase tickets handled per agent, improve answer quality and consistency, and deliver a better user experience. Pilot deployments will measure these gains precisely and refine the product with our customers."
+    },
+    "rgaa": {
+      "statementLinkFull": "View the full accessibility statement"
+    },
+    "pricing": {
+      "beta": {
+        "title": "Current status: Beta / Early Access",
+        "description": "The plans below represent the pricing structure planned for launch. During the beta phase, we are looking for a few pilot companies that will benefit from:",
+        "points": [
+          "personalized onboarding,",
+          "preferred pricing,",
+          "priority access to upcoming features."
+        ]
+      }
+    }
+  },
+  "infographie": {
+    "header": {
+      "subtitle": "Autonomous AI help desk for your L1 → L2 support (Beta / Early Access)"
+    },
+    "intro": {
+      "title": "Nexus Support Hub at a glance",
+      "description": "Nexus automates level 1 (L1) support and assists level 2 (L2) in French, English, and Arabic. Simple requests are handled by AI; complex tickets arrive summarized, categorized, and prioritized. Secure multi-company architecture inspired by RGAA 4.1 and hosted on Supabase (RLS, PostgreSQL).",
+      "betaStatus": "🧪 Current status: Beta / Early Access – Production-ready MVP open to a few pilot companies.",
+      "objective": "Goal: reduce support workload, structure requests, and deliver an accessible help desk without unverified numeric promises."
+    },
+    "features": {
+      "title": "A complete solution for L1 → L2 support",
+      "subtitle": "Nexus Support Hub combines AI, ticketing, and multi-company architecture to give support teams a solid foundation, without inventing performance numbers.",
+      "chartTitle": "Key feature distribution (illustrative)",
+      "chartDescription": "The platform balances request handling, AI, and analytics to deliver a complete solution. Values are indicative to show functional coverage.",
+      "distributionLabel": "Feature distribution",
+      "labels": [
+        "Ticket Management",
+        "AI Assistant",
+        "Analytics & Reporting",
+        "Portals & Roles",
+        "Integrations"
+      ],
+      "cards": [
+        {
+          "title": "Ticket Management",
+          "description": "Create, track, and resolve requests in an optimized workflow."
+        },
+        {
+          "title": "Gemini AI Assistant",
+          "description": "Automated responses and smart suggestions to speed up resolutions."
+        },
+        {
+          "title": "Multilingual Support",
+          "description": "Interface in French, English, and Arabic for global reach."
+        },
+        {
+          "title": "Dashboards",
+          "description": "Real-time stats to monitor team performance."
+        }
+      ]
+    },
+    "tech": {
+      "title": "A modern, robust architecture",
+      "subtitle": "Nexus is built on proven technologies to ensure security, scalability, and accessibility.",
+      "frontend": {
+        "title": "Frontend",
+        "subtitle": "Fast, responsive interface",
+        "items": [
+          "React (TypeScript)",
+          "Vite",
+          "Tailwind CSS",
+          "React Router"
+        ]
+      },
+      "backend": {
+        "title": "Backend & Database",
+        "subtitle": "Secure, real-time data",
+        "items": [
+          "Supabase",
+          "Auth & JWT",
+          "PostgreSQL database",
+          "Real-time REST API"
+        ]
+      },
+      "services": {
+        "title": "Services & Integrations",
+        "subtitle": "Extended capabilities",
+        "items": [
+          "Google Gemini AI",
+          "EmailJS",
+          "i18next",
+          "PayPal API"
+        ]
+      }
+    },
+    "security": {
+      "sectionTitle": "Security and accessibility by design",
+      "sectionSubtitle": "Data isolated per company via Supabase RLS, roles (user, agent, manager), and practices inspired by RGAA 4.1 to ensure inclusive use.",
+      "title": "Security coverage (illustrative)",
+      "description": "Nexus implements robust measures across authentication through data compliance. Chart is illustrative to visualize covered areas.",
+      "coverageLabel": "Coverage level",
+      "labels": [
+        "Authentication & Sessions",
+        "Data Protection (XSS, CSRF)",
+        "Compliance (GDPR)",
+        "Permission Management",
+        "API Integration Security"
+      ],
+      "measuresTitle": "Protection measures",
+      "measuresDescription": "Each interaction is secured with standard practices to prevent common attacks.",
+      "measures": {
+        "items": [
+          {
+            "title": "Strong authentication",
+            "description": "JWT & OAuth via Supabase for secure sessions."
+          },
+          {
+            "title": "Strict CSP",
+            "description": "Protection against XSS and content hijacking."
+          },
+          {
+            "title": "Role-based permissions",
+            "description": "Data access limited by profile (user, agent, manager)."
+          },
+          {
+            "title": "GDPR alignment",
+            "description": "Good practices for personal data management."
+          }
+        ]
+      }
+    },
+    "satisfaction": {
+      "title": "Projected customer satisfaction",
+      "description": "Automation and structured tickets aim to improve quality, consistency, and speed without promising numbers before pilot feedback.",
+      "datasetLabel": "Customer Satisfaction (CSAT %)",
+      "labels": [
+        "Launch",
+        "Month 1",
+        "Month 2",
+        "Month 3",
+        "Month 4",
+        "Month 5",
+        "Month 6"
+      ]
+    },
+    "impact": {
+      "title": "Expected impact (to validate with pilots)",
+      "description": "Nexus is designed to reduce time on L1 requests, improve answer quality and consistency, and increase tickets handled per agent. Early pilots will measure gains and refine the product with customers.",
+      "cards": [
+        {
+          "title": "Key objectives",
+          "description": "Reduce time spent on repetitive L1 requests and smooth escalation to L2."
+        },
+        {
+          "title": "Commitment",
+          "description": "Measure impact with pilot companies, refine the product, and share verified results."
+        }
+      ]
+    },
+    "footer": {
+      "title": "Ready to transform your support?",
+      "description": "Nexus Support Hub is the innovative, secure, and scalable solution for teams aiming for excellence."
+    }
+  }
 }

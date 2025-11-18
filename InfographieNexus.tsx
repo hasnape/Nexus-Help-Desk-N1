@@ -1,7 +1,9 @@
 import React, { useEffect, useRef } from "react";
 import Chart from "chart.js/auto";
+import { useTranslation } from "react-i18next";
 
 const InfographieNexus: React.FC = () => {
+  const { t } = useTranslation();
   const chartRef = useRef<HTMLCanvasElement>(null);
   const donutChartRef = useRef<Chart | null>(null);
   const radarChartRef = useRef<Chart | null>(null);
@@ -96,15 +98,15 @@ const InfographieNexus: React.FC = () => {
         type: "doughnut",
         data: {
           labels: [
-            "Gestion des Tickets",
-            "Assistant IA",
-            "Analytique & Rapports",
-            "Portails & Rôles",
-            "Intégrations",
+            t("infographie.features.labels.0"),
+            t("infographie.features.labels.1"),
+            t("infographie.features.labels.2"),
+            t("infographie.features.labels.3"),
+            t("infographie.features.labels.4"),
           ],
           datasets: [
             {
-              label: "Répartition des Fonctionnalités",
+              label: t("infographie.features.distributionLabel"),
               data: [35, 25, 20, 15, 5],
               backgroundColor: brilliantBlues,
               borderColor: "#ffffff",
@@ -131,15 +133,15 @@ const InfographieNexus: React.FC = () => {
         type: "radar",
         data: {
           labels: processLabels([
-            "Authentification & Sessions",
-            "Protection des Données (XSS, CSRF)",
-            "Conformité (RGPD)",
-            "Gestion des Permissions",
-            "Sécurité des Intégrations API",
+            t("infographie.security.labels.0"),
+            t("infographie.security.labels.1"),
+            t("infographie.security.labels.2"),
+            t("infographie.security.labels.3"),
+            t("infographie.security.labels.4"),
           ]),
           datasets: [
             {
-              label: "Niveau de Couverture",
+              label: t("infographie.security.coverageLabel"),
               data: [95, 90, 85, 98, 92],
               fill: true,
               backgroundColor: brilliantBluesBg[0],
@@ -184,17 +186,17 @@ const InfographieNexus: React.FC = () => {
         type: "line",
         data: {
           labels: [
-            "Lancement",
-            "Mois 1",
-            "Mois 2",
-            "Mois 3",
-            "Mois 4",
-            "Mois 5",
-            "Mois 6",
+            t("infographie.satisfaction.labels.0"),
+            t("infographie.satisfaction.labels.1"),
+            t("infographie.satisfaction.labels.2"),
+            t("infographie.satisfaction.labels.3"),
+            t("infographie.satisfaction.labels.4"),
+            t("infographie.satisfaction.labels.5"),
+            t("infographie.satisfaction.labels.6"),
           ],
           datasets: [
             {
-              label: "Satisfaction Client (CSAT %)",
+              label: t("infographie.satisfaction.datasetLabel"),
               data: [72, 75, 79, 84, 88, 91, 94],
               fill: true,
               borderColor: brilliantBlues[1],
@@ -226,52 +228,34 @@ const InfographieNexus: React.FC = () => {
       radarChartRef.current?.destroy();
       lineChartRef.current?.destroy();
     };
-  }, []);
+  }, [t]);
 
   return (
     <div className="bg-[#f0f4f8] font-sans text-gray-800">
       <header className="bg-[#003f5c] text-white p-8 text-center shadow-lg">
         <h1 className="text-4xl md:text-5xl font-black tracking-tight">
-          Nexus Support Hub
+          {t("appName")}
         </h1>
         <p className="mt-4 text-xl md:text-2xl font-light">
-          Révolutionner la Gestion du Support Client avec l'IA
+          {t("infographie.header.subtitle")}
         </p>
       </header>
       <main className="container mx-auto p-4 md:p-8">
         {/* Intro */}
         <section id="intro" className="text-center my-12">
           <h2 className="text-3xl font-bold mb-4">
-            Le défi : une expérience client exigeante
+            {t("infographie.intro.title")}
           </h2>
           <p className="max-w-3xl mx-auto text-lg text-gray-600 mb-8">
-            Dans un monde numérique, les clients attendent des réponses rapides,
-            personnalisées et efficaces. Les entreprises peinent à centraliser
-            les demandes, à réduire les temps de traitement et à offrir un
-            support multilingue de qualité. C'est ici que Nexus Support Hub
-            intervient.
+            {t("infographie.intro.description")}
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            <div className="stat-card rounded-lg p-6 shadow-md bg-white bg-opacity-80 backdrop-blur border border-white/20">
-              <div className="text-5xl font-extrabold text-[#bc5090]">86%</div>
-              <p className="mt-2 font-semibold text-gray-700">
-                des clients sont prêts à payer plus pour une meilleure
-                expérience.
-              </p>
-            </div>
-            <div className="stat-card rounded-lg p-6 shadow-md bg-white bg-opacity-80 backdrop-blur border border-white/20">
-              <div className="text-5xl font-extrabold text-[#ef5675]">40%</div>
-              <p className="mt-2 font-semibold text-gray-700">
-                de productivité en plus attendus grâce à l'IA dans le support.
-              </p>
-            </div>
-            <div className="stat-card rounded-lg p-6 shadow-md bg-white bg-opacity-80 backdrop-blur border border-white/20">
-              <div className="text-5xl font-extrabold text-[#ff764a]">7j/7</div>
-              <p className="mt-2 font-semibold text-gray-700">
-                est la nouvelle norme d'accessibilité attendue par les
-                utilisateurs.
-              </p>
-            </div>
+          <div className="bg-white max-w-5xl mx-auto rounded-lg shadow-md p-6 border border-white/40">
+            <p className="text-gray-700 font-semibold">
+              {t("infographie.intro.betaStatus")}
+            </p>
+            <p className="text-gray-600 mt-3">
+              {t("infographie.intro.objective")}
+            </p>
           </div>
         </section>
 
@@ -279,23 +263,19 @@ const InfographieNexus: React.FC = () => {
         <section id="features" className="my-16">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold">
-              Une Solution Complète et Intelligente
+              {t("infographie.features.title")}
             </h2>
             <p className="max-w-3xl mx-auto text-lg text-gray-600 mt-2">
-              Nexus Support Hub centralise toutes les facettes du support client
-              dans une interface unifiée, conçue pour l'efficacité et la
-              simplicité.
+              {t("infographie.features.subtitle")}
             </p>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             <div className="bg-white rounded-lg shadow-lg p-6">
               <h3 className="font-bold text-xl mb-4 text-center">
-                Répartition des fonctionnalités clés
+                {t("infographie.features.chartTitle")}
               </h3>
               <p className="text-center text-gray-600 mb-4">
-                La plateforme est équilibrée entre la gestion des requêtes,
-                l'intelligence artificielle et les outils analytiques pour
-                offrir une solution complète.
+                {t("infographie.features.chartDescription")}
               </p>
               <div
                 className="chart-container"
@@ -314,34 +294,30 @@ const InfographieNexus: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="bg-white rounded-lg shadow-lg p-6 text-center">
                 <div className="text-5xl mb-3">🎫</div>
-                <h4 className="font-bold text-lg">Gestion de Tickets</h4>
+                <h4 className="font-bold text-lg">{t("infographie.features.cards.0.title")}</h4>
                 <p className="text-gray-600 text-sm mt-1">
-                  Création, suivi et résolution des demandes dans un flux de
-                  travail optimisé.
+                  {t("infographie.features.cards.0.description")}
                 </p>
               </div>
               <div className="bg-white rounded-lg shadow-lg p-6 text-center">
                 <div className="text-5xl mb-3">🤖</div>
-                <h4 className="font-bold text-lg">Assistant IA Gemini</h4>
+                <h4 className="font-bold text-lg">{t("infographie.features.cards.1.title")}</h4>
                 <p className="text-gray-600 text-sm mt-1">
-                  Réponses automatiques et suggestions intelligentes pour
-                  accélérer la résolution.
+                  {t("infographie.features.cards.1.description")}
                 </p>
               </div>
               <div className="bg-white rounded-lg shadow-lg p-6 text-center">
                 <div className="text-5xl mb-3">🌐</div>
-                <h4 className="font-bold text-lg">Support Multilingue</h4>
+                <h4 className="font-bold text-lg">{t("infographie.features.cards.2.title")}</h4>
                 <p className="text-gray-600 text-sm mt-1">
-                  Interface en Français, Anglais et Arabe pour une portée
-                  globale.
+                  {t("infographie.features.cards.2.description")}
                 </p>
               </div>
               <div className="bg-white rounded-lg shadow-lg p-6 text-center">
                 <div className="text-5xl mb-3">📊</div>
-                <h4 className="font-bold text-lg">Tableaux de Bord</h4>
+                <h4 className="font-bold text-lg">{t("infographie.features.cards.3.title")}</h4>
                 <p className="text-gray-600 text-sm mt-1">
-                  Statistiques en temps réel pour suivre la performance des
-                  équipes.
+                  {t("infographie.features.cards.3.description")}
                 </p>
               </div>
             </div>
@@ -352,88 +328,87 @@ const InfographieNexus: React.FC = () => {
         <section id="tech-stack" className="my-16">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold">
-              Une Architecture Moderne et Robuste
+              {t("infographie.tech.title")}
             </h2>
             <p className="max-w-3xl mx-auto text-lg text-gray-600 mt-2">
-              Nexus est construit sur des technologies de pointe, garantissant
-              performance, scalabilité et une expérience utilisateur fluide.
+              {t("infographie.tech.subtitle")}
             </p>
           </div>
           <div className="bg-white rounded-lg shadow-lg p-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
               <div className="tech-card rounded-lg p-6 border border-[#003f5c20] transition-transform duration-300 ease-in-out hover:-translate-y-1 hover:shadow-xl">
-                <h4 className="font-bold text-xl text-[#003f5c]">Frontend</h4>
+                <h4 className="font-bold text-xl text-[#003f5c]">{t("infographie.tech.frontend.title")}</h4>
                 <p className="text-gray-500 text-sm mb-4">
-                  Interface réactive et ultra-rapide
+                  {t("infographie.tech.frontend.subtitle")}
                 </p>
                 <ul className="space-y-2 text-left">
                   <li className="flex items-center">
                     <span className="font-bold text-[#7a5195] mr-2">●</span>
-                    React (TypeScript)
+                    {t("infographie.tech.frontend.items.0")}
                   </li>
                   <li className="flex items-center">
                     <span className="font-bold text-[#7a5195] mr-2">●</span>
-                    Vite
+                    {t("infographie.tech.frontend.items.1")}
                   </li>
                   <li className="flex items-center">
                     <span className="font-bold text-[#7a5195] mr-2">●</span>
-                    Tailwind CSS
+                    {t("infographie.tech.frontend.items.2")}
                   </li>
                   <li className="flex items-center">
                     <span className="font-bold text-[#7a5195] mr-2">●</span>
-                    React Router
+                    {t("infographie.tech.frontend.items.3")}
+                  </li>
+                </ul>
+              </div>
+            <div className="tech-card rounded-lg p-6 border border-[#003f5c20] transition-transform duration-300 ease-in-out hover:-translate-y-1 hover:shadow-xl">
+              <h4 className="font-bold text-xl text-[#003f5c]">
+                  {t("infographie.tech.backend.title")}
+                </h4>
+                <p className="text-gray-500 text-sm mb-4">
+                  {t("infographie.tech.backend.subtitle")}
+                </p>
+                <ul className="space-y-2 text-left">
+                  <li className="flex items-center">
+                    <span className="font-bold text-[#bc5090] mr-2">●</span>
+                    {t("infographie.tech.backend.items.0")}
+                  </li>
+                  <li className="flex items-center">
+                    <span className="font-bold text-[#bc5090] mr-2">●</span>
+                    {t("infographie.tech.backend.items.1")}
+                  </li>
+                  <li className="flex items-center">
+                    <span className="font-bold text-[#bc5090] mr-2">●</span>
+                    {t("infographie.tech.backend.items.2")}
+                  </li>
+                  <li className="flex items-center">
+                    <span className="font-bold text-[#bc5090] mr-2">●</span>
+                    {t("infographie.tech.backend.items.3")}
                   </li>
                 </ul>
               </div>
               <div className="tech-card rounded-lg p-6 border border-[#003f5c20] transition-transform duration-300 ease-in-out hover:-translate-y-1 hover:shadow-xl">
                 <h4 className="font-bold text-xl text-[#003f5c]">
-                  Backend & BDD
+                  {t("infographie.tech.services.title")}
                 </h4>
                 <p className="text-gray-500 text-sm mb-4">
-                  Données sécurisées et temps réel
-                </p>
-                <ul className="space-y-2 text-left">
-                  <li className="flex items-center">
-                    <span className="font-bold text-[#bc5090] mr-2">●</span>
-                    Supabase
-                  </li>
-                  <li className="flex items-center">
-                    <span className="font-bold text-[#bc5090] mr-2">●</span>
-                    Auth & JWT
-                  </li>
-                  <li className="flex items-center">
-                    <span className="font-bold text-[#bc5090] mr-2">●</span>
-                    Base de données PostgreSQL
-                  </li>
-                  <li className="flex items-center">
-                    <span className="font-bold text-[#bc5090] mr-2">●</span>
-                    API REST Temps Réel
-                  </li>
-                </ul>
-              </div>
-              <div className="tech-card rounded-lg p-6 border border-[#003f5c20] transition-transform duration-300 ease-in-out hover:-translate-y-1 hover:shadow-xl">
-                <h4 className="font-bold text-xl text-[#003f5c]">
-                  Services & Intégrations
-                </h4>
-                <p className="text-gray-500 text-sm mb-4">
-                  Fonctionnalités étendues
+                  {t("infographie.tech.services.subtitle")}
                 </p>
                 <ul className="space-y-2 text-left">
                   <li className="flex items-center">
                     <span className="font-bold text-[#ff764a] mr-2">●</span>
-                    Google Gemini AI
+                    {t("infographie.tech.services.items.0")}
                   </li>
                   <li className="flex items-center">
                     <span className="font-bold text-[#ff764a] mr-2">●</span>
-                    EmailJS
+                    {t("infographie.tech.services.items.1")}
                   </li>
                   <li className="flex items-center">
                     <span className="font-bold text-[#ff764a] mr-2">●</span>
-                    i18next
+                    {t("infographie.tech.services.items.2")}
                   </li>
                   <li className="flex items-center">
                     <span className="font-bold text-[#ff764a] mr-2">●</span>
-                    PayPal API
+                    {t("infographie.tech.services.items.3")}
                   </li>
                 </ul>
               </div>
@@ -445,21 +420,19 @@ const InfographieNexus: React.FC = () => {
         <section id="security" className="my-16">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold">
-              La Sécurité comme Priorité Absolue
+              {t("infographie.security.sectionTitle")}
             </h2>
             <p className="max-w-3xl mx-auto text-lg text-gray-600 mt-2">
-              Une approche multi-couches pour protéger vos données et celles de
-              vos clients, en conformité avec les normes les plus strictes.
+              {t("infographie.security.sectionSubtitle")}
             </p>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             <div className="bg-white rounded-lg shadow-lg p-6">
               <h3 className="font-bold text-xl mb-4 text-center">
-                Couverture des Domaines de Sécurité
+                {t("infographie.security.title")}
               </h3>
               <p className="text-center text-gray-600 mb-4">
-                Nexus implémente des mesures robustes sur tous les fronts, de
-                l'authentification à la conformité des données.
+                {t("infographie.security.description")}
               </p>
               <div
                 className="chart-container"
@@ -477,49 +450,45 @@ const InfographieNexus: React.FC = () => {
             </div>
             <div className="bg-white rounded-lg shadow-lg p-6">
               <h3 className="font-bold text-xl mb-4 text-center">
-                Mesures de Protection
+                {t("infographie.security.measuresTitle")}
               </h3>
               <p className="text-center text-gray-600 mb-4">
-                Chaque interaction est sécurisée par des pratiques standards de
-                l'industrie pour prévenir les attaques courantes.
+                {t("infographie.security.measuresDescription")}
               </p>
               <ul className="space-y-4">
                 <li className="flex items-start">
                   <span className="text-2xl text-green-500 mr-3">✔</span>
                   <div>
-                    <h5 className="font-semibold">Authentification Forte</h5>
+                    <h5 className="font-semibold">{t("infographie.security.measures.items.0.title")}</h5>
                     <p className="text-gray-600 text-sm">
-                      JWT & OAuth via Supabase pour des sessions sécurisées.
+                      {t("infographie.security.measures.items.0.description")}
                     </p>
                   </div>
                 </li>
                 <li className="flex items-start">
                   <span className="text-2xl text-green-500 mr-3">✔</span>
                   <div>
-                    <h5 className="font-semibold">Politique CSP Stricte</h5>
+                    <h5 className="font-semibold">{t("infographie.security.measures.items.1.title")}</h5>
                     <p className="text-gray-600 text-sm">
-                      Protection contre les attaques XSS et le détournement de
-                      contenu.
+                      {t("infographie.security.measures.items.1.description")}
                     </p>
                   </div>
                 </li>
                 <li className="flex items-start">
                   <span className="text-2xl text-green-500 mr-3">✔</span>
                   <div>
-                    <h5 className="font-semibold">Permissions par Rôle</h5>
+                    <h5 className="font-semibold">{t("infographie.security.measures.items.2.title")}</h5>
                     <p className="text-gray-600 text-sm">
-                      Accès aux données strictement limité selon le profil
-                      (user, agent, manager).
+                      {t("infographie.security.measures.items.2.description")}
                     </p>
                   </div>
                 </li>
                 <li className="flex items-start">
                   <span className="text-2xl text-green-500 mr-3">✔</span>
                   <div>
-                    <h5 className="font-semibold">Conformité RGPD</h5>
+                    <h5 className="font-semibold">{t("infographie.security.measures.items.3.title")}</h5>
                     <p className="text-gray-600 text-sm">
-                      Respect des bonnes pratiques de gestion des données
-                      personnelles.
+                      {t("infographie.security.measures.items.3.description")}
                     </p>
                   </div>
                 </li>
@@ -532,24 +501,20 @@ const InfographieNexus: React.FC = () => {
         <section id="impact" className="my-16">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold">
-              Un Impact Mesurable sur votre Performance
+              {t("infographie.impact.title")}
             </h2>
             <p className="max-w-3xl mx-auto text-lg text-gray-600 mt-2">
-              L'adoption de Nexus se traduit par des gains concrets en
-              efficacité et en satisfaction client, visibles dès les premiers
-              mois.
+              {t("infographie.impact.description")}
             </p>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
             <div className="lg:col-span-3 bg-white rounded-lg shadow-lg p-6">
               <h3 className="font-bold text-xl mb-4 text-center">
-                Projection de la Satisfaction Client
+                {t("infographie.satisfaction.title")}
               </h3>
-              <p className="text-center text-gray-600 mb-4">
-                L'automatisation intelligente et la rapidité de traitement ont
-                un effet direct et positif sur la perception de votre service
-                par les clients.
-              </p>
+            <p className="text-center text-gray-600 mb-4">
+                {t("infographie.satisfaction.description")}
+            </p>
               <div
                 className="chart-container h-80 md:h-96"
                 style={{
@@ -566,19 +531,19 @@ const InfographieNexus: React.FC = () => {
             </div>
             <div className="lg:col-span-2 space-y-6 flex flex-col justify-center">
               <div className="stat-card rounded-lg p-6 shadow-md text-center bg-white bg-opacity-80 backdrop-blur border border-white/20">
-                <div className="text-5xl font-extrabold text-[#7a5195]">
-                  -35%
+                <div className="text-3xl font-extrabold text-[#7a5195]">
+                  {t("infographie.impact.cards.0.title")}
                 </div>
                 <p className="mt-2 font-semibold text-gray-700">
-                  Temps de résolution moyen des tickets
+                  {t("infographie.impact.cards.0.description")}
                 </p>
               </div>
               <div className="stat-card rounded-lg p-6 shadow-md text-center bg-white bg-opacity-80 backdrop-blur border border-white/20">
-                <div className="text-5xl font-extrabold text-[#ff764a]">
-                  +25%
+                <div className="text-3xl font-extrabold text-[#ff764a]">
+                  {t("infographie.impact.cards.1.title")}
                 </div>
                 <p className="mt-2 font-semibold text-gray-700">
-                  Tickets traités par agent par jour
+                  {t("infographie.impact.cards.1.description")}
                 </p>
               </div>
             </div>
@@ -587,11 +552,10 @@ const InfographieNexus: React.FC = () => {
       </main>
       <footer className="bg-[#003f5c] text-white mt-16 p-8 text-center">
         <h3 className="text-2xl font-bold">
-          Prêt à transformer votre support client ?
+          {t("infographie.footer.title")}
         </h3>
         <p className="mt-2 max-w-2xl mx-auto">
-          Nexus Support Hub est la solution innovante, sécurisée et évolutive
-          pour les entreprises qui visent l'excellence.
+          {t("infographie.footer.description")}
         </p>
       </footer>
     </div>
