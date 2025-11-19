@@ -718,11 +718,17 @@ const ManagerDashboardPage: React.FC = () => {
                         )}
                         <p className="text-sm text-slate-600 mt-1">{t('managerDashboard.subtitle')}</p>
                     </div>
-                    <div className="flex-shrink-0 mt-4 sm:mt-0">
+                    <div className="flex-shrink-0 mt-4 sm:mt-0 flex flex-col sm:flex-row gap-3">
                         <Link to="/help">
                             <Button variant="primary" size="md">
                                 <PlusIcon className="w-5 h-5 me-2"/>
                                 {t('managerDashboard.createNewTicketButton')}
+                            </Button>
+                        </Link>
+                        <Link to="/manager/faq">
+                            <Button variant="outline" size="md" className="w-full sm:w-auto">
+                                <ClipboardDocumentIcon className="w-5 h-5 me-2" />
+                                {t('managerDashboard.manageFaqButton')}
                             </Button>
                         </Link>
                     </div>

@@ -103,7 +103,7 @@ const Navbar: React.FC = () => {
       to: "/help",
       label: t("navbar.helpCenter", { default: "Centre d'aide" }),
     },
-    { to: "/support", label: t("navbar.support", { default: "Support" }) },
+    { to: "/help", label: t("navbar.support", { default: "Support" }) },
     { to: "/contact", label: t("navbar.contact", { default: "Contact" }) },
     {
       to: "/legal",
