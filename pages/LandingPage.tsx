@@ -350,7 +350,7 @@ const LandingPage: React.FC = () => {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-primary hover:underline font-semibold"
-                      >
+                      
                         {t("landing.video.watchOnYoutube")}
                       </a>
                     </div>
