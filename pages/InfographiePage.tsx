@@ -1,14 +1,13 @@
 // filepath: c:\Users\HARBI Amine\Documents\Web projet\AI N28\Nexus-Help-Desk-N1\pages\InfographiePage.tsx
 import React from "react";
-import Layout from "../components/Layout";
 import InfographieNexus from "../InfographieNexus";
 import { Link } from "react-router-dom";
 import { Button } from "../components/FormElements";
 
 const InfographiePage: React.FC = () => {
   return (
-    <Layout>
-      <div className="flex justify-end mb-6 max-w-5xl mx-auto px-4">
+    <div className="bg-white">
+      <div className="flex justify-end mb-6 max-w-5xl mx-auto px-4 pt-6">
         <Link to="/landing">
           <Button variant="outline" className="mr-2">
             Retour à l’accueil
@@ -24,7 +23,7 @@ const InfographiePage: React.FC = () => {
         </Link>
       </div>
       <InfographieNexus />
-    </Layout>
+    </div>
   );
 };
 

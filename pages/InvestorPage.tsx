@@ -1,13 +1,12 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import Layout from "../components/Layout";
 import { Button } from "../components/FormElements";
 
 const InvestorPage: React.FC = () => {
   const { t } = useTranslation();
 
   return (
-    <Layout mainClassName="bg-slate-50">
+    <div className="bg-slate-50">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 space-y-10">
         <header className="space-y-4">
           <p className="inline-flex items-center rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-semibold uppercase tracking-wide">
@@ -200,7 +199,7 @@ const InvestorPage: React.FC = () => {
           </aside>
         </div>
       </div>
-    </Layout>
+    </div>
   );
 };
 

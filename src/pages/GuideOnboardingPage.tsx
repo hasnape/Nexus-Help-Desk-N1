@@ -1,13 +1,12 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import Layout from "../components/Layout";
 
 const GuideOnboardingPage: React.FC = () => {
   const { t } = useTranslation();
 
   return (
-    <Layout>
+    <>
       <main className="min-h-screen bg-slate-950 text-slate-50">
         <section className="container mx-auto px-4 py-10 lg:py-16">
           {/* HERO */}
@@ -265,7 +264,7 @@ const GuideOnboardingPage: React.FC = () => {
           </div>
         </section>
       </main>
-    </Layout>
+    </>
   );
 };
 

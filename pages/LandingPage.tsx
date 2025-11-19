@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "../components/FormElements";
-import Layout from "../components/Layout";
 import PricingSection from "../components/PricingSection";
 // import TestimonialsSection from "../components/TestimonialsSection";
 import { useTranslation } from "react-i18next";
@@ -186,7 +185,7 @@ const LandingPage: React.FC = () => {
 
   return (
     <>
-      <Layout mainClassName="bg-gradient-to-br from-slate-900 to-slate-700">
+      <div className="bg-gradient-to-br from-slate-900 to-slate-700">
         <div className="min-h-screen">
           <div className="pt-16">
             <section className="py-8 px-4 sm:px-6 lg:px-8 text-white text-center">
@@ -547,7 +546,7 @@ const LandingPage: React.FC = () => {
             </section>
           </div>
         </div>
-      </Layout>
+      </div>
     </>
   );
 };

@@ -133,6 +133,17 @@ const Navbar: React.FC = () => {
       links: mainLinks,
     },
     {
+      key: "resources",
+      title: t("navbar.group.resources", { default: "Ressources" }),
+      links: [
+        { to: "/investor-deck", label: t("navbar.investorDeck", { default: "Deck investisseur" }) },
+        { to: "/demo-detaillee", label: t("navbar.detailedDemo", { default: "Démonstration détaillée" }) },
+        { to: "/technical-overview", label: t("navbar.technicalOverview", { default: "Aspects techniques" }) },
+        { to: "/roadmap", label: t("navbar.roadmap", { default: "Roadmap" }) },
+        { to: "/implementation-scenarios", label: t("navbar.implementationScenarios", { default: "Scénarios d’implémentation" }) },
+      ],
+    },
+    {
       key: "community",
       title: t("navbar.group.community", { default: "Communauté" }),
       links: [
