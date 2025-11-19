@@ -186,18 +186,9 @@ const LandingPage: React.FC = () => {
 
   return (
     <>
-      <a
-        href="#main"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:bg-black focus:text-white focus:px-3 focus:py-2 rounded"
-      >
-        {t("accessibility.skipToContent", {
-          defaultValue: "Aller au contenu",
-        })}
-      </a>
-
-      <Layout>
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-700">
-          <main id="main" role="main" className="pt-16">
+      <Layout mainClassName="bg-gradient-to-br from-slate-900 to-slate-700">
+        <div className="min-h-screen">
+          <div className="pt-16">
             <section className="py-8 px-4 sm:px-6 lg:px-8 text-white text-center">
               <div className="max-w-7xl mx-auto">
                 <h1 className="text-4xl md:text-5xl font-bold mb-4">
@@ -554,7 +545,7 @@ const LandingPage: React.FC = () => {
                 </div>
               </div>
             </section>
-          </main>
+          </div>
         </div>
       </Layout>
     </>
