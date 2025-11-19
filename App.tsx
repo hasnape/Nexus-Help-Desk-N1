@@ -14,6 +14,7 @@ import TicketDetailPage from "./pages/TicketDetailPage";
 import SignUpPage from "./pages/SignUpPage";
 import AgentDashboardPage from "./pages/AgentDashboardPage";
 import ManagerDashboardPage from "./pages/ManagerDashboardPage";
+import ManagerFaqPage from "./pages/ManagerFaqPage";
 import HelpChatPage from "./pages/HelpChatPage";
 import LegalPage from "./pages/LegalPage";
 import UserManualPage from "./pages/UserManualPage";
@@ -1667,6 +1668,15 @@ const MainAppContent: React.FC = () => {
       element={
         <ProtectedRoute allowedRoles={[UserRole.MANAGER]}>
           <ManagerDashboardPage />
+        </ProtectedRoute>
+      }
+    />
+
+    <Route
+      path="/manager/faq"
+      element={
+        <ProtectedRoute allowedRoles={[UserRole.MANAGER]}>
+          <ManagerFaqPage />
         </ProtectedRoute>
       }
     />

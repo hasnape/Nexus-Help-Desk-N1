@@ -95,7 +95,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoUrl }) => {
 };
 
 const LandingPage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [showVideo, setShowVideo] = useState(false);
 
   const pillars = [
@@ -505,6 +505,23 @@ const LandingPage: React.FC = () => {
                   </ul>
                 </div>
                 <PricingSection />
+                {i18n.language?.startsWith("fr") && (
+                  <div className="mt-10 bg-sky-50 border border-sky-100 rounded-2xl p-6 text-slate-800">
+                    <h3 className="text-2xl font-semibold mb-3 text-slate-900">
+                      Tarifs de lancement – phase bêta
+                    </h3>
+                    <p className="text-slate-700 leading-relaxed">
+                      Les tarifs actuels (Freemium, Standard 19 €/mois, Pro 39 €/mois) sont des offres de lancement réservées à
+                      la phase bêta de Nexus Support Hub. Les premiers clients conservent ces prix à vie, même lorsque la grille
+                      tarifaire sera réajustée à la hausse pour les nouveaux arrivants.
+                    </p>
+                    <ul className="mt-4 space-y-2 text-slate-700 list-disc ps-5">
+                      <li>Accès anticipé au moteur Nexus (automatisation N1, assistance N2).</li>
+                      <li>Infrastructure sécurisée (Supabase, RLS, RGPD, RGAA 4.1).</li>
+                      <li>Accompagnement renforcé pendant la phase de lancement.</li>
+                    </ul>
+                  </div>
+                )}
               </div>
             </section>
 
