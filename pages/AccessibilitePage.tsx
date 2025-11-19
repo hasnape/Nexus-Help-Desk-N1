@@ -1,7 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import Layout from "../components/Layout";
 
 const AccessibilitePage: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -20,8 +19,7 @@ const AccessibilitePage: React.FC = () => {
   });
 
   return (
-    <Layout mainClassName="bg-white">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 space-y-8">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 space-y-8 bg-white">
         <header className="space-y-4">
           <p className="inline-flex items-center rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-semibold tracking-wide">
             {t("accessibility.title")}
@@ -179,10 +177,9 @@ const AccessibilitePage: React.FC = () => {
               {t("accessibility.updated.content", { date: today })}
             </p>
           </section>
-        </div>
+          </div>
       </div>
-    </Layout>
-  );
-};
+    );
+  };
 
 export default AccessibilitePage;

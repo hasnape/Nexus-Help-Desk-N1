@@ -3,7 +3,6 @@ import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useApp } from "@/App";
 import { Button, Input } from "@/components/FormElements";
 import { useLanguage } from "@/contexts/LanguageContext";
-import Layout from "@/components/Layout";
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -66,7 +65,7 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <Layout>
+    <>
       {toastMessage && (
         <div className="fixed top-4 left-0 right-0 z-50 flex justify-center pointer-events-none">
           <div
@@ -210,7 +209,7 @@ const LoginPage: React.FC = () => {
           </div>
         </div>
       </div>
-    </Layout>
+    </>
   );
 };
 

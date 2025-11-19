@@ -1,5 +1,4 @@
 import React from "react";
-import PageLayout from "../components/PageLayout";
 
 const partners = [
   { name: "", logo: "" },
@@ -8,8 +7,7 @@ const partners = [
 
 
 const PartnersPage: React.FC = () => (
-  <PageLayout>
-    
+  <div className="bg-slate-50">
     <div className="container mx-auto py-12 px-4">
       <h1 className="text-3xl font-bold mb-8">Nos partenaires</h1>
       <div className="flex flex-wrap gap-8 items-center">
@@ -21,7 +19,7 @@ const PartnersPage: React.FC = () => (
         ))}
       </div>
     </div>
-  </PageLayout>
+  </div>
 );
 
 export default PartnersPage;

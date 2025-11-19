@@ -33,10 +33,15 @@ import { LanguageProvider, useLanguage } from "./contexts/LanguageContext";
 import LoadingSpinner from "./components/LoadingSpinner";
 import CookieConsentBanner from "./components/CookieConsentBanner";
 import type { Session } from "@supabase/supabase-js";
-import PageLayout from './components/PageLayout';
+import Layout from "./components/Layout";
 import GuideOnboardingPage from "./pages/GuideOnboardingPage";
 import EnterprisePage from "./pages/EnterprisePage";
 import InvestorPage from "./pages/InvestorPage";
+import InvestorDeckPage from "./pages/InvestorDeckPage";
+import DetailedDemoPage from "./pages/DetailedDemoPage";
+import TechnicalOverviewPage from "./pages/TechnicalOverviewPage";
+import RoadmapPage from "./pages/RoadmapPage";
+import ImplementationScenariosPage from "./pages/ImplementationScenariosPage";
 
 
 interface AppContextType {
@@ -1574,10 +1579,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles 
 const MainAppContent: React.FC = () => {
   const { user, isLoading, consentGiven, giveConsent } = useApp();
   const { isLoadingLang, t } = useLanguage();
-  const location = useLocation(); // Moved to top level
-
-  const noLayoutPages = ["/login", "/signup", "/landing"];
-  const specialLayoutPages = ["/legal", "/manual", "/presentation", "/contact", "/about", "/testimonials", "/partners", "/infographie"];
 
   if (isLoading || isLoadingLang) {
     return (
@@ -1605,6 +1606,11 @@ const MainAppContent: React.FC = () => {
     <Route path="/guide-onboarding" element={<GuideOnboardingPage />} />
     <Route path="/enterprise" element={<EnterprisePage />} />
     <Route path="/investors" element={<InvestorPage />} />
+    <Route path="/investor-deck" element={<InvestorDeckPage />} />
+    <Route path="/demo-detaillee" element={<DetailedDemoPage />} />
+    <Route path="/technical-overview" element={<TechnicalOverviewPage />} />
+    <Route path="/roadmap" element={<RoadmapPage />} />
+    <Route path="/implementation-scenarios" element={<ImplementationScenariosPage />} />
 
 
     {/* PricingPage */}
@@ -1699,27 +1705,12 @@ const MainAppContent: React.FC = () => {
     />
   </Routes>
 );
-
-
-  if (noLayoutPages.includes(location.pathname)) {
-    return (
-      <>
-        {renderRoutes()}
-        {!consentGiven && <CookieConsentBanner onAccept={giveConsent} />}
-      </>
-    );
-  }
-
-  if (specialLayoutPages.includes(location.pathname)) {
-    return renderRoutes();
-  }
-
   return (
-  <PageLayout>
-    {renderRoutes()}
-    {!consentGiven && <CookieConsentBanner onAccept={giveConsent} />}
-  </PageLayout>
-);
+    <Layout>
+      {renderRoutes()}
+      {!consentGiven && <CookieConsentBanner onAccept={giveConsent} />}
+    </Layout>
+  );
 
 };
 

@@ -1,12 +1,11 @@
 import React from "react";
-import Layout from "../components/Layout";
 import { useTranslation } from "react-i18next";
 
 const AboutPage: React.FC = () => {
   const { t } = useTranslation();
 
   return (
-    <Layout mainClassName="bg-slate-50">
+    <div className="bg-slate-50">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 space-y-6">
         <header className="space-y-3">
           <h1 className="text-3xl sm:text-4xl font-bold text-slate-900">
@@ -37,7 +36,7 @@ const AboutPage: React.FC = () => {
           </ul>
         </section>
       </div>
-    </Layout>
+    </div>
   );
 };
 

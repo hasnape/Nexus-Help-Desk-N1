@@ -6,7 +6,6 @@ import { useApp } from "../App";
 import { Button, Input, Select } from "../components/FormElements";
 import type { Locale } from "../contexts/LanguageContext";
 import { UserRole } from "../types";
-import Layout from "../components/Layout";
 import { getPricingPlans, type PricingPlan, type PricingPlanKey } from "@/utils/pricing";
 
 const paypalLinks = {
@@ -643,7 +642,7 @@ const SignUpPage: React.FC = () => {
   }, [role]);
 
   return (
-    <Layout>
+    <>
       {showProModal && (
         <ProModal
           showProModal={showProModal}
@@ -1015,7 +1014,7 @@ const SignUpPage: React.FC = () => {
           </div>
         </div>
       </div>
-    </Layout>
+    </>
   );
 };
 
