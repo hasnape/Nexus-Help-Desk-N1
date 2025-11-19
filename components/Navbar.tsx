@@ -205,7 +205,10 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className="bg-slate-800 text-white shadow-md">
+    <nav
+      className="bg-slate-800 text-white shadow-md"
+      aria-label={t("navbar.mainNav", { defaultValue: "Navigation principale" })}
+    >
       {/* Desktop */}
       <div className="hidden md:grid grid-cols-3 container mx-auto px-4 sm:px-6 lg:px-8 items-center h-20 relative">
         {/* Langues à gauche */}
