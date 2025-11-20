@@ -72,9 +72,7 @@ function validateRoutes(routes: RouteLike[], trail = "root") {
     const flags = ["element", "Component", "lazy"].filter((key) => (route as any)[key] != null);
     if (flags.length > 1) {
       throw new Error(
-        `Invalid route at ${where}: mixe ${flags.join(
-          " + "
-        )}. Utilise soit "element", soit "Component", soit "lazy", mais pas plusieurs.`
+        `Invalid route at ${where}: mixe ${flags.join(", ")}. Utilise soit "element", soit "Component", soit "lazy", mais pas plusieurs.`
       );
     }
     if (route.children) {
