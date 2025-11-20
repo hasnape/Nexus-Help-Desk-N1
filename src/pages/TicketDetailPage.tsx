@@ -600,7 +600,7 @@ const TicketDetailPage: React.FC = () => {
 
       <div className="flex-grow p-4 sm:p-6 overflow-y-auto bg-slate-50 border-b border-t border-slate-200">
         {speechErrorText && <p className="text-xs text-red-600 text-center mb-2">{speechErrorText}</p>}
-        {ttsErrorText && <p className="text-xs text-red-600 text-center mb-2">{t('ticketDetail.speechPlaybackError', {error: ttsErrorText})}</p>}
+        {ttsErrorText && <p className="text-xs text-red-600 text-center mb-2">{ttsErrorText}</p>}
         {ticket.chat_history.map(msg => (<ChatMessageComponent key={msg.id} message={msg} userFullName={user.full_name} onSpeak={(text, id) => handleSpeakMessage(text, id, msg.sender === 'ai')} onCancelSpeak={handleCancelCurrentlySpeaking} isCurrentlySpeaking={speakingMessageId === msg.id && isSpeaking} browserSupportsTextToSpeech={browserSupportsTextToSpeech}/>))}
         {isLoadingAi && user.role === UserRole.USER && ticket.chat_history.length > 0 && ticket.chat_history[ticket.chat_history.length -1].sender === 'user' && !ticket.assigned_agent_id && (
           <div className="flex justify-start mb-4">

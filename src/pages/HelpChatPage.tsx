@@ -193,12 +193,13 @@ const HelpChatPage: React.FC = () => {
         <p className="text-sm text-slate-300">{t('helpChat.subtitle')}</p>
         {browserSupportsTextToSpeech && (
           <div className="absolute top-1/2 -translate-y-1/2 end-4">
-            <Button 
-              onClick={toggleAutoRead} 
-              variant="outline" 
+            <Button
+              onClick={toggleAutoRead}
+              variant="outline"
               size="sm"
               className="!p-1.5 sm:!p-2 !border-slate-500 hover:!bg-slate-600 focus:!ring-sky-500"
               title={isAutoReadEnabled ? t('navbar.toggleAutoReadDisable') : t('navbar.toggleAutoReadEnable')}
+              aria-label={isAutoReadEnabled ? t('navbar.toggleAutoReadDisable') : t('navbar.toggleAutoReadEnable')}
             >
               {isAutoReadEnabled ? (
                 <SpeakerLoudIcon className="w-5 h-5 text-sky-300" />
@@ -213,7 +214,7 @@ const HelpChatPage: React.FC = () => {
       <div className="flex-grow p-4 sm:p-6 overflow-y-auto bg-slate-50 border-b border-t border-slate-200">
         {ttsError && (
           <p className="text-xs text-red-600 text-center mb-2">
-            {t('ticketDetail.speechPlaybackError', {error: ttsError})}
+            {ttsError}
           </p>
         )}
 
