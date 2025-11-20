@@ -8,7 +8,7 @@ import { TicketPriority, UserRole, ChatMessage, TicketStatus } from '../types';
 import { TICKET_CATEGORY_KEYS, TICKET_PRIORITY_KEYS } from '../constants';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useLanguage } from '../contexts/LanguageContext';
-import { summarizeAndCategorizeChat } from '../services/geminiService';
+import { summarizeAndCategorizeChat } from '@/services/geminiService';
 
 const NewTicketPage: React.FC = () => {
   const { addTicket, user } = useApp();

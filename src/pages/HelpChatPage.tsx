@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { useApp } from '../App';
-import ChatMessageComponent from '../components/ChatMessage';
-import { Button, Textarea } from '../components/FormElements';
-import { ChatMessage, UserRole } from '../types';
-import LoadingSpinner from '../components/LoadingSpinner';
-import useSpeechRecognition from '../hooks/useSpeechRecognition';
-import { useLanguage } from '../contexts/LanguageContext';
-import { getFollowUpHelpResponse } from '../services/geminiService';
-import useTextToSpeech from '../hooks/useTextToSpeech';
+import { useApp } from '@/App';
+import ChatMessageComponent from '@/components/ChatMessage';
+import { Button, Textarea } from '@/components/FormElements';
+import { ChatMessage, UserRole } from '@/types';
+import LoadingSpinner from '@/components/LoadingSpinner';
+import useSpeechRecognition from '@/hooks/useSpeechRecognition';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { getFollowUpHelpResponse } from '@/services/geminiService';
+import useTextToSpeech from '@/hooks/useTextToSpeech';
 
 const MicrophoneIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" {...props}>
@@ -42,7 +42,6 @@ const HelpChatPage: React.FC = () => {
   const chatEndRef = useRef<HTMLDivElement>(null);
   
   const [showCreateTicketButton, setShowCreateTicketButton] = useState(false);
-  const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
   const [initialMessageSpoken, setInitialMessageSpoken] = useState(false);
 
   const {
@@ -56,6 +55,7 @@ const HelpChatPage: React.FC = () => {
 
   const {
     isSpeaking,
+    speakingMessageId,
     speak,
     cancel: cancelSpeech,
     error: ttsError,
@@ -108,8 +108,7 @@ const HelpChatPage: React.FC = () => {
     ) {
       const initialMessage = chatHistory[0];
       setInitialMessageSpoken(true);
-      speak(initialMessage.text, () => setSpeakingMessageId(null));
-      setSpeakingMessageId(initialMessage.id);
+      speak(initialMessage.text, { messageId: initialMessage.id });
     }
   }, [chatHistory, isAutoReadEnabled, browserSupportsTextToSpeech, speak, initialMessageSpoken]);
 
@@ -156,8 +155,7 @@ const HelpChatPage: React.FC = () => {
       setChatHistory(prev => [...prev, aiResponseMessage]);
       
       if (isAutoReadEnabled && browserSupportsTextToSpeech) {
-        speak(aiResponse.text, () => setSpeakingMessageId(null));
-        setSpeakingMessageId(aiResponseMessage.id);
+        speak(aiResponse.text, { messageId: aiResponseMessage.id });
       }
 
       if (aiResponse.escalationSuggested) {
@@ -180,14 +178,8 @@ const HelpChatPage: React.FC = () => {
   };
 
   const handleSpeakMessage = (text: string, messageId: string) => {
-    if (isSpeaking && speakingMessageId === messageId) {
-      cancelSpeech(); 
-      setSpeakingMessageId(null);
-    } else {
-      if (isSpeaking) cancelSpeech();
-      speak(text, () => setSpeakingMessageId(null));
-      setSpeakingMessageId(messageId);
-    }
+    if (isListening) stopListening();
+    speak(text, { messageId });
   };
   
   const handleCreateTicket = () => {
@@ -201,12 +193,13 @@ const HelpChatPage: React.FC = () => {
         <p className="text-sm text-slate-300">{t('helpChat.subtitle')}</p>
         {browserSupportsTextToSpeech && (
           <div className="absolute top-1/2 -translate-y-1/2 end-4">
-            <Button 
-              onClick={toggleAutoRead} 
-              variant="outline" 
+            <Button
+              onClick={toggleAutoRead}
+              variant="outline"
               size="sm"
               className="!p-1.5 sm:!p-2 !border-slate-500 hover:!bg-slate-600 focus:!ring-sky-500"
               title={isAutoReadEnabled ? t('navbar.toggleAutoReadDisable') : t('navbar.toggleAutoReadEnable')}
+              aria-label={isAutoReadEnabled ? t('navbar.toggleAutoReadDisable') : t('navbar.toggleAutoReadEnable')}
             >
               {isAutoReadEnabled ? (
                 <SpeakerLoudIcon className="w-5 h-5 text-sky-300" />
@@ -221,7 +214,7 @@ const HelpChatPage: React.FC = () => {
       <div className="flex-grow p-4 sm:p-6 overflow-y-auto bg-slate-50 border-b border-t border-slate-200">
         {ttsError && (
           <p className="text-xs text-red-600 text-center mb-2">
-            {t('ticketDetail.speechPlaybackError', {error: ttsError})}
+            {ttsError}
           </p>
         )}
 

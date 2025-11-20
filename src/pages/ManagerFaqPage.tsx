@@ -1,18 +1,18 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { useApp } from "../App";
-import { useLanguage } from "../contexts/LanguageContext";
-import { Button, Input, Textarea } from "../components/FormElements";
-import LoadingSpinner from "../components/LoadingSpinner";
-import useSpeechRecognition from "../hooks/useSpeechRecognition";
-import useTextToSpeech from "../hooks/useTextToSpeech";
+import { useApp } from "@/App";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { Button, Input, Textarea } from "@/components/FormElements";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import useSpeechRecognition from "@/hooks/useSpeechRecognition";
+import useTextToSpeech from "@/hooks/useTextToSpeech";
 import {
   CompanyFaqEntry,
   createCompanyFaqEntry,
   deleteCompanyFaqEntry,
   fetchCompanyFaqsForManager,
   updateCompanyFaqEntry,
-} from "../services/companyKnowledgeService";
+} from "@/services/companyKnowledgeService";
 
 const MicrophoneIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" {...props}>
@@ -56,7 +56,6 @@ const ManagerFaqPage: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [dictationTarget, setDictationTarget] = useState<DictationTarget>(null);
-  const [speakingEntryId, setSpeakingEntryId] = useState<string | null>(null);
 
   const {
     isListening,
@@ -69,6 +68,7 @@ const ManagerFaqPage: React.FC = () => {
 
   const {
     isSpeaking,
+    speakingMessageId,
     speak,
     cancel: cancelSpeech,
     browserSupportsTextToSpeech,
@@ -219,13 +219,11 @@ const ManagerFaqPage: React.FC = () => {
 
   const handleSpeakEntry = (entry: CompanyFaqEntry) => {
     if (!browserSupportsTextToSpeech) return;
-    if (speakingEntryId === entry.id && isSpeaking) {
+    if (speakingMessageId === entry.id && isSpeaking) {
       cancelSpeech();
-      setSpeakingEntryId(null);
       return;
     }
-    setSpeakingEntryId(entry.id);
-    speak(`${entry.question}. ${entry.answer}`, () => setSpeakingEntryId(null));
+    speak(`${entry.question}. ${entry.answer}`, { messageId: entry.id });
   };
 
   if (!companyId) {
@@ -440,17 +438,17 @@ const ManagerFaqPage: React.FC = () => {
                       </div>
                       <div className="flex items-center gap-2">
                         {browserSupportsTextToSpeech && (
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleSpeakEntry(entry)}
-                          >
-                            {speakingEntryId === entry.id && isSpeaking
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleSpeakEntry(entry)}
+                        >
+                            {speakingMessageId === entry.id && isSpeaking
                               ? t("managerFaq.stopSpeaking", { default: "Stop" })
                               : t("managerFaq.speakAnswer", { default: "Lire" })}
-                            <span className="ms-2">
-                              {speakingEntryId === entry.id && isSpeaking ? (
+                          <span className="ms-2">
+                              {speakingMessageId === entry.id && isSpeaking ? (
                                 <StopSpeakerIcon className="h-4 w-4" />
                               ) : (
                                 <SpeakerIcon className="h-4 w-4" />
