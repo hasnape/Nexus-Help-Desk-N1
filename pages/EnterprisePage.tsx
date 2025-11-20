@@ -2,6 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { Button } from "../components/FormElements";
+import NexusSalesBotWidget from "../components/NexusSalesBotWidget";
 
 const EnterprisePage: React.FC = () => {
   const { t } = useTranslation();
@@ -175,6 +176,7 @@ const EnterprisePage: React.FC = () => {
           </aside>
         </div>
       </div>
+      <NexusSalesBotWidget />
     </div>
   );
 };

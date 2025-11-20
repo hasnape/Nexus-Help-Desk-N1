@@ -1,6 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../components/FormElements";
+import NexusSalesBotWidget from "../components/NexusSalesBotWidget";
 
 const InvestorPage: React.FC = () => {
   const { t } = useTranslation();
@@ -199,6 +200,7 @@ const InvestorPage: React.FC = () => {
           </aside>
         </div>
       </div>
+      <NexusSalesBotWidget />
     </div>
   );
 };
