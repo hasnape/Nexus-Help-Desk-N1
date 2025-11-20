@@ -152,7 +152,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles 
 };
 
 /**
- * Aliases / redirections de compatibilité :
+ * Compatibility aliases to keep legacy navigation helpers working:
  * - /help-chat        -> /help
  * - /tickets/new      -> /ticket/new
  * - /tickets/:id      -> /ticket/:id
@@ -163,7 +163,8 @@ const TicketsNewAlias: React.FC = () => <Navigate to="/ticket/new" replace />;
 
 const TicketsIdAlias: React.FC = () => {
   const { id } = useParams();
-  return <Navigate to={`/ticket/${id ?? ""}`} replace />;
+  const target = id ? `/ticket/${id}` : "/ticket";
+  return <Navigate to={target} replace />;
 };
 
 const routes: RouteLike[] = [
