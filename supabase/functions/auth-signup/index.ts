@@ -100,6 +100,15 @@ serve(async (req: Request): Promise<Response> => {
     return json({ error: "method_not_allowed" }, 405, cors);
   }
 
+  const authHeader = req.headers.get("authorization");
+  if (!authHeader) {
+    return json(
+      { code: 401, message: "Missing authorization header" },
+      401,
+      cors,
+    );
+  }
+
   // 4) Parsing body
   let payload: any = {};
   try {
@@ -511,6 +520,14 @@ serve(async (req: Request): Promise<Response> => {
     }
   } catch (e) {
     console.error("auth-signup unexpected error", e);
-    return json({ error: "create_failed" }, 500, cors);
+    return json(
+      {
+        code: 500,
+        message: "AUTH_SIGNUP_INTERNAL_ERROR",
+        details: e instanceof Error ? e.message : String(e),
+      },
+      500,
+      cors,
+    );
   }
 });

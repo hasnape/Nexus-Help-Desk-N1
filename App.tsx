@@ -1,21 +1,21 @@
 import React, { createContext, useState, useContext, ReactNode, useCallback, useEffect, useRef } from "react";
 import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import { Ticket, User, ChatMessage, TicketStatus, UserRole, Locale as AppLocale, AppointmentDetails } from "./types";
-import { getFollowUpHelpResponse, getTicketSummary } from "./services/geminiService";
-import { supabase } from "./services/supabaseClient";
-import { ensureUserProfile } from "./services/authService";
-import { guardedLogin, GuardedLoginError } from "./services/guardedLogin";
-import type { GuardedLoginErrorKey } from "./services/guardedLogin";
+import { getFollowUpHelpResponse, getTicketSummary } from "@/services/geminiService";
+import { supabase } from "@/services/supabaseClient";
+import { ensureUserProfile } from "@/services/authService";
+import { guardedLogin, GuardedLoginError } from "@/services/guardedLogin";
+import type { GuardedLoginErrorKey } from "@/services/guardedLogin";
 import PricingPage from "./pages/PricingPage";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import NewTicketPage from "./pages/NewTicketPage";
-import TicketDetailPage from "./pages/TicketDetailPage";
-import SignUpPage from "./pages/SignUpPage";
+import TicketDetailPage from "@/pages/TicketDetailPage";
+import SignUpPage from "@/pages/SignUpPage";
 import AgentDashboardPage from "./pages/AgentDashboardPage";
 import ManagerDashboardPage from "./pages/ManagerDashboardPage";
-import ManagerFaqPage from "./pages/ManagerFaqPage";
-import HelpChatPage from "./pages/HelpChatPage";
+import ManagerFaqPage from "@/pages/ManagerFaqPage";
+import HelpChatPage from "@/pages/HelpChatPage";
 import LegalPage from "./pages/LegalPage";
 import UserManualPage from "./pages/UserManualPage";
 import PromotionalPage from "./pages/PromotionalPage";
@@ -59,7 +59,7 @@ interface AppContextType {
       secretCode?: string;
       plan?: "freemium" | "standard" | "pro";
     }
-  ) => Promise<string | true>;
+  ) => Promise<SignUpResult>;
   tickets: Ticket[];
   addTicket: (
     ticketData: Omit<Ticket, "id" | "created_at" | "updated_at" | "user_id" | "assigned_agent_id" | "internal_notes" | "current_appointment" | "assigned_ai_level" | "chat_history">,
@@ -130,6 +130,10 @@ type TicketMessageRow = {
   timestamp?: string | null;
   agent_id?: string | null;
 };
+
+type SignUpResult =
+  | { success: true; reason?: "ok" | "missing_authorisation_header" }
+  | { success: false; error: string };
 
 const reviveTicketDates = (data: any, chatHistoryOverride?: ChatMessage[]): Ticket => ({
   ...data,
@@ -829,46 +833,104 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       secretCode?: string;
       plan?: "freemium" | "standard" | "pro";
     }
-  ): Promise<string | true> => {
+  ): Promise<SignUpResult> => {
     const { lang, role, companyName, secretCode, plan } = options;
 
-    try {
-      const { data, error } = await supabase.functions.invoke(
-        "auth-signup",
-        {
-          body: {
-            email,
-            password,
-            full_name: fullName,
-            role,
-            company_name: companyName,
-            language_preference: lang,
-            plan,
-            secret_code: secretCode,
-          },
-        }
-      );
+    const normalizeErrorKey = (raw: unknown): string => {
+      if (!raw) return "signup_failed";
+      const rawString =
+        typeof raw === "string"
+          ? raw
+          : typeof (raw as any)?.message === "string"
+          ? (raw as any).message
+          : typeof (raw as any)?.error === "string"
+          ? (raw as any).error
+          : String(raw);
 
-      if (error) {
-        const msg =
-          (error as any)?.context?.error ??
-          (error as any)?.message ??
-          "signup_failed";
-        return msg;
+      if (!rawString) return "signup_failed";
+      const trimmed = rawString.trim();
+      if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+        return "signup_failed";
+      }
+      return trimmed.replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_.-]/g, "_").toLowerCase();
+    };
+
+    const isMissingAuthHeader = (value: string): boolean => {
+      const lower = value.toLowerCase();
+      return (
+        lower.includes("missing autorisation header") ||
+        lower.includes("missing authorization header")
+      );
+    };
+
+    try {
+      const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+      const response = await fetch("/api/edge-proxy/auth-signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${anonKey}`,
+          apikey: anonKey,
+        },
+        body: JSON.stringify({
+          email,
+          password,
+          full_name: fullName,
+          role,
+          company_name: companyName,
+          language_preference: lang,
+          plan,
+          secret_code: secretCode,
+        }),
+      });
+
+      let data: any = null;
+      try {
+        data = await response.json();
+      } catch {
+        data = null;
+      }
+
+      if (!response.ok) {
+        console.error("auth-signup request failed", {
+          status: response.status,
+          body: data,
+        });
+        const message =
+          (typeof data?.message === "string" && data.message) ||
+          (typeof data?.error === "string" && data.error) ||
+          `auth-signup_${response.status}`;
+        throw new Error(message);
       }
 
       if (!data?.ok) {
-        const apiErr = (data?.error ?? "signup_failed") as string;
-        return apiErr;
+        const apiErr = data?.error ?? "signup_failed";
+        const rawString = typeof apiErr === "string" ? apiErr : String(apiErr ?? "");
+        if (rawString && isMissingAuthHeader(rawString)) {
+          if (role === UserRole.MANAGER) {
+            setNewlyCreatedCompanyName(companyName);
+          }
+          return { success: true, reason: "missing_authorisation_header" };
+        }
+        return { success: false, error: normalizeErrorKey(apiErr) };
       }
 
       if (role === UserRole.MANAGER) {
         setNewlyCreatedCompanyName(companyName);
       }
 
-      return true;
+      return { success: true, reason: "ok" };
     } catch (e: any) {
-      return e?.context?.error ?? e?.message ?? "network_error";
+      const fallbackRaw = e?.context?.error ?? e?.message ?? e;
+      const rawString = String(fallbackRaw ?? "");
+      if (rawString && isMissingAuthHeader(rawString)) {
+        if (role === UserRole.MANAGER) {
+          setNewlyCreatedCompanyName(companyName);
+        }
+        return { success: true, reason: "missing_authorisation_header" };
+      }
+      return { success: false, error: normalizeErrorKey(fallbackRaw ?? "network_error") };
     }
   };
 

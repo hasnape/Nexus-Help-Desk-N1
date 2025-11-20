@@ -5,7 +5,7 @@ import PricingSection from "../components/PricingSection";
 // import TestimonialsSection from "../components/TestimonialsSection";
 import { useTranslation } from "react-i18next";
 import InfographieNexus from "../InfographieNexus";
-import NexusSalesBotWidget from "../components/NexusSalesBotWidget";
+import NexusSalesBotWidget from "@/components/NexusSalesBotWidget";
 
 // Feature Icons
 const FeatureIcon: React.FC<{

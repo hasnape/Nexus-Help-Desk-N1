@@ -1,9 +1,9 @@
 
 import React from 'react';
-import { ChatMessage as ChatMessageType } from '../types';
+import { ChatMessage as ChatMessageType } from '@/types';
 import { Button } from './FormElements';
-import { useLanguage } from '../contexts/LanguageContext';
-import { useApp } from '../App';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useApp } from '@/App';
 
 const SpeakerWaveIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" {...props}>
@@ -105,16 +105,24 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
             </p>
           )}
           {message.sender === 'ai' && browserSupportsTextToSpeech && onSpeak && onCancelSpeak && (
-            <Button 
+            <Button
               variant="outline"
               size="sm"
               onClick={handleSpeakerClick}
               className="!p-1 !ms-auto !border-none hover:!bg-slate-300 focus:!ring-0"
-              aria-label={isCurrentlySpeaking ? t('chatMessage.stopSpeakingLabel') : t('chatMessage.speakMessageLabel')}
-              title={isCurrentlySpeaking ? t('chatMessage.stopSpeakingLabel') : t('chatMessage.speakMessageLabel')}
+              aria-label={
+                isCurrentlySpeaking
+                  ? t('tts.stopReading', { defaultValue: t('chatMessage.stopSpeakingLabel') })
+                  : t('tts.readMessage', { defaultValue: t('chatMessage.speakMessageLabel') })
+              }
+              title={
+                isCurrentlySpeaking
+                  ? t('tts.stopReading', { defaultValue: t('chatMessage.stopSpeakingLabel') })
+                  : t('tts.readMessage', { defaultValue: t('chatMessage.speakMessageLabel') })
+              }
             >
-              {isCurrentlySpeaking ? 
-                <SpeakerXMarkIcon className="w-4 h-4 text-red-500" /> : 
+              {isCurrentlySpeaking ?
+                <SpeakerXMarkIcon className="w-4 h-4 text-red-500" /> :
                 <SpeakerWaveIcon className="w-4 h-4 text-slate-600" />
               }
             </Button>

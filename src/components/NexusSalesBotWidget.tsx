@@ -1,10 +1,10 @@
 import React, { useEffect, useId, useMemo, useRef, useState } from "react";
-import { ChatMessage } from "../types";
-import useSpeechRecognition from "../hooks/useSpeechRecognition";
-import useTextToSpeech from "../hooks/useTextToSpeech";
-import { useLanguage } from "../contexts/LanguageContext";
-import { getFollowUpHelpResponse } from "../../services/geminiService";
-import { TICKET_CATEGORY_KEYS } from "../../constants";
+import { ChatMessage } from "@/types";
+import useSpeechRecognition from "@/hooks/useSpeechRecognition";
+import useTextToSpeech from "@/hooks/useTextToSpeech";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { getFollowUpHelpResponse } from "@/services/geminiService";
+import { TICKET_CATEGORY_KEYS } from "@/constants";
 
 interface NexusSalesBotWidgetProps {
   allowAutoRead?: boolean;
@@ -87,12 +87,12 @@ const CloseIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 
 const buildInitialMessage = (language: string): string => {
   if (language === "fr") {
-    return "Bonjour, je suis Nexus, l’assistant commercial. Je peux vous présenter les offres Freemium, Standard et Pro, et vous guider dans la navigation du site. Que souhaitez-vous savoir ?";
+    return "Bonjour, je suis Nexus, l’assistant commercial & support. Je peux expliquer les offres Freemium, Standard et Pro, rappeler que nous sommes en Bêta / Early Access, et répondre à vos questions sur la sécurité et l’accessibilité. Que souhaitez-vous explorer ?";
   }
   if (language === "ar") {
-    return "مرحبًا، أنا نيكسوس، المساعد التجاري. يمكنني شرح عروض Freemium وStandard وPro ومساعدتك في تصفح الموقع. ما الذي تود معرفته؟";
+    return "مرحبًا، أنا نيكسوس، مساعد المبيعات والدعم. يمكنني توضيح باقات Freemium وStandard وPro، والإشارة إلى أننا في مرحلة بيتا / وصول مبكر، والرد على أسئلة الأمان وسهولة الاستخدام. ما الذي تود معرفته؟";
   }
-  return "Hello, I'm Nexus, the sales assistant. I can present the Freemium, Standard, and Pro plans and guide you through the site. What would you like to know?";
+  return "Hello, I’m Nexus, the sales & support assistant. I can walk you through the Freemium, Standard, and Pro plans, mention our Beta / Early Access status, and address security or accessibility questions. What would you like to explore?";
 };
 
 const buildErrorFallback = (language: string): string => {
@@ -105,13 +105,14 @@ const buildErrorFallback = (language: string): string => {
   return "Our assistant is temporarily unavailable. Please try again shortly or contact us via the Support page.";
 };
 
-const additionalContext = `Tu es Nexus, un assistant commercial pour Nexus Support Hub. Ton rôle est :
-- d’expliquer les offres Freemium, Standard (19 €/mois) et Pro (39 €/mois),
-- d’aider l’utilisateur à comprendre les fonctionnalités N1/N2, multilingue FR/EN/AR, sécurité Supabase (RLS) et accessibilité RGAA,
-- d’orienter l’utilisateur vers la bonne page du site (Tarifs, Démo, Contact, etc.),
-- d’adopter un ton professionnel, clair et honnête (pas de promesses chiffrées non vérifiées),
-- de conclure souvent avec une suggestion d’action concrète : démarrer l’essai gratuit, demander une démo, ou visiter une section précise.
-Tu réponds dans la langue de l’utilisateur.`;
+const additionalContext = `Tu es Nexus, assistant commercial et support pour Nexus Support Hub (help desk multilingue FR/EN/AR).
+- Présente clairement les offres Freemium, Standard et Pro en décrivant leurs bénéfices sans inventer de chiffres.
+- Précise que le produit est en phase Bêta / Early Access avec un accompagnement rapproché de l'équipe.
+- Mets en avant l'architecture Supabase/PostgreSQL, la Row Level Security, le chiffrement, la conformité RGPD et l'inspiration RGAA 4.1 pour l'accessibilité. Pas de stockage local hors espaces sécurisés Supabase.
+- Rassure sur la sécurité sans exagération : authentification Supabase, permissions strictes, contrôle des accès.
+- Explique les cas d'usage pour PME, écoles, associations, et équipes internes qui veulent un support N1/N2 augmentés par l'IA et des FAQ personnalisées.
+- Oriente vers les sections pertinentes (Tarifs, Démo, Contact, Guide) et propose des actions concrètes (activer Freemium, réserver une démo, poser une question précise).
+- Utilise un ton professionnel, clair et chaleureux, toujours dans la langue de l’utilisateur.`;
 
 const NexusSalesBotWidget: React.FC<NexusSalesBotWidgetProps> = ({ allowAutoRead = false }) => {
   const { t, language } = useLanguage();
@@ -119,7 +120,6 @@ const NexusSalesBotWidget: React.FC<NexusSalesBotWidgetProps> = ({ allowAutoRead
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [isLoadingAi, setIsLoadingAi] = useState(false);
-  const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
   const panelId = useId();
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -133,7 +133,7 @@ const NexusSalesBotWidget: React.FC<NexusSalesBotWidgetProps> = ({ allowAutoRead
     error: speechError,
   } = useSpeechRecognition();
 
-  const { isSpeaking, speak, cancel, browserSupportsTextToSpeech, error: ttsError } = useTextToSpeech();
+  const { isSpeaking, speakingMessageId, speak, cancel, browserSupportsTextToSpeech, error: ttsError } = useTextToSpeech();
 
   const ticketCategoryKey = useMemo(
     () =>
@@ -163,8 +163,7 @@ const NexusSalesBotWidget: React.FC<NexusSalesBotWidgetProps> = ({ allowAutoRead
       };
       setChatHistory([initial]);
       if (allowAutoRead && browserSupportsTextToSpeech) {
-        speak(initial.text, () => setSpeakingMessageId(null));
-        setSpeakingMessageId(initial.id);
+        speak(initial.text, { messageId: initial.id });
       }
     }
   }, [isOpen, chatHistory.length, language, allowAutoRead, browserSupportsTextToSpeech, speak]);
@@ -218,8 +217,7 @@ const NexusSalesBotWidget: React.FC<NexusSalesBotWidgetProps> = ({ allowAutoRead
 
       setChatHistory((prev) => [...prev, aiMessage]);
       if (allowAutoRead && browserSupportsTextToSpeech) {
-        speak(aiMessage.text, () => setSpeakingMessageId(null));
-        setSpeakingMessageId(aiMessage.id);
+        speak(aiMessage.text, { messageId: aiMessage.id });
       }
     } catch (error) {
       console.error("Sales bot response error", error);
@@ -237,16 +235,10 @@ const NexusSalesBotWidget: React.FC<NexusSalesBotWidgetProps> = ({ allowAutoRead
 
   const handleSpeakMessage = (message: ChatMessage) => {
     if (message.sender !== "ai" || !browserSupportsTextToSpeech) return;
-    if (isSpeaking && speakingMessageId === message.id) {
-      cancel();
-      setSpeakingMessageId(null);
-      return;
+    if (isListening) {
+      stopListening();
     }
-    if (isSpeaking) {
-      cancel();
-    }
-    speak(message.text, () => setSpeakingMessageId(null));
-    setSpeakingMessageId(message.id);
+    speak(message.text, { messageId: message.id });
   };
 
   const renderMessage = (message: ChatMessage) => {
@@ -271,8 +263,13 @@ const NexusSalesBotWidget: React.FC<NexusSalesBotWidgetProps> = ({ allowAutoRead
               className="absolute -left-2 -bottom-2 flex h-8 w-8 items-center justify-center rounded-full bg-white text-primary shadow hover:bg-gray-50"
               aria-label={
                 isSpeaking && speakingMessageId === message.id
-                  ? t("salesBot.stopReading", { default: "Stop reading" })
-                  : t("salesBot.readAloud", { default: "Read aloud" })
+                  ? t("tts.stopReading", { defaultValue: "Stop reading this message" })
+                  : t("tts.readMessage", { defaultValue: "Read this message aloud" })
+              }
+              title={
+                isSpeaking && speakingMessageId === message.id
+                  ? t("tts.stopReading", { defaultValue: "Stop reading this message" })
+                  : t("tts.readMessage", { defaultValue: "Read this message aloud" })
               }
             >
               {isSpeaking && speakingMessageId === message.id ? (
@@ -288,11 +285,15 @@ const NexusSalesBotWidget: React.FC<NexusSalesBotWidgetProps> = ({ allowAutoRead
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
+      <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-primary shadow">
+        {t("botCommercial.badgeLabel", { defaultValue: "Nexus Help – Support & Pricing" })}
+      </span>
       <button
         type="button"
         onClick={toggleWidget}
         aria-label={t("salesBot.openAssistant", { default: "Ouvrir l’assistant Nexus" })}
+        title={t("salesBot.openAssistant", { default: "Ouvrir l’assistant Nexus" })}
         aria-expanded={isOpen}
         aria-controls={panelId}
         className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-lg transition hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
