@@ -1,15 +1,15 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useApp } from '../App';
-import ChatMessageComponent from '../components/ChatMessage';
-import { Button, Textarea, Select, Input } from '../components/FormElements'; // Added Input
-import { TicketStatus, ChatMessage as ChatMessageType, TicketPriority, UserRole, AppointmentDetails } from '../types';
-import { TICKET_STATUS_KEYS, TICKET_PRIORITY_KEYS } from '../constants';
-import LoadingSpinner from '../components/LoadingSpinner';
-import useSpeechRecognition from '../hooks/useSpeechRecognition';
-import useTextToSpeech from '../hooks/useTextToSpeech';
-import { useLanguage } from '../contexts/LanguageContext';
+import { useApp } from '@/App';
+import ChatMessageComponent from '@/components/ChatMessage';
+import { Button, Textarea, Select, Input } from '@/components/FormElements'; // Added Input
+import { TicketStatus, ChatMessage as ChatMessageType, TicketPriority, UserRole, AppointmentDetails } from '@/types';
+import { TICKET_STATUS_KEYS, TICKET_PRIORITY_KEYS } from '@/constants';
+import LoadingSpinner from '@/components/LoadingSpinner';
+import useSpeechRecognition from '@/hooks/useSpeechRecognition';
+import useTextToSpeech from '@/hooks/useTextToSpeech';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from 'react-i18next';
 
 
@@ -77,7 +77,6 @@ const TicketDetailPage: React.FC = () => {
 
   const [newMessage, setNewMessage] = useState('');
   const chatEndRef = useRef<HTMLDivElement>(null);
-  const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
   const [lastSpokenAiMessage, setLastSpokenAiMessage] = useState<{ text: string; id: string } | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [feedback, setFeedback] = useState<null | { type: 'success' | 'error'; msg: string }>(null);
@@ -145,6 +144,7 @@ const TicketDetailPage: React.FC = () => {
 
   const {
     isSpeaking,
+    speakingMessageId,
     speak,
     cancel: cancelSpeech,
     error: ttsErrorText,
@@ -176,16 +176,8 @@ const TicketDetailPage: React.FC = () => {
 
   const handleSpeakMessage = (text: string, messageId: string, isAiMsg: boolean) => {
     if (isListeningChatInput) stopChatListening();
-    if (isSpeaking && speakingMessageId === messageId) {
-      cancelSpeech(); setSpeakingMessageId(null);
-    } else {
-      if (isSpeaking) cancelSpeech();
-      if (isAiMsg) setLastSpokenAiMessage({ text, id: messageId });
-      setTimeout(() => {
-        speak(text, () => setSpeakingMessageId(null));
-        setSpeakingMessageId(messageId);
-      }, 50);
-    }
+    if (isAiMsg) setLastSpokenAiMessage({ text, id: messageId });
+    speak(text, { messageId });
   };
 
   const handleNewAiMessageForAutoRead = (aiMessage: ChatMessageType) => {
@@ -203,7 +195,7 @@ const TicketDetailPage: React.FC = () => {
     if (isListeningChatInput) stopChatListening();
     if (newMessage.trim() === '' || !ticketId || isLoadingAi) return;
     
-    if (isSpeaking) { cancelSpeech(); setSpeakingMessageId(null); }
+    if (isSpeaking) { cancelSpeech(); }
 
     if (user.role === UserRole.AGENT || user.role === UserRole.MANAGER) {
       await sendAgentMessage(ticketId, newMessage.trim());
@@ -218,10 +210,10 @@ const TicketDetailPage: React.FC = () => {
     if (ticketId) updateTicketStatus(ticketId, newStatus);
   };
   
-  const handleCancelCurrentlySpeaking = () => { cancelSpeech(); setSpeakingMessageId(null); };
+  const handleCancelCurrentlySpeaking = () => { cancelSpeech(); };
 
   const handleChatMicButtonClick = () => {
-    if (isSpeaking) { cancelSpeech(); setSpeakingMessageId(null); }
+    if (isSpeaking) { cancelSpeech(); }
     if (isListeningChatInput) stopChatListening(); else startChatListening();
   };
 
@@ -232,13 +224,8 @@ const TicketDetailPage: React.FC = () => {
         if (lastAiMsgInHistory) messageToSpeak = { text: lastAiMsgInHistory.text, id: lastAiMsgInHistory.id };
     }
     if (messageToSpeak && browserSupportsTextToSpeech) {
-        if (isSpeaking && speakingMessageId !== messageToSpeak.id) cancelSpeech();
-        else if (isSpeaking && speakingMessageId === messageToSpeak.id) cancelSpeech();
-        setTimeout(() => {
-            speak(messageToSpeak!.text, () => setSpeakingMessageId(null));
-            setSpeakingMessageId(messageToSpeak!.id);
-            setLastSpokenAiMessage(messageToSpeak);
-        }, 50);
+        speak(messageToSpeak!.text, { messageId: messageToSpeak.id });
+        setLastSpokenAiMessage(messageToSpeak);
     }
   };
 
