@@ -855,38 +855,53 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       return trimmed.replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_.-]/g, "_").toLowerCase();
     };
 
-    const isMissingAuthHeader = (value: string): boolean =>
-      value.toLowerCase().includes("missing autorisation header");
+    const isMissingAuthHeader = (value: string): boolean => {
+      const lower = value.toLowerCase();
+      return (
+        lower.includes("missing autorisation header") ||
+        lower.includes("missing authorization header")
+      );
+    };
 
     try {
-      const { data, error } = await supabase.functions.invoke(
-        "auth-signup",
-        {
-          body: {
-            email,
-            password,
-            full_name: fullName,
-            role,
-            company_name: companyName,
-            language_preference: lang,
-            plan,
-            secret_code: secretCode,
-          },
-        }
-      );
+      const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-      const errorCandidate =
-        (error as any)?.context?.error ?? (error as any)?.message ?? (error as any)?.error;
+      const response = await fetch("/api/edge-proxy/auth-signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${anonKey}`,
+          apikey: anonKey,
+        },
+        body: JSON.stringify({
+          email,
+          password,
+          full_name: fullName,
+          role,
+          company_name: companyName,
+          language_preference: lang,
+          plan,
+          secret_code: secretCode,
+        }),
+      });
 
-      if (error) {
-        const rawError = String(errorCandidate ?? "");
-        if (rawError && isMissingAuthHeader(rawError)) {
-          if (role === UserRole.MANAGER) {
-            setNewlyCreatedCompanyName(companyName);
-          }
-          return { success: true, reason: "missing_authorisation_header" };
-        }
-        return { success: false, error: normalizeErrorKey(errorCandidate) };
+      let data: any = null;
+      try {
+        data = await response.json();
+      } catch {
+        data = null;
+      }
+
+      if (!response.ok) {
+        console.error("auth-signup request failed", {
+          status: response.status,
+          body: data,
+        });
+        const message =
+          (typeof data?.message === "string" && data.message) ||
+          (typeof data?.error === "string" && data.error) ||
+          `auth-signup_${response.status}`;
+        throw new Error(message);
       }
 
       if (!data?.ok) {

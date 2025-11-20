@@ -54,13 +54,20 @@ export default async function handler(req: Request): Promise<Response> {
 
   // Ajout de la clé anon côté serveur (non visible dans le front)
   const anonKey =
-    process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+    process.env.SUPABASE_ANON_KEY ?? process.env.VITE_SUPABASE_ANON_KEY;
 
-  if (anonKey) {
+  if (!forwardHeaders.has("authorization") && !anonKey) {
+    return jsonError(
+      "Missing Authorization header and no anon key configured on the proxy.",
+      500,
+    );
+  }
+
+  if (anonKey && !forwardHeaders.has("apikey")) {
     forwardHeaders.set("apikey", anonKey);
-    if (!forwardHeaders.has("authorization")) {
-      forwardHeaders.set("authorization", `Bearer ${anonKey}`);
-    }
+  }
+  if (anonKey && !forwardHeaders.has("authorization")) {
+    forwardHeaders.set("authorization", `Bearer ${anonKey}`);
   }
 
   const method = req.method.toUpperCase();
