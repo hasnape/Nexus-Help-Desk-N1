@@ -21,12 +21,13 @@ export type CompanyFaqEntry = {
   answer: string;
   tags: string[] | null;
   is_active: boolean;
+  lang: string;
   created_at: string;
   updated_at: string | null;
 };
 
 const COMPANY_FAQ_COLUMNS =
-  "id, company_id, question, answer, tags, is_active, created_at, updated_at";
+  "id, company_id, question, answer, tags, is_active, lang, created_at, updated_at";
 
 const sanitizeTags = (tags?: string[]): string[] | null => {
   if (!tags || !tags.length) {
@@ -81,14 +82,21 @@ export function buildFaqContextSnippet(
 }
 
 export async function fetchCompanyFaqsForManager(
-  companyId: string
+  companyId: string,
+  lang?: Locale
 ): Promise<CompanyFaqEntry[]> {
-  const { data, error } = await supabase
+  const query = supabase
     .from("company_knowledge")
     .select(COMPANY_FAQ_COLUMNS)
     .eq("company_id", companyId)
     .eq("type", "faq")
     .order("created_at", { ascending: false });
+
+  if (lang) {
+    query.eq("lang", lang);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     console.error("[companyKnowledge] fetchCompanyFaqsForManager error:", error);
