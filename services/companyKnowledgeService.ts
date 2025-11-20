@@ -81,13 +81,15 @@ export function buildFaqContextSnippet(
 }
 
 export async function fetchCompanyFaqsForManager(
-  companyId: string
+  companyId: string,
+  lang: Locale
 ): Promise<CompanyFaqEntry[]> {
   const { data, error } = await supabase
     .from("company_knowledge")
     .select(COMPANY_FAQ_COLUMNS)
     .eq("company_id", companyId)
     .eq("type", "faq")
+    .eq("lang", lang)
     .order("created_at", { ascending: false });
 
   if (error) {
