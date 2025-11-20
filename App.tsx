@@ -1576,6 +1576,43 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles 
   return <>{children}</>;
 };
 
+const buildMixedRenderStrategyMessage = (pathLabel: string) =>
+  `Routes under "${pathLabel}" cannot mix \"element\" and \"Component\" render strategies. Choose a single render style for each branch.`;
+
+const validateRouteRenderStrategies = (
+  nodes: React.ReactNode,
+  parentPath: string = "/"
+) => {
+  let hasElement = false;
+  let hasComponent = false;
+
+  React.Children.forEach(nodes, (child) => {
+    if (!React.isValidElement(child)) return;
+
+    const props = child.props as {
+      element?: unknown;
+      Component?: unknown;
+      children?: React.ReactNode;
+      path?: string;
+      index?: boolean;
+    };
+
+    hasElement = hasElement || Boolean(props.element);
+    hasComponent = hasComponent || Boolean(props.Component);
+
+    if (props.children) {
+      const nextPath = props.path
+        ? `${parentPath === "/" ? "" : parentPath}/${props.path}`.replace(/\/+/g, "/")
+        : parentPath;
+      validateRouteRenderStrategies(props.children, nextPath);
+    }
+  });
+
+  if (hasElement && hasComponent) {
+    throw new Error(buildMixedRenderStrategyMessage(parentPath || "/"));
+  }
+};
+
 const MainAppContent: React.FC = () => {
   const { user, isLoading, consentGiven, giveConsent } = useApp();
   const { isLoadingLang, t } = useLanguage();
@@ -1588,123 +1625,135 @@ const MainAppContent: React.FC = () => {
     );
   }
 
-  const renderRoutes = () => (
-  <Routes>
-    <Route path="/landing" element={<LandingPage />} />
-    <Route path="/login" element={<LoginPage />} />
-    <Route path="/signup" element={<SignUpPage />} />
-    <Route path="/legal" element={<LegalPage />} />
-    <Route path="/manual" element={<UserManualPage />} />
-    <Route path="/presentation" element={<PromotionalPage />} />
-    <Route path="/contact" element={<ContactPage />} />
-    <Route path="/accessibilite" element={<AccessibilitePage />} />
-    <Route path="/about" element={<AboutPage />} />
-    <Route path="/testimonials" element={<TestimonialsPage />} />
-    <Route path="/partners" element={<PartnersPage />} />
-    <Route path="/infographie" element={<InfographiePage />} />
-    <Route path="/demo" element={<DemoPage />} />
-    <Route path="/guide-onboarding" element={<GuideOnboardingPage />} />
-    <Route path="/enterprise" element={<EnterprisePage />} />
-    <Route path="/investors" element={<InvestorPage />} />
-    <Route path="/investor-deck" element={<InvestorDeckPage />} />
-    <Route path="/demo-detaillee" element={<DetailedDemoPage />} />
-    <Route path="/technical-overview" element={<TechnicalOverviewPage />} />
-    <Route path="/roadmap" element={<RoadmapPage />} />
-    <Route path="/implementation-scenarios" element={<ImplementationScenariosPage />} />
+  const renderRoutes = () => {
+    const routes = (
+      <Routes>
+        <Route path="/landing" element={<LandingPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignUpPage />} />
+        <Route path="/legal" element={<LegalPage />} />
+        <Route path="/manual" element={<UserManualPage />} />
+        <Route path="/presentation" element={<PromotionalPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/accessibilite" element={<AccessibilitePage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/testimonials" element={<TestimonialsPage />} />
+        <Route path="/partners" element={<PartnersPage />} />
+        <Route path="/infographie" element={<InfographiePage />} />
+        <Route path="/demo" element={<DemoPage />} />
+        <Route path="/guide-onboarding" element={<GuideOnboardingPage />} />
+        <Route path="/enterprise" element={<EnterprisePage />} />
+        <Route path="/investors" element={<InvestorPage />} />
+        <Route path="/investor-deck" element={<InvestorDeckPage />} />
+        <Route path="/demo-detaillee" element={<DetailedDemoPage />} />
+        <Route path="/technical-overview" element={<TechnicalOverviewPage />} />
+        <Route path="/roadmap" element={<RoadmapPage />} />
+        <Route path="/implementation-scenarios" element={<ImplementationScenariosPage />} />
 
+        {/* PricingPage */}
+        <Route path="/pricing" element={<PricingPage />} />
 
-    {/* PricingPage */}
-    <Route path="/pricing" element={<PricingPage />} />
+        <Route
+          path="/subscribe"
+          element={
+            <ProtectedRoute>
+              <SubscriptionPage />
+            </ProtectedRoute>
+          }
+        />
 
-    <Route path="/subscribe" element={<ProtectedRoute><SubscriptionPage /></ProtectedRoute>} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
+              {user?.role === UserRole.AGENT ? (
+                <Navigate to="/agent/dashboard" replace />
+              ) : user?.role === UserRole.MANAGER ? (
+                <Navigate to="/manager/dashboard" replace />
+              ) : (
+                <DashboardPage />
+              )}
+            </ProtectedRoute>
+          }
+        />
 
-    <Route
-      path="/dashboard"
-      element={
-        <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
-          {user?.role === UserRole.AGENT ? (
-            <Navigate to="/agent/dashboard" replace />
-          ) : user?.role === UserRole.MANAGER ? (
-            <Navigate to="/manager/dashboard" replace />
-          ) : (
-            <DashboardPage />
-          )}
-        </ProtectedRoute>
-      }
-    />
+        <Route
+          path="/help"
+          element={
+            <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
+              <HelpChatPage />
+            </ProtectedRoute>
+          }
+        />
 
-    <Route
-      path="/help"
-      element={
-        <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
-          <HelpChatPage />
-        </ProtectedRoute>
-      }
-    />
+        <Route
+          path="/ticket/new"
+          element={
+            <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
+              <NewTicketPage />
+            </ProtectedRoute>
+          }
+        />
 
-    <Route
-      path="/ticket/new"
-      element={
-        <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
-          <NewTicketPage />
-        </ProtectedRoute>
-      }
-    />
+        <Route
+          path="/ticket/:ticketId"
+          element={
+            <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
+              <TicketDetailPage />
+            </ProtectedRoute>
+          }
+        />
 
-    <Route
-      path="/ticket/:ticketId"
-      element={
-        <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
-          <TicketDetailPage />
-        </ProtectedRoute>
-      }
-    />
+        <Route
+          path="/agent/dashboard"
+          element={
+            <ProtectedRoute allowedRoles={[UserRole.AGENT, UserRole.MANAGER]}>
+              <AgentDashboardPage />
+            </ProtectedRoute>
+          }
+        />
 
-    <Route
-      path="/agent/dashboard"
-      element={
-        <ProtectedRoute allowedRoles={[UserRole.AGENT, UserRole.MANAGER]}>
-          <AgentDashboardPage />
-        </ProtectedRoute>
-      }
-    />
+        <Route
+          path="/manager/dashboard"
+          element={
+            <ProtectedRoute allowedRoles={[UserRole.MANAGER]}>
+              <ManagerDashboardPage />
+            </ProtectedRoute>
+          }
+        />
 
-    <Route
-      path="/manager/dashboard"
-      element={
-        <ProtectedRoute allowedRoles={[UserRole.MANAGER]}>
-          <ManagerDashboardPage />
-        </ProtectedRoute>
-      }
-    />
+        <Route
+          path="/manager/faq"
+          element={
+            <ProtectedRoute allowedRoles={[UserRole.MANAGER]}>
+              <ManagerFaqPage />
+            </ProtectedRoute>
+          }
+        />
 
-    <Route
-      path="/manager/faq"
-      element={
-        <ProtectedRoute allowedRoles={[UserRole.MANAGER]}>
-          <ManagerFaqPage />
-        </ProtectedRoute>
-      }
-    />
+        <Route
+          path="/"
+          element={
+            user ? (
+              user.role === UserRole.AGENT ? (
+                <Navigate to="/agent/dashboard" replace />
+              ) : user.role === UserRole.MANAGER ? (
+                <Navigate to="/manager/dashboard" replace />
+              ) : (
+                <Navigate to="/dashboard" replace />
+              )
+            ) : (
+              <Navigate to="/landing" replace />
+            )
+          }
+        />
+      </Routes>
+    );
 
-    <Route
-      path="/"
-      element={
-        user ? (
-          user.role === UserRole.AGENT ? (
-            <Navigate to="/agent/dashboard" replace />
-          ) : user.role === UserRole.MANAGER ? (
-            <Navigate to="/manager/dashboard" replace />
-          ) : (
-            <Navigate to="/dashboard" replace />
-          )
-        ) : (
-          <Navigate to="/landing" replace />
-        )
-      }
-    />
-  </Routes>
-);
+    validateRouteRenderStrategies(routes.props.children);
+
+    return routes;
+  };
   return (
     <Layout>
       {renderRoutes()}

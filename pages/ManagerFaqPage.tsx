@@ -80,7 +80,7 @@ const ManagerFaqPage: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await fetchCompanyFaqsForManager(companyId);
+      const data = await fetchCompanyFaqsForManager(companyId, language);
       setFaqs(data);
     } catch (err) {
       console.error("Failed to load FAQs", err);
@@ -88,7 +88,7 @@ const ManagerFaqPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [companyId, t]);
+  }, [companyId, language, t]);
 
   useEffect(() => {
     if (companyId) {
@@ -96,7 +96,7 @@ const ManagerFaqPage: React.FC = () => {
     } else {
       setLoading(false);
     }
-  }, [companyId, loadFaqs]);
+  }, [companyId, language, loadFaqs]);
 
   useEffect(() => {
     if (!transcript || !dictationTarget) return;
