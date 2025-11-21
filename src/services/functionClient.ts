@@ -1,13 +1,5 @@
 import { supabase } from "./supabaseClient";
 
-const DEFAULT_FUNCTIONS_BASE = (() => {
-  const fromEnv = import.meta.env.VITE_SUPABASE_FUNCTIONS_URL;
-  if (fromEnv) return fromEnv.replace(/\/$/, "");
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-  if (supabaseUrl) return `${supabaseUrl.replace(/\/$/, "")}/functions/v1`;
-  return "";
-})();
-
 function safeStringify(input: any): string {
   if (input === undefined) return "";
   if (typeof input === "string") return input;
@@ -70,13 +62,46 @@ export async function callEdgeWithFallback(
     edgeError = error;
   }
 
-  if (!DEFAULT_FUNCTIONS_BASE) {
-    if (edgeError) throw edgeError instanceof Error ? edgeError : new Error(String(edgeError));
-    throw new Error("Missing Supabase functions base URL");
-  }
+  const headersObject: Record<string, string> = {};
+  headers.forEach((value, key) => {
+    headersObject[key] = value;
+  });
 
-  const fallbackUrl = `${DEFAULT_FUNCTIONS_BASE}/${fn}`;
-  return fetch(fallbackUrl, requestInit);
+  const invokeBody =
+    json !== undefined
+      ? json
+      : (() => {
+          if (typeof requestInit.body === "string") {
+            try {
+              return JSON.parse(requestInit.body);
+            } catch {
+              return requestInit.body;
+            }
+          }
+          return requestInit.body as any;
+        })();
+
+  try {
+    const { data, error, status, statusText } = await supabase.functions.invoke(fn, {
+      method: requestInit.method as any,
+      body: invokeBody,
+      headers: headersObject,
+    });
+
+    const responseStatus = typeof status === "number" ? status : 520;
+    const payload = error ?? data ?? null;
+
+    return new Response(JSON.stringify(payload ?? {}), {
+      status: responseStatus,
+      statusText,
+      headers: { "content-type": "application/json" },
+    });
+  } catch (fallbackError) {
+    if (edgeError) throw edgeError instanceof Error ? edgeError : new Error(String(edgeError));
+    throw fallbackError instanceof Error
+      ? fallbackError
+      : new Error(typeof fallbackError === "string" ? fallbackError : "functions_invoke_failed");
+  }
 }
 
 export async function getAccessToken(): Promise<string | undefined> {
