@@ -453,6 +453,7 @@ const SignUpPage: React.FC = () => {
   const [companyName, setCompanyName] = useState("");
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState<string>("");
+  const [showLoginSuggestion, setShowLoginSuggestion] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showProModal, setShowProModal] = useState(false);
   const [showFreemiumModal, setShowFreemiumModal] = useState(false);
@@ -550,6 +551,7 @@ const SignUpPage: React.FC = () => {
 
     setError("");
     setSuccessMessage("");
+    setShowLoginSuggestion(false);
     setIsLoading(true);
 
     const trimmedEmail = email.trim();
@@ -586,6 +588,7 @@ const SignUpPage: React.FC = () => {
             companyName: trimmedCompanyName,
           }),
         );
+        setShowLoginSuggestion(response.status === 409);
         return;
       }
 
@@ -593,14 +596,18 @@ const SignUpPage: React.FC = () => {
         setNewlyCreatedCompanyName(trimmedCompanyName);
       }
 
-      setSuccessMessage(
+      const successText =
+        (typeof body?.message === "string" && body.message.trim()) ||
         t("auth.signup.successPendingEmailConfirmation", {
           email: trimmedEmail,
-        }),
-      );
+        });
+
+      setSuccessMessage(successText);
+      setShowLoginSuggestion(false);
     } catch (err) {
       console.error("auth-signup request failed", err);
       setError(t("auth.signup.genericError"));
+      setShowLoginSuggestion(false);
     } finally {
       setIsLoading(false);
     }
@@ -709,9 +716,18 @@ const SignUpPage: React.FC = () => {
               </div>
 
               {error && (
-                <p className="mb-4 text-center text-red-600 bg-red-100 p-3 rounded-md border border-red-200">
-                  {error}
-                </p>
+                <div className="mb-4 text-center text-red-600 bg-red-100 p-3 rounded-md border border-red-200">
+                  <p>{error}</p>
+                  {showLoginSuggestion ? (
+                    <button
+                      type="button"
+                      className="mt-2 inline-flex items-center text-sm font-medium underline"
+                      onClick={() => navigate("/login")}
+                    >
+                      {t("auth.signup.goToLogin")}
+                    </button>
+                  ) : null}
+                </div>
               )}
 
               {successMessage && (
