@@ -86,7 +86,7 @@ const LoginPage: React.FC = () => {
         method: "POST",
         json: {
           email: trimmedEmail,
-          company: trimmedCompany,
+          company_name: trimmedCompany,
         },
       });
 
