@@ -1,3 +1,4 @@
+// api/edge-proxy/[fn].ts
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 const PROJECT_URL =
@@ -28,7 +29,7 @@ function setCorsHeaders(res: VercelResponse, origin?: string) {
     'Access-Control-Allow-Headers',
     'authorization, apikey, content-type, x-client-info',
   );
-  res.setHeader('Access-Control-Allow-Methods', 'POST,GET,OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
 }
 
 function getFunctionName(req: VercelRequest): string | undefined {
@@ -50,7 +51,7 @@ function getFunctionName(req: VercelRequest): string | undefined {
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const corsOrigin = getCorsOrigin(req);
 
-  // Preflight CORS
+  // CORS preflight
   if (req.method === 'OPTIONS') {
     setCorsHeaders(res, corsOrigin);
     res.status(204).end();
@@ -58,7 +59,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const fn = getFunctionName(req);
-
   if (!fn) {
     setCorsHeaders(res, corsOrigin);
     res.status(400).json({ error: 'missing_edge_function_name' });
@@ -66,7 +66,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   if (!PROJECT_URL) {
-    console.error('edge-proxy: missing SUPABASE_URL / NEXT_PUBLIC_SUPABASE_URL / VITE_SUPABASE_URL');
+    console.error(
+      'edge-proxy: missing SUPABASE_URL / NEXT_PUBLIC_SUPABASE_URL / VITE_SUPABASE_URL',
+    );
     setCorsHeaders(res, corsOrigin);
     res.status(500).json({ error: 'missing_supabase_url' });
     return;
@@ -74,7 +76,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const targetUrl = `${PROJECT_URL.replace(/\/+$/, '')}/functions/v1/${fn}`;
 
-  // Build outgoing headers (drop transport/compression headers)
+  // Build outgoing headers (drop transport/compression-specific ones)
   const outgoingHeaders: Record<string, string> = {};
   for (const [key, value] of Object.entries(req.headers)) {
     if (!value) continue;
@@ -93,7 +95,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   if (corsOrigin) {
-    // Propagate Origin to Supabase for its own CORS/origin checks
+    // Propagate normalized Origin to Supabase
     outgoingHeaders['origin'] = corsOrigin;
   }
 
@@ -123,7 +125,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       res.setHeader('Content-Type', contentType);
     }
 
-    // Forward the exact status (2xx/4xx/5xx) from Supabase
+    // VERY IMPORTANT:
+    // Forward EXACTLY the Supabase status code (2xx, 4xx, or 5xx).
+    // DO NOT wrap 4xx or 5xx into 500.
     res.status(supabaseResponse.status).send(text);
   } catch (error) {
     console.error('edge-proxy: network or internal error', error);
