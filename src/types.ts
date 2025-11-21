@@ -1,8 +1,8 @@
-import type { Locale } from '@/contexts/LanguageContext';
+
 
 export enum TicketStatus {
   OPEN = 'Open',
-  IN_PROGRESS = 'InProgress', // pas d’espace pour faciliter les clés i18n
+  IN_PROGRESS = 'InProgress', // Changed to avoid space for easier key construction
   RESOLVED = 'Resolved',
   CLOSED = 'Closed',
 }
@@ -21,15 +21,15 @@ export enum UserRole {
 
 export interface ChatMessage {
   id: string;
-  sender: 'user' | 'ai' | 'agent' | 'system_summary';
+  sender: 'user' | 'ai' | 'agent' | 'system_summary'; // Added 'system_summary'
   text: string;
   timestamp: Date;
-  agentId?: string;
+  agentId?: string; // UUID of the agent if sender is 'agent'
 }
 
 export interface InternalNote {
   id: string;
-  agentId: string;
+  agentId: string; // UUID of the agent who wrote the note
   text: string;
   timestamp: Date;
 }
@@ -38,51 +38,40 @@ export interface AppointmentDetails {
   proposedBy: 'agent' | 'user';
   proposedDate: string; // YYYY-MM-DD
   proposedTime: string; // HH:MM
-  locationOrMethod: string;
-  status:
-    | 'pending_user_approval'
-    | 'pending_agent_approval'
-    | 'confirmed'
-    | 'cancelled_by_user'
-    | 'cancelled_by_agent'
-    | 'rescheduled_by_user'
-    | 'rescheduled_by_agent';
+  locationOrMethod: string; // e.g., "On-site at your desk", "Remote session", "Equipment pickup at IT office"
+  status: 'pending_user_approval' | 'pending_agent_approval' | 'confirmed' | 'cancelled_by_user' | 'cancelled_by_agent' | 'rescheduled_by_user' | 'rescheduled_by_agent';
   notes?: string;
-  history?: AppointmentDetails[];
-  id: string;
+  history?: AppointmentDetails[]; // Optional: To track negotiation history if needed directly on object
+  id: string; // Unique ID for each appointment proposal/instance
 }
 
 export interface Ticket {
-  id: string;                 // uuid
-  user_id: string;            // uuid (FK users.id)
+  id: string; // uuid
+  user_id: string; // uuid, Foreign Key to users.id
   title: string;
   description: string;
-  category: string;
+  category: string; 
   priority: TicketPriority;
   status: TicketStatus;
-
-  // Supabase renvoie souvent des strings -> on accepte string | Date
-  created_at: string | Date;
-  updated_at: string | Date;
-
+  created_at: Date;
+  updated_at: Date;
   chat_history: ChatMessage[];
   assigned_ai_level: 1 | 2;
-  assigned_agent_id?: string | null;
-  workstation_id?: string | null;
-  internal_notes?: InternalNote[];
-  current_appointment?: AppointmentDetails;
+  assigned_agent_id?: string; // UUID of the agent assigned to this ticket
+  workstation_id?: string;   // "Poste" or Workstation ID
+  internal_notes?: InternalNote[]; // Notes visible only to agents/managers
+  current_appointment?: AppointmentDetails; // For appointment scheduling
 }
 
 export interface User {
-  id: string;                     // uuid
+  id: string; // uuid
   email: string;
   full_name: string;
   role: UserRole;
   language_preference: Locale;
-
-  // Aligné avec le schéma: FK vers companies.id (uuid)
-  company_id: string | null;
-
-  // Colonne dénormalisée optionnelle si tu l’as ajoutée
-  company_name?: string | null;
+  company_id: string; // Stores the company name (text)
 }
+
+// Ensure Locale is defined or imported if it's from LanguageContext
+// For simplicity, assuming Locale is 'en' | 'fr' | 'ar' as typically defined in LanguageContext
+export type Locale = 'en' | 'fr' | 'ar';
