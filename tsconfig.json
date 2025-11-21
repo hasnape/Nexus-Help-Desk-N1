@@ -3,30 +3,37 @@
     "target": "ES2020",
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "jsx": "react-jsx",
-
     "module": "ESNext",
     "moduleResolution": "bundler",
     "moduleDetection": "force",
-
     "resolveJsonModule": true,
     "allowImportingTsExtensions": true,
     "isolatedModules": true,
     "noEmit": true,
     "allowJs": true,
-
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@types": ["src/types"],
+      "constants": ["src/constants"],
+      "services/*": ["src/services/*"],
+      "components/*": ["src/components/*"],
+      "pages/*": ["src/pages/*"],
+      "hooks/*": ["src/hooks/*"]
     },
-
     "skipLibCheck": true,
     "types": ["vite/client"]
   },
-  "include": ["src", "vite.config.ts", "env.d.ts"],
+  "include": [
+    "src",
+    "index.html",
+    "vite.config.ts",
+    "env.d.ts",
+    "constants.ts"
+  ],
   "exclude": ["node_modules", "dist", "supabase/functions/**"]
 }

@@ -1,97 +1,137 @@
 // api/edge-proxy/[fn].ts
-// Proxy générique Vercel → Supabase Edge Functions
-// Ex : /api/edge-proxy/nexus-ai → https://...functions.supabase.co/functions/v1/nexus-ai
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-export const config = {
-  runtime: "edge", // Edge Runtime
-};
+const PROJECT_URL =
+  process.env.SUPABASE_URL ||
+  process.env.NEXT_PUBLIC_SUPABASE_URL ||
+  process.env.VITE_SUPABASE_URL;
 
-function jsonError(message: string, status = 500): Response {
-  return new Response(JSON.stringify({ error: message }), {
-    status,
-    headers: {
-      "content-type": "application/json; charset=utf-8",
-    },
-  });
+const RAW_ALLOWED_ORIGINS =
+  process.env.ALLOWED_ORIGINS || process.env.SUPABASE_ALLOWED_ORIGINS || '';
+
+const allowedOrigins = RAW_ALLOWED_ORIGINS.split(',')
+  .map((o) => o.trim())
+  .filter(Boolean);
+
+function getCorsOrigin(req: VercelRequest): string | undefined {
+  const reqOrigin = (req.headers.origin || req.headers.referer) as string | undefined;
+  if (!reqOrigin) return undefined;
+  if (allowedOrigins.length === 0) return reqOrigin;
+  if (allowedOrigins.includes(reqOrigin)) return reqOrigin;
+  return undefined;
 }
 
-export default async function handler(req: Request): Promise<Response> {
-  const url = new URL(req.url);
+function setCorsHeaders(res: VercelResponse, origin?: string) {
+  if (!origin) return;
+  res.setHeader('Access-Control-Allow-Origin', origin);
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'authorization, apikey, content-type, x-client-info',
+  );
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+}
 
-  // Récupère le nom de la function :
-  // /api/edge-proxy/nexus-ai → "nexus-ai"
-  const segments = url.pathname.split("/");
-  const fn = segments[segments.length - 1] || segments[segments.length - 2];
+function getFunctionName(req: VercelRequest): string | undefined {
+  const q = req.query.fn;
+  if (typeof q === 'string' && q.trim().length > 0) {
+    return q.trim();
+  }
 
+  const url = req.url || '';
+  const path = url.split('?')[0];
+  const segments = path.split('/').filter(Boolean);
+  const last = segments[segments.length - 1];
+  if (last && last !== 'edge-proxy') {
+    return last;
+  }
+  return undefined;
+}
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  const corsOrigin = getCorsOrigin(req);
+
+  // CORS preflight
+  if (req.method === 'OPTIONS') {
+    setCorsHeaders(res, corsOrigin);
+    res.status(204).end();
+    return;
+  }
+
+  const fn = getFunctionName(req);
   if (!fn) {
-    return jsonError("Missing function name in URL.", 400);
+    setCorsHeaders(res, corsOrigin);
+    res.status(400).json({ error: 'missing_edge_function_name' });
+    return;
   }
 
-  // Base des Edge Functions Supabase
-  // Exemple attendu :
-  // https://iqvshiebmusybtzbijrg.functions.supabase.co/functions/v1
-  const baseFromEnv = process.env.SUPABASE_FUNCTIONS_URL;
-
-  if (!baseFromEnv) {
-    return jsonError(
-      "SUPABASE_FUNCTIONS_URL is not configured in Vercel environment.",
-      500
+  if (!PROJECT_URL) {
+    console.error(
+      'edge-proxy: missing SUPABASE_URL / NEXT_PUBLIC_SUPABASE_URL / VITE_SUPABASE_URL',
     );
+    setCorsHeaders(res, corsOrigin);
+    res.status(500).json({ error: 'missing_supabase_url' });
+    return;
   }
 
-  const functionsBase = baseFromEnv.replace(/\/$/, ""); // enlève "/" final si présent
-  const targetUrl = `${functionsBase}/${fn}`;
+  const targetUrl = `${PROJECT_URL.replace(/\/+$/, '')}/functions/v1/${fn}`;
 
-  // On propage les headers + Origin
-  const incomingOrigin = req.headers.get("origin") || undefined;
-  const forwardHeaders = new Headers(req.headers);
-
-  if (incomingOrigin) {
-    forwardHeaders.set("origin", incomingOrigin);
-  } else {
-    forwardHeaders.delete("origin");
-  }
-
-  // Ajout de la clé anon côté serveur (non visible dans le front)
-  const anonKey =
-    process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
-
-  if (anonKey) {
-    forwardHeaders.set("apikey", anonKey);
-    if (!forwardHeaders.has("authorization")) {
-      forwardHeaders.set("authorization", `Bearer ${anonKey}`);
+  // Build outgoing headers (drop transport/compression-specific ones)
+  const outgoingHeaders: Record<string, string> = {};
+  for (const [key, value] of Object.entries(req.headers)) {
+    if (!value) continue;
+    const lower = key.toLowerCase();
+    if (
+      lower === 'host' ||
+      lower === 'content-length' ||
+      lower === 'content-encoding' ||
+      lower === 'transfer-encoding' ||
+      lower === 'connection' ||
+      lower === 'keep-alive'
+    ) {
+      continue;
     }
+    outgoingHeaders[key] = Array.isArray(value) ? String(value[0]) : String(value);
   }
 
-  const method = req.method.toUpperCase();
-  const body =
-    method === "GET" || method === "HEAD" ? undefined : req.body ?? null;
+  if (corsOrigin) {
+    // Propagate normalized Origin to Supabase
+    outgoingHeaders['origin'] = corsOrigin;
+  }
+
+  const method = req.method || 'POST';
+  const needsBody = !['GET', 'HEAD'].includes(method.toUpperCase());
+
+  let body: string | undefined;
+  if (needsBody && req.body != null) {
+    body = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
+  }
 
   try {
     const supabaseResponse = await fetch(targetUrl, {
       method,
-      headers: forwardHeaders,
-      body,
+      headers: outgoingHeaders,
+      body: needsBody ? (body as any) : undefined,
     });
 
-    const respHeaders = new Headers(supabaseResponse.headers);
+    const text = await supabaseResponse.text();
 
-    // Si la fonction a déjà mis les bons headers CORS, on les garde.
-    // Sinon, on met au moins Origin + Vary pour être propre.
-    if (!respHeaders.has("Access-Control-Allow-Origin") && incomingOrigin) {
-      respHeaders.set("Access-Control-Allow-Origin", incomingOrigin);
-      respHeaders.set("Vary", "Origin");
+    // Apply our CORS headers
+    setCorsHeaders(res, corsOrigin);
+
+    // Only forward safe headers
+    const contentType = supabaseResponse.headers.get('content-type');
+    if (contentType) {
+      res.setHeader('Content-Type', contentType);
     }
 
-    return new Response(supabaseResponse.body, {
-      status: supabaseResponse.status,
-      headers: respHeaders,
-    });
-  } catch (err: any) {
-    console.error("Edge proxy error for fn:", fn, err);
-    return jsonError(
-      `Edge proxy error while calling Supabase function "${fn}".`,
-      502
-    );
+    // VERY IMPORTANT:
+    // Forward EXACTLY the Supabase status code (2xx, 4xx, or 5xx).
+    // DO NOT wrap 4xx or 5xx into 500.
+    res.status(supabaseResponse.status).send(text);
+  } catch (error) {
+    console.error('edge-proxy: network or internal error', error);
+    setCorsHeaders(res, corsOrigin);
+    res.status(502).json({ error: 'edge_proxy_network_error' });
   }
 }

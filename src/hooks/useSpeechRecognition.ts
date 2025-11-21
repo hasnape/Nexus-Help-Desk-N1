@@ -1,6 +1,6 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { useLanguage } from '../contexts/LanguageContext'; // Import useLanguage
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Minimal Web Speech API type declarations (assuming they are defined as before)
 interface ISpeechRecognitionAlternative {

@@ -2,9 +2,9 @@
 // 🔐 Version sans clé Gemini côté front : tout passe par la Supabase Edge Function `nexus-ai`
 // via le proxy Vercel /api/edge-proxy/nexus-ai
 
-import { ChatMessage, Ticket, TicketPriority } from "../types";
-import { Locale } from "../contexts/LanguageContext";
-import { TICKET_CATEGORY_KEYS } from "../constants";
+import { ChatMessage, Ticket, TicketPriority } from "@/types";
+import { Locale } from "@/contexts/LanguageContext";
+import { TICKET_CATEGORY_KEYS } from "@/constants";
 
 // Endpoint du proxy Vercel → Supabase Edge Function
 // Tu peux le surcharger avec VITE_NEXUS_AI_ENDPOINT si besoin.

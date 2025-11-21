@@ -3,6 +3,8 @@ import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useApp } from "@/App";
 import { Button, Input } from "@/components/FormElements";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { callEdgeWithFallback } from "@/services/functionClient";
+import { sendResetPassword } from "@/services/authService";
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -10,6 +12,8 @@ const LoginPage: React.FC = () => {
   const [companyName, setCompanyName] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isSendingReset, setIsSendingReset] = useState(false);
+  const [infoMessage, setInfoMessage] = useState("");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { login, user } = useApp();
@@ -17,7 +21,7 @@ const LoginPage: React.FC = () => {
   const location = useLocation();
   const { t } = useLanguage();
 
-  const from = (location.state as any)?.from?.pathname || "/";
+  const from = location.state?.from?.pathname || "/";
 
   useEffect(() => {
     if (user) {
@@ -34,10 +38,29 @@ const LoginPage: React.FC = () => {
     };
   }, []);
 
+  const mapLoginGuardError = (code: string): string => {
+    const normalized = (code || "").toLowerCase();
+    if (normalized.includes("company_mismatch")) {
+      return t("login.error.invalidCompanyCredentials");
+    }
+    if (normalized.includes("company_not_found")) {
+      return t("login.error.invalidCompanyCredentials");
+    }
+    if (normalized.includes("unknown_email")) {
+      return t("login.error.invalidCompanyCredentials");
+    }
+    return t("login.error.generic", {
+      default: t("login.error.invalidCompanyCredentials"),
+    });
+  };
+
   const showErrorToast = (message: string) => {
     setToastMessage(message);
     setError(message);
-    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+    setInfoMessage("");
+    if (toastTimeoutRef.current) {
+      clearTimeout(toastTimeoutRef.current);
+    }
     toastTimeoutRef.current = setTimeout(() => {
       setToastMessage(null);
       toastTimeoutRef.current = null;
@@ -53,14 +76,79 @@ const LoginPage: React.FC = () => {
 
     setIsLoading(true);
     setError("");
-    const loginResult = await login(email.trim(), password, companyName.trim());
-    setIsLoading(false);
 
+    const trimmedEmail = email.trim();
+    const trimmedCompany = companyName.trim();
+    let guardErrorMessage: string | null = null;
+
+    try {
+      const guardResponse = await callEdgeWithFallback("login-guard", {
+        method: "POST",
+        json: {
+          email: trimmedEmail,
+          company: trimmedCompany,
+        },
+      });
+
+      if (!guardResponse.ok) {
+        const payload = await guardResponse.json().catch(() => null);
+        if (guardResponse.status === 403) {
+          const errorCode =
+            (typeof payload?.error === "string" && payload.error) ||
+            `login_guard_${guardResponse.status}`;
+          guardErrorMessage = mapLoginGuardError(errorCode);
+        } else if (guardResponse.status >= 500) {
+          console.warn("login-guard unavailable, continuing with offline flow", payload);
+        } else {
+          guardErrorMessage = mapLoginGuardError(payload?.error ?? "guard_failed");
+        }
+      }
+    } catch (guardError) {
+      console.warn("login-guard network error, falling back to offline login", guardError);
+    }
+
+    if (guardErrorMessage) {
+      setIsLoading(false);
+      showErrorToast(guardErrorMessage);
+      return;
+    }
+
+    const loginResult = await login(trimmedEmail, password, trimmedCompany);
+
+    setIsLoading(false);
     if (loginResult !== true) {
       showErrorToast(loginResult);
     } else {
       setToastMessage(null);
-      // la redirection se fait déjà dans le useEffect via `user`
+      setInfoMessage("");
+    }
+  };
+
+  const handlePasswordReset = async () => {
+    const trimmedEmail = email.trim();
+    if (trimmedEmail === "") {
+      showErrorToast(t("login.error.emailRequiredForReset", { default: "Veuillez saisir votre email pour réinitialiser." }));
+      return;
+    }
+
+    setIsSendingReset(true);
+    setError("");
+    setInfoMessage("");
+    try {
+      await sendResetPassword(trimmedEmail);
+      setInfoMessage(
+        t("login.resetPasswordSuccess", {
+          default: "Un email de réinitialisation a été envoyé si cette adresse existe dans notre système.",
+        })
+      );
+    } catch (resetError: any) {
+      const readableError = resetError?.message ||
+        t("login.resetPasswordError", {
+          default: "Impossible d'envoyer l'email de réinitialisation. Veuillez réessayer.",
+        });
+      showErrorToast(readableError);
+    } finally {
+      setIsSendingReset(false);
     }
   };
 
@@ -76,10 +164,10 @@ const LoginPage: React.FC = () => {
           </div>
         </div>
       )}
-
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-700 p-4">
         <div className="bg-surface p-6 sm:p-8 rounded-xl shadow-2xl w-full max-w-md">
           <div className="text-center mb-6">
+            {/* Ajouter votre logo ici */}
             <div className="flex justify-center items-center mb-4">
               <img
                 src="https://yt3.ggpht.com/vbfaZncvDLBv7B4Xo9mFggNozPaGAaGMkwciDaL-UtdLClEQmWB5blCibQacHzdrI1RL_5C9_g=s108-c-k-c0x00ffffff-no-rj"
@@ -87,8 +175,11 @@ const LoginPage: React.FC = () => {
                 className="w-16 h-16 rounded-full object-cover mr-3"
                 onError={(e) => {
                   e.currentTarget.style.display = "none";
-                  const fallback = e.currentTarget.nextElementSibling as HTMLElement;
-                  if (fallback) fallback.style.display = "block";
+                  const fallback = e.currentTarget
+                    .nextElementSibling as HTMLElement;
+                  if (fallback) {
+                    fallback.style.display = "block";
+                  }
                 }}
               />
               <svg
@@ -107,8 +198,12 @@ const LoginPage: React.FC = () => {
                 />
               </svg>
             </div>
-            <h1 className="text-3xl font-bold text-textPrimary">{t("login.title")}</h1>
-            <p className="text-textSecondary mt-1">{t("login.subtitleSimple")}</p>
+            <h1 className="text-3xl font-bold text-textPrimary">
+              {t("login.title")}
+            </h1>
+            <p className="text-textSecondary mt-1">
+              {t("login.subtitleSimple")}
+            </p>
           </div>
 
           <div className="mb-6 text-sm bg-primary/5 border border-primary/20 text-slate-700 p-4 rounded-lg text-center">
@@ -118,6 +213,11 @@ const LoginPage: React.FC = () => {
           {error && (
             <p className="mb-4 text-center text-red-600 bg-red-100 p-2 rounded-md text-sm">
               {error}
+            </p>
+          )}
+          {infoMessage && (
+            <p className="mb-4 text-center text-green-600 bg-green-100 p-2 rounded-md text-sm">
+              {infoMessage}
             </p>
           )}
 
@@ -147,6 +247,16 @@ const LoginPage: React.FC = () => {
               required
               disabled={isLoading}
             />
+            <div className="text-right -mt-3">
+              <button
+                type="button"
+                onClick={handlePasswordReset}
+                className="text-sm font-medium text-primary hover:text-primary-dark disabled:opacity-50"
+                disabled={isLoading || isSendingReset}
+              >
+                {t("login.forgotPasswordLink", { default: "Mot de passe oublié ?" })}
+              </button>
+            </div>
             <Input
               label={t("login.companyNameLabel", { default: "Company Name" })}
               id="companyName"
@@ -171,22 +281,29 @@ const LoginPage: React.FC = () => {
               {t("login.signInButton")}
             </Button>
           </form>
-
           <p className="mt-6 text-sm text-center text-slate-500">
             {t("login.noAccount")}{" "}
-            <Link to="/signup" className="font-medium text-primary hover:text-primary-dark">
+            <Link
+              to="/signup"
+              className="font-medium text-primary hover:text-primary-dark"
+            >
               {t("login.signUpLink")}
             </Link>
           </p>
 
+          {/* Le "Back" style signUpPage */}
           <div className="mt-6 text-sm text-center text-slate-500 space-y-2">
             <p>
               <Link
                 to="/landing"
                 className="inline-flex items-center font-medium text-slate-600 hover:text-primary-dark"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                     fill="currentColor" className="w-4 h-4 me-1">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  className="w-4 h-4 me-1"
+                >
                   <path
                     fillRule="evenodd"
                     d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z"
@@ -198,12 +315,18 @@ const LoginPage: React.FC = () => {
             </p>
           </div>
 
+          {/* Le paragraphe avec la note démo */}
           <p className="mt-4 text-xs text-center text-slate-400">
             {t("login.demoNotes.supabase.production")}
           </p>
 
+          {/* Footer legal */}
           <div className="mt-6 pt-4 border-t border-slate-200 text-center">
-            <Link to="/legal" className="text-xs text-slate-500 hover:text-primary hover:underline">
+            <Link
+
+                         to="/legal"
+              className="text-xs text-slate-500 hover:text-primary hover:underline"
+            >
               {t("footer.legalLink", { default: "Legal & Documentation" })}
             </Link>
           </div>

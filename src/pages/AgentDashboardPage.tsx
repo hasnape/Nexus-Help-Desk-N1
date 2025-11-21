@@ -1,12 +1,12 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
-import { useApp } from "../../App";
-import { Ticket } from "../../types";
-import { Button } from "../../components/FormElements";
-import { useLanguage } from "../../contexts/LanguageContext";
-import LoadingSpinner from "../../components/LoadingSpinner";
-import FloatingActionButton from "../../components/FloatingActionButton";
-import { supabase } from "../../services/supabaseClient";
+import { useApp } from "@/App";
+import { Ticket } from "@/types";
+import { Button } from "@/components/FormElements";
+import { useLanguage } from "@/contexts/LanguageContext";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import FloatingActionButton from "@/components/FloatingActionButton";
+import { supabase } from "@/services/supabaseClient";
 
 const PlusIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" {...props}>
