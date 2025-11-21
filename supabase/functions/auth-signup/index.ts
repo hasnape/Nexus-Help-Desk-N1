@@ -143,6 +143,22 @@ function mapAuthSignUpError(error: any) {
   const status = typeof error?.status === "number" ? error.status : undefined;
 
   if (
+    status === 400 &&
+    (error?.code === "email_address_invalid" ||
+      message.includes("email address") && message.includes("invalid"))
+  ) {
+    return {
+      status: 400,
+      body: {
+        ok: false,
+        error: "validation_error",
+        reason: "invalid_email",
+        message: "Email address is invalid.",
+      },
+    } as const;
+  }
+
+  if (
     message.includes("registered") ||
     message.includes("already exists") ||
     error?.code === "email_exists"
@@ -419,7 +435,7 @@ serve(async (req: Request): Promise<Response> => {
     };
 
     const consumeActivationCode = async (id: string, authUid: string) => {
-      await admin
+      const { error } = await admin
         .from("manager_activation_codes")
         .update({
           consumed: true,
@@ -427,6 +443,34 @@ serve(async (req: Request): Promise<Response> => {
           consumed_at: new Date().toISOString(),
         })
         .eq("id", id);
+
+      if (error) {
+        console.error("auth-signup: consumeActivationCode failed", error);
+      }
+    };
+
+    const safeDeleteCompany = async (companyId: string) => {
+      const { error } = await admin.from("companies").delete().eq("id", companyId);
+      if (error) {
+        console.error("auth-signup: cleanup delete company failed", error);
+      }
+    };
+
+    const safeDeleteCompanySettings = async (companyId: string) => {
+      const { error } = await admin
+        .from("company_settings")
+        .delete()
+        .eq("company_id", companyId);
+      if (error) {
+        console.error("auth-signup: cleanup delete company_settings failed", error);
+      }
+    };
+
+    const safeDeleteAuthUser = async (authUid: string) => {
+      const { error } = await admin.auth.admin.deleteUser(authUid);
+      if (error) {
+        console.error("auth-signup: cleanup delete auth user failed", error);
+      }
     };
 
     try {
@@ -518,7 +562,7 @@ serve(async (req: Request): Promise<Response> => {
 
       if (companyError || !company?.id) {
         console.error("auth-signup: create company failed", companyError);
-        await admin.auth.admin.deleteUser(authUid).catch(() => {});
+        await safeDeleteAuthUser(authUid);
         const conflict = mapDbConflict(
           companyError,
           "company_in_use",
@@ -537,15 +581,28 @@ serve(async (req: Request): Promise<Response> => {
       });
 
       if (settingsResult.error) {
-        console.error(
-          "auth-signup: create company_settings failed",
-          settingsResult.error,
-        );
-        await admin.from("companies").delete().eq("id", companyId).catch(() => {});
-        await admin.auth.admin.deleteUser(authUid).catch(() => {});
-        return internalError("company_settings_failed", cors, undefined, {
-          message: settingsResult.error.message,
-        });
+        const settingsError = settingsResult.error;
+        const isDuplicate =
+          String(settingsError?.code ?? "").toUpperCase() === "23505" &&
+          ((settingsError?.message ?? "").includes("company_settings_pkey") ||
+            (settingsError?.details ?? "").includes("company_settings_pkey"));
+
+        if (isDuplicate) {
+          console.warn(
+            "auth-signup: company_settings already exists for company_id",
+            companyId,
+          );
+        } else {
+          console.error(
+            "auth-signup: create company_settings failed",
+            settingsError,
+          );
+          await safeDeleteCompany(companyId);
+          await safeDeleteAuthUser(authUid);
+          return internalError("company_settings_failed", cors, undefined, {
+            message: settingsError.message,
+          });
+        }
       }
 
       const { error: profileError } = await admin.from("users").insert({
@@ -559,12 +616,9 @@ serve(async (req: Request): Promise<Response> => {
 
       if (profileError) {
         console.error("auth-signup: insert manager profile failed", profileError);
-        await admin.from("company_settings")
-          .delete()
-          .eq("company_id", companyId)
-          .catch(() => {});
-        await admin.from("companies").delete().eq("id", companyId).catch(() => {});
-        await admin.auth.admin.deleteUser(authUid).catch(() => {});
+        await safeDeleteCompanySettings(companyId);
+        await safeDeleteCompany(companyId);
+        await safeDeleteAuthUser(authUid);
         const conflict = mapDbConflict(
           profileError,
           "profile_exists",
@@ -575,7 +629,7 @@ serve(async (req: Request): Promise<Response> => {
       }
 
       if (activationRow) {
-        await consumeActivationCode(activationRow.id, authUid).catch(() => {});
+        await consumeActivationCode(activationRow.id, authUid);
       }
 
       return successResponse(cors, {
@@ -642,7 +696,7 @@ serve(async (req: Request): Promise<Response> => {
           "auth-signup: insert profile (agent/user, dashboard) failed",
           profileError,
         );
-        await admin.auth.admin.deleteUser(authUid).catch(() => {});
+        await safeDeleteAuthUser(authUid);
         const conflict = mapDbConflict(
           profileError,
           "profile_exists",
@@ -695,7 +749,7 @@ serve(async (req: Request): Promise<Response> => {
           "auth-signup: insert profile (agent/user, public) failed",
           profileError,
         );
-        await admin.auth.admin.deleteUser(authUid).catch(() => {});
+        await safeDeleteAuthUser(authUid);
         const conflict = mapDbConflict(
           profileError,
           "profile_exists",
