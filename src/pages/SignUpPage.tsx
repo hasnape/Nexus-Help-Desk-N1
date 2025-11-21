@@ -7,7 +7,7 @@ import { Button, Input, Select } from "@/components/FormElements";
 import type { Locale } from "@/contexts/LanguageContext";
 import { UserRole } from "@/types";
 import { getPricingPlans, type PricingPlan, type PricingPlanKey } from "@/utils/pricing";
-import { callEdgeWithFallback } from "@/services/functionClient";
+import { signUpViaAuthFunction } from "@/services/authService";
 import { signupErrorMapper } from "@/services/signupErrorMapper";
 
 const paypalLinks = {
@@ -556,39 +556,31 @@ const SignUpPage: React.FC = () => {
 
     const trimmedEmail = email.trim();
     const trimmedCompanyName = companyName.trim();
-    const payload = {
-      email: trimmedEmail,
-      password,
-      full_name: fullName.trim(),
-      role,
-      company_name: trimmedCompanyName,
-      language_preference: selectedLanguage,
-      plan:
-        role === UserRole.MANAGER && effectivePlan
-          ? (effectivePlan as "freemium" | "standard" | "pro")
-          : undefined,
-      secret_code:
-        role === UserRole.MANAGER && effectivePlan && effectivePlan !== "freemium"
-          ? secretCode.trim()
-          : undefined,
-    };
-
     try {
-      const edgeResult = await callEdgeWithFallback("auth-signup", {
-        method: "POST",
-        json: payload,
+      const { ok, status, body } = await signUpViaAuthFunction({
+        email: trimmedEmail,
+        password,
+        fullName: fullName.trim(),
+        role,
+        companyName: trimmedCompanyName,
+        lang: selectedLanguage as Locale,
+        plan:
+          role === UserRole.MANAGER && effectivePlan
+            ? (effectivePlan as "freemium" | "standard" | "pro")
+            : undefined,
+        secretCode:
+          role === UserRole.MANAGER && effectivePlan && effectivePlan !== "freemium"
+            ? secretCode.trim()
+            : undefined,
       });
 
-      const response = (edgeResult as any).response ?? edgeResult;
-      const body = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
+      if (!ok) {
         setError(
-          signupErrorMapper(t, body?.reason, body?.message, response.status, {
+          signupErrorMapper(t, (body as any)?.reason, (body as any)?.message, status, {
             companyName: trimmedCompanyName,
           }),
         );
-        setShowLoginSuggestion(response.status === 409);
+        setShowLoginSuggestion(status === 409);
         return;
       }
 
@@ -597,7 +589,7 @@ const SignUpPage: React.FC = () => {
       }
 
       const successText =
-        (typeof body?.message === "string" && body.message.trim()) ||
+        (typeof (body as any)?.message === "string" && (body as any).message.trim()) ||
         t("auth.signup.successPendingEmailConfirmation", {
           email: trimmedEmail,
         });
