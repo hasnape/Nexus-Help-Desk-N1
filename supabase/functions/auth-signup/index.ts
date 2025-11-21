@@ -3,61 +3,11 @@
 
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const STATIC_ALLOWED_ORIGINS = [
-  "https://www.nexussupporthub.eu",
-  "https://nexus-help-desk-n1.vercel.app",
-  "http://localhost:5173",
-];
-
-const additionalOrigins = (
-  Deno.env.get("ALLOWED_ORIGINS") ??
-  Deno.env.get("SUPABASE_ALLOWED_ORIGINS") ??
-  ""
-)
-  .split(",")
-  .map((o) => o.trim())
-  .filter((o) => o.length > 0);
-
-const ALLOWED_ORIGINS = new Set<string>([
-  ...STATIC_ALLOWED_ORIGINS,
-  ...additionalOrigins,
-]);
-
-function makeCorsHeaders(origin: string | null): Record<string, string> {
-  if (!origin) {
-    // Appel serveur → serveur : pas d'Origin, on renvoie juste Vary
-    return { Vary: "Origin" };
-  }
-
-  if (!ALLOWED_ORIGINS.has(origin)) {
-    // Origin non autorisée → pas d'ACAO
-    return { Vary: "Origin" };
-  }
-
-  return {
-    "Access-Control-Allow-Origin": origin,
-    "Access-Control-Allow-Headers":
-      "authorization, apikey, content-type, x-client-info",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Credentials": "true",
-    Vary: "Origin",
-  };
-}
-
-function json(
-  body: unknown,
-  status = 200,
-  cors: Record<string, string> = { Vary: "Origin" },
-) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: {
-      "content-type": "application/json; charset=utf-8",
-      ...cors,
-    },
-  });
-}
+import {
+  guardOriginOr403,
+  handleOptions,
+  json,
+} from "../_shared/cors.ts";
 
 type PlanKey = "freemium" | "standard" | "pro";
 type Role = "manager" | "agent" | "user";
@@ -72,6 +22,14 @@ type ManagerActivationRow = {
 const DEFAULT_TIMEZONE = "Europe/Paris";
 const SUPPORTED_LANGUAGES = new Set(["fr", "en", "ar"]);
 
+function supabaseStatus(error: any, fallback = 500) {
+  const code = String(error?.code ?? "");
+  if (code === "23505") return 409; // unique_violation
+  if (code === "23503") return 400; // foreign_key_violation
+  if (typeof error?.status === "number") return error.status;
+  return fallback;
+}
+
 function normalizeCompanyName(input: string | null | undefined) {
   if (!input) return { original: "", normalized: "", lower: "" };
   const trimmed = input.trim().replace(/\s+/g, " ");
@@ -80,20 +38,12 @@ function normalizeCompanyName(input: string | null | undefined) {
 
 serve(async (req: Request): Promise<Response> => {
   const origin = req.headers.get("Origin");
-  const cors = makeCorsHeaders(origin);
 
-  // 1) Préflight CORS
-  if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: cors });
-  }
+  const preflight = handleOptions(req);
+  if (preflight) return preflight;
 
-  // 2) Origin non autorisée
-  if (origin && !ALLOWED_ORIGINS.has(origin)) {
-    return new Response("Forbidden", {
-      status: 403,
-      headers: { Vary: "Origin" },
-    });
-  }
+  const cors = guardOriginOr403(req);
+  if (cors instanceof Response) return cors;
 
   // 3) Méthode autorisée ?
   if (req.method !== "POST") {
@@ -297,13 +247,13 @@ serve(async (req: Request): Promise<Response> => {
         });
 
       if (signUpError || !signUpData?.user) {
-        console.error("auth-signup: signUp (manager) failed", signUpError);
-        return json(
-          { error: "create_failed", details: signUpError?.message },
-          500,
-          cors,
-        );
-      }
+    console.error("auth-signup: signUp (manager) failed", signUpError);
+    return json(
+      { error: "create_failed", details: signUpError?.message },
+      supabaseStatus(signUpError, 400),
+      cors,
+    );
+  }
 
       const authUid = signUpData.user.id;
 
@@ -318,18 +268,29 @@ serve(async (req: Request): Promise<Response> => {
         await admin.auth.admin.deleteUser(authUid).catch(() => {});
         return json(
           { error: "create_failed", details: companyError?.message },
-          500,
+          supabaseStatus(companyError, 500),
           cors,
         );
       }
 
       const companyId = company.id as string;
 
-      const settingsResult = await admin.from("company_settings").insert({
+      let settingsResult = await admin.from("company_settings").insert({
         company_id: companyId,
         timezone: DEFAULT_TIMEZONE,
         plan_tier: planKey,
       });
+
+      // Si la colonne plan_tier n'existe plus (schema récent) → fallback sans ce champ
+      if (settingsResult.error?.code === "42703") {
+        console.warn(
+          "auth-signup: plan_tier column missing, retrying company_settings without it",
+        );
+        settingsResult = await admin.from("company_settings").insert({
+          company_id: companyId,
+          timezone: DEFAULT_TIMEZONE,
+        });
+      }
 
       if (settingsResult.error) {
         console.error(
@@ -340,7 +301,7 @@ serve(async (req: Request): Promise<Response> => {
         await admin.auth.admin.deleteUser(authUid).catch(() => {});
         return json(
           { error: "create_failed", details: settingsResult.error.message },
-          500,
+          supabaseStatus(settingsResult.error, 500),
           cors,
         );
       }
@@ -364,7 +325,7 @@ serve(async (req: Request): Promise<Response> => {
         await admin.auth.admin.deleteUser(authUid).catch(() => {});
         return json(
           { error: "profile_insert_failed", details: profileError.message },
-          500,
+          supabaseStatus(profileError, 500),
           cors,
         );
       }
@@ -411,7 +372,7 @@ serve(async (req: Request): Promise<Response> => {
         console.error("auth-signup: createUser (agent/user) failed", authError);
         return json(
           { error: "create_failed", details: authError?.message },
-          500,
+          supabaseStatus(authError, 400),
           cors,
         );
       }
@@ -435,7 +396,7 @@ serve(async (req: Request): Promise<Response> => {
         await admin.auth.admin.deleteUser(authUid).catch(() => {});
         return json(
           { error: "profile_insert_failed", details: profileError.message },
-          500,
+          supabaseStatus(profileError, 500),
           cors,
         );
       }
@@ -469,7 +430,7 @@ serve(async (req: Request): Promise<Response> => {
         console.error("auth-signup: signUp (agent/user, public) failed", signUpError);
         return json(
           { error: "create_failed", details: signUpError?.message },
-          500,
+          supabaseStatus(signUpError, 400),
           cors,
         );
       }
@@ -493,7 +454,7 @@ serve(async (req: Request): Promise<Response> => {
         await admin.auth.admin.deleteUser(authUid).catch(() => {});
         return json(
           { error: "profile_insert_failed", details: profileError.message },
-          500,
+          supabaseStatus(profileError, 500),
           cors,
         );
       }
@@ -511,6 +472,6 @@ serve(async (req: Request): Promise<Response> => {
     }
   } catch (e) {
     console.error("auth-signup unexpected error", e);
-    return json({ error: "create_failed" }, 500, cors);
+    return json({ error: "create_failed", details: String(e?.message ?? e) }, 500, cors);
   }
 });
