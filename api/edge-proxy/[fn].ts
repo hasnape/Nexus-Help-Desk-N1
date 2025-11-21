@@ -109,25 +109,36 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       body,
     });
 
-    const responseBuffer = await supabaseResponse.arrayBuffer();
-    const responseHeaders: Record<string, string> = {};
-    supabaseResponse.headers.forEach((value, key) => {
-      responseHeaders[key] = value;
-    });
+    const text = await supabaseResponse.text();
 
     res.status(supabaseResponse.status);
-    Object.entries(responseHeaders).forEach(([key, value]) => {
+
+    const excludedHeaders = new Set([
+      "content-encoding",
+      "transfer-encoding",
+      "content-length",
+      "connection",
+      "keep-alive",
+    ]);
+
+    supabaseResponse.headers.forEach((value, key) => {
+      if (excludedHeaders.has(key.toLowerCase())) return;
+      if (key.toLowerCase().startsWith("access-control-")) return;
+
       res.setHeader(key, value);
     });
+
+    const contentType = supabaseResponse.headers.get("content-type");
+    if (contentType) {
+      res.setHeader("Content-Type", contentType);
+    }
+
     applyCors(res, incomingOrigin, allowedOrigins);
-    return res.send(Buffer.from(responseBuffer));
+
+    return res.send(text);
   } catch (err) {
     console.error("Edge proxy error for fn:", functionName, err);
     applyCors(res, incomingOrigin, allowedOrigins);
-    return sendJsonError(
-      res,
-      `Edge proxy error while calling Supabase function "${functionName}".`,
-      502,
-    );
+    return sendJsonError(res, "edge_proxy_network_error", 502);
   }
 }
