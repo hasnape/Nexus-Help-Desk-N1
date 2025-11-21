@@ -1,144 +1,118 @@
-import type { VercelRequest, VercelResponse } from "@vercel/node";
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-const STATIC_ALLOWED_ORIGINS = [
-  "https://www.nexussupporthub.eu",
-  "https://nexus-help-desk-n1.vercel.app",
-  "http://localhost:5173",
-];
+const PROJECT_URL =
+  process.env.SUPABASE_URL ||
+  process.env.NEXT_PUBLIC_SUPABASE_URL ||
+  process.env.VITE_SUPABASE_URL;
 
-function parseEnvOrigins(value?: string) {
-  return (value || "")
-    .split(",")
-    .map((origin) => origin.trim())
-    .filter(Boolean);
+const RAW_ALLOWED_ORIGINS =
+  process.env.ALLOWED_ORIGINS || process.env.SUPABASE_ALLOWED_ORIGINS || '';
+
+const allowedOrigins = RAW_ALLOWED_ORIGINS.split(',')
+  .map((o) => o.trim())
+  .filter(Boolean);
+
+function getCorsOrigin(req: VercelRequest): string | undefined {
+  const reqOrigin = (req.headers.origin || req.headers.referer) as string | undefined;
+  if (!reqOrigin) return undefined;
+  if (allowedOrigins.length === 0) return reqOrigin;
+  if (allowedOrigins.includes(reqOrigin)) return reqOrigin;
+  return undefined;
 }
 
-function makeAllowedOrigins() {
-  const dynamicOrigins = [
-    ...parseEnvOrigins(process.env.ALLOWED_ORIGINS),
-    ...parseEnvOrigins(process.env.SUPABASE_ALLOWED_ORIGINS),
-  ];
-  return new Set([...STATIC_ALLOWED_ORIGINS, ...dynamicOrigins]);
-}
-
-function normalizeProjectUrl(): string | null {
-  const candidates = [
-    process.env.SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.VITE_SUPABASE_URL,
-  ].filter(Boolean) as string[];
-
-  if (candidates.length === 0) return null;
-
-  return candidates[0].replace(/\/$/, "");
-}
-
-function applyCors(
-  res: VercelResponse,
-  origin: string | undefined,
-  allowedOrigins: Set<string>,
-) {
-  if (!origin) {
-    res.setHeader("Vary", "Origin");
-    return;
-  }
-
-  if (!allowedOrigins.has(origin)) {
-    res.setHeader("Vary", "Origin");
-    return;
-  }
-
-  res.setHeader("Access-Control-Allow-Origin", origin);
-  res.setHeader("Access-Control-Allow-Credentials", "true");
+function setCorsHeaders(res: VercelResponse, origin?: string) {
+  if (!origin) return;
+  res.setHeader('Access-Control-Allow-Origin', origin);
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader(
-    "Access-Control-Allow-Headers",
-    "authorization, apikey, content-type, x-client-info",
+    'Access-Control-Allow-Headers',
+    'authorization, apikey, content-type, x-client-info',
   );
-  res.setHeader("Vary", "Origin");
-}
-
-function sendJsonError(res: VercelResponse, message: string, status = 500) {
-  res.status(status).json({ error: message });
+  res.setHeader('Access-Control-Allow-Methods', 'POST,GET,OPTIONS');
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const { fn } = req.query;
-  const functionName = Array.isArray(fn) ? fn[0] : fn;
+  const corsOrigin = getCorsOrigin(req);
 
-  if (!functionName) {
-    return sendJsonError(res, "Missing function name in URL.", 400);
+  // Preflight CORS
+  if (req.method === 'OPTIONS') {
+    setCorsHeaders(res, corsOrigin);
+    res.status(204).end();
+    return;
   }
 
-  const projectUrl = normalizeProjectUrl();
-  if (!projectUrl) {
-    return sendJsonError(res, "SUPABASE_URL is not configured.");
+  const fnParam = req.query.fn;
+  const fn = typeof fnParam === 'string' ? fnParam : undefined;
+
+  if (!fn) {
+    setCorsHeaders(res, corsOrigin);
+    res.status(400).json({ error: 'missing_edge_function_name' });
+    return;
   }
 
-  const allowedOrigins = makeAllowedOrigins();
-  const incomingOrigin = req.headers.origin as string | undefined;
-
-  if (req.method === "OPTIONS") {
-    applyCors(res, incomingOrigin, allowedOrigins);
-    res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,PATCH,OPTIONS");
-    return res.status(204).end();
+  if (!PROJECT_URL) {
+    console.error('edge-proxy: missing SUPABASE_URL / NEXT_PUBLIC_SUPABASE_URL / VITE_SUPABASE_URL');
+    setCorsHeaders(res, corsOrigin);
+    res.status(500).json({ error: 'missing_supabase_url' });
+    return;
   }
 
-  const targetUrl = `${projectUrl}/functions/v1/${functionName}`;
+  const targetUrl = `${PROJECT_URL.replace(/\/+$/, '')}/functions/v1/${fn}`;
 
+  // Build outgoing headers (drop transport/compression headers)
   const outgoingHeaders: Record<string, string> = {};
-  Object.entries(req.headers).forEach(([key, value]) => {
-    if (key === "host" || key === "content-length") return;
-    if (typeof value === "undefined") return;
-    outgoingHeaders[key] = Array.isArray(value) ? value.join(",") : String(value);
-  });
-
-  if (incomingOrigin) {
-    outgoingHeaders["origin"] = incomingOrigin;
-  } else {
-    delete outgoingHeaders["origin"];
+  for (const [key, value] of Object.entries(req.headers)) {
+    if (!value) continue;
+    const lower = key.toLowerCase();
+    if (
+      lower === 'host' ||
+      lower === 'content-length' ||
+      lower === 'content-encoding' ||
+      lower === 'transfer-encoding' ||
+      lower === 'connection' ||
+      lower === 'keep-alive'
+    ) {
+      continue;
+    }
+    outgoingHeaders[key] = Array.isArray(value) ? String(value[0]) : String(value);
   }
 
-  const method = (req.method || "GET").toUpperCase();
-  const body =
-    method === "GET" || method === "HEAD" ? undefined : JSON.stringify(req.body);
+  if (corsOrigin) {
+    // Propagate Origin to Supabase for its own CORS/origin checks
+    outgoingHeaders['origin'] = corsOrigin;
+  }
+
+  const method = req.method || 'POST';
+  const needsBody = !['GET', 'HEAD'].includes(method.toUpperCase());
+
+  let body: string | undefined;
+  if (needsBody && req.body != null) {
+    body = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
+  }
 
   try {
     const supabaseResponse = await fetch(targetUrl, {
       method,
       headers: outgoingHeaders,
-      body,
+      body: needsBody ? (body as any) : undefined,
     });
 
     const text = await supabaseResponse.text();
 
-    res.status(supabaseResponse.status);
+    // Apply our CORS headers
+    setCorsHeaders(res, corsOrigin);
 
-    const excludedHeaders = new Set([
-      "content-encoding",
-      "transfer-encoding",
-      "content-length",
-      "connection",
-      "keep-alive",
-    ]);
-
-    supabaseResponse.headers.forEach((value, key) => {
-      if (excludedHeaders.has(key.toLowerCase())) return;
-      if (key.toLowerCase().startsWith("access-control-")) return;
-
-      res.setHeader(key, value);
-    });
-
-    const contentType = supabaseResponse.headers.get("content-type");
+    // Only forward safe headers
+    const contentType = supabaseResponse.headers.get('content-type');
     if (contentType) {
-      res.setHeader("Content-Type", contentType);
+      res.setHeader('Content-Type', contentType);
     }
 
-    applyCors(res, incomingOrigin, allowedOrigins);
-
-    return res.send(text);
-  } catch (err) {
-    console.error("Edge proxy error for fn:", functionName, err);
-    applyCors(res, incomingOrigin, allowedOrigins);
-    return sendJsonError(res, "edge_proxy_network_error", 502);
+    // Forward the exact status (2xx/4xx/5xx) from Supabase
+    res.status(supabaseResponse.status).send(text);
+  } catch (error) {
+    console.error('edge-proxy: network or internal error', error);
+    setCorsHeaders(res, corsOrigin);
+    res.status(502).json({ error: 'edge_proxy_network_error' });
   }
 }
