@@ -59,6 +59,64 @@ function json(
   });
 }
 
+function validationError(
+  reason: string,
+  message: string,
+  cors: Record<string, string>,
+  details?: Record<string, unknown>,
+  status = 400,
+) {
+  return json(
+    {
+      ok: false,
+      error: "validation_error",
+      reason,
+      message,
+      ...(details ? { details } : {}),
+    },
+    status,
+    cors,
+  );
+}
+
+function conflictError(
+  reason: string,
+  message: string,
+  cors: Record<string, string>,
+  details?: Record<string, unknown>,
+) {
+  return json(
+    {
+      ok: false,
+      error: "conflict",
+      reason,
+      message,
+      ...(details ? { details } : {}),
+    },
+    409,
+    cors,
+  );
+}
+
+function internalError(
+  reason: string,
+  cors: Record<string, string>,
+  message = "An unexpected error occurred while creating the account.",
+  details?: Record<string, unknown>,
+) {
+  return json(
+    {
+      ok: false,
+      error: "internal_error",
+      reason,
+      message,
+      ...(details ? { details } : {}),
+    },
+    500,
+    cors,
+  );
+}
+
 type PlanKey = "freemium" | "standard" | "pro";
 type Role = "manager" | "agent" | "user";
 
@@ -71,6 +129,8 @@ type ManagerActivationRow = {
 
 const DEFAULT_TIMEZONE = "Europe/Paris";
 const SUPPORTED_LANGUAGES = new Set(["fr", "en", "ar"]);
+const SUCCESS_MESSAGE =
+  "Account created. Please check your email to confirm your address.";
 
 function normalizeCompanyName(input: string | null | undefined) {
   if (!input) return { original: "", normalized: "", lower: "" };
@@ -78,185 +138,336 @@ function normalizeCompanyName(input: string | null | undefined) {
   return { original: input, normalized: trimmed, lower: trimmed.toLowerCase() };
 }
 
+function mapAuthSignUpError(error: any) {
+  const message = String(error?.message ?? "").toLowerCase();
+  const status = typeof error?.status === "number" ? error.status : undefined;
+
+  if (
+    status === 400 &&
+    (error?.code === "email_address_invalid" ||
+      message.includes("email address") && message.includes("invalid"))
+  ) {
+    return {
+      status: 400,
+      body: {
+        ok: false,
+        error: "validation_error",
+        reason: "invalid_email",
+        message: "Email address is invalid.",
+      },
+    } as const;
+  }
+
+  if (
+    message.includes("registered") ||
+    message.includes("already exists") ||
+    error?.code === "email_exists"
+  ) {
+    return {
+      status: 409,
+      body: {
+        ok: false,
+        error: "conflict",
+        reason: "email_in_use",
+        message: "An account with this email already exists.",
+      },
+    } as const;
+  }
+
+  if (status && status >= 400 && status < 500) {
+    return {
+      status,
+      body: {
+        ok: false,
+        error: "validation_error",
+        reason: error?.code ?? "auth_error",
+        message: error?.message ?? "Unable to sign up with these credentials.",
+      },
+    } as const;
+  }
+
+  return {
+    status: 500,
+    body: {
+      ok: false,
+      error: "internal_error",
+      reason: "auth_sign_up_failed",
+      message: "An unexpected error occurred while creating the account.",
+      details: error?.message ? { message: error.message } : undefined,
+    },
+  } as const;
+}
+
+function mapDbConflict(error: any, conflictErrorKey: string, message: string) {
+  const code = String(error?.code ?? "").toUpperCase();
+  if (code === "23505") {
+    return {
+      status: 409,
+      body: {
+        ok: false,
+        error: "conflict",
+        reason: conflictErrorKey,
+        message,
+      },
+    } as const;
+  }
+  return null;
+}
+
+function successResponse(
+  cors: Record<string, string>,
+  {
+    companyId,
+    userId,
+    email,
+    requiresEmailConfirmation,
+  }: {
+    companyId: string;
+    userId: string;
+    email: string;
+    requiresEmailConfirmation: boolean;
+  },
+) {
+  return json(
+    {
+      ok: true,
+      company_id: companyId,
+      user_id: userId,
+      email,
+      requires_email_confirmation: requiresEmailConfirmation,
+      message: SUCCESS_MESSAGE,
+    },
+    201,
+    cors,
+  );
+}
+
 serve(async (req: Request): Promise<Response> => {
   const origin = req.headers.get("Origin");
   const cors = makeCorsHeaders(origin);
 
-  // 1) Préflight CORS
-  if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: cors });
-  }
+  console.log("auth-signup version 2025-11-21-v5");
 
-  // 2) Origin non autorisée
-  if (origin && !ALLOWED_ORIGINS.has(origin)) {
-    return new Response("Forbidden", {
-      status: 403,
-      headers: { Vary: "Origin" },
-    });
-  }
+  try {
+    // 1) Préflight CORS
+    if (req.method === "OPTIONS") {
+      return new Response(null, { status: 204, headers: cors });
+    }
 
-  // 3) Méthode autorisée ?
-  if (req.method !== "POST") {
-    return json({ error: "method_not_allowed" }, 405, cors);
-  }
+    // 2) Origin non autorisée
+    if (origin && !ALLOWED_ORIGINS.has(origin)) {
+      return validationError(
+        "origin_not_allowed",
+        "Origin is not allowed.",
+        cors,
+        undefined,
+        403,
+      );
+    }
 
-  const authHeader = req.headers.get("authorization");
-  if (!authHeader) {
-    return json(
-      { code: 401, message: "Missing authorization header" },
-      401,
-      cors,
+    // 3) Méthode autorisée ?
+    if (req.method !== "POST") {
+      return validationError(
+        "method_not_allowed",
+        "Method not allowed.",
+        cors,
+        undefined,
+        405,
+      );
+    }
+
+    // ⚠️ PAS de check sur l'Authorization ici
+    // → on laisse le front/edge-proxy envoyer l'anon key mais on ne bloque pas s'il manque
+
+    // 4) Parsing body
+    let payload: any = {};
+    try {
+      payload = await req.json();
+    } catch {
+      payload = {};
+    }
+
+    const email = String(payload?.email ?? "").trim().toLowerCase();
+    const password = String(payload?.password ?? "");
+    const fullName = String(payload?.full_name ?? payload?.fullName ?? "").trim();
+    const role = String(payload?.role ?? "").toLowerCase() as Role;
+    const languageRaw = String(
+      payload?.language_preference ?? payload?.language ?? "fr",
+    ).toLowerCase();
+    const companyInput = String(
+      payload?.company_name ?? payload?.companyName ?? "",
     );
-  }
+    const planRaw = String(payload?.plan ?? "").toLowerCase();
+    const secretCode = String(
+      payload?.secretCode ?? payload?.secret_code ?? "",
+    ).trim();
 
-  // 4) Parsing body
-  let payload: any = {};
-  try {
-    payload = await req.json();
-  } catch {
-    payload = {};
-  }
+    // 👉 flag pour distinguer public vs dashboard
+    const createdByManagerRaw =
+      payload?.created_by_manager ?? payload?.createdByManager ?? false;
+    const createdByManager =
+      createdByManagerRaw === true ||
+      createdByManagerRaw === "true" ||
+      createdByManagerRaw === 1 ||
+      createdByManagerRaw === "1";
 
-  const email = String(payload?.email ?? "").trim().toLowerCase();
-  const password = String(payload?.password ?? "");
-  const fullName = String(payload?.full_name ?? payload?.fullName ?? "").trim();
-  const role = String(payload?.role ?? "").toLowerCase() as Role;
-  const languageRaw = String(
-    payload?.language_preference ?? payload?.language ?? "fr",
-  ).toLowerCase();
-  const companyInput = String(
-    payload?.company_name ?? payload?.companyName ?? "",
-  );
-  const planRaw = String(payload?.plan ?? "").toLowerCase();
-  const secretCode = String(
-    payload?.secretCode ?? payload?.secret_code ?? "",
-  ).trim();
-
-  // 👉 nouveau flag pour distinguer public vs dashboard
-  const createdByManagerRaw =
-    payload?.created_by_manager ?? payload?.createdByManager ?? false;
-  const createdByManager =
-    createdByManagerRaw === true ||
-    createdByManagerRaw === "true" ||
-    createdByManagerRaw === 1 ||
-    createdByManagerRaw === "1";
-
-  if (!email || !password || !fullName || !role || !companyInput) {
-    return json({ error: "missing_fields" }, 400, cors);
-  }
-
-  if (password.length < 8) {
-    return json({ error: "weak_password" }, 400, cors);
-  }
-
-  const language = SUPPORTED_LANGUAGES.has(languageRaw) ? languageRaw : "fr";
-  const { normalized: companyName, lower: companyLower } =
-    normalizeCompanyName(companyInput);
-
-  if (!companyName) {
-    return json({ error: "missing_fields" }, 400, cors);
-  }
-
-  if (!["manager", "agent", "user"].includes(role)) {
-    return json({ error: "invalid_role" }, 400, cors);
-  }
-
-  // 5) Env + clients Supabase
-  const supabaseUrl =
-    Deno.env.get("PROJECT_URL") ?? Deno.env.get("SUPABASE_URL");
-  const serviceKey =
-    Deno.env.get("NSH_SERVICE_ROLE_KEY") ??
-    Deno.env.get("SERVICE_ROLE_KEY") ??
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  const anonKey =
-    Deno.env.get("NSH_ANON_KEY") ??
-    Deno.env.get("SUPABASE_ANON_KEY") ??
-    Deno.env.get("ANON_KEY");
-
-  if (!supabaseUrl || !serviceKey || !anonKey) {
-    console.error("auth-signup: missing env vars", {
-      supabaseUrl: !!supabaseUrl,
-      serviceKey: !!serviceKey,
-      anonKey: !!anonKey,
-    });
-    return json({ error: "env_not_configured" }, 500, cors);
-  }
-
-  const admin = createClient(supabaseUrl, serviceKey);
-  const publicClient = createClient(supabaseUrl, anonKey);
-  const siteUrl =
-    Deno.env.get("SITE_URL") ?? origin ?? "https://www.nexussupporthub.eu";
-
-  const findCompanyByLowerName = async (
-    nameNormalized: string,
-    lowerName: string,
-  ) => {
-    const { data, error } = await admin
-      .from("companies")
-      .select("id, name")
-      .ilike("name", nameNormalized)
-      .limit(10);
-
-    if (error) throw error;
-    const row =
-      (data ?? []).find(
-        (item: any) =>
-          (item.name ?? "").trim().toLowerCase() === lowerName,
-      ) ?? null;
-    return row;
-  };
-
-  const resolvePlanId = async (planKey: PlanKey) => {
-    const { data, error } = await admin
-      .from("plans")
-      .select("id")
-      .eq("name", planKey)
-      .single();
-    if (error || !data?.id) return null;
-    return data.id as string | number;
-  };
-
-  const validateActivationCode = async (
-    secret: string,
-    companyLowerName: string,
-  ) => {
-    const { data, error } = await admin
-      .from("manager_activation_codes")
-      .select("id, company_name, consumed, expires_at")
-      .eq("code", secret)
-      .limit(1);
-
-    if (error || !data || data.length === 0) {
-      return { ok: false as const, error: "invalid_activation_code" };
+    if (!email || !password || !fullName || !role || !companyInput) {
+      return validationError(
+        "missing_fields",
+        "Required fields are missing.",
+        cors,
+      );
     }
 
-    const row = data[0] as ManagerActivationRow;
-
-    if (row.consumed) {
-      return { ok: false as const, error: "invalid_activation_code" };
-    }
-    if (row.expires_at && new Date(row.expires_at).getTime() < Date.now()) {
-      return { ok: false as const, error: "invalid_activation_code" };
-    }
-    if ((row.company_name ?? "").toLowerCase() !== companyLowerName) {
-      return { ok: false as const, error: "invalid_activation_code" };
+    if (password.length < 8) {
+      return validationError(
+        "weak_password",
+        "Password must contain at least 8 characters.",
+        cors,
+      );
     }
 
-    return { ok: true as const, row };
-  };
+    const language = SUPPORTED_LANGUAGES.has(languageRaw) ? languageRaw : "fr";
+    const { normalized: companyName, lower: companyLower } =
+      normalizeCompanyName(companyInput);
 
-  const consumeActivationCode = async (id: string, authUid: string) => {
-    await admin
-      .from("manager_activation_codes")
-      .update({
-        consumed: true,
-        consumed_by: authUid,
-        consumed_at: new Date().toISOString(),
-      })
-      .eq("id", id);
-  };
+    if (!companyName) {
+      return validationError("missing_fields", "Company name is required.", cors);
+    }
 
-  try {
+    if (!["manager", "agent", "user"].includes(role)) {
+      return validationError("invalid_role", "Invalid role.", cors);
+    }
+
+    // 5) Env + clients Supabase
+    const supabaseUrl =
+      Deno.env.get("PROJECT_URL") ?? Deno.env.get("SUPABASE_URL");
+    const serviceKey =
+      Deno.env.get("NSH_SERVICE_ROLE_KEY") ??
+      Deno.env.get("SERVICE_ROLE_KEY") ??
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    const anonKey =
+      Deno.env.get("NSH_ANON_KEY") ??
+      Deno.env.get("SUPABASE_ANON_KEY") ??
+      Deno.env.get("ANON_KEY");
+
+    if (!supabaseUrl || !serviceKey || !anonKey) {
+      console.error("auth-signup: missing env vars", {
+        supabaseUrl: !!supabaseUrl,
+        serviceKey: !!serviceKey,
+        anonKey: !!anonKey,
+      });
+      return internalError("env_not_configured", cors);
+    }
+
+    const admin = createClient(supabaseUrl, serviceKey);
+    const publicClient = createClient(supabaseUrl, anonKey);
+    const siteUrl =
+      Deno.env.get("SITE_URL") ?? origin ?? "https://www.nexussupporthub.eu";
+
+    const findCompanyByLowerName = async (
+      nameNormalized: string,
+      lowerName: string,
+    ) => {
+      const { data, error } = await admin
+        .from("companies")
+        .select("id, name")
+        .ilike("name", nameNormalized)
+        .limit(10);
+
+      if (error) {
+        console.error("auth-signup: findCompanyByLowerName failed", error);
+        return { error } as const;
+      }
+      const row =
+        (data ?? []).find(
+          (item: any) =>
+            (item.name ?? "").trim().toLowerCase() === lowerName,
+        ) ?? null;
+      return { row } as const;
+    };
+
+    const resolvePlanId = async (planKey: PlanKey) => {
+      const { data, error } = await admin
+        .from("plans")
+        .select("id")
+        .eq("name", planKey)
+        .single();
+      if (error || !data?.id) return null;
+      return data.id as string | number;
+    };
+
+    const validateActivationCode = async (
+      secret: string,
+      companyLowerName: string,
+    ) => {
+      const { data, error } = await admin
+        .from("manager_activation_codes")
+        .select("id, company_name, consumed, expires_at")
+        .eq("code", secret)
+        .limit(1);
+
+      if (error || !data || data.length === 0) {
+        if (error) {
+          console.error("auth-signup: activation code lookup failed", error);
+        }
+        return { ok: false as const, error: "invalid_activation_code" };
+      }
+
+      const row = data[0] as ManagerActivationRow;
+
+      if (row.consumed) {
+        return { ok: false as const, error: "invalid_activation_code" };
+      }
+      if (row.expires_at && new Date(row.expires_at).getTime() < Date.now()) {
+        return { ok: false as const, error: "invalid_activation_code" };
+      }
+      if ((row.company_name ?? "").toLowerCase() !== companyLowerName) {
+        return { ok: false as const, error: "invalid_activation_code" };
+      }
+
+      return { ok: true as const, row };
+    };
+
+    const consumeActivationCode = async (id: string, authUid: string) => {
+      const { error } = await admin
+        .from("manager_activation_codes")
+        .update({
+          consumed: true,
+          consumed_by: authUid,
+          consumed_at: new Date().toISOString(),
+        })
+        .eq("id", id);
+
+      if (error) {
+        console.error("auth-signup: consumeActivationCode failed", error);
+      }
+    };
+
+    const safeDeleteCompany = async (companyId: string) => {
+      const { error } = await admin.from("companies").delete().eq("id", companyId);
+      if (error) {
+        console.error("auth-signup: cleanup delete company failed", error);
+      }
+    };
+
+    const safeDeleteCompanySettings = async (companyId: string) => {
+      const { error } = await admin
+        .from("company_settings")
+        .delete()
+        .eq("company_id", companyId);
+      if (error) {
+        console.error("auth-signup: cleanup delete company_settings failed", error);
+      }
+    };
+
+    const safeDeleteAuthUser = async (authUid: string) => {
+      const { error } = await admin.auth.admin.deleteUser(authUid);
+      if (error) {
+        console.error("auth-signup: cleanup delete auth user failed", error);
+      }
+    };
+
     // --- BRANCHE MANAGER : self-signup public → email à confirmer ---
     if (role === "manager") {
       const planKey: PlanKey =
@@ -264,16 +475,32 @@ serve(async (req: Request): Promise<Response> => {
           ? (planRaw as PlanKey)
           : "freemium";
 
-      const existing = await findCompanyByLowerName(companyName, companyLower);
+      const { row: existing, error: companyLookupError } =
+        await findCompanyByLowerName(companyName, companyLower);
+
+      if (companyLookupError) {
+        return internalError("company_lookup_failed", cors, undefined, {
+          message: companyLookupError.message,
+        });
+      }
+
       if (existing) {
-        return json({ error: "company_name_taken" }, 409, cors);
+        return conflictError(
+          "company_in_use",
+          "A company with this name already exists.",
+          cors,
+        );
       }
 
       let activationRow: ManagerActivationRow | null = null;
 
       if (planKey === "standard" || planKey === "pro") {
         if (!secretCode) {
-          return json({ error: "invalid_activation_code" }, 400, cors);
+          return validationError(
+            "invalid_activation_code",
+            "An activation code is required for this plan.",
+            cors,
+          );
         }
 
         const activation = await validateActivationCode(
@@ -281,14 +508,22 @@ serve(async (req: Request): Promise<Response> => {
           companyLower,
         );
         if (!activation.ok) {
-          return json({ error: activation.error }, 400, cors);
+          return validationError(
+            activation.error,
+            "The provided activation code is invalid.",
+            cors,
+          );
         }
         activationRow = activation.row;
       }
 
       const planId = await resolvePlanId(planKey);
       if (!planId) {
-        return json({ error: "plan_not_found" }, 400, cors);
+        return validationError(
+          "plan_not_found",
+          "Selected plan could not be found.",
+          cors,
+        );
       }
 
       // Manager = toujours self-signup → email à confirmer
@@ -307,11 +542,8 @@ serve(async (req: Request): Promise<Response> => {
 
       if (signUpError || !signUpData?.user) {
         console.error("auth-signup: signUp (manager) failed", signUpError);
-        return json(
-          { error: "create_failed", details: signUpError?.message },
-          500,
-          cors,
-        );
+        const mapped = mapAuthSignUpError(signUpError);
+        return json(mapped.body, mapped.status, cors);
       }
 
       const authUid = signUpData.user.id;
@@ -324,12 +556,14 @@ serve(async (req: Request): Promise<Response> => {
 
       if (companyError || !company?.id) {
         console.error("auth-signup: create company failed", companyError);
-        await admin.auth.admin.deleteUser(authUid).catch(() => {});
-        return json(
-          { error: "create_failed", details: companyError?.message },
-          500,
-          cors,
+        await safeDeleteAuthUser(authUid);
+        const conflict = mapDbConflict(
+          companyError,
+          "company_in_use",
+          "A company with this name already exists.",
         );
+        if (conflict) return json(conflict.body, conflict.status, cors);
+        return internalError("company_create_failed", cors);
       }
 
       const companyId = company.id as string;
@@ -341,17 +575,51 @@ serve(async (req: Request): Promise<Response> => {
       });
 
       if (settingsResult.error) {
-        console.error(
-          "auth-signup: create company_settings failed",
-          settingsResult.error,
-        );
-        await admin.from("companies").delete().eq("id", companyId).catch(() => {});
-        await admin.auth.admin.deleteUser(authUid).catch(() => {});
-        return json(
-          { error: "create_failed", details: settingsResult.error.message },
-          500,
-          cors,
-        );
+        const settingsError = settingsResult.error;
+        const isDuplicate =
+          String(settingsError?.code ?? "").toUpperCase() === "23505" &&
+          ((settingsError?.message ?? "").includes("company_settings_pkey") ||
+            (settingsError?.details ?? "").includes("company_settings_pkey"));
+        const isMissingPlanTier =
+          String(settingsError?.code ?? "").toUpperCase() === "42703" ||
+          (settingsError?.message ?? "").toLowerCase().includes("plan_tier");
+
+        if (isDuplicate) {
+          console.warn(
+            "auth-signup: company_settings already exists for company_id",
+            companyId,
+          );
+        } else if (isMissingPlanTier) {
+          console.warn(
+            "auth-signup: company_settings.plan_tier column missing, retrying without it",
+          );
+          const fallback = await admin.from("company_settings").insert({
+            company_id: companyId,
+            timezone: DEFAULT_TIMEZONE,
+          });
+
+          if (fallback.error) {
+            console.error(
+              "auth-signup: fallback create company_settings failed",
+              fallback.error,
+            );
+            await safeDeleteCompany(companyId);
+            await safeDeleteAuthUser(authUid);
+            return internalError("company_settings_failed", cors, undefined, {
+              message: fallback.error.message,
+            });
+          }
+        } else {
+          console.error(
+            "auth-signup: create company_settings failed",
+            settingsError,
+          );
+          await safeDeleteCompany(companyId);
+          await safeDeleteAuthUser(authUid);
+          return internalError("company_settings_failed", cors, undefined, {
+            message: settingsError.message,
+          });
+        }
       }
 
       const { error: profileError } = await admin.from("users").insert({
@@ -365,39 +633,46 @@ serve(async (req: Request): Promise<Response> => {
 
       if (profileError) {
         console.error("auth-signup: insert manager profile failed", profileError);
-        await admin.from("company_settings")
-          .delete()
-          .eq("company_id", companyId)
-          .catch(() => {});
-        await admin.from("companies").delete().eq("id", companyId).catch(() => {});
-        await admin.auth.admin.deleteUser(authUid).catch(() => {});
-        return json(
-          { error: "profile_insert_failed", details: profileError.message },
-          500,
-          cors,
+        await safeDeleteCompanySettings(companyId);
+        await safeDeleteCompany(companyId);
+        await safeDeleteAuthUser(authUid);
+        const conflict = mapDbConflict(
+          profileError,
+          "profile_exists",
+          "A profile already exists for this account.",
         );
+        if (conflict) return json(conflict.body, conflict.status, cors);
+        return internalError("profile_insert_failed", cors);
       }
 
       if (activationRow) {
-        await consumeActivationCode(activationRow.id, authUid).catch(() => {});
+        await consumeActivationCode(activationRow.id, authUid);
       }
 
-      return json(
-        {
-          ok: true,
-          company_id: companyId,
-          user_id: authUid,
-          requires_email_confirmation: true,
-        },
-        200,
-        cors,
-      );
+      return successResponse(cors, {
+        companyId,
+        userId: authUid,
+        email,
+        requiresEmailConfirmation: true,
+      });
     }
 
     // --- BRANCHE AGENT / USER ---
-    const company = await findCompanyByLowerName(companyName, companyLower);
+    const { row: company, error: companyLookupError } =
+      await findCompanyByLowerName(companyName, companyLower);
+
+    if (companyLookupError) {
+      return internalError("company_lookup_failed", cors, undefined, {
+        message: companyLookupError.message,
+      });
+    }
+
     if (!company?.id) {
-      return json({ error: "company_not_found" }, 400, cors);
+      return validationError(
+        "company_not_found",
+        "Company not found.",
+        cors,
+      );
     }
 
     // 🔀 Logique selon l'origine :
@@ -418,11 +693,8 @@ serve(async (req: Request): Promise<Response> => {
 
       if (authError || !auth?.user) {
         console.error("auth-signup: createUser (agent/user) failed", authError);
-        return json(
-          { error: "create_failed", details: authError?.message },
-          500,
-          cors,
-        );
+        const mapped = mapAuthSignUpError(authError);
+        return json(mapped.body, mapped.status, cors);
       }
 
       const authUid = auth.user.id;
@@ -441,24 +713,22 @@ serve(async (req: Request): Promise<Response> => {
           "auth-signup: insert profile (agent/user, dashboard) failed",
           profileError,
         );
-        await admin.auth.admin.deleteUser(authUid).catch(() => {});
-        return json(
-          { error: "profile_insert_failed", details: profileError.message },
-          500,
-          cors,
+        await safeDeleteAuthUser(authUid);
+        const conflict = mapDbConflict(
+          profileError,
+          "profile_exists",
+          "A profile already exists for this account.",
         );
+        if (conflict) return json(conflict.body, conflict.status, cors);
+        return internalError("profile_insert_failed", cors);
       }
 
-      return json(
-        {
-          ok: true,
-          company_id: company.id,
-          user_id: authUid,
-          requires_email_confirmation: false,
-        },
-        200,
-        cors,
-      );
+      return successResponse(cors, {
+        companyId: company.id,
+        userId: authUid,
+        email,
+        requiresEmailConfirmation: false,
+      });
     } else {
       // Self-signup public d'un agent/user → email de confirmation requis
       const { data: signUpData, error: signUpError } =
@@ -476,11 +746,8 @@ serve(async (req: Request): Promise<Response> => {
 
       if (signUpError || !signUpData?.user) {
         console.error("auth-signup: signUp (agent/user, public) failed", signUpError);
-        return json(
-          { error: "create_failed", details: signUpError?.message },
-          500,
-          cors,
-        );
+        const mapped = mapAuthSignUpError(signUpError);
+        return json(mapped.body, mapped.status, cors);
       }
 
       const authUid = signUpData.user.id;
@@ -499,35 +766,25 @@ serve(async (req: Request): Promise<Response> => {
           "auth-signup: insert profile (agent/user, public) failed",
           profileError,
         );
-        await admin.auth.admin.deleteUser(authUid).catch(() => {});
-        return json(
-          { error: "profile_insert_failed", details: profileError.message },
-          500,
-          cors,
+        await safeDeleteAuthUser(authUid);
+        const conflict = mapDbConflict(
+          profileError,
+          "profile_exists",
+          "A profile already exists for this account.",
         );
+        if (conflict) return json(conflict.body, conflict.status, cors);
+        return internalError("profile_insert_failed", cors);
       }
 
-      return json(
-        {
-          ok: true,
-          company_id: company.id,
-          user_id: authUid,
-          requires_email_confirmation: true,
-        },
-        200,
-        cors,
-      );
+      return successResponse(cors, {
+        companyId: company.id,
+        userId: authUid,
+        email,
+        requiresEmailConfirmation: true,
+      });
     }
   } catch (e) {
     console.error("auth-signup unexpected error", e);
-    return json(
-      {
-        code: 500,
-        message: "AUTH_SIGNUP_INTERNAL_ERROR",
-        details: e instanceof Error ? e.message : String(e),
-      },
-      500,
-      cors,
-    );
+    return internalError("unexpected_exception", cors);
   }
 });

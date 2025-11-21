@@ -1602,7 +1602,11 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
 };
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  return <AppProviderContent>{children}</AppProviderContent>;
+  return (
+    <LanguageProvider>
+      <AppProviderContent>{children}</AppProviderContent>
+    </LanguageProvider>
+  );
 };
 
 export const useApp = (): AppContextType => {
@@ -1827,13 +1831,11 @@ const MainAppContent: React.FC = () => {
 
 function App() {
   return (
-    <LanguageProvider>
-      <AppProvider>
-        <HashRouter>
-          <MainAppContent />
-        </HashRouter>
-      </AppProvider>
-    </LanguageProvider>
+    <AppProvider>
+      <HashRouter>
+        <MainAppContent />
+      </HashRouter>
+    </AppProvider>
   );
 }
 

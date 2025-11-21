@@ -1,13 +1,5 @@
 import { supabase } from "./supabaseClient";
 
-const DEFAULT_FUNCTIONS_BASE = (() => {
-  const fromEnv = import.meta.env.VITE_SUPABASE_FUNCTIONS_URL;
-  if (fromEnv) return fromEnv.replace(/\/$/, "");
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-  if (supabaseUrl) return `${supabaseUrl.replace(/\/$/, "")}/functions/v1`;
-  return "";
-})();
-
 function safeStringify(input: any): string {
   if (input === undefined) return "";
   if (typeof input === "string") return input;
@@ -44,13 +36,14 @@ export async function callEdgeWithFallback(
   fn: string,
   init: (RequestInit & { json?: any; accessToken?: string }) | undefined = {},
 ): Promise<Response> {
-  const { json, accessToken, ...rest } = init;
-  const headers = buildHeaders(rest.headers, accessToken);
-  const body = json !== undefined ? safeStringify(json) : rest.body;
+  const headers = buildHeaders(init.headers, init.accessToken);
+  const { headers: _ignored, json, body, method, accessToken: _accessToken, ...restInit } = init;
+
   const requestInit: RequestInit = {
-    ...rest,
+    method: method ?? "POST",
+    ...restInit,
     headers,
-    body,
+    body: json !== undefined ? safeStringify(json) : body,
   };
 
   const edgeUrl = `/api/edge-proxy/${fn}`;
@@ -58,21 +51,56 @@ export async function callEdgeWithFallback(
 
   try {
     const edgeResponse = await fetch(edgeUrl, requestInit);
-    if (edgeResponse.ok || edgeResponse.status < 500) {
-      return edgeResponse;
+
+    if (edgeResponse.status >= 500) {
+      throw { kind: "edge_call_failed", response: edgeResponse } as const;
     }
-    edgeError = new Error(`edge_proxy_status_${edgeResponse.status}`);
+
+    return edgeResponse;
   } catch (error) {
     edgeError = error;
   }
 
-  if (!DEFAULT_FUNCTIONS_BASE) {
-    if (edgeError) throw edgeError instanceof Error ? edgeError : new Error(String(edgeError));
-    throw new Error("Missing Supabase functions base URL");
-  }
+  const headersObject: Record<string, string> = {};
+  headers.forEach((value, key) => {
+    headersObject[key] = value;
+  });
 
-  const fallbackUrl = `${DEFAULT_FUNCTIONS_BASE}/${fn}`;
-  return fetch(fallbackUrl, requestInit);
+  const invokeBody =
+    json !== undefined
+      ? json
+      : (() => {
+          if (typeof requestInit.body === "string") {
+            try {
+              return JSON.parse(requestInit.body);
+            } catch {
+              return requestInit.body;
+            }
+          }
+          return requestInit.body as any;
+        })();
+
+  try {
+    const { data, error, status, statusText } = await supabase.functions.invoke(fn, {
+      method: requestInit.method as any,
+      body: invokeBody,
+      headers: headersObject,
+    });
+
+    const responseStatus = typeof status === "number" ? status : 520;
+    const payload = error ?? data ?? null;
+
+    return new Response(JSON.stringify(payload ?? {}), {
+      status: responseStatus,
+      statusText,
+      headers: { "content-type": "application/json" },
+    });
+  } catch (fallbackError) {
+    if (edgeError) throw edgeError instanceof Error ? edgeError : new Error(String(edgeError));
+    throw fallbackError instanceof Error
+      ? fallbackError
+      : new Error(typeof fallbackError === "string" ? fallbackError : "functions_invoke_failed");
+  }
 }
 
 export async function getAccessToken(): Promise<string | undefined> {
