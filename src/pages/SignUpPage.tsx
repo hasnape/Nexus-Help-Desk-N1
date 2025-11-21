@@ -7,8 +7,6 @@ import { Button, Input, Select } from "@/components/FormElements";
 import type { Locale } from "@/contexts/LanguageContext";
 import { UserRole } from "@/types";
 import { getPricingPlans, type PricingPlan, type PricingPlanKey } from "@/utils/pricing";
-import { signUpViaAuthFunction } from "@/services/authService";
-import { signupErrorMapper } from "@/services/signupErrorMapper";
 
 const paypalLinks = {
   standard: "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-0E515487AE797135CNBTRYKA",
@@ -243,6 +241,11 @@ const PlanCard: React.FC<{
   onSelect: (plan: PricingPlanKey) => void;
   t: (key: string, options?: { [key: string]: any }) => string;
   badgeText?: string;
+  demoHref?: string;
+  demoLabel?: string;
+  buyHref?: string;
+  onBuy?: () => void;
+  buyLabel?: string;
 }> = ({
   planKey,
   plan,
@@ -250,6 +253,11 @@ const PlanCard: React.FC<{
   onSelect,
   t,
   badgeText,
+  demoHref,
+  demoLabel,
+  buyHref,
+  onBuy,
+  buyLabel,
 }) => {
   const isSelectable = planKey !== "pro";
   const buttonKey = isSelectable ? `pricing.select_${planKey}` : "pricing.view_pro_details";
@@ -259,11 +267,22 @@ const PlanCard: React.FC<{
     }),
   });
   const planTitle = t(`pricing.${planKey}`, { defaultValue: plan.name });
+  const demoButtonLabel = demoLabel ??
+    t("signupPlans.demoButton", {
+      defaultValue: t("pricing.requestDemo", { defaultValue: "Demander une démo" }),
+    });
+  const purchaseButtonLabel = buyLabel ?? plan.cta ??
+    t("signupPlans.subscribeDefault", { defaultValue: "Souscrire maintenant" });
 
   const actionButtonBase = "w-100 fw-semibold d-flex align-items-center justify-content-center gap-2";
 
   const handleSelectClick = () => {
     onSelect(planKey);
+  };
+
+  const handleBuyClick = () => {
+    onSelect(planKey);
+    onBuy?.();
   };
 
   return (
@@ -370,6 +389,51 @@ const PlanCard: React.FC<{
             </svg>
           ) : null}
         </button>
+
+        <div className="d-flex flex-column gap-2">
+          {demoHref ? (
+            <a
+              href={demoHref}
+              className={`btn btn-outline-primary ${actionButtonBase}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${demoButtonLabel} - ${planTitle}`}
+            >
+              {demoButtonLabel}
+            </a>
+          ) : demoLabel ? (
+            <button
+              type="button"
+              className={`btn btn-outline-primary ${actionButtonBase}`}
+              onClick={handleSelectClick}
+              aria-label={`${demoButtonLabel} - ${planTitle}`}
+            >
+              {demoButtonLabel}
+            </button>
+          ) : null}
+
+          {buyHref ? (
+            <a
+              href={buyHref}
+              className={`btn btn-primary ${actionButtonBase}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => onSelect(planKey)}
+              aria-label={`${purchaseButtonLabel} - ${planTitle}`}
+            >
+              {purchaseButtonLabel}
+            </a>
+          ) : onBuy ? (
+            <button
+              type="button"
+              className={`btn btn-primary ${actionButtonBase}`}
+              onClick={handleBuyClick}
+              aria-label={`${purchaseButtonLabel} - ${planTitle}`}
+            >
+              {purchaseButtonLabel}
+            </button>
+          ) : null}
+        </div>
       </div>
     </div>
   );
@@ -386,14 +450,13 @@ const SignUpPage: React.FC = () => {
   const [secretCode, setSecretCode] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [error, setError] = useState("");
-  const [successMessage, setSuccessMessage] = useState<string>("");
-  const [showLoginSuggestion, setShowLoginSuggestion] = useState(false);
+  const [success, setSuccess] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showProModal, setShowProModal] = useState(false);
   const [showFreemiumModal, setShowFreemiumModal] = useState(false);
   const [showStandardModal, setShowStandardModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<PricingPlanKey | null>(null);
-  const { user, setNewlyCreatedCompanyName } = useApp();
+  const { signUp, user } = useApp();
   const pricingPlans = getPricingPlans(t);
   const popularBadge = t("pricing.badges.popular", { defaultValue: "Popular" });
   const navigate = useNavigate();
@@ -484,59 +547,46 @@ const SignUpPage: React.FC = () => {
     }
 
     setError("");
-    setSuccessMessage("");
-    setShowLoginSuggestion(false);
+    setSuccess("");
     setIsLoading(true);
 
     const trimmedEmail = email.trim();
     const trimmedCompanyName = companyName.trim();
-    try {
-      const { ok, status, body } = await signUpViaAuthFunction({
-        email: trimmedEmail,
-        password,
-        fullName: fullName.trim(),
-        role,
-        companyName: trimmedCompanyName,
-        lang: selectedLanguage as Locale,
-        plan:
-          role === UserRole.MANAGER && effectivePlan
-            ? (effectivePlan as "freemium" | "standard" | "pro")
-            : undefined,
-        secretCode:
-          role === UserRole.MANAGER && effectivePlan && effectivePlan !== "freemium"
-            ? secretCode.trim()
-            : undefined,
-      });
 
-      if (!ok) {
-        setError(
-          signupErrorMapper(t, (body as any)?.reason, (body as any)?.message, status, {
-            companyName: trimmedCompanyName,
-          }),
-        );
-        setShowLoginSuggestion(status === 409);
-        return;
-      }
+    const result = await signUp(trimmedEmail, fullName.trim(), password, {
+      lang: selectedLanguage,
+      role: role,
+      companyName: trimmedCompanyName,
+      secretCode:
+        role === UserRole.MANAGER && effectivePlan && effectivePlan !== "freemium"
+          ? secretCode.trim()
+          : undefined,
+      plan:
+        role === UserRole.MANAGER && effectivePlan
+          ? (effectivePlan as "freemium" | "standard" | "pro")
+          : undefined,
+    });
 
-      if (role === UserRole.MANAGER) {
-        setNewlyCreatedCompanyName(trimmedCompanyName);
-      }
+    setIsLoading(false);
 
-      const successText =
-        (typeof (body as any)?.message === "string" && (body as any).message.trim()) ||
-        t("auth.signup.successPendingEmailConfirmation", {
-          email: trimmedEmail,
-        });
+    if (result.success) {
+      const successMessage =
+        role === UserRole.MANAGER
+          ? t("signup.success.companyCreatedPendingEmail", { email: trimmedEmail })
+          : t("signup.success.emailSent", { email: trimmedEmail });
+      setSuccess(successMessage);
 
-      setSuccessMessage(successText);
-      setShowLoginSuggestion(false);
-    } catch (err) {
-      console.error("auth-signup request failed", err);
-      setError(t("auth.signup.genericError"));
-      setShowLoginSuggestion(false);
-    } finally {
-      setIsLoading(false);
+      setTimeout(() => {
+        navigate("/login");
+      }, 3500);
+      return;
     }
+
+    const translatedError = t(`signup.apiErrors.${result.error}`, {
+      companyName: trimmedCompanyName,
+      defaultValue: t("signup.error.generic"),
+    });
+    setError(translatedError);
   };
 
   const handlePlanSelect = (plan: PricingPlanKey) => {
@@ -642,34 +692,35 @@ const SignUpPage: React.FC = () => {
               </div>
 
               {error && (
-                <div className="mb-4 text-center text-red-600 bg-red-100 p-3 rounded-md border border-red-200">
-                  <p>{error}</p>
-                  {showLoginSuggestion ? (
-                    <button
-                      type="button"
-                      className="mt-2 inline-flex items-center text-sm font-medium underline"
-                      onClick={() => navigate("/login")}
+                <p className="mb-4 text-center text-red-600 bg-red-100 p-3 rounded-md border border-red-200">
+                  {error}
+                </p>
+              )}
+
+              {success && (
+                <div className="mb-4 text-center text-green-600 bg-green-100 p-3 rounded-md border border-green-200">
+                  <div className="flex items-center justify-center mb-2">
+                    <svg
+                      className="w-5 h-5 mr-2"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
                     >
-                      {t("auth.signup.goToLogin")}
-                    </button>
-                  ) : null}
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <span className="font-semibold">Inscription réussie !</span>
+                  </div>
+                  <p className="text-sm">{success}</p>
+                  <p className="text-xs mt-2 text-green-500">
+                    Redirection vers la connexion...
+                  </p>
                 </div>
               )}
 
-              {successMessage && (
-                <div className="mb-4 rounded-md border border-green-600 bg-green-50 px-4 py-3 text-sm text-green-800">
-                  <p>{successMessage}</p>
-                  <button
-                    type="button"
-                    className="mt-2 inline-flex items-center text-sm font-medium underline"
-                    onClick={() => navigate("/login")}
-                  >
-                    {t("auth.signup.goToLogin")}
-                  </button>
-                </div>
-              )}
-
-              {role === UserRole.MANAGER && (
+              {role === UserRole.MANAGER && !success && (
                 <div className="mb-8" ref={offersRef}>
                   <div className="text-center mb-6">
                     <h2 className="text-2xl font-bold text-textPrimary mb-2">
@@ -691,6 +742,12 @@ const SignUpPage: React.FC = () => {
                       isSelected={selectedPlan === "freemium"}
                       onSelect={handlePlanSelect}
                       t={t}
+                      demoHref="/landing#demo"
+                      buyLabel={t("signupPlans.freemium.modal.buttons.subscribe", { defaultValue: pricingPlans.freemium.cta })}
+                      onBuy={() => {
+                        setSelectedPlan("freemium");
+                        setShowFreemiumModal(true);
+                      }}
                     />
                     <PlanCard
                       planKey="standard"
@@ -699,6 +756,9 @@ const SignUpPage: React.FC = () => {
                       onSelect={handlePlanSelect}
                       t={t}
                       badgeText={popularBadge}
+                      demoHref="/landing#demo"
+                      buyHref={paypalLinks.standard}
+                      buyLabel={t("signupPlans.standard.modal.buttons.subscribe", { defaultValue: pricingPlans.standard.cta })}
                     />
                     <PlanCard
                       planKey="pro"
@@ -706,6 +766,9 @@ const SignUpPage: React.FC = () => {
                       isSelected={selectedPlan === "pro"}
                       onSelect={handlePlanSelect}
                       t={t}
+                      demoHref="/landing#demo"
+                      buyHref={paypalLinks.pro}
+                      buyLabel={t("signupPlans.pro.modal.buttons.subscribe", { defaultValue: pricingPlans.pro.cta })}
                     />
                   </div>
 
@@ -733,8 +796,9 @@ const SignUpPage: React.FC = () => {
                 </div>
               )}
 
-              <div className="max-w-md mx-auto">
-                <form onSubmit={handleSubmit} className="space-y-5">
+              {!success && (
+                <div className="max-w-md mx-auto">
+                  <form onSubmit={handleSubmit} className="space-y-5">
                     <Input
                       label={t("signup.emailLabel")}
                       id="email"
@@ -903,6 +967,7 @@ const SignUpPage: React.FC = () => {
                     </Button>
                   </form>
                 </div>
+              )}
               <div className="mt-6 text-sm text-center text-slate-500 space-y-2">
                 <p>
                   {t("signup.alreadyHaveAccount")}{" "}

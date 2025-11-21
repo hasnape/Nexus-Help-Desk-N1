@@ -28,41 +28,6 @@ export async function signUpWithEmail(
   return data.user;
 }
 
-export async function signUpViaAuthFunction(payload: {
-  email: string;
-  password: string;
-  companyName: string;
-  fullName?: string;
-  lang?: 'fr' | 'en' | 'ar';
-  role?: 'manager' | 'agent' | 'user';
-  plan?: 'freemium' | 'standard' | 'pro';
-  secretCode?: string;
-}) {
-  const { email, password, companyName, fullName, lang, role, plan, secretCode } = payload;
-
-  const body = {
-    email,
-    password,
-    full_name: fullName,
-    company_name: companyName,
-    language_preference: lang,
-    role,
-    plan,
-    secret_code: secretCode,
-  };
-
-  const { data, error, status, statusText } = await supabase.functions.invoke('auth-signup', {
-    method: 'POST',
-    body,
-  });
-
-  const resolvedStatus = typeof status === 'number' ? status : 520;
-  const payloadBody = error ?? data ?? null;
-  const ok = resolvedStatus >= 200 && resolvedStatus < 300;
-
-  return { ok, status: resolvedStatus, statusText, body: payloadBody };
-}
-
 export async function signOut() {
   await supabase.auth.signOut();
 }
