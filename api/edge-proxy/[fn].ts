@@ -15,8 +15,39 @@ function jsonError(message: string, status = 500): Response {
   });
 }
 
+function makeAllowedOrigins() {
+  const staticOrigins = [
+    "https://www.nexussupporthub.eu",
+    "https://nexus-help-desk-n1.vercel.app",
+    "http://localhost:5173",
+  ];
+  const dynamic =
+    process.env.ALLOWED_ORIGINS || process.env.SUPABASE_ALLOWED_ORIGINS || "";
+  const extra = dynamic
+    .split(",")
+    .map((o) => o.trim())
+    .filter(Boolean);
+  return new Set([...staticOrigins, ...extra]);
+}
+
 export default async function handler(req: Request): Promise<Response> {
   const url = new URL(req.url);
+  const allowedOrigins = makeAllowedOrigins();
+  const incomingOrigin = req.headers.get("origin");
+
+  if (req.method === "OPTIONS") {
+    const cors = incomingOrigin && allowedOrigins.has(incomingOrigin)
+      ? { "Access-Control-Allow-Origin": incomingOrigin, Vary: "Origin" }
+      : { Vary: "Origin" };
+    return new Response(null, {
+      status: 204,
+      headers: {
+        ...cors,
+        "Access-Control-Allow-Headers": "authorization, apikey, content-type, x-client-info",
+        "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,PATCH,OPTIONS",
+      },
+    });
+  }
 
   // Récupère le nom de la function :
   // /api/edge-proxy/nexus-ai → "nexus-ai"
@@ -27,10 +58,9 @@ export default async function handler(req: Request): Promise<Response> {
     return jsonError("Missing function name in URL.", 400);
   }
 
-  // Base des Edge Functions Supabase
-  // Exemple attendu :
-  // https://iqvshiebmusybtzbijrg.functions.supabase.co/functions/v1
-  const baseFromEnv = process.env.SUPABASE_FUNCTIONS_URL;
+  const baseFromEnv =
+    process.env.SUPABASE_FUNCTIONS_URL ||
+    (process.env.SUPABASE_URL ? `${process.env.SUPABASE_URL.replace(/\/$/, "")}/functions/v1` : "");
 
   if (!baseFromEnv) {
     return jsonError(
@@ -39,22 +69,17 @@ export default async function handler(req: Request): Promise<Response> {
     );
   }
 
-  const functionsBase = baseFromEnv.replace(/\/$/, ""); // enlève "/" final si présent
+  const functionsBase = baseFromEnv.replace(/\/$/, "");
   const targetUrl = `${functionsBase}/${fn}`;
 
-  // On propage les headers + Origin
-  const incomingOrigin = req.headers.get("origin") || undefined;
   const forwardHeaders = new Headers(req.headers);
-
   if (incomingOrigin) {
     forwardHeaders.set("origin", incomingOrigin);
   } else {
     forwardHeaders.delete("origin");
   }
 
-  // Ajout de la clé anon côté serveur (non visible dans le front)
-  const anonKey =
-    process.env.SUPABASE_ANON_KEY ?? process.env.VITE_SUPABASE_ANON_KEY;
+  const anonKey = process.env.SUPABASE_ANON_KEY ?? process.env.VITE_SUPABASE_ANON_KEY;
 
   if (!forwardHeaders.has("authorization") && !anonKey) {
     return jsonError(
@@ -71,8 +96,7 @@ export default async function handler(req: Request): Promise<Response> {
   }
 
   const method = req.method.toUpperCase();
-  const body =
-    method === "GET" || method === "HEAD" ? undefined : req.body ?? null;
+  const body = method === "GET" || method === "HEAD" ? undefined : await req.text();
 
   try {
     const supabaseResponse = await fetch(targetUrl, {
@@ -82,11 +106,13 @@ export default async function handler(req: Request): Promise<Response> {
     });
 
     const respHeaders = new Headers(supabaseResponse.headers);
+    const corsOrigin =
+      incomingOrigin && allowedOrigins.has(incomingOrigin)
+        ? incomingOrigin
+        : undefined;
 
-    // Si la fonction a déjà mis les bons headers CORS, on les garde.
-    // Sinon, on met au moins Origin + Vary pour être propre.
-    if (!respHeaders.has("Access-Control-Allow-Origin") && incomingOrigin) {
-      respHeaders.set("Access-Control-Allow-Origin", incomingOrigin);
+    if (!respHeaders.has("Access-Control-Allow-Origin") && corsOrigin) {
+      respHeaders.set("Access-Control-Allow-Origin", corsOrigin);
       respHeaders.set("Vary", "Origin");
     }
 
