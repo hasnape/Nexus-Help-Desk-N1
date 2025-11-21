@@ -145,7 +145,7 @@ function mapAuthSignUpError(error: any) {
   if (
     status === 400 &&
     (error?.code === "email_address_invalid" ||
-      (message.includes("email address") && message.includes("invalid")))
+      message.includes("email address") && message.includes("invalid"))
   ) {
     return {
       status: 400,
