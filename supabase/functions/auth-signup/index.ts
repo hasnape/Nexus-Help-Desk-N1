@@ -78,6 +78,39 @@ function normalizeCompanyName(input: string | null | undefined) {
   return { original: input, normalized: trimmed, lower: trimmed.toLowerCase() };
 }
 
+function mapAuthSignUpError(error: any) {
+  const message = String(error?.message ?? "").toLowerCase();
+  const status = typeof error?.status === "number" ? error.status : undefined;
+
+  if (
+    message.includes("registered") ||
+    message.includes("already exists") ||
+    error?.code === "email_exists"
+  ) {
+    return { status: 409, body: { error: "email_already_registered" } } as const;
+  }
+
+  if (status && status >= 400 && status < 500) {
+    return {
+      status,
+      body: { error: error?.code ?? "auth_error", message: error?.message },
+    } as const;
+  }
+
+  return {
+    status: 500,
+    body: { error: "create_failed", details: error?.message },
+  } as const;
+}
+
+function mapDbConflict(error: any, conflictError: string) {
+  const code = String(error?.code ?? "").toUpperCase();
+  if (code === "23505") {
+    return { status: 409, body: { error: conflictError } } as const;
+  }
+  return null;
+}
+
 serve(async (req: Request): Promise<Response> => {
   const origin = req.headers.get("Origin");
   const cors = makeCorsHeaders(origin);
@@ -307,11 +340,8 @@ serve(async (req: Request): Promise<Response> => {
 
       if (signUpError || !signUpData?.user) {
         console.error("auth-signup: signUp (manager) failed", signUpError);
-        return json(
-          { error: "create_failed", details: signUpError?.message },
-          500,
-          cors,
-        );
+        const mapped = mapAuthSignUpError(signUpError);
+        return json(mapped.body, mapped.status, cors);
       }
 
       const authUid = signUpData.user.id;
@@ -325,11 +355,9 @@ serve(async (req: Request): Promise<Response> => {
       if (companyError || !company?.id) {
         console.error("auth-signup: create company failed", companyError);
         await admin.auth.admin.deleteUser(authUid).catch(() => {});
-        return json(
-          { error: "create_failed", details: companyError?.message },
-          500,
-          cors,
-        );
+        const conflict = mapDbConflict(companyError, "company_name_taken");
+        if (conflict) return json(conflict.body, conflict.status, cors);
+        return json({ error: "create_failed" }, 500, cors);
       }
 
       const companyId = company.id as string;
@@ -371,11 +399,9 @@ serve(async (req: Request): Promise<Response> => {
           .catch(() => {});
         await admin.from("companies").delete().eq("id", companyId).catch(() => {});
         await admin.auth.admin.deleteUser(authUid).catch(() => {});
-        return json(
-          { error: "profile_insert_failed", details: profileError.message },
-          500,
-          cors,
-        );
+        const conflict = mapDbConflict(profileError, "profile_exists");
+        if (conflict) return json(conflict.body, conflict.status, cors);
+        return json({ error: "profile_insert_failed" }, 500, cors);
       }
 
       if (activationRow) {
@@ -418,11 +444,8 @@ serve(async (req: Request): Promise<Response> => {
 
       if (authError || !auth?.user) {
         console.error("auth-signup: createUser (agent/user) failed", authError);
-        return json(
-          { error: "create_failed", details: authError?.message },
-          500,
-          cors,
-        );
+        const mapped = mapAuthSignUpError(authError);
+        return json(mapped.body, mapped.status, cors);
       }
 
       const authUid = auth.user.id;
@@ -442,11 +465,9 @@ serve(async (req: Request): Promise<Response> => {
           profileError,
         );
         await admin.auth.admin.deleteUser(authUid).catch(() => {});
-        return json(
-          { error: "profile_insert_failed", details: profileError.message },
-          500,
-          cors,
-        );
+        const conflict = mapDbConflict(profileError, "profile_exists");
+        if (conflict) return json(conflict.body, conflict.status, cors);
+        return json({ error: "profile_insert_failed" }, 500, cors);
       }
 
       return json(
@@ -476,11 +497,8 @@ serve(async (req: Request): Promise<Response> => {
 
       if (signUpError || !signUpData?.user) {
         console.error("auth-signup: signUp (agent/user, public) failed", signUpError);
-        return json(
-          { error: "create_failed", details: signUpError?.message },
-          500,
-          cors,
-        );
+        const mapped = mapAuthSignUpError(signUpError);
+        return json(mapped.body, mapped.status, cors);
       }
 
       const authUid = signUpData.user.id;
@@ -500,11 +518,9 @@ serve(async (req: Request): Promise<Response> => {
           profileError,
         );
         await admin.auth.admin.deleteUser(authUid).catch(() => {});
-        return json(
-          { error: "profile_insert_failed", details: profileError.message },
-          500,
-          cors,
-        );
+        const conflict = mapDbConflict(profileError, "profile_exists");
+        if (conflict) return json(conflict.body, conflict.status, cors);
+        return json({ error: "profile_insert_failed" }, 500, cors);
       }
 
       return json(

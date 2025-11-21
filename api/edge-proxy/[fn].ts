@@ -31,6 +31,22 @@ function setCorsHeaders(res: VercelResponse, origin?: string) {
   res.setHeader('Access-Control-Allow-Methods', 'POST,GET,OPTIONS');
 }
 
+function getFunctionName(req: VercelRequest): string | undefined {
+  const q = req.query.fn;
+  if (typeof q === 'string' && q.trim().length > 0) {
+    return q.trim();
+  }
+
+  const url = req.url || '';
+  const path = url.split('?')[0];
+  const segments = path.split('/').filter(Boolean);
+  const last = segments[segments.length - 1];
+  if (last && last !== 'edge-proxy') {
+    return last;
+  }
+  return undefined;
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const corsOrigin = getCorsOrigin(req);
 
@@ -41,8 +57,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
-  const fnParam = req.query.fn;
-  const fn = typeof fnParam === 'string' ? fnParam : undefined;
+  const fn = getFunctionName(req);
 
   if (!fn) {
     setCorsHeaders(res, corsOrigin);
