@@ -7,6 +7,8 @@ import { Button, Input, Select } from "@/components/FormElements";
 import type { Locale } from "@/contexts/LanguageContext";
 import { UserRole } from "@/types";
 import { getPricingPlans, type PricingPlan, type PricingPlanKey } from "@/utils/pricing";
+import { callEdgeWithFallback } from "@/services/functionClient";
+import { signupErrorMapper } from "@/services/signupErrorMapper";
 
 const paypalLinks = {
   standard: "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-0E515487AE797135CNBTRYKA",
@@ -450,13 +452,13 @@ const SignUpPage: React.FC = () => {
   const [secretCode, setSecretCode] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [successMessage, setSuccessMessage] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [showProModal, setShowProModal] = useState(false);
   const [showFreemiumModal, setShowFreemiumModal] = useState(false);
   const [showStandardModal, setShowStandardModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<PricingPlanKey | null>(null);
-  const { signUp, user } = useApp();
+  const { user, setNewlyCreatedCompanyName } = useApp();
   const pricingPlans = getPricingPlans(t);
   const popularBadge = t("pricing.badges.popular", { defaultValue: "Popular" });
   const navigate = useNavigate();
@@ -547,46 +549,59 @@ const SignUpPage: React.FC = () => {
     }
 
     setError("");
-    setSuccess("");
+    setSuccessMessage("");
     setIsLoading(true);
 
     const trimmedEmail = email.trim();
     const trimmedCompanyName = companyName.trim();
 
-    const result = await signUp(trimmedEmail, fullName.trim(), password, {
-      lang: selectedLanguage,
-      role: role,
-      companyName: trimmedCompanyName,
-      secretCode:
-        role === UserRole.MANAGER && effectivePlan && effectivePlan !== "freemium"
-          ? secretCode.trim()
-          : undefined,
-      plan:
-        role === UserRole.MANAGER && effectivePlan
-          ? (effectivePlan as "freemium" | "standard" | "pro")
-          : undefined,
-    });
+    try {
+      const response = await callEdgeWithFallback("auth-signup", {
+        method: "POST",
+        json: {
+          email: trimmedEmail,
+          password,
+          full_name: fullName.trim(),
+          role,
+          company_name: trimmedCompanyName,
+          language_preference: selectedLanguage,
+          plan:
+            role === UserRole.MANAGER && effectivePlan
+              ? (effectivePlan as "freemium" | "standard" | "pro")
+              : undefined,
+          secret_code:
+            role === UserRole.MANAGER && effectivePlan && effectivePlan !== "freemium"
+              ? secretCode.trim()
+              : undefined,
+        },
+      });
 
-    setIsLoading(false);
+      const body = await response.json().catch(() => ({}));
 
-    if (result.success) {
-      const successMessage =
-        role === UserRole.MANAGER
-          ? t("signup.success.companyCreatedPendingEmail", { email: trimmedEmail })
-          : t("signup.success.emailSent", { email: trimmedEmail });
-      setSuccess(successMessage);
+      if (!response.ok) {
+        setError(
+          signupErrorMapper(t, body?.reason, body?.message, response.status, {
+            companyName: trimmedCompanyName,
+          }),
+        );
+        return;
+      }
 
-      setTimeout(() => {
-        navigate("/login");
-      }, 3500);
-      return;
+      if (role === UserRole.MANAGER) {
+        setNewlyCreatedCompanyName(trimmedCompanyName);
+      }
+
+      setSuccessMessage(
+        t("auth.signup.successPendingEmailConfirmation", {
+          email: trimmedEmail,
+        }),
+      );
+    } catch (err) {
+      console.error("auth-signup request failed", err);
+      setError(t("auth.signup.genericError"));
+    } finally {
+      setIsLoading(false);
     }
-
-    const translatedError = t(`signup.apiErrors.${result.error}`, {
-      companyName: trimmedCompanyName,
-      defaultValue: t("signup.error.generic"),
-    });
-    setError(translatedError);
   };
 
   const handlePlanSelect = (plan: PricingPlanKey) => {
@@ -697,30 +712,20 @@ const SignUpPage: React.FC = () => {
                 </p>
               )}
 
-              {success && (
-                <div className="mb-4 text-center text-green-600 bg-green-100 p-3 rounded-md border border-green-200">
-                  <div className="flex items-center justify-center mb-2">
-                    <svg
-                      className="w-5 h-5 mr-2"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    <span className="font-semibold">Inscription réussie !</span>
-                  </div>
-                  <p className="text-sm">{success}</p>
-                  <p className="text-xs mt-2 text-green-500">
-                    Redirection vers la connexion...
-                  </p>
+              {successMessage && (
+                <div className="mb-4 rounded-md border border-green-600 bg-green-50 px-4 py-3 text-sm text-green-800">
+                  <p>{successMessage}</p>
+                  <button
+                    type="button"
+                    className="mt-2 inline-flex items-center text-sm font-medium underline"
+                    onClick={() => navigate("/login")}
+                  >
+                    {t("auth.signup.goToLogin")}
+                  </button>
                 </div>
               )}
 
-              {role === UserRole.MANAGER && !success && (
+              {role === UserRole.MANAGER && (
                 <div className="mb-8" ref={offersRef}>
                   <div className="text-center mb-6">
                     <h2 className="text-2xl font-bold text-textPrimary mb-2">
@@ -796,9 +801,8 @@ const SignUpPage: React.FC = () => {
                 </div>
               )}
 
-              {!success && (
-                <div className="max-w-md mx-auto">
-                  <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="max-w-md mx-auto">
+                <form onSubmit={handleSubmit} className="space-y-5">
                     <Input
                       label={t("signup.emailLabel")}
                       id="email"
@@ -967,7 +971,6 @@ const SignUpPage: React.FC = () => {
                     </Button>
                   </form>
                 </div>
-              )}
               <div className="mt-6 text-sm text-center text-slate-500 space-y-2">
                 <p>
                   {t("signup.alreadyHaveAccount")}{" "}
