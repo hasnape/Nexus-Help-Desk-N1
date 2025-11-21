@@ -554,28 +554,30 @@ const SignUpPage: React.FC = () => {
 
     const trimmedEmail = email.trim();
     const trimmedCompanyName = companyName.trim();
+    const payload = {
+      email: trimmedEmail,
+      password,
+      full_name: fullName.trim(),
+      role,
+      company_name: trimmedCompanyName,
+      language_preference: selectedLanguage,
+      plan:
+        role === UserRole.MANAGER && effectivePlan
+          ? (effectivePlan as "freemium" | "standard" | "pro")
+          : undefined,
+      secret_code:
+        role === UserRole.MANAGER && effectivePlan && effectivePlan !== "freemium"
+          ? secretCode.trim()
+          : undefined,
+    };
 
     try {
-      const response = await callEdgeWithFallback("auth-signup", {
+      const edgeResult = await callEdgeWithFallback("auth-signup", {
         method: "POST",
-        json: {
-          email: trimmedEmail,
-          password,
-          full_name: fullName.trim(),
-          role,
-          company_name: trimmedCompanyName,
-          language_preference: selectedLanguage,
-          plan:
-            role === UserRole.MANAGER && effectivePlan
-              ? (effectivePlan as "freemium" | "standard" | "pro")
-              : undefined,
-          secret_code:
-            role === UserRole.MANAGER && effectivePlan && effectivePlan !== "freemium"
-              ? secretCode.trim()
-              : undefined,
-        },
+        json: payload,
       });
 
+      const response = (edgeResult as any).response ?? edgeResult;
       const body = await response.json().catch(() => ({}));
 
       if (!response.ok) {
