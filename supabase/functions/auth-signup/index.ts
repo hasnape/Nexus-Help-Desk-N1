@@ -275,21 +275,31 @@ serve(async (req: Request): Promise<Response> => {
 
       const companyId = company.id as string;
 
-      let settingsResult = await admin.from("company_settings").insert({
-        company_id: companyId,
-        timezone: DEFAULT_TIMEZONE,
-        plan_tier: planKey,
-      });
+      let settingsResult = await admin
+        .from("company_settings")
+        .upsert(
+          {
+            company_id: companyId,
+            timezone: DEFAULT_TIMEZONE,
+            plan_tier: planKey,
+          },
+          { onConflict: "company_id" },
+        );
 
       // Si la colonne plan_tier n'existe plus (schema récent) → fallback sans ce champ
       if (settingsResult.error?.code === "42703") {
         console.warn(
           "auth-signup: plan_tier column missing, retrying company_settings without it",
         );
-        settingsResult = await admin.from("company_settings").insert({
-          company_id: companyId,
-          timezone: DEFAULT_TIMEZONE,
-        });
+        settingsResult = await admin
+          .from("company_settings")
+          .upsert(
+            {
+              company_id: companyId,
+              timezone: DEFAULT_TIMEZONE,
+            },
+            { onConflict: "company_id" },
+          );
       }
 
       if (settingsResult.error) {
@@ -306,14 +316,19 @@ serve(async (req: Request): Promise<Response> => {
         );
       }
 
-      const { error: profileError } = await admin.from("users").insert({
-        auth_uid: authUid,
-        email,
-        full_name: fullName,
-        role: "manager",
-        language_preference: language,
-        company_id: companyId,
-      });
+      const { error: profileError } = await admin
+        .from("users")
+        .upsert(
+          {
+            auth_uid: authUid,
+            email,
+            full_name: fullName,
+            role: "manager",
+            language_preference: language,
+            company_id: companyId,
+          },
+          { onConflict: "auth_uid" },
+        );
 
       if (profileError) {
         console.error("auth-signup: insert manager profile failed", profileError);
@@ -379,14 +394,19 @@ serve(async (req: Request): Promise<Response> => {
 
       const authUid = auth.user.id;
 
-      const { error: profileError } = await admin.from("users").insert({
-        auth_uid: authUid,
-        email,
-        full_name: fullName,
-        role,
-        language_preference: language,
-        company_id: company.id,
-      });
+      const { error: profileError } = await admin
+        .from("users")
+        .upsert(
+          {
+            auth_uid: authUid,
+            email,
+            full_name: fullName,
+            role,
+            language_preference: language,
+            company_id: company.id,
+          },
+          { onConflict: "auth_uid" },
+        );
 
       if (profileError) {
         console.error(
@@ -437,14 +457,19 @@ serve(async (req: Request): Promise<Response> => {
 
       const authUid = signUpData.user.id;
 
-      const { error: profileError } = await admin.from("users").insert({
-        auth_uid: authUid,
-        email,
-        full_name: fullName,
-        role,
-        language_preference: language,
-        company_id: company.id,
-      });
+      const { error: profileError } = await admin
+        .from("users")
+        .upsert(
+          {
+            auth_uid: authUid,
+            email,
+            full_name: fullName,
+            role,
+            language_preference: language,
+            company_id: company.id,
+          },
+          { onConflict: "auth_uid" },
+        );
 
       if (profileError) {
         console.error(
