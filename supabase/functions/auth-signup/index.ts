@@ -354,76 +354,82 @@ serve(async (req: Request): Promise<Response> => {
     const siteUrl =
       Deno.env.get("SITE_URL") ?? origin ?? "https://www.nexussupporthub.eu";
 
-  const findCompanyByLowerName = async (
-    nameNormalized: string,
-    lowerName: string,
-  ) => {
-    const { data, error } = await admin
-      .from("companies")
-      .select("id, name")
-      .ilike("name", nameNormalized)
-      .limit(10);
+    const findCompanyByLowerName = async (
+      nameNormalized: string,
+      lowerName: string,
+    ) => {
+      const { data, error } = await admin
+        .from("companies")
+        .select("id, name")
+        .ilike("name", nameNormalized)
+        .limit(10);
 
-    if (error) throw error;
-    const row =
-      (data ?? []).find(
-        (item: any) =>
-          (item.name ?? "").trim().toLowerCase() === lowerName,
-      ) ?? null;
-    return row;
-  };
+      if (error) {
+        console.error("auth-signup: findCompanyByLowerName failed", error);
+        return { error } as const;
+      }
+      const row =
+        (data ?? []).find(
+          (item: any) =>
+            (item.name ?? "").trim().toLowerCase() === lowerName,
+        ) ?? null;
+      return { row } as const;
+    };
 
-  const resolvePlanId = async (planKey: PlanKey) => {
-    const { data, error } = await admin
-      .from("plans")
-      .select("id")
-      .eq("name", planKey)
-      .single();
-    if (error || !data?.id) return null;
-    return data.id as string | number;
-  };
+    const resolvePlanId = async (planKey: PlanKey) => {
+      const { data, error } = await admin
+        .from("plans")
+        .select("id")
+        .eq("name", planKey)
+        .single();
+      if (error || !data?.id) return null;
+      return data.id as string | number;
+    };
 
-  const validateActivationCode = async (
-    secret: string,
-    companyLowerName: string,
-  ) => {
-    const { data, error } = await admin
-      .from("manager_activation_codes")
-      .select("id, company_name, consumed, expires_at")
-      .eq("code", secret)
-      .limit(1);
+    const validateActivationCode = async (
+      secret: string,
+      companyLowerName: string,
+    ) => {
+      const { data, error } = await admin
+        .from("manager_activation_codes")
+        .select("id, company_name, consumed, expires_at")
+        .eq("code", secret)
+        .limit(1);
 
-    if (error || !data || data.length === 0) {
-      return { ok: false as const, error: "invalid_activation_code" };
-    }
+      if (error || !data || data.length === 0) {
+        if (error) {
+          console.error("auth-signup: activation code lookup failed", error);
+        }
+        return { ok: false as const, error: "invalid_activation_code" };
+      }
 
-    const row = data[0] as ManagerActivationRow;
+      const row = data[0] as ManagerActivationRow;
 
-    if (row.consumed) {
-      return { ok: false as const, error: "invalid_activation_code" };
-    }
-    if (row.expires_at && new Date(row.expires_at).getTime() < Date.now()) {
-      return { ok: false as const, error: "invalid_activation_code" };
-    }
-    if ((row.company_name ?? "").toLowerCase() !== companyLowerName) {
-      return { ok: false as const, error: "invalid_activation_code" };
-    }
+      if (row.consumed) {
+        return { ok: false as const, error: "invalid_activation_code" };
+      }
+      if (row.expires_at && new Date(row.expires_at).getTime() < Date.now()) {
+        return { ok: false as const, error: "invalid_activation_code" };
+      }
+      if ((row.company_name ?? "").toLowerCase() !== companyLowerName) {
+        return { ok: false as const, error: "invalid_activation_code" };
+      }
 
-    return { ok: true as const, row };
-  };
+      return { ok: true as const, row };
+    };
 
-  const consumeActivationCode = async (id: string, authUid: string) => {
-    await admin
-      .from("manager_activation_codes")
-      .update({
-        consumed: true,
-        consumed_by: authUid,
-        consumed_at: new Date().toISOString(),
-      })
-      .eq("id", id);
-  };
+    const consumeActivationCode = async (id: string, authUid: string) => {
+      await admin
+        .from("manager_activation_codes")
+        .update({
+          consumed: true,
+          consumed_by: authUid,
+          consumed_at: new Date().toISOString(),
+        })
+        .eq("id", id);
+    };
 
-  try {
+    try {
     // --- BRANCHE MANAGER : self-signup public → email à confirmer ---
     if (role === "manager") {
       const planKey: PlanKey =
@@ -431,13 +437,21 @@ serve(async (req: Request): Promise<Response> => {
           ? (planRaw as PlanKey)
           : "freemium";
 
-      const existing = await findCompanyByLowerName(companyName, companyLower);
-      if (existing) {
-        return conflictError(
-          "company_in_use",
-          "A company with this name already exists.",
-          cors,
-        );
+        const { row: existing, error: companyLookupError } =
+          await findCompanyByLowerName(companyName, companyLower);
+
+        if (companyLookupError) {
+          return internalError("company_lookup_failed", cors, undefined, {
+            message: companyLookupError.message,
+          });
+        }
+
+        if (existing) {
+          return conflictError(
+            "company_in_use",
+            "A company with this name already exists.",
+            cors,
+          );
       }
 
       let activationRow: ManagerActivationRow | null = null;
@@ -573,7 +587,15 @@ serve(async (req: Request): Promise<Response> => {
     }
 
     // --- BRANCHE AGENT / USER ---
-    const company = await findCompanyByLowerName(companyName, companyLower);
+    const { row: company, error: companyLookupError } =
+      await findCompanyByLowerName(companyName, companyLower);
+
+    if (companyLookupError) {
+      return internalError("company_lookup_failed", cors, undefined, {
+        message: companyLookupError.message,
+      });
+    }
+
     if (!company?.id) {
       return validationError(
         "company_not_found",
