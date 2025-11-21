@@ -145,7 +145,7 @@ function mapAuthSignUpError(error: any) {
   if (
     status === 400 &&
     (error?.code === "email_address_invalid" ||
-      message.includes("email address") && message.includes("invalid"))
+      (message.includes("email address") && message.includes("invalid")))
   ) {
     return {
       status: 400,
@@ -198,7 +198,7 @@ function mapAuthSignUpError(error: any) {
   } as const;
 }
 
-function mapDbConflict(error: any, conflictError: string, message: string) {
+function mapDbConflict(error: any, conflictErrorKey: string, message: string) {
   const code = String(error?.code ?? "").toUpperCase();
   if (code === "23505") {
     return {
@@ -206,7 +206,7 @@ function mapDbConflict(error: any, conflictError: string, message: string) {
       body: {
         ok: false,
         error: "conflict",
-        reason: conflictError,
+        reason: conflictErrorKey,
         message,
       },
     } as const;
@@ -245,6 +245,9 @@ function successResponse(
 serve(async (req: Request): Promise<Response> => {
   const origin = req.headers.get("Origin");
   const cors = makeCorsHeaders(origin);
+
+  console.log("auth-signup version 2025-11-21-v4");
+
   try {
     // 1) Préflight CORS
     if (req.method === "OPTIONS") {
@@ -307,7 +310,7 @@ serve(async (req: Request): Promise<Response> => {
       payload?.secretCode ?? payload?.secret_code ?? "",
     ).trim();
 
-    // 👉 nouveau flag pour distinguer public vs dashboard
+    // 👉 flag pour distinguer public vs dashboard
     const createdByManagerRaw =
       payload?.created_by_manager ?? payload?.createdByManager ?? false;
     const createdByManager =
@@ -473,7 +476,6 @@ serve(async (req: Request): Promise<Response> => {
       }
     };
 
-    try {
     // --- BRANCHE MANAGER : self-signup public → email à confirmer ---
     if (role === "manager") {
       const planKey: PlanKey =
@@ -481,21 +483,21 @@ serve(async (req: Request): Promise<Response> => {
           ? (planRaw as PlanKey)
           : "freemium";
 
-        const { row: existing, error: companyLookupError } =
-          await findCompanyByLowerName(companyName, companyLower);
+      const { row: existing, error: companyLookupError } =
+        await findCompanyByLowerName(companyName, companyLower);
 
-        if (companyLookupError) {
-          return internalError("company_lookup_failed", cors, undefined, {
-            message: companyLookupError.message,
-          });
-        }
+      if (companyLookupError) {
+        return internalError("company_lookup_failed", cors, undefined, {
+          message: companyLookupError.message,
+        });
+      }
 
-        if (existing) {
-          return conflictError(
-            "company_in_use",
-            "A company with this name already exists.",
-            cors,
-          );
+      if (existing) {
+        return conflictError(
+          "company_in_use",
+          "A company with this name already exists.",
+          cors,
+        );
       }
 
       let activationRow: ManagerActivationRow | null = null;
