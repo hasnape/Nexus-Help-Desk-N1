@@ -246,7 +246,7 @@ serve(async (req: Request): Promise<Response> => {
   const origin = req.headers.get("Origin");
   const cors = makeCorsHeaders(origin);
 
-  console.log("auth-signup version 2025-11-21-v4");
+  console.log("auth-signup version 2025-11-21-v5");
 
   try {
     // 1) Préflight CORS
@@ -276,16 +276,8 @@ serve(async (req: Request): Promise<Response> => {
       );
     }
 
-    const authHeader = req.headers.get("authorization");
-    if (!authHeader) {
-      return validationError(
-        "missing_authorization",
-        "Missing authorization header.",
-        cors,
-        undefined,
-        401,
-      );
-    }
+    // ⚠️ PAS de check sur l'Authorization ici
+    // → on laisse le front/edge-proxy envoyer l'anon key mais on ne bloque pas s'il manque
 
     // 4) Parsing body
     let payload: any = {};
