@@ -580,12 +580,35 @@ serve(async (req: Request): Promise<Response> => {
           String(settingsError?.code ?? "").toUpperCase() === "23505" &&
           ((settingsError?.message ?? "").includes("company_settings_pkey") ||
             (settingsError?.details ?? "").includes("company_settings_pkey"));
+        const isMissingPlanTier =
+          String(settingsError?.code ?? "").toUpperCase() === "42703" ||
+          (settingsError?.message ?? "").toLowerCase().includes("plan_tier");
 
         if (isDuplicate) {
           console.warn(
             "auth-signup: company_settings already exists for company_id",
             companyId,
           );
+        } else if (isMissingPlanTier) {
+          console.warn(
+            "auth-signup: company_settings.plan_tier column missing, retrying without it",
+          );
+          const fallback = await admin.from("company_settings").insert({
+            company_id: companyId,
+            timezone: DEFAULT_TIMEZONE,
+          });
+
+          if (fallback.error) {
+            console.error(
+              "auth-signup: fallback create company_settings failed",
+              fallback.error,
+            );
+            await safeDeleteCompany(companyId);
+            await safeDeleteAuthUser(authUid);
+            return internalError("company_settings_failed", cors, undefined, {
+              message: fallback.error.message,
+            });
+          }
         } else {
           console.error(
             "auth-signup: create company_settings failed",
