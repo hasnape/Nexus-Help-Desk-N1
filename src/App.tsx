@@ -1831,13 +1831,11 @@ const MainAppContent: React.FC = () => {
 
 function App() {
   return (
-    <LanguageProvider>
-      <AppProvider>
-        <HashRouter>
-          <MainAppContent />
-        </HashRouter>
-      </AppProvider>
-    </LanguageProvider>
+    <AppProvider>
+      <HashRouter>
+        <MainAppContent />
+      </HashRouter>
+    </AppProvider>
   );
 }
 
