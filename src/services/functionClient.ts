@@ -45,12 +45,14 @@ export async function callEdgeWithFallback(
   init: (RequestInit & { json?: any; accessToken?: string }) | undefined = {},
 ): Promise<Response> {
   const { json, accessToken, ...rest } = init;
-  const headers = buildHeaders(rest.headers, accessToken);
-  const body = json !== undefined ? safeStringify(json) : rest.body;
+  const headers = buildHeaders(init.headers, accessToken);
+  const { headers: _ignored, ...restInit } = rest;
+
   const requestInit: RequestInit = {
-    ...rest,
+    method: restInit.method ?? "POST",
+    body: json !== undefined ? safeStringify(json) : restInit.body,
+    ...restInit,
     headers,
-    body,
   };
 
   const edgeUrl = `/api/edge-proxy/${fn}`;
@@ -58,10 +60,12 @@ export async function callEdgeWithFallback(
 
   try {
     const edgeResponse = await fetch(edgeUrl, requestInit);
-    if (edgeResponse.ok || edgeResponse.status < 500) {
-      return edgeResponse;
+
+    if (edgeResponse.status >= 500) {
+      throw { kind: "edge_call_failed", response: edgeResponse } as const;
     }
-    edgeError = new Error(`edge_proxy_status_${edgeResponse.status}`);
+
+    return edgeResponse;
   } catch (error) {
     edgeError = error;
   }
