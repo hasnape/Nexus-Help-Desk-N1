@@ -240,9 +240,6 @@ const PlanCard: React.FC<{
   onSelect: (plan: PricingPlanKey) => void;
   t: (key: string, options?: { [key: string]: any }) => string;
   badgeText?: string;
-  buyHref?: string;
-  onBuy?: () => void;
-  buyLabel?: string;
 }> = ({
   planKey,
   plan,
@@ -250,9 +247,6 @@ const PlanCard: React.FC<{
   onSelect,
   t,
   badgeText,
-  buyHref,
-  onBuy,
-  buyLabel,
 }) => {
   const isSelectable = planKey !== "pro";
   const buttonKey = isSelectable ? `pricing.select_${planKey}` : "pricing.view_pro_details";
@@ -262,20 +256,11 @@ const PlanCard: React.FC<{
     }),
   });
   const planTitle = t(`pricing.${planKey}`, { defaultValue: plan.name });
-  const purchaseButtonLabel =
-    buyLabel ??
-    plan.cta ??
-    t("signupPlans.subscribeDefault", { defaultValue: "Souscrire maintenant" });
 
   const actionButtonBase = "w-100 fw-semibold d-flex align-items-center justify-content-center gap-2";
 
   const handleSelectClick = () => {
     onSelect(planKey);
-  };
-
-  const handleBuyClick = () => {
-    onSelect(planKey);
-    onBuy?.();
   };
 
   return (
@@ -382,30 +367,6 @@ const PlanCard: React.FC<{
             </svg>
           ) : null}
         </button>
-
-        <div className="d-flex flex-column gap-2">
-          {buyHref ? (
-            <a
-              href={buyHref}
-              className={`btn btn-primary ${actionButtonBase}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => onSelect(planKey)}
-              aria-label={`${purchaseButtonLabel} - ${planTitle}`}
-            >
-              {purchaseButtonLabel}
-            </a>
-          ) : onBuy ? (
-            <button
-              type="button"
-              className={`btn btn-primary ${actionButtonBase}`}
-              onClick={handleBuyClick}
-              aria-label={`${purchaseButtonLabel} - ${planTitle}`}
-            >
-              {purchaseButtonLabel}
-            </button>
-          ) : null}
-        </div>
       </div>
     </div>
   );
@@ -704,11 +665,6 @@ const SignUpPage: React.FC = () => {
                       isSelected={selectedPlan === "freemium"}
                       onSelect={handlePlanSelect}
                       t={t}
-                      buyLabel={t("signupPlans.freemium.modal.buttons.subscribe", { defaultValue: pricingPlans.freemium.cta })}
-                      onBuy={() => {
-                        setSelectedPlan("freemium");
-                        setShowFreemiumModal(true);
-                      }}
                     />
                     <PlanCard
                       planKey="standard"
@@ -717,8 +673,6 @@ const SignUpPage: React.FC = () => {
                       onSelect={handlePlanSelect}
                       t={t}
                       badgeText={popularBadge}
-                      buyHref={paypalLinks.standard}
-                      buyLabel={t("signupPlans.standard.modal.buttons.subscribe", { defaultValue: pricingPlans.standard.cta })}
                     />
                     <PlanCard
                       planKey="pro"
@@ -726,8 +680,6 @@ const SignUpPage: React.FC = () => {
                       isSelected={selectedPlan === "pro"}
                       onSelect={handlePlanSelect}
                       t={t}
-                      buyHref={paypalLinks.pro}
-                      buyLabel={t("signupPlans.pro.modal.buttons.subscribe", { defaultValue: pricingPlans.pro.cta })}
                     />
                   </div>
 
