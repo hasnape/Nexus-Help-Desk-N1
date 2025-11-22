@@ -767,6 +767,44 @@
   "signup.success.emailSentManager": "🎉 Inscription réussie ! Un email récapitulatif a été envoyé à {{email}}",
   "signup.title": "Créez votre compte",
   "signup.warning.emailFailed": "✅ Inscription réussie ! (Email de confirmation non envoyé)",
+  "roleHelp": {
+    "title": "Comprendre les rôles",
+    "subtitle": "Choisissez le rôle qui correspond à votre situation.",
+    "manager": {
+      "title": "Manager",
+      "description": "Crée l’espace de l’entreprise, choisit l’offre (Freemium / Standard / Pro) et invite les agents et utilisateurs.",
+      "signupTitle": "Procédure d’inscription (Manager)",
+      "signupStep1": "Choisissez le rôle « Manager ».",
+      "signupStep2": "Saisissez le nom de votre entreprise (nouveau et unique).",
+      "signupStep3": "Choisissez un plan (Freemium, Standard ou Pro). Pour Standard/Pro, entrez le code d’activation reçu après achat.",
+      "signupStep4": "Validez le formulaire ; un e-mail de confirmation vous sera envoyé.",
+      "loginTitle": "Procédure de connexion (Manager)",
+      "loginStep1": "Une fois votre e-mail confirmé, rendez-vous sur la page de connexion.",
+      "loginStep2": "Saisissez votre e-mail et votre mot de passe pour accéder au tableau de bord Manager."
+    },
+    "agent": {
+      "title": "Agent",
+      "description": "Technicien support qui traite les tickets. Ne peut pas créer d’entreprise, se rattache à un espace existant.",
+      "signupTitle": "Procédure d’inscription (Agent)",
+      "signupStep1": "Sélectionnez le rôle « Agent ».",
+      "signupStep2": "Saisissez exactement le nom de l’entreprise défini par votre Manager.",
+      "signupStep3": "Complétez le formulaire et validez. Selon la configuration, votre compte peut nécessiter une validation du Manager ou un e-mail de confirmation.",
+      "loginTitle": "Procédure de connexion (Agent)",
+      "loginStep1": "Une fois votre compte activé, rendez-vous sur la page de connexion.",
+      "loginStep2": "Saisissez votre e-mail et votre mot de passe pour accéder à vos tickets."
+    },
+    "user": {
+      "title": "Utilisateur",
+      "description": "Crée des tickets et suit leur statut (employé ou client interne).",
+      "signupTitle": "Procédure d’inscription (Utilisateur)",
+      "signupStep1": "Sélectionnez le rôle « Utilisateur ».",
+      "signupStep2": "Saisissez le nom de l’entreprise communiqué par votre service informatique ou votre Manager.",
+      "signupStep3": "Complétez le formulaire et validez.",
+      "loginTitle": "Procédure de connexion (Utilisateur)",
+      "loginStep1": "Rendez-vous sur la page de connexion.",
+      "loginStep2": "Saisissez votre e-mail et votre mot de passe pour suivre vos tickets."
+    }
+  },
   "signupPlans.freemium.autoSelected.description": "Cette inscription active immédiatement votre espace Freemium hébergé sur le cloud Nexus.",
   "signupPlans.freemium.autoSelected.storageNotice": "Accédez à vos utilisateurs et tickets depuis n'importe quel appareil connecté.",
   "signupPlans.freemium.autoSelected.title": "Freemium sélectionné automatiquement",

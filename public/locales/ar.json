@@ -676,6 +676,44 @@
   "signup.success.emailSentManager": "🎉 تم التسجيل بنجاح! تم إرسال رسالة تلخيصية إلى {{email}} تحتوي على جميع المعلومات لإعداد فريقك.",
   "signup.title": "إنشاء حسابك",
   "signup.warning.emailFailed": "✅ تم التسجيل بنجاح! (لم يتم إرسال رسالة التأكيد)",
+  "roleHelp": {
+    "title": "Understand the roles",
+    "subtitle": "Choose the role that best matches your situation.",
+    "manager": {
+      "title": "Manager",
+      "description": "Creates the company workspace, chooses a plan and invites agents and end-users.",
+      "signupTitle": "Sign-up flow (Manager)",
+      "signupStep1": "Select the “Manager” role.",
+      "signupStep2": "Enter a new, unique company name.",
+      "signupStep3": "Choose a plan (Freemium, Standard or Pro). For Standard/Pro, enter the activation code you received after purchase.",
+      "signupStep4": "Submit the form; a confirmation email will be sent to you.",
+      "loginTitle": "Login flow (Manager)",
+      "loginStep1": "Once your email is confirmed, go to the login page.",
+      "loginStep2": "Enter your email and password to access the Manager dashboard."
+    },
+    "agent": {
+      "title": "Agent",
+      "description": "Support technician who handles tickets. Cannot create a company and joins an existing workspace.",
+      "signupTitle": "Sign-up flow (Agent)",
+      "signupStep1": "Select the “Agent” role.",
+      "signupStep2": "Enter exactly the company name defined by your Manager.",
+      "signupStep3": "Fill in the form and submit. Depending on your workspace, your account may require Manager validation or an email confirmation.",
+      "loginTitle": "Login flow (Agent)",
+      "loginStep1": "Once your account is activated, go to the login page.",
+      "loginStep2": "Enter your email and password to access your tickets."
+    },
+    "user": {
+      "title": "User",
+      "description": "Creates tickets and follows their status (employee or internal customer).",
+      "signupTitle": "Sign-up flow (User)",
+      "signupStep1": "Select the “User” role.",
+      "signupStep2": "Enter the company name provided by your IT team or Manager.",
+      "signupStep3": "Fill in the form and submit.",
+      "loginTitle": "Login flow (User)",
+      "loginStep1": "Go to the login page.",
+      "loginStep2": "Enter your email and password to follow your tickets."
+    }
+  },
   "signupPlans.freemium.autoSelected.description": "يتم تفعيل مساحة فريميوم الخاصة بك فورًا والمستضافة على سحابة Nexus.",
   "signupPlans.freemium.autoSelected.storageNotice": "يمكنك الوصول إلى المستخدمين والتذاكر من أي جهاز متصل.",
   "signupPlans.freemium.autoSelected.title": "تم اختيار فريميوم تلقائيًا",

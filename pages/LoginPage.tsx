@@ -18,7 +18,7 @@ const LoginPage: React.FC = () => {
   const { login, user } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const from = location.state?.from?.pathname || "/";
 
@@ -227,6 +227,53 @@ const LoginPage: React.FC = () => {
               {t("login.signInButton")}
             </Button>
           </form>
+          <section
+            className={`mt-8 bg-slate-50 border border-slate-200 rounded-lg p-4 text-left ${
+              language === "ar" ? "text-right" : ""
+            }`}
+            dir={language === "ar" ? "rtl" : "ltr"}
+          >
+            <h2 className="text-sm font-semibold text-slate-800 mb-2">{t("roleHelp.title")}</h2>
+            <p className="text-xs text-slate-600 mb-4">{t("roleHelp.subtitle")}</p>
+
+            <div className="grid gap-4 md:grid-cols-3">
+              <div className="space-y-1">
+                <h3 className="text-sm font-semibold text-slate-800">{t("roleHelp.manager.title")}</h3>
+                <p className="text-xs text-slate-600">{t("roleHelp.manager.description")}</p>
+                <h4 className="text-xs font-semibold text-slate-800 mt-2">{t("roleHelp.manager.loginTitle")}</h4>
+                <ul
+                  className={`list-disc space-y-1 text-xs text-slate-700 ${language === "ar" ? "pr-4" : "pl-4"}`}
+                >
+                  <li>{t("roleHelp.manager.loginStep1")}</li>
+                  <li>{t("roleHelp.manager.loginStep2")}</li>
+                </ul>
+              </div>
+
+              <div className="space-y-1">
+                <h3 className="text-sm font-semibold text-slate-800">{t("roleHelp.agent.title")}</h3>
+                <p className="text-xs text-slate-600">{t("roleHelp.agent.description")}</p>
+                <h4 className="text-xs font-semibold text-slate-800 mt-2">{t("roleHelp.agent.loginTitle")}</h4>
+                <ul
+                  className={`list-disc space-y-1 text-xs text-slate-700 ${language === "ar" ? "pr-4" : "pl-4"}`}
+                >
+                  <li>{t("roleHelp.agent.loginStep1")}</li>
+                  <li>{t("roleHelp.agent.loginStep2")}</li>
+                </ul>
+              </div>
+
+              <div className="space-y-1">
+                <h3 className="text-sm font-semibold text-slate-800">{t("roleHelp.user.title")}</h3>
+                <p className="text-xs text-slate-600">{t("roleHelp.user.description")}</p>
+                <h4 className="text-xs font-semibold text-slate-800 mt-2">{t("roleHelp.user.loginTitle")}</h4>
+                <ul
+                  className={`list-disc space-y-1 text-xs text-slate-700 ${language === "ar" ? "pr-4" : "pl-4"}`}
+                >
+                  <li>{t("roleHelp.user.loginStep1")}</li>
+                  <li>{t("roleHelp.user.loginStep2")}</li>
+                </ul>
+              </div>
+            </div>
+          </section>
           <p className="mt-6 text-sm text-center text-slate-500">
             {t("login.noAccount")}{" "}
             <Link
