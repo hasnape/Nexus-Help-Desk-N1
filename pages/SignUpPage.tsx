@@ -927,6 +927,108 @@ const SignUpPage: React.FC = () => {
                   </form>
                 </div>
               )}
+              <section
+                className={`mt-10 bg-slate-50 border border-slate-200 rounded-lg p-4 md:p-6 ${
+                  selectedLanguage === "ar" ? "text-right" : "text-left"
+                }`}
+                dir={selectedLanguage === "ar" ? "rtl" : "ltr"}
+              >
+                <h2 className="text-xl font-semibold text-slate-800">{t("roleHelp.title")}</h2>
+                <p className="mt-1 text-sm text-slate-600">{t("roleHelp.subtitle")}</p>
+
+                <div className="grid gap-6 md:grid-cols-3 mt-4">
+                  <div className="space-y-3">
+                    <div className="space-y-1">
+                      <h3 className="text-lg font-semibold text-slate-800">{t("roleHelp.manager.title")}</h3>
+                      <p className="text-sm text-slate-600">{t("roleHelp.manager.description")}</p>
+                    </div>
+                    <div className="space-y-2">
+                      <h4 className="text-sm font-semibold text-slate-800">{t("roleHelp.manager.signupTitle")}</h4>
+                      <ul
+                        className={`list-disc space-y-1 text-sm text-slate-700 ${
+                          selectedLanguage === "ar" ? "pr-5" : "pl-5"
+                        }`}
+                      >
+                        <li>{t("roleHelp.manager.signupStep1")}</li>
+                        <li>{t("roleHelp.manager.signupStep2")}</li>
+                        <li>{t("roleHelp.manager.signupStep3")}</li>
+                        <li>{t("roleHelp.manager.signupStep4")}</li>
+                      </ul>
+                    </div>
+                    <div className="space-y-2">
+                      <h4 className="text-sm font-semibold text-slate-800">{t("roleHelp.manager.loginTitle")}</h4>
+                      <ul
+                        className={`list-disc space-y-1 text-sm text-slate-700 ${
+                          selectedLanguage === "ar" ? "pr-5" : "pl-5"
+                        }`}
+                      >
+                        <li>{t("roleHelp.manager.loginStep1")}</li>
+                        <li>{t("roleHelp.manager.loginStep2")}</li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="space-y-1">
+                      <h3 className="text-lg font-semibold text-slate-800">{t("roleHelp.agent.title")}</h3>
+                      <p className="text-sm text-slate-600">{t("roleHelp.agent.description")}</p>
+                    </div>
+                    <div className="space-y-2">
+                      <h4 className="text-sm font-semibold text-slate-800">{t("roleHelp.agent.signupTitle")}</h4>
+                      <ul
+                        className={`list-disc space-y-1 text-sm text-slate-700 ${
+                          selectedLanguage === "ar" ? "pr-5" : "pl-5"
+                        }`}
+                      >
+                        <li>{t("roleHelp.agent.signupStep1")}</li>
+                        <li>{t("roleHelp.agent.signupStep2")}</li>
+                        <li>{t("roleHelp.agent.signupStep3")}</li>
+                      </ul>
+                    </div>
+                    <div className="space-y-2">
+                      <h4 className="text-sm font-semibold text-slate-800">{t("roleHelp.agent.loginTitle")}</h4>
+                      <ul
+                        className={`list-disc space-y-1 text-sm text-slate-700 ${
+                          selectedLanguage === "ar" ? "pr-5" : "pl-5"
+                        }`}
+                      >
+                        <li>{t("roleHelp.agent.loginStep1")}</li>
+                        <li>{t("roleHelp.agent.loginStep2")}</li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="space-y-1">
+                      <h3 className="text-lg font-semibold text-slate-800">{t("roleHelp.user.title")}</h3>
+                      <p className="text-sm text-slate-600">{t("roleHelp.user.description")}</p>
+                    </div>
+                    <div className="space-y-2">
+                      <h4 className="text-sm font-semibold text-slate-800">{t("roleHelp.user.signupTitle")}</h4>
+                      <ul
+                        className={`list-disc space-y-1 text-sm text-slate-700 ${
+                          selectedLanguage === "ar" ? "pr-5" : "pl-5"
+                        }`}
+                      >
+                        <li>{t("roleHelp.user.signupStep1")}</li>
+                        <li>{t("roleHelp.user.signupStep2")}</li>
+                        <li>{t("roleHelp.user.signupStep3")}</li>
+                      </ul>
+                    </div>
+                    <div className="space-y-2">
+                      <h4 className="text-sm font-semibold text-slate-800">{t("roleHelp.user.loginTitle")}</h4>
+                      <ul
+                        className={`list-disc space-y-1 text-sm text-slate-700 ${
+                          selectedLanguage === "ar" ? "pr-5" : "pl-5"
+                        }`}
+                      >
+                        <li>{t("roleHelp.user.loginStep1")}</li>
+                        <li>{t("roleHelp.user.loginStep2")}</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </section>
               <div className="mt-6 text-sm text-center text-slate-500 space-y-2">
                 <p>
                   {t("signup.alreadyHaveAccount")}{" "}
