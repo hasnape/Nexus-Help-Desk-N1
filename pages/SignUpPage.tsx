@@ -13,7 +13,6 @@ const paypalLinks = {
   pro: "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-7HP75881LB3608938NBTBGUA",
 };
 
-
 const FreemiumModal = ({
   showFreemiumModal,
   setShowFreemiumModal,
@@ -241,8 +240,6 @@ const PlanCard: React.FC<{
   onSelect: (plan: PricingPlanKey) => void;
   t: (key: string, options?: { [key: string]: any }) => string;
   badgeText?: string;
-  demoHref?: string;
-  demoLabel?: string;
   buyHref?: string;
   onBuy?: () => void;
   buyLabel?: string;
@@ -253,8 +250,6 @@ const PlanCard: React.FC<{
   onSelect,
   t,
   badgeText,
-  demoHref,
-  demoLabel,
   buyHref,
   onBuy,
   buyLabel,
@@ -267,11 +262,9 @@ const PlanCard: React.FC<{
     }),
   });
   const planTitle = t(`pricing.${planKey}`, { defaultValue: plan.name });
-  const demoButtonLabel = demoLabel ??
-    t("signupPlans.demoButton", {
-      defaultValue: t("pricing.requestDemo", { defaultValue: "Demander une démo" }),
-    });
-  const purchaseButtonLabel = buyLabel ?? plan.cta ??
+  const purchaseButtonLabel =
+    buyLabel ??
+    plan.cta ??
     t("signupPlans.subscribeDefault", { defaultValue: "Souscrire maintenant" });
 
   const actionButtonBase = "w-100 fw-semibold d-flex align-items-center justify-content-center gap-2";
@@ -391,27 +384,6 @@ const PlanCard: React.FC<{
         </button>
 
         <div className="d-flex flex-column gap-2">
-          {demoHref ? (
-            <a
-              href={demoHref}
-              className={`btn btn-outline-primary ${actionButtonBase}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`${demoButtonLabel} - ${planTitle}`}
-            >
-              {demoButtonLabel}
-            </a>
-          ) : demoLabel ? (
-            <button
-              type="button"
-              className={`btn btn-outline-primary ${actionButtonBase}`}
-              onClick={handleSelectClick}
-              aria-label={`${demoButtonLabel} - ${planTitle}`}
-            >
-              {demoButtonLabel}
-            </button>
-          ) : null}
-
           {buyHref ? (
             <a
               href={buyHref}
@@ -507,7 +479,6 @@ const SignUpPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // 2. Les validations de base (champs vides, mots de passe) restent ici. C'est une bonne pratique.
     if (!email.trim() || !fullName.trim() || !password || !confirmPassword || !companyName.trim()) {
       setError(t("signup.error.allFieldsRequired"));
       return;
@@ -520,10 +491,10 @@ const SignUpPage: React.FC = () => {
       setError(t("signup.error.minCharsPassword"));
       return;
     }
+
     const effectivePlan: PricingPlanKey | undefined =
       role === UserRole.MANAGER && selectedPlan ? selectedPlan : undefined;
-    // Si le rôle est Manager, on s'assure que le champ du code n'est pas vide.
-    // La VRAIE validation (si le code est bon) se fera sur le serveur.
+
     if (
       role === UserRole.MANAGER &&
       effectivePlan &&
@@ -543,20 +514,16 @@ const SignUpPage: React.FC = () => {
         );
         return;
       }
-
     }
 
     setError("");
     setSuccess("");
     setIsLoading(true);
 
-    // 3. L'appel à signUp reste le même. C'est parfait.
-    // On envoie toutes les données au serveur, y compris le plan et, si besoin, le secretCode.
     const result = await signUp(email.trim(), fullName.trim(), password, {
       lang: selectedLanguage,
       role: role,
       companyName: companyName.trim(),
-      // On envoie le code SEULEMENT si le rôle est Manager sur un plan payant.
       secretCode:
         role === UserRole.MANAGER && effectivePlan && effectivePlan !== "freemium"
           ? secretCode.trim()
@@ -569,14 +536,9 @@ const SignUpPage: React.FC = () => {
 
     setIsLoading(false);
 
-    // 4. On fait confiance à la réponse du serveur.
-    // Si le serveur dit que le code est mauvais, `result` contiendra un message d'erreur.
     if (result !== true) {
-      // Le `result` contiendra le message d'erreur renvoyé par le serveur,
-      // par exemple : "Code d'activation invalide ou déjà utilisé."
       setError(result);
     } else {
-      // Le serveur a tout validé, l'inscription est réussie !
       if (role === UserRole.MANAGER) {
         setSuccess(t("signup.success.emailSentManager", { email: email.trim() }));
       } else {
@@ -618,7 +580,7 @@ const SignUpPage: React.FC = () => {
   const handleProPurchase = () => {
     setSelectedPlan("pro");
     setShowProModal(false);
-    alert("✅ Abonnement Pro : Code envoyer par mail !");
+    alert("✅ Abonnement Pro : code envoyé par email !");
   };
 
   const handleFreemiumPurchase = () => {
@@ -630,7 +592,7 @@ const SignUpPage: React.FC = () => {
 
   const handleStandardPurchase = () => {
     setShowStandardModal(false);
-    alert("✅ Abonnement Standard : Code envoyer par mail !");
+    alert("✅ Abonnement Standard : code envoyé par email !");
   };
 
   const offersRef = useRef<HTMLDivElement>(null);
@@ -742,7 +704,6 @@ const SignUpPage: React.FC = () => {
                       isSelected={selectedPlan === "freemium"}
                       onSelect={handlePlanSelect}
                       t={t}
-                      demoHref="/landing#demo"
                       buyLabel={t("signupPlans.freemium.modal.buttons.subscribe", { defaultValue: pricingPlans.freemium.cta })}
                       onBuy={() => {
                         setSelectedPlan("freemium");
@@ -756,7 +717,6 @@ const SignUpPage: React.FC = () => {
                       onSelect={handlePlanSelect}
                       t={t}
                       badgeText={popularBadge}
-                      demoHref="/landing#demo"
                       buyHref={paypalLinks.standard}
                       buyLabel={t("signupPlans.standard.modal.buttons.subscribe", { defaultValue: pricingPlans.standard.cta })}
                     />
@@ -766,7 +726,6 @@ const SignUpPage: React.FC = () => {
                       isSelected={selectedPlan === "pro"}
                       onSelect={handlePlanSelect}
                       t={t}
-                      demoHref="/landing#demo"
                       buyHref={paypalLinks.pro}
                       buyLabel={t("signupPlans.pro.modal.buttons.subscribe", { defaultValue: pricingPlans.pro.cta })}
                     />
