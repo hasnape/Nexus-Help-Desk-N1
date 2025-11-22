@@ -24,6 +24,7 @@
   "appContext.error.summaryGenerationFailed": "Système : Échec de la génération du résumé du ticket pour l'agent.",
   "appDescription": "Un centre d'assistance intelligent doté de notre assistant IA 'Nexus'. Obtenez une aide instantanée, gérez efficacement les tickets avec des tableaux de bord adaptés à chaque rôle, et profitez des commandes vocales pour une expérience mains libres.",
   "appName": "Nexus Support Hub",
+  "salesBot.launchLabel": "Assistant Nexus",
   "appointment": {
     "confirm_body": "Voulez-vous vraiment supprimer ce rendez-vous ? Cette action est irréversible.",
     "confirm_title": "Confirmer la suppression",
