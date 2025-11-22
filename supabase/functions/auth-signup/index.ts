@@ -1,3 +1,4 @@
+// supabase/functions/auth-signup/index.ts
 // @ts-nocheck
 // deno-lint-ignore-file no-explicit-any
 
@@ -22,11 +23,19 @@ type ManagerActivationRow = {
 const DEFAULT_TIMEZONE = "Europe/Paris";
 const SUPPORTED_LANGUAGES = new Set(["fr", "en", "ar"]);
 
+// Mapping des erreurs Supabase / Postgres → status HTTP
 function supabaseStatus(error: any, fallback = 500) {
   const code = String(error?.code ?? "");
-  if (code === "23505") return 409; // unique_violation
-  if (code === "23503") return 400; // foreign_key_violation
+
+  // Contrainte unique (ex: email déjà utilisé, company name unique, etc.)
+  if (code === "23505") return 409;
+
+  // Contrainte de clé étrangère
+  if (code === "23503") return 400;
+
+  // Si Supabase a déjà mis un status explicite
   if (typeof error?.status === "number") return error.status;
+
   return fallback;
 }
 
@@ -39,9 +48,11 @@ function normalizeCompanyName(input: string | null | undefined) {
 serve(async (req: Request): Promise<Response> => {
   const origin = req.headers.get("Origin");
 
+  // 1) Préflight CORS
   const preflight = handleOptions(req);
   if (preflight) return preflight;
 
+  // 2) Vérification / headers CORS
   const cors = guardOriginOr403(req);
   if (cors instanceof Response) return cors;
 
@@ -73,7 +84,7 @@ serve(async (req: Request): Promise<Response> => {
     payload?.secretCode ?? payload?.secret_code ?? "",
   ).trim();
 
-  // 👉 nouveau flag pour distinguer public vs dashboard
+  // Flag pour distinguer signup public vs création par un manager
   const createdByManagerRaw =
     payload?.created_by_manager ?? payload?.createdByManager ?? false;
   const createdByManager =
@@ -247,13 +258,13 @@ serve(async (req: Request): Promise<Response> => {
         });
 
       if (signUpError || !signUpData?.user) {
-    console.error("auth-signup: signUp (manager) failed", signUpError);
-    return json(
-      { error: "create_failed", details: signUpError?.message },
-      supabaseStatus(signUpError, 400),
-      cors,
-    );
-  }
+        console.error("auth-signup: signUp (manager) failed", signUpError);
+        return json(
+          { error: "create_failed", details: signUpError?.message },
+          supabaseStatus(signUpError, 400),
+          cors,
+        );
+      }
 
       const authUid = signUpData.user.id;
 
@@ -275,6 +286,7 @@ serve(async (req: Request): Promise<Response> => {
 
       const companyId = company.id as string;
 
+      // company_settings idempotent (upsert) + fallback si plan_tier n'existe plus
       let settingsResult = await admin
         .from("company_settings")
         .upsert(
@@ -286,7 +298,6 @@ serve(async (req: Request): Promise<Response> => {
           { onConflict: "company_id" },
         );
 
-      // Si la colonne plan_tier n'existe plus (schema récent) → fallback sans ce champ
       if (settingsResult.error?.code === "42703") {
         console.warn(
           "auth-signup: plan_tier column missing, retrying company_settings without it",
@@ -331,7 +342,10 @@ serve(async (req: Request): Promise<Response> => {
         );
 
       if (profileError) {
-        console.error("auth-signup: insert manager profile failed", profileError);
+        console.error(
+          "auth-signup: insert manager profile failed",
+          profileError,
+        );
         await admin.from("company_settings")
           .delete()
           .eq("company_id", companyId)
@@ -447,7 +461,10 @@ serve(async (req: Request): Promise<Response> => {
         });
 
       if (signUpError || !signUpData?.user) {
-        console.error("auth-signup: signUp (agent/user, public) failed", signUpError);
+        console.error(
+          "auth-signup: signUp (agent/user, public) failed",
+          signUpError,
+        );
         return json(
           { error: "create_failed", details: signUpError?.message },
           supabaseStatus(signUpError, 400),
@@ -495,8 +512,15 @@ serve(async (req: Request): Promise<Response> => {
         cors,
       );
     }
-  } catch (e) {
+  } catch (e: any) {
     console.error("auth-signup unexpected error", e);
-    return json({ error: "create_failed", details: String(e?.message ?? e) }, 500, cors);
+    return json(
+      {
+        error: "create_failed",
+        details: String(e?.message ?? e),
+      },
+      500,
+      cors,
+    );
   }
 });
