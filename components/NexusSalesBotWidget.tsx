@@ -286,16 +286,21 @@ const NexusSalesBotWidget: React.FC<NexusSalesBotWidgetProps> = ({ allowAutoRead
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
-      <button
-        type="button"
-        onClick={toggleWidget}
-        aria-label={t('salesBot.openAssistant', { default: "Ouvrir l’assistant commercial Nexus" })}
-        aria-expanded={isOpen}
-        aria-controls={panelId}
-        className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-lg transition hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-      >
-        <ChatBubbleIcon className="h-6 w-6" />
-      </button>
+      <div className="flex flex-col items-center gap-2">
+        <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-primary shadow">
+          {t('salesBot.launchLabel', { default: 'Assistant Nexus' })}
+        </span>
+        <button
+          type="button"
+          onClick={toggleWidget}
+          aria-label={t('salesBot.openAssistant', { default: "Ouvrir l’assistant commercial Nexus" })}
+          aria-expanded={isOpen}
+          aria-controls={panelId}
+          className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-lg transition hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+        >
+          <ChatBubbleIcon className="h-6 w-6" />
+        </button>
+      </div>
 
       {isOpen && (
         <div

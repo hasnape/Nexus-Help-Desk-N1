@@ -21,6 +21,7 @@
   "appContext.error.aiFollowUpFailed": "Sorry, I encountered an error: {{error}}",
   "appContext.error.summaryGenerationFailed": "System: Failed to generate ticket summary for agent.",
   "appName": "Nexus Support Hub",
+  "salesBot.launchLabel": "Nexus assistant",
   "appointment": {
     "confirm_body": "Do you really want to delete this appointment? This action cannot be undone.",
     "confirm_title": "Confirm deletion",
