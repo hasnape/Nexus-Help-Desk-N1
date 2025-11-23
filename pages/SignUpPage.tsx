@@ -13,6 +13,8 @@ const paypalLinks = {
   pro: "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-7HP75881LB3608938NBTBGUA",
 };
 
+const passwordPolicyRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{8,}$/;
+
 const FreemiumModal = ({
   showFreemiumModal,
   setShowFreemiumModal,
@@ -448,8 +450,13 @@ const SignUpPage: React.FC = () => {
       setError(t("signup.error.passwordsDoNotMatch"));
       return;
     }
-    if (password.length < 6) {
-      setError(t("signup.error.minCharsPassword"));
+    if (!passwordPolicyRegex.test(password)) {
+      setError(
+        t("signup.error.passwordNotSecure", {
+          defaultValue:
+            "Votre mot de passe doit contenir au moins 8 caractères, dont une majuscule, une minuscule, un chiffre et un caractère spécial.",
+        })
+      );
       return;
     }
 
@@ -747,6 +754,12 @@ const SignUpPage: React.FC = () => {
                       required
                       disabled={isLoading}
                     />
+                    <p className="mt-1 text-xs text-slate-500 px-1">
+                      {t("signup.passwordPolicyHint", {
+                        defaultValue:
+                          "Votre mot de passe doit contenir au moins 8 caractères, dont une majuscule, une minuscule, un chiffre et un caractère spécial.",
+                      })}
+                    </p>
                     <Input
                       label={t("signup.confirmPasswordLabel")}
                       id="confirmPassword"
