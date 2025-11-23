@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">Nexus Support Hub Icon</title>
+  <desc id="desc">Stylized network of connected people forming a circle</desc>
+  <defs>
+    <linearGradient id="link" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563EB" />
+      <stop offset="100%" stop-color="#1D4ED8" />
+    </linearGradient>
+  </defs>
+  <circle cx="64" cy="64" r="56" fill="#F1F5F9" stroke="#2563EB" stroke-width="4" />
+  <g fill="#2563EB" stroke="url(#link)" stroke-width="4" stroke-linecap="round">
+    <path d="M64 18c10 7 16 18 16 30" fill="none" />
+    <path d="M110 64c-7 10-18 16-30 16" fill="none" />
+    <path d="M64 110c-10-7-16-18-16-30" fill="none" />
+    <path d="M18 64c7-10 18-16 30-16" fill="none" />
+    <path d="M95 33c-5 11-4 24 3 34" fill="none" />
+    <path d="M95 95c-11-5-24-4-34 3" fill="none" />
+    <path d="M33 95c5-11 4-24-3-34" fill="none" />
+    <path d="M33 33c11 5 24 4 34-3" fill="none" />
+  </g>
+  <g fill="#0EA5E9" stroke="#1D4ED8" stroke-width="3">
+    <circle cx="64" cy="10" r="8" />
+    <circle cx="118" cy="64" r="8" />
+    <circle cx="64" cy="118" r="8" />
+    <circle cx="10" cy="64" r="8" />
+    <circle cx="96" cy="24" r="8" />
+    <circle cx="104" cy="96" r="8" />
+    <circle cx="24" cy="96" r="8" />
+    <circle cx="24" cy="24" r="8" />
+  </g>
+  <circle cx="64" cy="64" r="14" fill="#2563EB" />
+  <path d="M64 50c5 0 8 4 8 8s-3 8-8 8-8-4-8-8 3-8 8-8zm-8 18c6 4 10 4 16 0" fill="#fff" />
+</svg>
