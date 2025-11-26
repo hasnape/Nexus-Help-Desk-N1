@@ -2,9 +2,10 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import { Button } from "../components/FormElements";
+import TicketCard from "../components/TicketCard";
 import { useApp } from "../App";
 import { supabase } from "../services/supabaseClient";
-import { Ticket } from "../types";
+import { ChatMessage, Ticket, TicketPriority, TicketStatus } from "../types";
 
 const practiceAreaCopy: Record<string, string> = {
   "Family Law": "Work through custody, support, and visitation with updates in plain English.",
@@ -14,10 +15,13 @@ const practiceAreaCopy: Record<string, string> = {
 };
 
 const LaiTurnerClientPortalPage: React.FC = () => {
-  const { user, tickets } = useApp();
+  const { user, tickets, addTicket } = useApp();
   const navigate = useNavigate();
   const [companyName, setCompanyName] = useState<string | null>(null);
   const [companyLoading, setCompanyLoading] = useState(false);
+  const [creationError, setCreationError] = useState<string | null>(null);
+  const [creationMessage, setCreationMessage] = useState<string | null>(null);
+  const [creatingArea, setCreatingArea] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -46,28 +50,61 @@ const LaiTurnerClientPortalPage: React.FC = () => {
   const isLaiTurner = (companyName || "").toLowerCase() === "lai & turner";
 
   const userTickets: Ticket[] = useMemo(() => {
-    if (!user) return [];
-    return tickets.filter((ticket) => ticket.user_id === user.id);
-  }, [tickets, user]);
+    if (!user || !isLaiTurner) return [];
+    return tickets
+      .filter((ticket) => ticket.user_id === user.id)
+      .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
+  }, [tickets, user, isLaiTurner]);
 
-  const renderCaseCard = (ticket: Ticket) => (
-    <div
-      key={ticket.id}
-      className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
-    >
-      <div className="space-y-2">
-        <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">{ticket.category}</p>
-        <h4 className="text-lg font-bold text-slate-900">{ticket.title}</h4>
-        <p className="text-sm text-slate-700">Status: {ticket.status}</p>
-        <p className="text-xs text-slate-500">
-          Updated {ticket.updated_at ? new Date(ticket.updated_at).toLocaleDateString() : "recently"}
-        </p>
-      </div>
-      <Button className="mt-4" variant="secondary" onClick={() => navigate(`/ticket/${ticket.id}`)}>
-        View updates
-      </Button>
-    </div>
-  );
+  const createLaiTurnerTicket = async (area: keyof typeof practiceAreaCopy) => {
+    if (!user) return;
+    setCreationError(null);
+    setCreationMessage(null);
+    setCreatingArea(area);
+    const category = area;
+    const titleMap: Record<string, string> = {
+      "Family Law": "Family law consultation",
+      "Personal Injury": "Injury claim – intake",
+      "Criminal Defense": "Criminal defense request",
+      "Business Immigration": "Business immigration intake",
+    };
+    const descriptionMap: Record<string, string> = {
+      "Family Law": "I need guidance on custody, support, or visitation and want to know my next deadlines.",
+      "Personal Injury": "I was injured and need help with medical bills, insurance timelines, and negotiations.",
+      "Criminal Defense": "I’m facing criminal charges and need a defense strategy plus a timeline for hearings.",
+      "Business Immigration": "I’m hiring or relocating talent across borders and need a visa and entity plan.",
+    };
+
+    const initialMessage: ChatMessage = {
+      id: crypto.randomUUID(),
+      sender: "user",
+      text: descriptionMap[area],
+      timestamp: new Date(),
+    };
+
+    try {
+      const newTicket = await addTicket(
+        {
+          title: titleMap[area],
+          description: descriptionMap[area],
+          category,
+          priority: area === "Criminal Defense" ? TicketPriority.HIGH : TicketPriority.MEDIUM,
+          status: TicketStatus.OPEN,
+        },
+        [initialMessage]
+      );
+      if (newTicket) {
+        setCreationMessage("Your request has been created. You can follow it below.");
+        navigate(`/ticket/${newTicket.id}`);
+      } else {
+        setCreationError("We couldn’t create this request right now. Please try again.");
+      }
+    } catch (error: any) {
+      setCreationError(error?.message || "We couldn’t create this request right now. Please try again.");
+    } finally {
+      setCreatingArea(null);
+    }
+  };
 
   if (!user) {
     return (
@@ -75,9 +112,9 @@ const LaiTurnerClientPortalPage: React.FC = () => {
         <div className="mx-auto max-w-3xl space-y-4 py-16 px-4">
           <h1 className="text-3xl font-bold text-slate-900">Authentication required</h1>
           <p className="text-slate-700">
-            To access this LAI & TURNER client portal, please sign in from the Lai & Turner demo page.
+            To access this LAI & TURNER client portal, please sign in from the Lai & Turner entry page.
           </p>
-          <Button onClick={() => navigate("/lai-turner-law")}>Back to Lai & Turner demo</Button>
+          <Button onClick={() => navigate("/lai-turner-law")}>Back to Lai & Turner</Button>
         </div>
       </Layout>
     );
@@ -87,7 +124,7 @@ const LaiTurnerClientPortalPage: React.FC = () => {
     return (
       <Layout>
         <div className="mx-auto max-w-3xl space-y-4 py-16 px-4">
-          <h1 className="text-3xl font-bold text-slate-900">This client portal is reserved for Lai & Turner demo accounts.</h1>
+          <h1 className="text-3xl font-bold text-slate-900">This client portal is reserved for Lai & Turner accounts.</h1>
           <Button onClick={() => navigate("/lai-turner-law")}>Return to Lai & Turner</Button>
         </div>
       </Layout>
@@ -102,7 +139,7 @@ const LaiTurnerClientPortalPage: React.FC = () => {
             <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Lai & Turner Law</p>
             <h1 className="text-3xl font-bold text-slate-900">Your Lai & Turner client portal</h1>
             <p className="max-w-3xl text-lg text-slate-700">
-              Most lawyers chase verdicts. We chase justice for your family, your future, and your business.
+              This is your live Lai & Turner client space. Use it to start new cases, share documents, and follow updates with your team.
             </p>
             <p className="text-sm text-slate-600">Signed in as {user.email}</p>
           </section>
@@ -117,7 +154,8 @@ const LaiTurnerClientPortalPage: React.FC = () => {
                 <Button
                   className="mt-4"
                   variant="secondary"
-                  onClick={() => alert("Demo only. In production this would open a new ticket form.")}
+                  onClick={() => createLaiTurnerTicket(area as keyof typeof practiceAreaCopy)}
+                  isLoading={creatingArea === area}
                 >
                   {area === "Family Law"
                     ? "Start a family law request"
@@ -141,13 +179,25 @@ const LaiTurnerClientPortalPage: React.FC = () => {
                 <span className="text-xs font-semibold text-slate-500">Confirming Lai & Turner access…</span>
               )}
             </div>
+            {creationMessage && (
+              <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                {creationMessage}
+              </div>
+            )}
+            {creationError && (
+              <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                {creationError}
+              </div>
+            )}
             {userTickets.length === 0 ? (
               <div className="rounded-2xl border border-slate-100 bg-slate-50 p-5 text-sm text-slate-700">
-                No active tickets yet. Use the buttons above to start a request and see how updates would appear here.
+                No active tickets yet. Use the buttons above to start a request and your updates will appear here in real time.
               </div>
             ) : (
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {userTickets.map((ticket) => renderCaseCard(ticket))}
+                {userTickets.map((ticket) => (
+                  <TicketCard key={ticket.id} ticket={ticket} />
+                ))}
               </div>
             )}
           </section>
