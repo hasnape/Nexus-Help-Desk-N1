@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Layout from "../components/Layout";
 import { Button, Input } from "../components/FormElements";
 import { useTranslation } from "react-i18next";
@@ -28,6 +28,13 @@ const LaiTurnerDemoPage: React.FC = () => {
     },
   ]);
   const [chatInput, setChatInput] = useState("");
+  const [dictationSupported, setDictationSupported] = useState(false);
+  const [dictationStatus, setDictationStatus] = useState("Idle");
+  const [dictationError, setDictationError] = useState<string | null>(null);
+  const [isListening, setIsListening] = useState(false);
+  const [ttsSupported, setTtsSupported] = useState(false);
+  const [ttsStatus, setTtsStatus] = useState("Ready");
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
 
   const faqs = [
     {
@@ -111,6 +118,91 @@ const LaiTurnerDemoPage: React.FC = () => {
       };
       setChatMessages((prev) => [...prev, botMessage]);
     }, 400);
+  };
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const synthAvailable = "speechSynthesis" in window && typeof SpeechSynthesisUtterance !== "undefined";
+    setTtsSupported(synthAvailable);
+
+    const SpeechRecognitionCtor =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognitionCtor) return;
+
+    const recognition: SpeechRecognition = new SpeechRecognitionCtor();
+    recognition.lang = "en-US";
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+      setDictationStatus("Listening…");
+      setDictationError(null);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+      setDictationStatus("Idle");
+    };
+
+    recognition.onerror = (event) => {
+      setIsListening(false);
+      setDictationStatus("Idle");
+      setDictationError(event.error ? `Voice capture error: ${event.error}` : "Voice capture error");
+    };
+
+    recognition.onresult = (event) => {
+      const transcript = Array.from(event.results)
+        .map((result) => result[0].transcript)
+        .join(" ")
+        .trim();
+      if (!transcript) return;
+      setChatInput((prev) => (prev ? `${prev.trim()} ${transcript}`.trim() : transcript));
+      setDictationStatus("Transcribed");
+    };
+
+    recognitionRef.current = recognition;
+    setDictationSupported(true);
+
+    return () => {
+      recognition.stop();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!ttsSupported) return;
+    const lastMessage = chatMessages[chatMessages.length - 1];
+    if (!lastMessage || lastMessage.from !== "bot") return;
+
+    const synth = window.speechSynthesis;
+    if (!synth) return;
+
+    const utterance = new SpeechSynthesisUtterance(lastMessage.text);
+    utterance.lang = "en-US";
+    utterance.rate = 1;
+    utterance.pitch = 1;
+
+    utterance.onstart = () => setTtsStatus("Playing demo reply");
+    utterance.onend = () => setTtsStatus("Ready");
+    utterance.onerror = () => setTtsStatus("Playback unavailable");
+
+    synth.cancel();
+    synth.speak(utterance);
+  }, [chatMessages, ttsSupported]);
+
+  const startDictation = () => {
+    if (!dictationSupported || !recognitionRef.current || isListening) return;
+    try {
+      recognitionRef.current.start();
+    } catch (error) {
+      setDictationError("Unable to start voice dictation.");
+    }
+  };
+
+  const stopDictation = () => {
+    if (!recognitionRef.current) return;
+    recognitionRef.current.stop();
+    setIsListening(false);
   };
 
   return (
@@ -228,22 +320,42 @@ const LaiTurnerDemoPage: React.FC = () => {
                     </span>
                   </div>
 
-                  <div className="rounded-2xl border border-slate-800 bg-slate-950/30 p-4">
-                    <div className="flex flex-col gap-3 overflow-y-auto rounded-xl bg-black/20 p-3" style={{ height: "14rem" }}>
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <div
+                      className="flex flex-col gap-3 overflow-y-auto rounded-xl border border-slate-200 bg-white/90 p-3"
+                      style={{ height: "14rem" }}
+                    >
                       {chatMessages.map((message, index) => (
                         <div
                           key={`${message.from}-${index}`}
                           className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed shadow ${
                             message.from === "bot"
-                              ? "self-start bg-slate-800 text-slate-100"
-                              : "self-end bg-indigo-500 text-white"
+                              ? "self-start bg-white text-slate-900"
+                              : "self-end bg-indigo-100 text-slate-900"
                           }`}
                         >
                           {message.text}
                         </div>
                       ))}
                     </div>
-                    <form className="mt-4 flex gap-2" onSubmit={handleSendMessage}>
+                    <div className="mt-3 flex flex-wrap items-center gap-3 text-xs font-semibold text-slate-700">
+                      <span className="rounded-full bg-emerald-100 px-3 py-1 text-emerald-700">
+                        TTS: {ttsSupported ? ttsStatus : "Unavailable in this browser"}
+                      </span>
+                      <span
+                        className={`rounded-full px-3 py-1 ${
+                          dictationSupported
+                            ? "bg-indigo-100 text-indigo-700"
+                            : "bg-slate-200 text-slate-600"
+                        }`}
+                      >
+                        Voice dictation: {dictationSupported ? dictationStatus : "Not supported"}
+                      </span>
+                      {dictationError && (
+                        <span className="rounded-full bg-red-100 px-3 py-1 text-red-700">{dictationError}</span>
+                      )}
+                    </div>
+                    <form className="mt-4 flex flex-col gap-3 sm:flex-row" onSubmit={handleSendMessage}>
                       <Input
                         value={chatInput}
                         onChange={(e) => setChatInput(e.target.value)}
@@ -251,10 +363,31 @@ const LaiTurnerDemoPage: React.FC = () => {
                         aria-label={t("laiTurner.chatInput", { defaultValue: "Type a message" })}
                         className="flex-1 bg-white"
                       />
-                      <Button type="submit" className="shrink-0 px-5">
-                        Send
-                      </Button>
+                      <div className="flex items-center gap-2">
+                        <Button type="submit" className="shrink-0 px-5">
+                          Send
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          className="shrink-0 px-4"
+                          onClick={isListening ? stopDictation : startDictation}
+                          disabled={!dictationSupported}
+                        >
+                          {isListening ? "Stop voice" : "Dictate"}
+                        </Button>
+                      </div>
                     </form>
+                    {!dictationSupported && (
+                      <p className="mt-2 text-xs text-slate-600">
+                        Voice capture is not available in this browser. You can still type to try the demo chat.
+                      </p>
+                    )}
+                    {!ttsSupported && (
+                      <p className="text-xs text-slate-600">
+                        Text-to-speech playback is disabled because this browser does not support Web Speech synthesis.
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
