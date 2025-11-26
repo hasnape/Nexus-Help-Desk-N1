@@ -43,6 +43,9 @@ import TechnicalOverviewPage from "./pages/TechnicalOverviewPage";
 import RoadmapPage from "./pages/RoadmapPage";
 import ImplementationScenariosPage from "./pages/ImplementationScenariosPage";
 import LaiTurnerDemoPage from "./pages/LaiTurnerDemoPage";
+import LaiTurnerClientPortalPage from "./pages/LaiTurnerClientPortalPage";
+import LaiTurnerAgentInboxPage from "./pages/LaiTurnerAgentInboxPage";
+import LaiTurnerManagerDashboardPage from "./pages/LaiTurnerManagerDashboardPage";
 
 
 interface AppContextType {
@@ -1617,6 +1620,29 @@ const validateRouteRenderStrategies = (
 const MainAppContent: React.FC = () => {
   const { user, isLoading, consentGiven, giveConsent } = useApp();
   const { isLoadingLang, t } = useLanguage();
+  const [companyName, setCompanyName] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const loadCompanyName = async () => {
+      if (!user?.company_id) {
+        setCompanyName(null);
+        return;
+      }
+      const { data, error } = await supabase
+        .from("companies")
+        .select("name")
+        .eq("id", user.company_id)
+        .single();
+      if (!cancelled) {
+        setCompanyName(!error ? data?.name ?? null : null);
+      }
+    };
+    loadCompanyName();
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.company_id]);
 
   if (isLoading || isLoadingLang) {
     return (
@@ -1625,6 +1651,8 @@ const MainAppContent: React.FC = () => {
       </div>
     );
   }
+
+  const isLaiTurnerTenant = (companyName || "").toLowerCase() === "lai & turner";
 
   const renderRoutes = () => {
     const routes = (
@@ -1651,6 +1679,9 @@ const MainAppContent: React.FC = () => {
         <Route path="/roadmap" element={<RoadmapPage />} />
         <Route path="/implementation-scenarios" element={<ImplementationScenariosPage />} />
         <Route path="/lai-turner-law" element={<LaiTurnerDemoPage />} />
+        <Route path="/lai-turner-law/client-portal" element={<LaiTurnerClientPortalPage />} />
+        <Route path="/lai-turner-law/agent" element={<LaiTurnerAgentInboxPage />} />
+        <Route path="/lai-turner-law/manager" element={<LaiTurnerManagerDashboardPage />} />
 
         {/* PricingPage */}
         <Route path="/pricing" element={<PricingPage />} />
@@ -1668,7 +1699,15 @@ const MainAppContent: React.FC = () => {
           path="/dashboard"
           element={
             <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
-              {user?.role === UserRole.AGENT ? (
+              {isLaiTurnerTenant ? (
+                user?.role === UserRole.MANAGER ? (
+                  <Navigate to="/lai-turner-law/manager" replace />
+                ) : user?.role === UserRole.AGENT ? (
+                  <Navigate to="/lai-turner-law/agent" replace />
+                ) : (
+                  <Navigate to="/lai-turner-law/client-portal" replace />
+                )
+              ) : user?.role === UserRole.AGENT ? (
                 <Navigate to="/agent/dashboard" replace />
               ) : user?.role === UserRole.MANAGER ? (
                 <Navigate to="/manager/dashboard" replace />
@@ -1710,7 +1749,11 @@ const MainAppContent: React.FC = () => {
           path="/agent/dashboard"
           element={
             <ProtectedRoute allowedRoles={[UserRole.AGENT, UserRole.MANAGER]}>
-              <AgentDashboardPage />
+              {isLaiTurnerTenant ? (
+                <Navigate to="/lai-turner-law/agent" replace />
+              ) : (
+                <AgentDashboardPage />
+              )}
             </ProtectedRoute>
           }
         />
@@ -1719,7 +1762,11 @@ const MainAppContent: React.FC = () => {
           path="/manager/dashboard"
           element={
             <ProtectedRoute allowedRoles={[UserRole.MANAGER]}>
-              <ManagerDashboardPage />
+              {isLaiTurnerTenant ? (
+                <Navigate to="/lai-turner-law/manager" replace />
+              ) : (
+                <ManagerDashboardPage />
+              )}
             </ProtectedRoute>
           }
         />
@@ -1737,7 +1784,15 @@ const MainAppContent: React.FC = () => {
           path="/"
           element={
             user ? (
-              user.role === UserRole.AGENT ? (
+              isLaiTurnerTenant ? (
+                user.role === UserRole.MANAGER ? (
+                  <Navigate to="/lai-turner-law/manager" replace />
+                ) : user.role === UserRole.AGENT ? (
+                  <Navigate to="/lai-turner-law/agent" replace />
+                ) : (
+                  <Navigate to="/lai-turner-law/client-portal" replace />
+                )
+              ) : user.role === UserRole.AGENT ? (
                 <Navigate to="/agent/dashboard" replace />
               ) : user.role === UserRole.MANAGER ? (
                 <Navigate to="/manager/dashboard" replace />
