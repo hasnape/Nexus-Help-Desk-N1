@@ -4,6 +4,8 @@ import { Button } from "../components/FormElements";
 import { useApp } from "../App";
 import { supabase } from "../services/supabaseClient";
 import { Ticket, TicketStatus, User } from "../types";
+import ManagerInviteUserCard from "../components/ManagerInviteUserCard";
+import PlanLimits from "../components/PlanLimits";
 
 const LaiTurnerManagerDashboardPage: React.FC = () => {
   const { user, tickets, getAllUsers } = useApp();
@@ -43,15 +45,28 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
     });
   }, [tickets, allUsers, user]);
 
-  const openFights = laiTickets.filter(
-    (ticket) => ticket.status !== TicketStatus.RESOLVED && ticket.status !== TicketStatus.CLOSED
-  ).length;
-
   const practiceBreakdown = laiTickets.reduce<Record<string, number>>((acc, ticket) => {
     const key = ticket.category || "Other";
     acc[key] = (acc[key] || 0) + 1;
     return acc;
   }, {});
+
+  const openFights = laiTickets.filter(
+    (ticket) => ticket.status === TicketStatus.OPEN || ticket.status === TicketStatus.IN_PROGRESS
+  ).length;
+
+  const now = new Date();
+  const ticketsLast7Days = laiTickets.filter((ticket) => {
+    const createdAt = new Date(ticket.created_at);
+    const diffDays = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24);
+    return diffDays <= 7;
+  }).length;
+
+  const ticketsLast30Days = laiTickets.filter((ticket) => {
+    const createdAt = new Date(ticket.created_at);
+    const diffDays = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24);
+    return diffDays <= 30;
+  }).length;
 
   const isLaiTurner = (companyName || "").toLowerCase() === "lai & turner";
 
@@ -70,7 +85,8 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
     return (
       <Layout>
         <div className="mx-auto max-w-3xl space-y-4 py-16 px-4">
-          <h1 className="text-3xl font-bold text-slate-900">This view is reserved for Lai & Turner managers in this demo.</h1>
+          <h1 className="text-3xl font-bold text-slate-900">This view is reserved for Lai & Turner managers.</h1>
+          <p className="text-slate-700">If you need access, please sign in with a manager account for the firm.</p>
         </div>
       </Layout>
     );
@@ -84,30 +100,30 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
             <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Lai & Turner Law</p>
             <h1 className="text-3xl font-bold text-slate-900">Lai & Turner – Manager Overview</h1>
             <p className="max-w-3xl text-lg text-slate-700">
-              Most firms chase verdicts. This dashboard helps you chase justice AND run a healthy practice.
+              Track every fight across family, injury, criminal defense, and business immigration while keeping the Lai & Turner promise visible.
             </p>
           </section>
 
           <section className="grid gap-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm md:grid-cols-4">
             <div className="rounded-2xl border border-indigo-100 bg-indigo-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Open fights</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Open matters</p>
               <p className="text-3xl font-bold text-slate-900">{openFights}</p>
-              <p className="text-xs text-slate-600">Open or in-progress matters for Lai & Turner.</p>
+              <p className="text-xs text-slate-600">Open or in-progress files for Lai & Turner.</p>
             </div>
             <div className="rounded-2xl border border-indigo-100 bg-indigo-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Average first response (demo)</p>
-              <p className="text-3xl font-bold text-slate-900">32m</p>
-              <p className="text-xs text-slate-600">Based on recent demo conversations.</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">New in last 7 days</p>
+              <p className="text-3xl font-bold text-slate-900">{ticketsLast7Days}</p>
+              <p className="text-xs text-slate-600">Intake volume this week.</p>
             </div>
             <div className="rounded-2xl border border-indigo-100 bg-indigo-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">AI-handled first replies (demo)</p>
-              <p className="text-3xl font-bold text-slate-900">68%</p>
-              <p className="text-xs text-slate-600">First touch handled by AI before handoff.</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">New in last 30 days</p>
+              <p className="text-3xl font-bold text-slate-900">{ticketsLast30Days}</p>
+              <p className="text-xs text-slate-600">Rolling monthly intake across all practice areas.</p>
             </div>
             <div className="rounded-2xl border border-indigo-100 bg-indigo-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Human-led first replies (demo)</p>
-              <p className="text-3xl font-bold text-slate-900">32%</p>
-              <p className="text-xs text-slate-600">Escalated directly to attorneys or staff.</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Active categories</p>
+              <p className="text-3xl font-bold text-slate-900">{Object.keys(practiceBreakdown).length || 0}</p>
+              <p className="text-xs text-slate-600">Practice areas with at least one open file.</p>
             </div>
           </section>
 
@@ -169,30 +185,40 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
           </section>
 
           <section className="rounded-3xl border border-indigo-100 bg-indigo-50 p-6 shadow-sm space-y-4">
-            <h3 className="text-xl font-bold text-slate-900">Firm promise configuration</h3>
+            <h3 className="text-xl font-bold text-slate-900">Firm promise in action</h3>
             <div className="grid gap-4 md:grid-cols-3">
               <div className="rounded-2xl border border-indigo-100 bg-white p-4 shadow-sm">
                 <p className="text-sm font-semibold text-slate-900">Transparent pricing</p>
-                <p className="mt-2 text-sm text-slate-700">Organise matter categories and flat-fee options without adding payment links.</p>
-                <Button className="mt-3" variant="secondary">
-                  Review pricing categories
-                </Button>
+                <p className="mt-2 text-sm text-slate-700">Flat-fee visibility per practice area and quota tracking without any payment links.</p>
               </div>
               <div className="rounded-2xl border border-indigo-100 bg-white p-4 shadow-sm">
                 <p className="text-sm font-semibold text-slate-900">Human communication</p>
-                <p className="mt-2 text-sm text-slate-700">Keep templates in plain language and guide AI away from legalese.</p>
-                <Button className="mt-3" variant="secondary">
-                  Edit communication tone
-                </Button>
+                <p className="mt-2 text-sm text-slate-700">Message templates stay in plain English so clients never feel like case numbers.</p>
               </div>
               <div className="rounded-2xl border border-indigo-100 bg-white p-4 shadow-sm">
                 <p className="text-sm font-semibold text-slate-900">Relentless advocacy</p>
-                <p className="mt-2 text-sm text-slate-700">Checklists and workflows assume every matter could go to trial.</p>
-                <Button className="mt-3" variant="secondary">
-                  Review trial-prep checklists
-                </Button>
+                <p className="mt-2 text-sm text-slate-700">Workflows assume every file goes to trial, keeping discovery, deadlines, and prep visible.</p>
               </div>
             </div>
+          </section>
+
+          <section className="grid gap-4 md:grid-cols-2">
+            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+              <h3 className="text-lg font-bold text-slate-900">Invite your team</h3>
+              <p className="text-sm text-slate-700">Add agents or client accounts directly into the Lai & Turner workspace.</p>
+              <div className="mt-4">
+                <ManagerInviteUserCard companyId={user.company_id} />
+              </div>
+            </div>
+            {user.company_id && (
+              <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                <h3 className="text-lg font-bold text-slate-900">Plan limits</h3>
+                <p className="text-sm text-slate-700">Monitor ticket and agent limits for this firm.</p>
+                <div className="mt-4">
+                  <PlanLimits companyId={user.company_id} />
+                </div>
+              </div>
+            )}
           </section>
         </div>
       </div>

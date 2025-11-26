@@ -1,19 +1,28 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import { Button } from "../components/FormElements";
 import { useApp } from "../App";
 import { supabase } from "../services/supabaseClient";
 import { Ticket, TicketPriority, TicketStatus, User } from "../types";
 
-const practiceAreas = ["Family", "Personal Injury", "Criminal Defense", "Business Immigration"] as const;
+const practiceAreas = [
+  "Family Law",
+  "Personal Injury",
+  "Criminal Defense",
+  "Business Immigration",
+] as const;
+const priorities = ["all", TicketPriority.HIGH, TicketPriority.MEDIUM, TicketPriority.LOW] as const;
 
 const LaiTurnerAgentInboxPage: React.FC = () => {
-  const { user, tickets, getAllUsers } = useApp();
+  const { user, tickets, getAllUsers, updateTicketStatus } = useApp();
+  const navigate = useNavigate();
   const [companyName, setCompanyName] = useState<string | null>(null);
   const [companyLoading, setCompanyLoading] = useState(false);
   const [areaFilter, setAreaFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [urgentOnly, setUrgentOnly] = useState<boolean>(false);
+  const [priorityFilter, setPriorityFilter] = useState<string>("all");
+  const [updatingTicketId, setUpdatingTicketId] = useState<string | null>(null);
 
   const allUsers: User[] = getAllUsers();
 
@@ -50,12 +59,14 @@ const LaiTurnerAgentInboxPage: React.FC = () => {
   }, [tickets, allUsers, user]);
 
   const filteredTickets = laiTickets.filter((ticket) => {
+    const categoryValue = (ticket.category || "").toLowerCase();
+    const areaValue = areaFilter.toLowerCase();
     const matchesArea =
-      areaFilter === "all" || (ticket.category || "").toLowerCase().includes(areaFilter.toLowerCase());
+      areaFilter === "all" || categoryValue.includes(areaValue) || areaValue.includes(categoryValue);
     const matchesStatus =
       statusFilter === "all" || ticket.status.toLowerCase() === statusFilter.toLowerCase();
-    const matchesUrgency = !urgentOnly || ticket.priority === TicketPriority.HIGH;
-    return matchesArea && matchesStatus && matchesUrgency;
+    const matchesPriority = priorityFilter === "all" || ticket.priority === priorityFilter;
+    return matchesArea && matchesStatus && matchesPriority;
   });
 
   const isLaiTurner = (companyName || "").toLowerCase() === "lai & turner";
@@ -65,7 +76,7 @@ const LaiTurnerAgentInboxPage: React.FC = () => {
       <Layout>
         <div className="mx-auto max-w-3xl space-y-4 py-16 px-4">
           <h1 className="text-3xl font-bold text-slate-900">Authentication required</h1>
-          <p className="text-slate-700">Please log in from the Lai & Turner demo page.</p>
+          <p className="text-slate-700">Please log in from the Lai & Turner entry page.</p>
           <Button onClick={() => (window.location.href = "#/lai-turner-law")}>Back to Lai & Turner</Button>
         </div>
       </Layout>
@@ -76,7 +87,8 @@ const LaiTurnerAgentInboxPage: React.FC = () => {
     return (
       <Layout>
         <div className="mx-auto max-w-3xl space-y-4 py-16 px-4">
-          <h1 className="text-3xl font-bold text-slate-900">This inbox is reserved for Lai & Turner agents in this demo.</h1>
+          <h1 className="text-3xl font-bold text-slate-900">This inbox is reserved for Lai & Turner agents.</h1>
+          <p className="text-slate-700">If you need access, contact a manager to add you to the firm workspace.</p>
         </div>
       </Layout>
     );
@@ -125,7 +137,7 @@ const LaiTurnerAgentInboxPage: React.FC = () => {
                 >
                   All status
                 </Button>
-                {[TicketStatus.OPEN, TicketStatus.IN_PROGRESS, TicketStatus.RESOLVED].map((statusKey) => (
+                {[TicketStatus.OPEN, TicketStatus.IN_PROGRESS, TicketStatus.RESOLVED, TicketStatus.CLOSED].map((statusKey) => (
                   <Button
                     key={statusKey}
                     variant={statusFilter === statusKey ? "primary" : "secondary"}
@@ -135,13 +147,16 @@ const LaiTurnerAgentInboxPage: React.FC = () => {
                     {statusKey}
                   </Button>
                 ))}
-                <Button
-                  variant={urgentOnly ? "primary" : "secondary"}
-                  onClick={() => setUrgentOnly((prev) => !prev)}
-                  className="px-3"
-                >
-                  Only today’s urgent cases
-                </Button>
+                {priorities.map((priorityOption) => (
+                  <Button
+                    key={priorityOption}
+                    variant={priorityFilter === priorityOption ? "primary" : "secondary"}
+                    onClick={() => setPriorityFilter(priorityOption)}
+                    className="px-3"
+                  >
+                    {priorityOption === "all" ? "All priorities" : priorityOption}
+                  </Button>
+                ))}
               </div>
             </div>
 
@@ -166,23 +181,31 @@ const LaiTurnerAgentInboxPage: React.FC = () => {
                       <p className="text-sm text-slate-700">Status: {ticket.status}</p>
                     </div>
                     <div className="mt-4 flex flex-wrap gap-2">
-                      <Button variant="secondary" onClick={() => (window.location.href = `#/ticket/${ticket.id}`)}>
+                      <Button variant="secondary" onClick={() => navigate(`/ticket/${ticket.id}`)}>
                         Open conversation
                       </Button>
                       <Button
                         variant="secondary"
-                        onClick={() => console.log("Request documents checklist for", ticket.id)}
+                        isLoading={updatingTicketId === `${ticket.id}-InProgress`}
+                        onClick={async () => {
+                          setUpdatingTicketId(`${ticket.id}-InProgress`);
+                          await updateTicketStatus(ticket.id, TicketStatus.IN_PROGRESS);
+                          setUpdatingTicketId(null);
+                        }}
                       >
-                        Request documents checklist
+                        Mark as in progress
                       </Button>
-                      {ticket.category?.toLowerCase().includes("criminal") && (
-                        <Button
-                          variant="secondary"
-                          onClick={() => alert("Demo: would open trial prep template for this criminal defense case.")}
-                        >
-                          Prepare for trial
-                        </Button>
-                      )}
+                      <Button
+                        variant="secondary"
+                        isLoading={updatingTicketId === `${ticket.id}-Resolved`}
+                        onClick={async () => {
+                          setUpdatingTicketId(`${ticket.id}-Resolved`);
+                          await updateTicketStatus(ticket.id, TicketStatus.RESOLVED);
+                          setUpdatingTicketId(null);
+                        }}
+                      >
+                        Mark as resolved
+                      </Button>
                     </div>
                   </div>
                 ))

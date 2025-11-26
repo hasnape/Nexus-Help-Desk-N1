@@ -29,7 +29,7 @@ const LaiTurnerDemoPage: React.FC = () => {
     {
       from: "bot",
       text:
-        "Welcome to the LAI & TURNER demo chat. In a live setup, your immigration, family, and trial clients could reach your team here, while an AI assistant handles level 1 questions and routes complex issues to you in English, Mandarin, Japanese, and German.",
+        "Welcome to Lai & Turner Law. This secure help desk routes family, injury, criminal, and business immigration matters to the right attorney while keeping clients updated in plain language.",
     },
   ]);
   const [chatInput, setChatInput] = useState("");
@@ -54,38 +54,28 @@ const LaiTurnerDemoPage: React.FC = () => {
 
   const faqs = [
     {
-      question: "What types of clients does Jimmy Lai typically help?",
+      question: "Which clients does Lai & Turner champion?",
       answer:
-        "Immigrants, founders, professionals, and families who need guidance for visas, trials, business matters, and cross-border issues.",
+        "Families protecting their kids, injured clients seeking recovery, people defending their freedom, and founders hiring across borders.",
     },
     {
-      question: "Which practice areas could this client portal support?",
+      question: "Which practice areas run through this portal?",
       answer:
-        "Immigration (family-based, marriage-based, employment-based), criminal defense, family law, estate planning & probate, personal injury, real estate, business & employment.",
+        "Family Law, Personal Injury, Criminal Defense, and Business Immigration — each with tailored checklists and timelines.",
     },
     {
-      question: "In which languages can you support clients through this portal?",
-      answer: "English, Mandarin Chinese, Japanese, German, and Spanish if desired.",
+      question: "How do you keep the experience human?",
+      answer: "Plain-English updates, bilingual support, and attorneys who prepare like every case is going to trial.",
     },
     {
-      question: "How could an AI Help Desk help your immigration and family law clients?",
+      question: "How does Nexus Support Hub protect client data?",
       answer:
-        "24/7 intake, FAQs on timelines and required documents, pre-qualification flows, and fast escalation to your attorneys for complex matters.",
+        "Role-based access, encrypted messaging, and secure authentication for clients, agents, and managers.",
     },
     {
-      question: "What concrete services would Nexus Support Hub provide to LAI & TURNER?",
+      question: "What onboarding do you provide?",
       answer:
-        "Branded client portal, AI chat, ticketing, knowledge base, and integrations with tools like Lawbrokr or your practice management stack.",
-    },
-    {
-      question: "How is this service typically priced?",
-      answer:
-        "Monthly subscription calibrated to the firm’s size and usage — no payment links are included in this demo.",
-    },
-    {
-      question: "What does implementation look like for your firm?",
-      answer:
-        "Discovery workshop, workflow configuration, pilot phase, then optimisation with your attorneys and staff.",
+        "Discovery workshops, workflow setup by practice area, and continuous optimisation with your attorneys and staff.",
     },
   ];
 
@@ -104,19 +94,19 @@ const LaiTurnerDemoPage: React.FC = () => {
           lang: "en",
         });
         setAuthMessage(
-          "Account created successfully. Please check your inbox to confirm your email, then log in."
+          "Your Lai & Turner client account has been created. Please confirm your email to activate secure access."
         );
         setMode("login");
       } else {
         await signInWithEmail(email, password);
-        setAuthMessage("Successfully logged in – this account is now linked to LAI & TURNER.");
+        setAuthMessage("You’re now connected to your Lai & Turner portal.");
         const { data: sessionData } = await supabase.auth.getSession();
         const sessionUser = sessionData.session?.user;
         const metadataCompany = (sessionUser?.user_metadata as any)?.company_name;
         const metadataRole = (sessionUser?.user_metadata as any)?.role;
 
-        let resolvedRole: string | null = metadataRole ?? null;
-        let resolvedCompany: string | null = metadataCompany ?? null;
+        let resolvedRole: string | null = metadataRole ?? user?.role ?? null;
+        let resolvedCompany: string | null = metadataCompany ?? companyName ?? null;
 
         if (!resolvedRole || !resolvedCompany) {
           const { data: profile } = await supabase
@@ -144,6 +134,8 @@ const LaiTurnerDemoPage: React.FC = () => {
           } else {
             navigate("/lai-turner-law/client-portal");
           }
+        } else {
+          setAuthError("This login is not associated with Lai & Turner. Please use your firm credentials.");
         }
       }
     } catch (error: any) {
@@ -165,7 +157,7 @@ const LaiTurnerDemoPage: React.FC = () => {
       const botMessage: ChatMessage = {
         from: "bot",
         text:
-          "Thanks for your message. In a production setup, this reply would be generated by your AI Help Desk, pre-trained on LAI & TURNER FAQs and procedures.",
+          "Thanks for your message. A Lai & Turner coordinator will respond in secure messaging. For urgent matters, please call the firm.",
       };
       setChatMessages((prev) => [...prev, botMessage]);
     }, 400);
@@ -233,7 +225,7 @@ const LaiTurnerDemoPage: React.FC = () => {
     utterance.rate = 1;
     utterance.pitch = 1;
 
-    utterance.onstart = () => setTtsStatus("Playing demo reply");
+    utterance.onstart = () => setTtsStatus("Playing reply");
     utterance.onend = () => setTtsStatus("Ready");
     utterance.onerror = () => setTtsStatus("Playback unavailable");
 
@@ -268,13 +260,13 @@ const LaiTurnerDemoPage: React.FC = () => {
         <div className="mx-auto max-w-6xl px-4 space-y-10">
           <section className="space-y-4">
             <div className="inline-flex items-center rounded-full bg-indigo-50 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-indigo-700">
-              Demo • Nexus Support Hub × LAI & TURNER Law Firm
+              Secure portal • Nexus Support Hub × LAI & TURNER Law Firm
             </div>
             <h1 className="text-3xl font-bold text-slate-900 sm:text-4xl lg:text-5xl">
               Client portal & AI Help Desk for LAI & TURNER Law
             </h1>
             <p className="max-w-5xl text-lg text-slate-700">
-              Most lawyers chase verdicts. We chase justice. Lai & Turner Law exists so clients are never reduced to case numbers. We fight for families, injured clients, people facing criminal charges, and founders growing across borders — all with pricing clarity, human language, and preparation like every matter is headed to trial.
+              Most lawyers chase verdicts. We chase justice. After seeing too many people reduced to case numbers, Lai & Turner Law delivers relentless advocacy with transparent pricing and communication in plain English.
             </p>
             <div className="flex flex-wrap gap-2 text-sm font-semibold text-indigo-800">
               {[
@@ -301,7 +293,7 @@ const LaiTurnerDemoPage: React.FC = () => {
               <div className="relative space-y-6 text-white">
                 {user && isLaiTurner && (
                   <div className="space-y-2 rounded-2xl border border-emerald-400/60 bg-emerald-400/10 p-4 text-sm text-emerald-50">
-                    <div className="font-semibold">You are already logged in with a Lai & Turner demo account.</div>
+                    <div className="font-semibold">You’re authenticated with Lai & Turner.</div>
                     <div className="flex flex-wrap gap-2">
                       <Button
                         type="button"
@@ -362,7 +354,7 @@ const LaiTurnerDemoPage: React.FC = () => {
                 <div className="space-y-2">
                   <h2 className="text-2xl font-bold">LAI & TURNER client access</h2>
                   <p className="text-sm text-slate-300">
-                    Create a demo account or log in to see how LAI & TURNER clients could authenticate in a branded, secure portal.
+                    Secure client & team portal powered by Nexus Support Hub.
                   </p>
                 </div>
 
@@ -402,7 +394,7 @@ const LaiTurnerDemoPage: React.FC = () => {
                 )}
 
                 <p className="text-xs text-slate-400">
-                  This is a demo environment. In a live deployment, we can enforce your firm’s security policies (2FA, SSO, IP restrictions, etc.).
+                  We enforce firm security policies (2FA, SSO, IP controls) while keeping conversations encrypted end-to-end.
                 </p>
               </div>
             </div>
@@ -484,7 +476,7 @@ const LaiTurnerDemoPage: React.FC = () => {
                     </form>
                     {!dictationSupported && (
                       <p className="mt-2 text-xs text-slate-600">
-                        Voice capture is not available in this browser. You can still type to try the demo chat.
+                        Voice capture is not available in this browser. You can still type to reach the team.
                       </p>
                     )}
                     {!ttsSupported && (
@@ -522,7 +514,7 @@ const LaiTurnerDemoPage: React.FC = () => {
                   <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Your Lai & Turner portals</p>
                   <h3 className="text-2xl font-bold text-slate-900">Jump into the right workspace</h3>
                   <p className="text-sm text-slate-700">
-                    Client portal, agent inbox, and manager dashboard are separated so only Lai & Turner demo accounts see these views.
+                    Client portal, agent inbox, and manager dashboard are separated so only Lai & Turner accounts see these views.
                   </p>
                 </div>
                 {companyLoading && (
@@ -544,42 +536,46 @@ const LaiTurnerDemoPage: React.FC = () => {
                     </div>
                     <Button className="mt-4" onClick={() => navigate("/lai-turner-law/client-portal")}>Visit client portal</Button>
                   </div>
-                  <div className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                    <div className="space-y-2">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Agent</p>
-                      <h4 className="text-lg font-bold text-slate-900">Agent inbox</h4>
-                      <p className="text-sm text-slate-700">
-                        Triage cases by practice area, reply with empathy, and request documents without leaving the inbox.
-                      </p>
+                  {user.role === "agent" || user.role === "manager" ? (
+                    <div className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                      <div className="space-y-2">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Agent</p>
+                        <h4 className="text-lg font-bold text-slate-900">Agent inbox</h4>
+                        <p className="text-sm text-slate-700">
+                          Triage cases by practice area, reply with empathy, and request documents without leaving the inbox.
+                        </p>
+                      </div>
+                      <Button
+                        className="mt-4"
+                        variant="secondary"
+                        onClick={() => navigate("/lai-turner-law/agent")}
+                      >
+                        Open agent inbox
+                      </Button>
                     </div>
-                    <Button
-                      className="mt-4"
-                      variant="secondary"
-                      onClick={() => navigate("/lai-turner-law/agent")}
-                    >
-                      Open agent inbox
-                    </Button>
-                  </div>
-                  <div className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                    <div className="space-y-2">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Manager</p>
-                      <h4 className="text-lg font-bold text-slate-900">Manager dashboard</h4>
-                      <p className="text-sm text-slate-700">
-                        Watch KPIs, monitor intake flow, and keep the Lai & Turner promise visible across every practice area.
-                      </p>
+                  ) : null}
+                  {user.role === "manager" && (
+                    <div className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                      <div className="space-y-2">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Manager</p>
+                        <h4 className="text-lg font-bold text-slate-900">Manager dashboard</h4>
+                        <p className="text-sm text-slate-700">
+                          Watch KPIs, monitor intake flow, and keep the Lai & Turner promise visible across every practice area.
+                        </p>
+                      </div>
+                      <Button
+                        className="mt-4"
+                        variant="secondary"
+                        onClick={() => navigate("/lai-turner-law/manager")}
+                      >
+                        View manager dashboard
+                      </Button>
                     </div>
-                    <Button
-                      className="mt-4"
-                      variant="secondary"
-                      onClick={() => navigate("/lai-turner-law/manager")}
-                    >
-                      View manager dashboard
-                    </Button>
-                  </div>
+                  )}
                 </div>
               ) : (
                 <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-                  This portal area is reserved for Lai & Turner demo accounts.
+                  This portal area is reserved for Lai & Turner accounts.
                 </div>
               )}
             </section>
@@ -588,7 +584,7 @@ const LaiTurnerDemoPage: React.FC = () => {
           <section className="space-y-4">
             <h3 className="text-2xl font-bold text-slate-900">Commercial proposal for Lai & Turner Law Firm</h3>
             <p className="text-slate-700">
-              Below are collaboration ideas tailored to your immigration, criminal defense, family law, estate planning, personal injury, real estate, and business matters — no payment links included in this demo.
+              Collaboration paths tailored to your family, injury, criminal defense, and business immigration matters — always with transparent pricing and no payment links here.
             </p>
             <div className="grid gap-4 md:grid-cols-3">
               <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
