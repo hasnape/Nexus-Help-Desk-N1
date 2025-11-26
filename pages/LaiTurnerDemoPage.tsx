@@ -261,24 +261,24 @@ const LaiTurnerDemoPage: React.FC = () => {
                 </div>
 
                 <form className="space-y-4" onSubmit={handleAuthSubmit}>
-                  <Input
-                    type="email"
-                    required
-                    label="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    aria-label={t("laiTurner.email", { defaultValue: "Email address" })}
-                    className="bg-white/90"
-                  />
-                  <Input
-                    type="password"
-                    required
-                    label="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    aria-label={t("laiTurner.password", { defaultValue: "Password" })}
-                    className="bg-white/90"
-                  />
+                 <Input
+
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="client@example.com"
+                  required
+                  className="bg-white text-black"
+                />
+
+                <Input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                  className="bg-white text-black"
+                />
                   <Button type="submit" className="w-full" isLoading={loadingAuth}>
                     {mode === "signup" ? "Create account" : "Log in"}
                   </Button>
@@ -356,13 +356,12 @@ const LaiTurnerDemoPage: React.FC = () => {
                       )}
                     </div>
                     <form className="mt-4 flex flex-col gap-3 sm:flex-row" onSubmit={handleSendMessage}>
-                      <Input
-                        value={chatInput}
-                        onChange={(e) => setChatInput(e.target.value)}
-                        placeholder="Ask about timelines, documents, or next steps"
-                        aria-label={t("laiTurner.chatInput", { defaultValue: "Type a message" })}
-                        className="flex-1 bg-white"
-                      />
+                     <Input
+                      value={chatInput}
+                      onChange={(e) => setChatInput(e.target.value)}
+                      placeholder="Ask a question as a LAI & TURNER client…"
+                      className="bg-white text-black"
+                    />
                       <div className="flex items-center gap-2">
                         <Button type="submit" className="shrink-0 px-5">
                           Send
