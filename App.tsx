@@ -1651,6 +1651,7 @@ const MainAppContent: React.FC = () => {
         <Route path="/technical-overview" element={<TechnicalOverviewPage />} />
         <Route path="/roadmap" element={<RoadmapPage />} />
         <Route path="/implementation-scenarios" element={<ImplementationScenariosPage />} />
+        <Route path="/lai-turner-law" element={<LaiTurnerDemoPage />} />
 
         {/* PricingPage */}
         <Route path="/pricing" element={<PricingPage />} />
