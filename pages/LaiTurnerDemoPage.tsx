@@ -1,8 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import Layout from "../components/Layout";
 import { Button, Input } from "../components/FormElements";
-import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { signInWithEmail, signUpWithEmail } from "../services/authService";
+import { useApp } from "../App";
+import { supabase } from "../services/supabaseClient";
 
 type AuthMode = "login" | "signup";
 
@@ -12,13 +14,16 @@ type ChatMessage = {
 };
 
 const LaiTurnerDemoPage: React.FC = () => {
-  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { user } = useApp();
   const [mode, setMode] = useState<AuthMode>("signup");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loadingAuth, setLoadingAuth] = useState(false);
   const [authMessage, setAuthMessage] = useState<string | null>(null);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [companyName, setCompanyName] = useState<string | null>(null);
+  const [companyLoading, setCompanyLoading] = useState(false);
 
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
     {
@@ -35,6 +40,17 @@ const LaiTurnerDemoPage: React.FC = () => {
   const [ttsSupported, setTtsSupported] = useState(false);
   const [ttsStatus, setTtsStatus] = useState("Ready");
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+
+  const loadCompanyName = async (companyId?: string | null) => {
+    if (!companyId) {
+      setCompanyName(null);
+      return;
+    }
+    setCompanyLoading(true);
+    const { data, error } = await supabase.from("companies").select("name").eq("id", companyId).single();
+    setCompanyName(!error ? data?.name ?? null : null);
+    setCompanyLoading(false);
+  };
 
   const faqs = [
     {
@@ -94,6 +110,41 @@ const LaiTurnerDemoPage: React.FC = () => {
       } else {
         await signInWithEmail(email, password);
         setAuthMessage("Successfully logged in – this account is now linked to LAI & TURNER.");
+        const { data: sessionData } = await supabase.auth.getSession();
+        const sessionUser = sessionData.session?.user;
+        const metadataCompany = (sessionUser?.user_metadata as any)?.company_name;
+        const metadataRole = (sessionUser?.user_metadata as any)?.role;
+
+        let resolvedRole: string | null = metadataRole ?? null;
+        let resolvedCompany: string | null = metadataCompany ?? null;
+
+        if (!resolvedRole || !resolvedCompany) {
+          const { data: profile } = await supabase
+            .from("users")
+            .select("role, company_id")
+            .eq("auth_uid", sessionUser?.id || "")
+            .single();
+
+          resolvedRole = profile?.role ?? resolvedRole ?? null;
+          if (profile?.company_id) {
+            const { data: companyRow } = await supabase
+              .from("companies")
+              .select("name")
+              .eq("id", profile.company_id)
+              .single();
+            resolvedCompany = companyRow?.name ?? resolvedCompany ?? null;
+          }
+        }
+
+        if (resolvedCompany?.toLowerCase() === "lai & turner") {
+          if (resolvedRole === "manager") {
+            navigate("/lai-turner-law/manager");
+          } else if (resolvedRole === "agent") {
+            navigate("/lai-turner-law/agent");
+          } else {
+            navigate("/lai-turner-law/client-portal");
+          }
+        }
       }
     } catch (error: any) {
       setAuthError(error?.message || "An unexpected error occurred.");
@@ -190,6 +241,10 @@ const LaiTurnerDemoPage: React.FC = () => {
     synth.speak(utterance);
   }, [chatMessages, ttsSupported]);
 
+  useEffect(() => {
+    loadCompanyName(user?.company_id);
+  }, [user?.company_id]);
+
   const startDictation = () => {
     if (!dictationSupported || !recognitionRef.current || isListening) return;
     try {
@@ -205,6 +260,8 @@ const LaiTurnerDemoPage: React.FC = () => {
     setIsListening(false);
   };
 
+  const isLaiTurner = (companyName || "").toLowerCase() === "lai & turner";
+
   return (
     <Layout>
       <div className="min-h-[calc(100vh-5rem)] bg-slate-50 py-10">
@@ -214,12 +271,26 @@ const LaiTurnerDemoPage: React.FC = () => {
               Demo • Nexus Support Hub × LAI & TURNER Law Firm
             </div>
             <h1 className="text-3xl font-bold text-slate-900 sm:text-4xl lg:text-5xl">
-              Client portal & AI Help Desk for
-              <span className="text-indigo-600"> immigration, family & trial clients</span>
+              Client portal & AI Help Desk for LAI & TURNER Law
             </h1>
             <p className="max-w-5xl text-lg text-slate-700">
-              Jimmy Lai, JD/MBA, built Lai & Turner Law Firm to “do law differently” for immigrants, founders, families, and clients across Oklahoma and beyond. This page is a personalised demo of how a branded, multilingual client portal could support your intake, FAQs, and ongoing case communication.
+              Most lawyers chase verdicts. We chase justice. Lai & Turner Law exists so clients are never reduced to case numbers. We fight for families, injured clients, people facing criminal charges, and founders growing across borders — all with pricing clarity, human language, and preparation like every matter is headed to trial.
             </p>
+            <div className="flex flex-wrap gap-2 text-sm font-semibold text-indigo-800">
+              {[
+                "Family Law",
+                "Personal Injury",
+                "Criminal Defense",
+                "Business Immigration",
+              ].map((label) => (
+                <span
+                  key={label}
+                  className="rounded-full bg-indigo-50 px-3 py-1 text-indigo-800"
+                >
+                  {label}
+                </span>
+              ))}
+            </div>
           </section>
 
           <section className="grid gap-6 md:grid-cols-2">
@@ -228,6 +299,41 @@ const LaiTurnerDemoPage: React.FC = () => {
                 <div className="absolute -left-6 top-10 rotate-6">LAI & TURNER</div>
               </div>
               <div className="relative space-y-6 text-white">
+                {user && isLaiTurner && (
+                  <div className="space-y-2 rounded-2xl border border-emerald-400/60 bg-emerald-400/10 p-4 text-sm text-emerald-50">
+                    <div className="font-semibold">You are already logged in with a Lai & Turner demo account.</div>
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        className="bg-white/10 px-3"
+                        onClick={() => navigate("/lai-turner-law/client-portal")}
+                      >
+                        Open client portal
+                      </Button>
+                      {user.role === "agent" || user.role === "manager" ? (
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          className="bg-white/10 px-3"
+                          onClick={() => navigate("/lai-turner-law/agent")}
+                        >
+                          Open agent inbox
+                        </Button>
+                      ) : null}
+                      {user.role === "manager" && (
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          className="bg-white/10 px-3"
+                          onClick={() => navigate("/lai-turner-law/manager")}
+                        >
+                          Open manager dashboard
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                )}
                 <div className="flex items-center gap-2 rounded-full bg-slate-800/70 p-1 text-sm font-semibold">
                   <button
                     type="button"
@@ -261,24 +367,23 @@ const LaiTurnerDemoPage: React.FC = () => {
                 </div>
 
                 <form className="space-y-4" onSubmit={handleAuthSubmit}>
-                 <Input
+                  <Input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="client@example.com"
+                    required
+                    className="bg-white text-black"
+                  />
 
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="client@example.com"
-                  required
-                  className="bg-white text-black"
-                />
-
-                <Input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  required
-                  className="bg-white text-black"
-                />
+                  <Input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    required
+                    className="bg-white text-black"
+                  />
                   <Button type="submit" className="w-full" isLoading={loadingAuth}>
                     {mode === "signup" ? "Create account" : "Log in"}
                   </Button>
@@ -322,9 +427,9 @@ const LaiTurnerDemoPage: React.FC = () => {
 
                   <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                     <div
-                      className="flex flex-col gap-3 overflow-y-auto rounded-xl border border-slate-200 bg-white/90 p-3"
-                      style={{ height: "14rem" }}
-                    >
+                    className="flex flex-col gap-3 overflow-y-auto rounded-xl border border-slate-200 bg-white/90 p-3"
+                    style={{ height: "14rem" }}
+                  >
                       {chatMessages.map((message, index) => (
                         <div
                           key={`${message.from}-${index}`}
@@ -356,12 +461,12 @@ const LaiTurnerDemoPage: React.FC = () => {
                       )}
                     </div>
                     <form className="mt-4 flex flex-col gap-3 sm:flex-row" onSubmit={handleSendMessage}>
-                     <Input
-                      value={chatInput}
-                      onChange={(e) => setChatInput(e.target.value)}
-                      placeholder="Ask a question as a LAI & TURNER client…"
-                      className="bg-white text-black"
-                    />
+                      <Input
+                        value={chatInput}
+                        onChange={(e) => setChatInput(e.target.value)}
+                        placeholder="Ask a question as a LAI & TURNER client…"
+                        className="bg-white text-black"
+                      />
                       <div className="flex items-center gap-2">
                         <Button type="submit" className="shrink-0 px-5">
                           Send
@@ -409,6 +514,76 @@ const LaiTurnerDemoPage: React.FC = () => {
               </div>
             </div>
           </section>
+
+          {user && (
+            <section className="rounded-3xl border border-indigo-100 bg-white/70 p-6 shadow-sm">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Your Lai & Turner portals</p>
+                  <h3 className="text-2xl font-bold text-slate-900">Jump into the right workspace</h3>
+                  <p className="text-sm text-slate-700">
+                    Client portal, agent inbox, and manager dashboard are separated so only Lai & Turner demo accounts see these views.
+                  </p>
+                </div>
+                {companyLoading && (
+                  <span className="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
+                    Verifying firm access…
+                  </span>
+                )}
+              </div>
+
+              {companyLoading ? null : isLaiTurner ? (
+                <div className="mt-4 grid gap-4 md:grid-cols-3">
+                  <div className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                    <div className="space-y-2">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Client</p>
+                      <h4 className="text-lg font-bold text-slate-900">Client portal</h4>
+                      <p className="text-sm text-slate-700">
+                        Track your matters, ask plain-language questions, and see the next step for your case.
+                      </p>
+                    </div>
+                    <Button className="mt-4" onClick={() => navigate("/lai-turner-law/client-portal")}>Visit client portal</Button>
+                  </div>
+                  <div className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                    <div className="space-y-2">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Agent</p>
+                      <h4 className="text-lg font-bold text-slate-900">Agent inbox</h4>
+                      <p className="text-sm text-slate-700">
+                        Triage cases by practice area, reply with empathy, and request documents without leaving the inbox.
+                      </p>
+                    </div>
+                    <Button
+                      className="mt-4"
+                      variant="secondary"
+                      onClick={() => navigate("/lai-turner-law/agent")}
+                    >
+                      Open agent inbox
+                    </Button>
+                  </div>
+                  <div className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                    <div className="space-y-2">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Manager</p>
+                      <h4 className="text-lg font-bold text-slate-900">Manager dashboard</h4>
+                      <p className="text-sm text-slate-700">
+                        Watch KPIs, monitor intake flow, and keep the Lai & Turner promise visible across every practice area.
+                      </p>
+                    </div>
+                    <Button
+                      className="mt-4"
+                      variant="secondary"
+                      onClick={() => navigate("/lai-turner-law/manager")}
+                    >
+                      View manager dashboard
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                  This portal area is reserved for Lai & Turner demo accounts.
+                </div>
+              )}
+            </section>
+          )}
 
           <section className="space-y-4">
             <h3 className="text-2xl font-bold text-slate-900">Commercial proposal for Lai & Turner Law Firm</h3>
