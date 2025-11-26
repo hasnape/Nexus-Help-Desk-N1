@@ -42,6 +42,7 @@ import DetailedDemoPage from "./pages/DetailedDemoPage";
 import TechnicalOverviewPage from "./pages/TechnicalOverviewPage";
 import RoadmapPage from "./pages/RoadmapPage";
 import ImplementationScenariosPage from "./pages/ImplementationScenariosPage";
+import LaiTurnerDemoPage from "./pages/LaiTurnerDemoPage";
 
 
 interface AppContextType {
@@ -1642,6 +1643,7 @@ const MainAppContent: React.FC = () => {
         <Route path="/infographie" element={<InfographiePage />} />
         <Route path="/demo" element={<DemoPage />} />
         <Route path="/guide-onboarding" element={<GuideOnboardingPage />} />
+        <Route path="/lai-turner-law" element={<LaiTurnerDemoPage />} />
         <Route path="/enterprise" element={<EnterprisePage />} />
         <Route path="/investors" element={<InvestorPage />} />
         <Route path="/investor-deck" element={<InvestorDeckPage />} />
