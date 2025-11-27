@@ -8,12 +8,13 @@ import {
   type GenerateContentResponse,
 } from "npm:@google/genai";
 
-import type { SerializableChatMessage } from "../_shared/ai/types.ts";
-import {
-  extractAttorneySummaryBlock,
-  formatChatHistoryForGemini,
-} from "../_shared/ai/utils.ts";
-import { pickProfile, type AiProfileContext } from "../_shared/ai/profiles.ts";
+import type {
+  AiProfileContext,
+  CompanyAiSettings,
+  SerializableChatMessage,
+} from "../_shared/ai/types.ts";
+import { formatChatHistoryForGemini } from "../_shared/ai/utils.ts";
+import { pickAiProfile } from "../_shared/ai/profiles.ts";
 
 import {
   handleOptions,
@@ -137,6 +138,27 @@ These Q&A entries come from the client's official documentation and MUST be used
 ${blocks.join("\n\n")}`;
 }
 
+async function loadCompanyAiSettings(
+  companyId?: string | null,
+): Promise<CompanyAiSettings | null> {
+  if (!companyId) return null;
+
+  const { data, error } = await supabase
+    .from("company_ai_settings")
+    .select("*")
+    .eq("company_id", companyId)
+    .maybeSingle();
+
+  if (error || !data) {
+    if (error) {
+      console.warn("[nexus-ai] company_ai_settings error:", error);
+    }
+    return null;
+  }
+
+  return data as CompanyAiSettings;
+}
+
 // --------------------
 // 1) summarizeAndCategorizeChat
 // --------------------
@@ -229,14 +251,17 @@ async function handleFollowUp(body: FollowUpPayload) {
   const companyNameFromContext = companyName ?? null;
   const companyIdFromContext = companyId ?? null;
 
+  const aiSettings = await loadCompanyAiSettings(companyIdFromContext);
+
   const knowledgeContext = await buildCompanyKnowledgeContext(
     companyIdFromContext ?? undefined,
     language,
   );
 
-  const profile = pickProfile({
+  const profile = pickAiProfile({
     companyId: companyIdFromContext,
     companyName: companyNameFromContext,
+    aiSettings,
   });
 
   const ctx: AiProfileContext = {
@@ -249,10 +274,14 @@ async function handleFollowUp(body: FollowUpPayload) {
     companyName: companyNameFromContext,
     ticketId,
     additionalSystemContext,
+    aiSettings,
     knowledgeContext,
   };
 
-  const systemInstruction = profile.buildSystemInstruction(ctx);
+  const systemInstruction = profile.buildSystemInstruction({
+    ...ctx,
+    knowledgeContext,
+  });
 
   const response: GenerateContentResponse = await ai.models.generateContent({
     model: MODEL_NAME,
@@ -278,41 +307,42 @@ async function handleFollowUp(body: FollowUpPayload) {
   }
 
   const parsed = JSON.parse(jsonStr);
+  const result = profile.processModelJson(parsed, ctx);
 
-  let responseText = parsed.responseText || parsed.text;
-  const escalationSuggested = parsed.escalationSuggested;
+  if (result.attorneySummary && ticketId) {
+    const { error: noteError } = await supabase.from("internal_notes").insert({
+      ticket_id: ticketId,
+      agent_id: null,
+      note_text: result.attorneySummary,
+      company_id: companyIdFromContext ?? null,
+      company_name: companyNameFromContext ?? null,
+    });
 
-  if (
-    typeof responseText !== "string" ||
-    typeof escalationSuggested !== "boolean"
-  ) {
-    throw new Error(
-      "AI response is not in the expected format. It must contain a 'responseText' (or 'text') string and an 'escalationSuggested' boolean.",
-    );
-  }
-
-  // Post-traitement spécifique Lai & Turner: extraire le bloc [ATTORNEY_SUMMARY]
-  // et le stocker en internal_note si possible.
-  if (profile.id === "lai-turner-intake") {
-    const { cleanText, summary } = extractAttorneySummaryBlock(responseText);
-    responseText = cleanText;
-
-    if (summary && ticketId) {
-      const { error: noteError } = await supabase.from("internal_notes").insert({
-        ticket_id: ticketId,
-        agent_id: null,
-        note_text: summary,
-        company_id: companyIdFromContext ?? null,
-        company_name: companyNameFromContext ?? null,
-      });
-
-      if (noteError) {
-        console.error("[nexus-ai] Failed to insert Lai & Turner attorney summary:", noteError);
-      }
+    if (noteError) {
+      console.error("[nexus-ai] Failed to insert attorney summary:", noteError);
     }
   }
 
-  return { responseText, escalationSuggested };
+  if (result.intakeData && ticketId) {
+    const { error: intakeError } = await supabase.from("ticket_intake_data").upsert(
+      {
+        ticket_id: ticketId,
+        company_id: companyIdFromContext ?? null,
+        raw_json: result.intakeData,
+        last_updated_at: new Date().toISOString(),
+      },
+      { onConflict: "ticket_id" },
+    );
+
+    if (intakeError) {
+      console.error("[nexus-ai] Failed to upsert ticket intake data:", intakeError);
+    }
+  }
+
+  return {
+    responseText: result.responseText,
+    escalationSuggested: result.escalationSuggested,
+  };
 }
 
 // --------------------

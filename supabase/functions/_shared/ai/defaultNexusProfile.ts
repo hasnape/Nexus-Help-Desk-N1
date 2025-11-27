@@ -1,9 +1,12 @@
-import type { AiProfile, AiProfileContext } from "./profiles.ts";
+import type { AiProfile, AiProfileContext } from "./types.ts";
 import { getLanguageName } from "./utils.ts";
 
 export const DEFAULT_NEXUS_PROFILE: AiProfile = {
-  id: "default-nexus-it",
-  matches: () => true,
+  key: "default-nexus-it",
+  match: ({ aiSettings }) => {
+    if (!aiSettings) return true;
+    return aiSettings.ai_profile_key === "default-nexus-it";
+  },
   buildSystemInstruction: (ctx: AiProfileContext): string => {
     const targetLanguage = getLanguageName(ctx.language);
 
@@ -53,6 +56,14 @@ N2 Specific instructions based on category:
 - For all other categories (Level 2): Provide more technical or in-depth solutions, as appropriate.
 `;
 
+    const companyExtraContext = ctx.aiSettings?.extra_context
+      ? `\nAdditional company context: ${JSON.stringify(ctx.aiSettings.extra_context)}`
+      : "";
+
+    const systemPromptOverride = ctx.aiSettings?.system_prompt_override
+      ? `\nCompany-specific instructions: ${ctx.aiSettings.system_prompt_override}`
+      : "";
+
     return `
 You are Nexus, an IT Help Desk AI assistant.
 
@@ -60,6 +71,8 @@ You are assisting with a ticket titled "${ctx.ticketTitle}" in category key "${c
 
 ${faqInstruction}
 ${ctx.additionalSystemContext || ""}
+${companyExtraContext}
+${systemPromptOverride}
 
 The provided conversation history contains all previous messages, with the user's latest message being the last one in the history.
 Your entire response MUST be a single, raw JSON object, without any markdown like \`\`\`json.
@@ -71,5 +84,23 @@ The JSON object must have two keys: "responseText" and "escalationSuggested".
 Follow these specific role instructions:
 ${roleInstructions}
 `;
+  },
+  processModelJson: (raw: any, _ctx: AiProfileContext): {
+    responseText: string;
+    escalationSuggested: boolean;
+  } => {
+    const responseText =
+      typeof raw?.responseText === "string"
+        ? raw.responseText
+        : typeof raw?.text === "string"
+          ? raw.text
+          : "";
+
+    const escalationSuggested =
+      typeof raw?.escalationSuggested === "boolean"
+        ? raw.escalationSuggested
+        : false;
+
+    return { responseText, escalationSuggested };
   },
 };
