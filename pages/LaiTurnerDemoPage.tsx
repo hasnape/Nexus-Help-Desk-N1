@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import Layout from "../components/Layout";
+import Layout from "../components/FormElements";
 import { Button, Input } from "../components/FormElements";
 import { useNavigate } from "react-router-dom";
 import { signInWithEmail, signUpWithEmail } from "../services/authService";
