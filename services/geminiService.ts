@@ -11,6 +11,21 @@ import { TICKET_CATEGORY_KEYS } from "../constants";
 const NEXUS_AI_ENDPOINT =
   import.meta.env.VITE_NEXUS_AI_ENDPOINT || "/api/edge-proxy/nexus-ai";
 
+export const LAI_TURNER_COMPANY_ID = "fe6b59cd-8f99-47ed-be5a-2a0931872070";
+
+export function isLaiTurnerCompany(opts: {
+  companyId?: string | null;
+  companyName?: string | null;
+}): boolean {
+  const id = (opts.companyId ?? "").trim();
+  const name = (opts.companyName ?? "").toLowerCase().trim();
+
+  if (id === LAI_TURNER_COMPANY_ID) return true;
+  if (!name) return false;
+
+  return name === "lai & turner" || name.includes("lai & turner");
+}
+
 /**
  * On ne veut plus envoyer toute la structure interne de ChatMessage,
  * seulement ce dont le backend a besoin.
@@ -167,11 +182,21 @@ export async function getFollowUpHelpResponse(
     companyId?: string; // 👈 pour charger les FAQ de l’entreprise côté backend
     companyName?: string | null;
     ticketId?: string;
+    useLaiTurnerPrompt?: boolean;
   }
 ): Promise<{ text: string; escalationSuggested: boolean }> {
   const backendHistory = buildBackendChatHistory(
     fullChatHistoryIncludingCurrentUserMessage
   );
+
+  const normalizedCompanyId = opts?.companyId?.trim() || null;
+  const normalizedCompanyName = opts?.companyName?.trim() || null;
+  const useLaiTurnerPrompt =
+    opts?.useLaiTurnerPrompt ??
+    isLaiTurnerCompany({
+      companyId: normalizedCompanyId,
+      companyName: normalizedCompanyName,
+    });
 
   type BackendResponse = {
     responseText: string;
@@ -186,10 +211,11 @@ export async function getFollowUpHelpResponse(
       ticketCategoryKey: ticketCategoryKey || "ticketCategory.GeneralQuestion",
       assignedAiLevel,
       chatHistory: backendHistory,
-      companyId: opts?.companyId,
-      companyName: opts?.companyName,
+      companyId: normalizedCompanyId || undefined,
+      companyName: normalizedCompanyName,
       ticketId: opts?.ticketId,
       additionalSystemContext: additionalSystemContext || "",
+      useLaiTurnerPrompt,
     });
 
     if (
