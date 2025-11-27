@@ -55,6 +55,7 @@ import LaiTurnerDemoPage from "./pages/LaiTurnerDemoPage";
 import LaiTurnerClientPortalPage from "./pages/LaiTurnerClientPortalPage";
 import LaiTurnerAgentInboxPage from "./pages/LaiTurnerAgentInboxPage";
 import LaiTurnerManagerDashboardPage from "./pages/LaiTurnerManagerDashboardPage";
+import MasterDashboardPage from "./pages/MasterDashboardPage";
 
 
 interface AppContextType {
@@ -662,7 +663,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
             supabase
               .from("users")
               .select(
-                "id, auth_uid, email, full_name, role, language_preference, company_id, company_name"
+                "id, auth_uid, email, full_name, role, language_preference, company_id, company_name, global_role"
               ),
             supabase.from("tickets").select(ticketColumns),
           ]);
@@ -1761,7 +1762,9 @@ const MainAppContent: React.FC = () => {
           path="/dashboard"
           element={
             <ProtectedRoute allowedRoles={[UserRole.USER, UserRole.AGENT, UserRole.MANAGER]}>
-              {isLaiTurnerTenant ? (
+              {user?.global_role === "super_admin" ? (
+                <Navigate to="/master" replace />
+              ) : isLaiTurnerTenant ? (
                 user?.role === UserRole.MANAGER ? (
                   <Navigate to="/lai-turner-law/manager" replace />
                 ) : user?.role === UserRole.AGENT ? (
@@ -1834,6 +1837,15 @@ const MainAppContent: React.FC = () => {
         />
 
         <Route
+          path="/master"
+          element={
+            <ProtectedRoute allowedRoles={[UserRole.MANAGER]}>
+              <MasterDashboardPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
           path="/manager/faq"
           element={
             <ProtectedRoute allowedRoles={[UserRole.MANAGER]}>
@@ -1846,7 +1858,9 @@ const MainAppContent: React.FC = () => {
           path="/"
           element={
             user ? (
-              isLaiTurnerTenant ? (
+              user.global_role === "super_admin" ? (
+                <Navigate to="/master" replace />
+              ) : isLaiTurnerTenant ? (
                 user.role === UserRole.MANAGER ? (
                   <Navigate to="/lai-turner-law/manager" replace />
                 ) : user.role === UserRole.AGENT ? (
