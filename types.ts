@@ -30,14 +30,108 @@ export interface ChatMessage {
 }
 
 export interface InternalNote {
-  id: string;
-  agentId: string; // UUID of the agent who wrote the note
-  text: string;
-  timestamp: Date;
+  id?: string;
+  ticket_id?: string;
+  agent_id?: string | null;
+  agentId?: string | null; // legacy camelCase field
+  note_text: string;
+  text?: string; // legacy field name retained for compatibility
+  timestamp?: Date;
+  created_at?: string | null;
+  company_id?: string | null;
+  company_name?: string | null;
+  metadata?: any;
   ai_profile_key?: string | null;
   intake_payload?: unknown;
-  created_at?: string | null;
 }
+
+export const normalizeInternalNotes = (raw: any): InternalNote[] => {
+  if (!raw) return [];
+
+  let candidate: any[] = [];
+
+  if (Array.isArray(raw)) {
+    candidate = raw;
+  } else if (typeof raw === 'string') {
+    const trimmed = raw.trim();
+    if (!trimmed) return [];
+    try {
+      const parsed = JSON.parse(trimmed);
+      candidate = Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  } else {
+    return [];
+  }
+
+  return candidate
+    .filter((note) => note !== null && note !== undefined)
+    .map((note) => {
+      const rawText =
+        typeof (note as any).note_text === 'string'
+          ? (note as any).note_text
+          : typeof (note as any).text === 'string'
+          ? (note as any).text
+          : '';
+
+      const createdAt =
+        typeof (note as any).created_at === 'string'
+          ? (note as any).created_at
+          : typeof (note as any).timestamp === 'string'
+          ? (note as any).timestamp
+          : undefined;
+
+      const timestampValue =
+        (note as any).timestamp instanceof Date
+          ? (note as any).timestamp
+          : createdAt
+          ? new Date(createdAt)
+          : undefined;
+
+      return {
+        ...note,
+        id: typeof (note as any).id === 'string' ? (note as any).id : undefined,
+        ticket_id:
+          typeof (note as any).ticket_id === 'string'
+            ? (note as any).ticket_id
+            : typeof (note as any).ticketId === 'string'
+            ? (note as any).ticketId
+            : undefined,
+        agent_id:
+          typeof (note as any).agent_id === 'string'
+            ? (note as any).agent_id
+            : typeof (note as any).agentId === 'string'
+            ? (note as any).agentId
+            : null,
+        agentId:
+          typeof (note as any).agentId === 'string'
+            ? (note as any).agentId
+            : typeof (note as any).agent_id === 'string'
+            ? (note as any).agent_id
+            : null,
+        note_text: rawText,
+        text: rawText,
+        created_at: createdAt ?? null,
+        timestamp: timestampValue,
+        company_id:
+          typeof (note as any).company_id === 'string'
+            ? (note as any).company_id
+            : typeof (note as any).companyId === 'string'
+            ? (note as any).companyId
+            : null,
+        company_name:
+          typeof (note as any).company_name === 'string'
+            ? (note as any).company_name
+            : typeof (note as any).companyName === 'string'
+            ? (note as any).companyName
+            : null,
+        metadata: (note as any).metadata ?? (note as any).meta,
+        ai_profile_key: (note as any).ai_profile_key ?? (note as any).aiProfileKey ?? null,
+        intake_payload: (note as any).intake_payload ?? (note as any).intakePayload,
+      } as InternalNote;
+    });
+};
 
 export interface AppointmentDetails {
   proposedBy: 'agent' | 'user';
@@ -66,7 +160,7 @@ export interface Ticket {
   assigned_ai_level: 1 | 2;
   assigned_agent_id?: string; // UUID of the agent assigned to this ticket
   workstation_id?: string;   // "Poste" or Workstation ID
-  internal_notes?: InternalNote[]; // Notes visible only to agents/managers
+  internal_notes: InternalNote[]; // Notes visible only to agents/managers
   current_appointment?: AppointmentDetails; // For appointment scheduling
 }
 

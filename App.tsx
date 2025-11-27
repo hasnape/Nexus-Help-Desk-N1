@@ -1,6 +1,15 @@
 import React, { createContext, useState, useContext, ReactNode, useCallback, useEffect, useRef } from "react";
 import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
-import { Ticket, User, ChatMessage, TicketStatus, UserRole, Locale as AppLocale, AppointmentDetails } from "./types";
+import {
+  Ticket,
+  User,
+  ChatMessage,
+  TicketStatus,
+  UserRole,
+  Locale as AppLocale,
+  AppointmentDetails,
+  normalizeInternalNotes,
+} from "./types";
 import { getFollowUpHelpResponse, getTicketSummary, isLaiTurnerCompany } from "./services/geminiService";
 import { supabase } from "./services/supabaseClient";
 import { ensureUserProfile } from "./services/authService";
@@ -137,26 +146,39 @@ type TicketMessageRow = {
   intake_payload?: unknown;
 };
 
-const reviveTicketDates = (data: any, chatHistoryOverride?: ChatMessage[]): Ticket => ({
-  ...data,
-  created_at: new Date(data.created_at),
-  updated_at: new Date(data.updated_at),
-  chat_history: chatHistoryOverride
-    ? chatHistoryOverride
-    : data.chat_history
-    ? data.chat_history.map((c: any) => ({
-        ...c,
-        timestamp: new Date(c.timestamp),
-      }))
-    : [],
-  internal_notes: data.internal_notes
-    ? data.internal_notes.map((note: any) => ({
-        ...note,
-        timestamp: note.timestamp ? new Date(note.timestamp) : note.created_at ? new Date(note.created_at) : new Date(),
-      }))
-    : [],
-  current_appointment: data.current_appointment || undefined,
-});
+const reviveTicketDates = (data: any, chatHistoryOverride?: ChatMessage[]): Ticket => {
+  const normalizedNotes = normalizeInternalNotes(data.internal_notes);
+  const notesWithDates = normalizedNotes.map((note) => {
+    const timestampSource =
+      note.timestamp instanceof Date
+        ? note.timestamp
+        : note.created_at
+        ? new Date(note.created_at)
+        : undefined;
+
+    return {
+      ...note,
+      timestamp: timestampSource ?? new Date(),
+      created_at: note.created_at ?? (timestampSource ? timestampSource.toISOString() : null),
+    };
+  });
+
+  return {
+    ...data,
+    created_at: new Date(data.created_at),
+    updated_at: new Date(data.updated_at),
+    chat_history: chatHistoryOverride
+      ? chatHistoryOverride
+      : data.chat_history
+      ? data.chat_history.map((c: any) => ({
+          ...c,
+          timestamp: new Date(c.timestamp),
+        }))
+      : [],
+    internal_notes: notesWithDates,
+    current_appointment: data.current_appointment || undefined,
+  };
+};
 
 const mapTicketMessageRowToChatMessage = (row: TicketMessageRow): ChatMessage => {
   const textContent =
