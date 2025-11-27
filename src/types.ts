@@ -25,6 +25,8 @@ export interface ChatMessage {
   text: string;
   timestamp: Date;
   agentId?: string;
+  ai_profile_key?: string | null;
+  intake_payload?: unknown;
 }
 
 export interface InternalNote {
@@ -32,6 +34,9 @@ export interface InternalNote {
   agentId: string;
   text: string;
   timestamp: Date;
+  ai_profile_key?: string | null;
+  intake_payload?: unknown;
+  created_at?: string | null;
 }
 
 export interface AppointmentDetails {

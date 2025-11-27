@@ -133,6 +133,8 @@ type TicketMessageRow = {
   inserted_at?: string | null;
   timestamp?: string | null;
   agent_id?: string | null;
+  ai_profile_key?: string | null;
+  intake_payload?: unknown;
 };
 
 const reviveTicketDates = (data: any, chatHistoryOverride?: ChatMessage[]): Ticket => ({
@@ -142,9 +144,17 @@ const reviveTicketDates = (data: any, chatHistoryOverride?: ChatMessage[]): Tick
   chat_history: chatHistoryOverride
     ? chatHistoryOverride
     : data.chat_history
-    ? data.chat_history.map((c: any) => ({ ...c, timestamp: new Date(c.timestamp) }))
+    ? data.chat_history.map((c: any) => ({
+        ...c,
+        timestamp: new Date(c.timestamp),
+      }))
     : [],
-  internal_notes: data.internal_notes || [],
+  internal_notes: data.internal_notes
+    ? data.internal_notes.map((note: any) => ({
+        ...note,
+        timestamp: note.timestamp ? new Date(note.timestamp) : note.created_at ? new Date(note.created_at) : new Date(),
+      }))
+    : [],
   current_appointment: data.current_appointment || undefined,
 });
 
@@ -158,6 +168,8 @@ const mapTicketMessageRowToChatMessage = (row: TicketMessageRow): ChatMessage =>
     text: textContent,
     timestamp: new Date(timestampString),
     agentId: row.agent_id ?? undefined,
+    ai_profile_key: row.ai_profile_key ?? undefined,
+    intake_payload: row.intake_payload,
   };
 };
 
@@ -646,7 +658,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
               const { data: messageRows, error: messagesError } = await supabase
                 .from("ticket_messages")
                 .select(
-                  "id, ticket_id, sender, content, message_text, text, body, created_at, inserted_at, timestamp, agent_id"
+                  "id, ticket_id, sender, content, message_text, text, body, created_at, inserted_at, timestamp, agent_id, ai_profile_key, intake_payload"
                 )
                 .in("ticket_id", ticketIds)
                 .order("created_at", { ascending: true });
@@ -658,7 +670,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
                   const { data: retryRows, error: retryError } = await supabase
                     .from("ticket_messages")
                     .select(
-                      "id, ticket_id, sender, content, message_text, text, body, created_at, inserted_at, timestamp, agent_id"
+                      "id, ticket_id, sender, content, message_text, text, body, created_at, inserted_at, timestamp, agent_id, ai_profile_key, intake_payload"
                     )
                     .in("ticket_id", ticketIds);
                   resolvedRows = retryRows;
