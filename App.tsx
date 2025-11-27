@@ -1247,9 +1247,12 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       prev.map((t) =>
         t.id === ticketId
           ? { ...t, chat_history: tempUpdatedChatHistory, status: newStatus, updated_at: timestamp }
-          : t
+        : t
       )
     );
+    const companyIdForTicket = (ticket as any)?.company_id ?? user.company_id ?? undefined;
+    const companyNameFromContext =
+      (ticket as any)?.company_name ?? user.company_name ?? null;
     let storageMode = chatStorageModeRef.current;
     if (storageMode === "unknown") {
       storageMode = await ensureChatStorageMode();
@@ -1295,7 +1298,9 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         ticket.category,
         tempUpdatedChatHistory,
         ticket.assigned_ai_level,
-        user.language_preference
+        user.language_preference,
+        undefined,
+        { companyId: companyIdForTicket, companyName: companyNameFromContext }
       );
       const aiResponseMessage: ChatMessage = { id: crypto.randomUUID(), sender: "ai", text: aiResponse.text, timestamp: new Date() };
       finalChatHistory = [...tempUpdatedChatHistory, aiResponseMessage];
