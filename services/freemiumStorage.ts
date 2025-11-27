@@ -7,6 +7,7 @@ import {
   UserRole,
   TicketStatus,
   TicketPriority,
+  normalizeInternalNotes,
 } from "../types";
 
 const STORAGE_KEY = "nsh_freemium_session";
@@ -277,12 +278,11 @@ const serializeTicket = (ticket: Ticket): FreemiumStoredTicket => {
     timestamp: message.timestamp.toISOString(),
   }));
 
-  const serializedNotes = ticket.internal_notes
-    ? ticket.internal_notes.map((note) => ({
-        ...note,
-        timestamp: note.timestamp.toISOString(),
-      }))
-    : undefined;
+  const normalizedNotes = normalizeInternalNotes(ticket.internal_notes);
+  const serializedNotes = normalizedNotes.map((note) => ({
+    ...note,
+    timestamp: (note.timestamp ?? new Date()).toISOString(),
+  }));
 
   return {
     id: ticket.id,
@@ -309,12 +309,15 @@ const serializeTicket = (ticket: Ticket): FreemiumStoredTicket => {
 
 const reviveTicket = (stored: FreemiumStoredTicket): Ticket => {
   const payload = stored.payload;
-  const revivedNotes = payload.internal_notes
-    ? payload.internal_notes.map((note) => ({
-        ...note,
-        timestamp: new Date(note.timestamp),
-      }))
-    : undefined;
+  const revivedNotes = normalizeInternalNotes(payload.internal_notes).map((note) => ({
+    ...note,
+    timestamp:
+      note.timestamp instanceof Date
+        ? note.timestamp
+        : note.created_at
+        ? new Date(note.created_at)
+        : new Date(),
+  }));
 
   return {
     ...payload,
