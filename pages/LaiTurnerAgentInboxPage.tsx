@@ -4,6 +4,15 @@ import { Button } from "../components/FormElements";
 import { useApp } from "../App";
 import { supabase } from "../services/supabaseClient";
 import { Ticket, TicketPriority, TicketStatus, User } from "../types";
+import {
+  extractDeadlineList,
+  findLatestAttorneySummary,
+  findLatestLaiTurnerIntake,
+  getLocationDisplay,
+  getPracticeAreaDisplay,
+  getPrimaryGoalDisplay,
+  getUrgencyDisplay,
+} from "@/utils/laiTurnerIntake";
 
 const practiceAreas = [
   "Family Law",
@@ -21,6 +30,7 @@ const LaiTurnerAgentInboxPage: React.FC = () => {
   const [areaFilter, setAreaFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [priorityFilter, setPriorityFilter] = useState<string>("all");
+  const [urgencyFilter, setUrgencyFilter] = useState<string>("all");
   const [updatingTicketId, setUpdatingTicketId] = useState<string | null>(null);
 
   const allUsers: User[] = getAllUsers();
@@ -57,15 +67,30 @@ const LaiTurnerAgentInboxPage: React.FC = () => {
     });
   }, [tickets, allUsers, user]);
 
-  const filteredTickets = laiTickets.filter((ticket) => {
-    const categoryValue = (ticket.category || "").toLowerCase();
+  const laiTicketsWithIntake = useMemo(
+    () =>
+      laiTickets.map((ticket) => {
+        const intake = findLatestLaiTurnerIntake(ticket);
+        const practiceArea = getPracticeAreaDisplay(intake, ticket.category || undefined) || ticket.category;
+        const urgency = getUrgencyDisplay(intake);
+        const goal = getPrimaryGoalDisplay(intake);
+        const location = getLocationDisplay(intake);
+        const deadlines = extractDeadlineList(intake);
+        const attorneySummary = findLatestAttorneySummary(ticket);
+        return { ticket, intake, practiceArea, urgency, goal, location, deadlines, attorneySummary };
+      }),
+    [laiTickets]
+  );
+
+  const filteredTickets = laiTicketsWithIntake.filter((item) => {
+    const categoryValue = (item.practiceArea || "").toLowerCase();
     const areaValue = areaFilter.toLowerCase();
-    const matchesArea =
-      areaFilter === "all" || categoryValue.includes(areaValue) || areaValue.includes(categoryValue);
+    const matchesArea = areaFilter === "all" || categoryValue.includes(areaValue) || areaValue.includes(categoryValue);
     const matchesStatus =
-      statusFilter === "all" || ticket.status.toLowerCase() === statusFilter.toLowerCase();
-    const matchesPriority = priorityFilter === "all" || ticket.priority === priorityFilter;
-    return matchesArea && matchesStatus && matchesPriority;
+      statusFilter === "all" || item.ticket.status.toLowerCase() === statusFilter.toLowerCase();
+    const matchesPriority = priorityFilter === "all" || item.ticket.priority === priorityFilter;
+    const matchesUrgency = urgencyFilter === "all" || (item.urgency || "").toLowerCase() === urgencyFilter;
+    return matchesArea && matchesStatus && matchesPriority && matchesUrgency;
   });
 
   const isLaiTurner = (companyName || "").toLowerCase() === "lai & turner";
@@ -110,7 +135,7 @@ const LaiTurnerAgentInboxPage: React.FC = () => {
                 <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Work queue</p>
                 <h3 className="text-xl font-bold text-slate-900">Open matters for Lai & Turner</h3>
               </div>
-              <div className="flex flex-wrap gap-2 text-xs">
+            <div className="flex flex-wrap gap-2 text-xs">
                 <Button
                   variant={areaFilter === "all" ? "primary" : "secondary"}
                   onClick={() => setAreaFilter("all")}
@@ -155,6 +180,19 @@ const LaiTurnerAgentInboxPage: React.FC = () => {
                     {priorityOption === "all" ? "All priorities" : priorityOption}
                   </Button>
                 ))}
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-semibold text-slate-600">Urgency</span>
+                  <select
+                    className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700"
+                    value={urgencyFilter}
+                    onChange={(e) => setUrgencyFilter(e.target.value)}
+                  >
+                    <option value="all">All</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                  </select>
+                </div>
               </div>
             </div>
 
@@ -170,15 +208,50 @@ const LaiTurnerAgentInboxPage: React.FC = () => {
                   No tickets match the current filters. Switch filters or refresh the inbox.
                 </div>
               ) : (
-                filteredTickets.map((ticket) => (
-                  <div key={ticket.id} className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                filteredTickets.map(({ ticket, intake, practiceArea, urgency, goal, location, deadlines, attorneySummary }) => (
+                  <div key={ticket.id} className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-sm space-y-3">
                     <div className="space-y-2">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">{ticket.category}</p>
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">{practiceArea}</p>
+                        {urgency && (
+                          <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-800">
+                            Urgency: {urgency}
+                          </span>
+                        )}
+                      </div>
                       <h4 className="text-lg font-bold text-slate-900">{ticket.title}</h4>
                       <p className="text-sm text-slate-700">Priority: {ticket.priority}</p>
                       <p className="text-sm text-slate-700">Status: {ticket.status}</p>
+                      {goal && <p className="text-sm text-slate-800">Goal: {goal}</p>}
+                      {location && <p className="text-sm text-slate-800">Location: {location}</p>}
                     </div>
-                    <div className="mt-4 flex flex-wrap gap-2">
+
+                    {intake && (
+                      <div className="rounded-xl border border-slate-100 bg-slate-50 p-3 text-sm text-slate-800 space-y-1">
+                        <p className="text-[11px] font-semibold uppercase tracking-wide text-indigo-700">Structured intake</p>
+                        {goal && <p className="text-sm text-slate-800">Primary objective: {goal}</p>}
+                        {location && <p className="text-sm text-slate-800">Current location: {location}</p>}
+                        {deadlines.length > 0 && (
+                          <div className="text-sm text-slate-800">
+                            <p className="font-semibold text-slate-900">Upcoming milestones</p>
+                            <ul className="list-disc space-y-1 pl-4 text-slate-700">
+                              {deadlines.map((deadline) => (
+                                <li key={deadline}>{deadline}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {attorneySummary && (
+                      <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-3 text-sm text-indigo-900">
+                        <p className="text-[11px] font-semibold uppercase tracking-wide text-indigo-700">Attorney summary</p>
+                        <p className="whitespace-pre-line text-sm leading-relaxed">{attorneySummary}</p>
+                      </div>
+                    )}
+
+                    <div className="mt-2 flex flex-wrap gap-2">
                       <Button variant="secondary" onClick={() => navigate(`/ticket/${ticket.id}`)}>
                         Open conversation
                       </Button>

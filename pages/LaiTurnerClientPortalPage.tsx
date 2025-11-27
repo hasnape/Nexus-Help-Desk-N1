@@ -5,6 +5,17 @@ import TicketCard from "../components/TicketCard";
 import { useApp } from "../App";
 import { supabase } from "../services/supabaseClient";
 import { ChatMessage, Ticket, TicketPriority, TicketStatus } from "../types";
+import {
+  findLatestLaiTurnerIntake,
+  getAgeDisplay,
+  getDisplayNameFromIntake,
+  getLegalStatusDisplay,
+  getLocationDisplay,
+  getPracticeAreaDisplay,
+  getPrimaryGoalDisplay,
+  getUrgencyDisplay,
+  IntakePayload,
+} from "@/utils/laiTurnerIntake";
 
 const practiceAreaCopy: Record<string, string> = {
   "Family Law": "Work through custody, support, and visitation with updates in plain English.",
@@ -47,6 +58,27 @@ const LaiTurnerClientPortalPage: React.FC = () => {
   }, [user?.company_id]);
 
   const isLaiTurner = (companyName || "").toLowerCase() === "lai & turner";
+
+  const buildClientSummary = (payload: IntakePayload) => {
+    const summary: { label: string; value: string }[] = [];
+    const displayName = getDisplayNameFromIntake(payload);
+    const practiceArea = getPracticeAreaDisplay(payload);
+    const goal = getPrimaryGoalDisplay(payload);
+    const urgency = getUrgencyDisplay(payload);
+    const age = getAgeDisplay(payload);
+    const location = getLocationDisplay(payload);
+    const legalStatus = getLegalStatusDisplay(payload);
+
+    if (displayName) summary.push({ label: "Name", value: displayName });
+    if (age) summary.push({ label: "Age", value: age });
+    if (practiceArea) summary.push({ label: "Practice area", value: practiceArea });
+    if (goal) summary.push({ label: "Goal", value: goal });
+    if (location) summary.push({ label: "Current location", value: location });
+    if (legalStatus) summary.push({ label: "Legal status", value: legalStatus });
+    if (urgency) summary.push({ label: "Urgency", value: urgency });
+
+    return summary;
+  };
 
   const userTickets: Ticket[] = useMemo(() => {
     if (!user || !isLaiTurner) return [];
@@ -204,7 +236,36 @@ const LaiTurnerClientPortalPage: React.FC = () => {
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {userTickets.map((ticket) => (
-                <TicketCard key={ticket.id} ticket={ticket} />
+                <div key={ticket.id} className="space-y-3">
+                  <TicketCard ticket={ticket} />
+                  {(() => {
+                    const intakePayload = findLatestLaiTurnerIntake(ticket);
+                    if (!intakePayload) return null;
+                    const summary = buildClientSummary(intakePayload);
+                    if (summary.length === 0) return null;
+                    return (
+                      <div className="rounded-2xl border border-indigo-100 bg-indigo-50 p-4 text-sm text-slate-900 shadow-sm">
+                        <div className="mb-2 flex items-center justify-between">
+                          <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">
+                            What we captured so far
+                          </p>
+                          <span className="text-[10px] font-semibold text-indigo-600">AI intake</span>
+                        </div>
+                        <dl className="space-y-1">
+                          {summary.map((item) => (
+                            <div key={item.label} className="flex gap-2 text-xs text-slate-800">
+                              <dt className="w-28 shrink-0 font-semibold text-slate-700">{item.label}</dt>
+                              <dd className="text-slate-900">{item.value}</dd>
+                            </div>
+                          ))}
+                        </dl>
+                        <p className="mt-2 text-[11px] text-slate-600">
+                          Your attorney will confirm these details and ask follow-up questions if needed.
+                        </p>
+                      </div>
+                    );
+                  })()}
+                </div>
               ))}
             </div>
           )}

@@ -5,6 +5,7 @@ import { supabase } from "../services/supabaseClient";
 import { Ticket, TicketStatus, User } from "../types";
 import ManagerInviteUserCard from "../components/ManagerInviteUserCard";
 import PlanLimits from "../components/PlanLimits";
+import { findLatestLaiTurnerIntake, getPracticeAreaDisplay, getUrgencyDisplay } from "@/utils/laiTurnerIntake";
 
 const LaiTurnerManagerDashboardPage: React.FC = () => {
   const { user, tickets, getAllUsers } = useApp();
@@ -44,11 +45,16 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
     });
   }, [tickets, allUsers, user]);
 
-  const practiceBreakdown = laiTickets.reduce<Record<string, number>>((acc, ticket) => {
-    const key = ticket.category || "Other";
-    acc[key] = (acc[key] || 0) + 1;
-    return acc;
-  }, {});
+  const laiTicketsWithIntake = useMemo(
+    () =>
+      laiTickets.map((ticket) => {
+        const intake = findLatestLaiTurnerIntake(ticket);
+        const practiceArea = getPracticeAreaDisplay(intake, ticket.category || undefined) || ticket.category || "Other";
+        const urgency = getUrgencyDisplay(intake);
+        return { ticket, intake, practiceArea, urgency };
+      }),
+    [laiTickets]
+  );
 
   const openFights = laiTickets.filter(
     (ticket) => ticket.status === TicketStatus.OPEN || ticket.status === TicketStatus.IN_PROGRESS
@@ -66,6 +72,29 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
     const diffDays = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24);
     return diffDays <= 30;
   }).length;
+
+  const practiceBreakdown30 = laiTicketsWithIntake.reduce<Record<string, number>>((acc, item) => {
+    const createdAt = new Date(item.ticket.created_at);
+    const diffDays = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24);
+    if (diffDays <= 30) {
+      const key = item.practiceArea || "Other";
+      acc[key] = (acc[key] || 0) + 1;
+    }
+    return acc;
+  }, {});
+
+  const intakeCount30 = laiTicketsWithIntake.filter((item) => {
+    const createdAt = new Date(item.ticket.created_at);
+    const diffDays = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24);
+    return diffDays <= 30 && !!item.intake;
+  }).length;
+
+  const recentIntakes = laiTicketsWithIntake
+    .filter((item) => item.intake)
+    .sort(
+      (a, b) => new Date(b.ticket.created_at).getTime() - new Date(a.ticket.created_at).getTime()
+    )
+    .slice(0, 5);
 
   const isLaiTurner = (companyName || "").toLowerCase() === "lai & turner";
 
@@ -102,6 +131,39 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
             </p>
           </section>
 
+          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Recent structured intakes</p>
+                <h3 className="text-xl font-bold text-slate-900">Quick view</h3>
+              </div>
+              <span className="text-xs font-semibold text-slate-500">Last 5 with intake payload</span>
+            </div>
+            {recentIntakes.length === 0 ? (
+              <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm text-slate-700">
+                No structured intakes yet. As soon as AI captures details, they will surface here.
+              </div>
+            ) : (
+              <div className="divide-y divide-slate-100">
+                {recentIntakes.map(({ ticket, practiceArea, urgency }) => (
+                  <div key={ticket.id} className="flex flex-col gap-1 py-3 md:flex-row md:items-center md:justify-between">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">{ticket.title}</p>
+                      <p className="text-xs text-slate-600">
+                        {practiceArea} • Created {new Date(ticket.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    {urgency && (
+                      <span className="rounded-full bg-amber-100 px-2 py-1 text-[11px] font-semibold text-amber-800">
+                        Urgency: {urgency}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+
           <section className="grid gap-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm md:grid-cols-4">
             <div className="rounded-2xl border border-indigo-100 bg-indigo-50 p-4">
               <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Open matters</p>
@@ -119,9 +181,9 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
               <p className="text-xs text-slate-600">Rolling monthly intake across all practice areas.</p>
             </div>
             <div className="rounded-2xl border border-indigo-100 bg-indigo-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Active categories</p>
-              <p className="text-3xl font-bold text-slate-900">{Object.keys(practiceBreakdown).length || 0}</p>
-              <p className="text-xs text-slate-600">Practice areas with at least one open file.</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Structured intakes (30d)</p>
+              <p className="text-3xl font-bold text-slate-900">{intakeCount30}</p>
+              <p className="text-xs text-slate-600">Tickets with AI intake payload in the last 30 days.</p>
             </div>
           </section>
 
@@ -129,19 +191,19 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Practice areas</p>
-                <h3 className="text-xl font-bold text-slate-900">Ticket distribution</h3>
+                <h3 className="text-xl font-bold text-slate-900">Ticket distribution (last 30 days)</h3>
               </div>
               {companyLoading && (
                 <span className="text-xs font-semibold text-slate-500">Loading Lai & Turner metrics…</span>
               )}
             </div>
             <div className="grid gap-3 md:grid-cols-2">
-              {Object.keys(practiceBreakdown).length === 0 ? (
+              {Object.keys(practiceBreakdown30).length === 0 ? (
                 <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm text-slate-700 md:col-span-2">
                   No tickets yet for Lai & Turner. Intake data will populate this view once cases start.
                 </div>
               ) : (
-                Object.entries(practiceBreakdown).map(([area, count]) => (
+                Object.entries(practiceBreakdown30).map(([area, count]) => (
                   <div key={area} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 p-4">
                     <div>
                       <p className="text-sm font-semibold text-slate-900">{area}</p>
