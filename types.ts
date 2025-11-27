@@ -50,9 +50,11 @@ export interface Ticket {
   user_id: string; // uuid, Foreign Key to users.id
   title: string;
   description: string;
-  category: string; 
+  category: string;
   priority: TicketPriority;
   status: TicketStatus;
+  company_id?: string | null;
+  company_name?: string | null;
   created_at: Date;
   updated_at: Date;
   chat_history: ChatMessage[];
@@ -69,7 +71,8 @@ export interface User {
   full_name: string;
   role: UserRole;
   language_preference: Locale;
-  company_id: string; // Stores the company name (text)
+  company_id: string | null; // Stores the company name (text)
+  company_name?: string | null;
 }
 
 // Ensure Locale is defined or imported if it's from LanguageContext

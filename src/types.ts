@@ -60,6 +60,8 @@ export interface Ticket {
   category: string;
   priority: TicketPriority;
   status: TicketStatus;
+  company_id?: string | null;
+  company_name?: string | null;
 
   // Supabase renvoie souvent des strings -> on accepte string | Date
   created_at: string | Date;

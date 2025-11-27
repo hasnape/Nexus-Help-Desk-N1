@@ -1,7 +1,7 @@
 import React, { createContext, useState, useContext, ReactNode, useCallback, useEffect, useRef } from "react";
 import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import { Ticket, User, ChatMessage, TicketStatus, UserRole, Locale as AppLocale, AppointmentDetails } from "./types";
-import { getFollowUpHelpResponse, getTicketSummary } from "./services/geminiService";
+import { getFollowUpHelpResponse, getTicketSummary, isLaiTurnerCompany } from "./services/geminiService";
 import { supabase } from "./services/supabaseClient";
 import { ensureUserProfile } from "./services/authService";
 import { guardedLogin, GuardedLoginError } from "./services/guardedLogin";
@@ -608,6 +608,8 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
             "assigned_ai_level",
             "assigned_agent_id",
             "workstation_id",
+            "company_id",
+            "company_name",
             "created_at",
             "updated_at",
           ];
@@ -625,7 +627,9 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
           const [usersResponse, ticketsResponse] = await Promise.all([
             supabase
               .from("users")
-              .select("id, auth_uid, email, full_name, role, language_preference, company_id"),
+              .select(
+                "id, auth_uid, email, full_name, role, language_preference, company_id, company_name"
+              ),
             supabase.from("tickets").select(ticketColumns),
           ]);
 
@@ -961,6 +965,8 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
           chat_history: normalizedChatHistory,
           assigned_ai_level: DEFAULT_AI_LEVEL,
           assigned_agent_id: undefined,
+          company_id: user.company_id,
+          company_name: user.company_name,
           internal_notes: [],
           current_appointment: undefined,
           created_at: now,
@@ -980,6 +986,8 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         user_id: creatorUserId,
         assigned_ai_level: DEFAULT_AI_LEVEL,
         assigned_agent_id: undefined,
+        company_id: user.company_id,
+        company_name: user.company_name,
         created_at: now.toISOString(),
         updated_at: now.toISOString(),
       };
@@ -1250,9 +1258,19 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         : t
       )
     );
-    const companyIdForTicket = (ticket as any)?.company_id ?? user.company_id ?? undefined;
-    const companyNameFromContext =
-      (ticket as any)?.company_name ?? user.company_name ?? null;
+    const companyIdFromTicket = ticket?.company_id ?? null;
+    const companyNameFromTicket = ticket?.company_name ?? null;
+    const companyIdFromUser = user.company_id ?? null;
+    const companyNameFromUser = user.company_name ?? null;
+    const companyIdForPrompt = companyIdFromTicket ?? companyIdFromUser;
+    const companyNameForPrompt = companyNameFromTicket ?? companyNameFromUser;
+    const companyContextForPrompt = {
+      companyId:
+        typeof companyIdForPrompt === "string" ? companyIdForPrompt.trim() : null,
+      companyName:
+        typeof companyNameForPrompt === "string" ? companyNameForPrompt.trim() : null,
+    };
+    const useLaiTurnerPrompt = isLaiTurnerCompany(companyContextForPrompt);
     let storageMode = chatStorageModeRef.current;
     if (storageMode === "unknown") {
       storageMode = await ensureChatStorageMode();
@@ -1301,9 +1319,10 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         user.language_preference,
         undefined,
         {
-          companyId: companyIdForTicket,
-          companyName: companyNameFromContext,
+          companyId: companyContextForPrompt.companyId ?? undefined,
+          companyName: companyContextForPrompt.companyName,
           ticketId,
+          useLaiTurnerPrompt,
         }
       );
       const aiResponseMessage: ChatMessage = { id: crypto.randomUUID(), sender: "ai", text: aiResponse.text, timestamp: new Date() };
