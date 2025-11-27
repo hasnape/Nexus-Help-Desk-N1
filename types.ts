@@ -19,6 +19,8 @@ export enum UserRole {
   MANAGER = 'manager',
 }
 
+export type GlobalRole = "super_admin" | "support" | "none" | null;
+
 export interface ChatMessage {
   id: string;
   sender: 'user' | 'ai' | 'agent' | 'system_summary'; // Added 'system_summary'
@@ -166,12 +168,14 @@ export interface Ticket {
 
 export interface User {
   id: string; // uuid
+  auth_uid?: string | null;
   email: string;
   full_name: string;
   role: UserRole;
   language_preference: Locale;
-  company_id: string | null; // Stores the company name (text)
+  company_id?: string | null; // Stores the company name (text)
   company_name?: string | null;
+  global_role?: GlobalRole | null;
 }
 
 // Ensure Locale is defined or imported if it's from LanguageContext
