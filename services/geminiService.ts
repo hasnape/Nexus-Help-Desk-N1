@@ -165,6 +165,7 @@ export async function getFollowUpHelpResponse(
   additionalSystemContext?: string,
   opts?: {
     companyId?: string; // 👈 pour charger les FAQ de l’entreprise côté backend
+    companyName?: string | null;
   }
 ): Promise<{ text: string; escalationSuggested: boolean }> {
   const backendHistory = buildBackendChatHistory(
@@ -185,6 +186,7 @@ export async function getFollowUpHelpResponse(
       assignedAiLevel,
       chatHistory: backendHistory,
       companyId: opts?.companyId,
+      companyName: opts?.companyName,
       additionalSystemContext: additionalSystemContext || "",
     });
 

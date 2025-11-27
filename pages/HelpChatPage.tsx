@@ -135,6 +135,7 @@ const HelpChatPage: React.FC = () => {
     try {
       // 🔑 On récupère l'entreprise de l'utilisateur (ex: Radar)
       const companyId = (user as any)?.company_id ?? undefined;
+      const companyName = (user as any)?.company_name ?? null;
 
       const aiResponse = await getFollowUpHelpResponse(
         'General Support Request',               // titre générique pour le chat pré-ticket
@@ -143,7 +144,7 @@ const HelpChatPage: React.FC = () => {
         1,                                      // N1
         language,                               // on utilise la langue de l'app (fr/en/ar)
         undefined,                              // additionalSystemContext
-        { companyId }                           // 👈 très important : passer la société pour charger la FAQ
+        { companyId, companyName }              // 👈 très important : passer la société pour charger la FAQ
       );
 
       const aiResponseMessage: ChatMessage = {
