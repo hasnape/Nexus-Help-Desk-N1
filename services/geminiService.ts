@@ -166,6 +166,7 @@ export async function getFollowUpHelpResponse(
   opts?: {
     companyId?: string; // 👈 pour charger les FAQ de l’entreprise côté backend
     companyName?: string | null;
+    ticketId?: string;
   }
 ): Promise<{ text: string; escalationSuggested: boolean }> {
   const backendHistory = buildBackendChatHistory(
@@ -187,6 +188,7 @@ export async function getFollowUpHelpResponse(
       chatHistory: backendHistory,
       companyId: opts?.companyId,
       companyName: opts?.companyName,
+      ticketId: opts?.ticketId,
       additionalSystemContext: additionalSystemContext || "",
     });
 

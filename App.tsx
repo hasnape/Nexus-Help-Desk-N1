@@ -1300,7 +1300,11 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         ticket.assigned_ai_level,
         user.language_preference,
         undefined,
-        { companyId: companyIdForTicket, companyName: companyNameFromContext }
+        {
+          companyId: companyIdForTicket,
+          companyName: companyNameFromContext,
+          ticketId,
+        }
       );
       const aiResponseMessage: ChatMessage = { id: crypto.randomUUID(), sender: "ai", text: aiResponse.text, timestamp: new Date() };
       finalChatHistory = [...tempUpdatedChatHistory, aiResponseMessage];
