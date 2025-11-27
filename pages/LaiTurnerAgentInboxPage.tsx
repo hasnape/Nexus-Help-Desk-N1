@@ -95,7 +95,7 @@ const LaiTurnerAgentInboxPage: React.FC = () => {
   }
 
   return (
-    <Layout>
+    
       <div className="min-h-[calc(100vh-5rem)] bg-slate-50 py-12">
         <div className="mx-auto max-w-6xl space-y-8 px-4">
           <section className="space-y-3">
@@ -233,7 +233,7 @@ const LaiTurnerAgentInboxPage: React.FC = () => {
           </section>
         </div>
       </div>
-    </Layout>
+    
   );
 };
 

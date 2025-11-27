@@ -255,7 +255,7 @@ const LaiTurnerDemoPage: React.FC = () => {
   const isLaiTurner = (companyName || "").toLowerCase() === "lai & turner";
 
   return (
-    <Layout>
+    
       <div className="min-h-[calc(100vh-5rem)] bg-slate-50 py-10">
         <div className="mx-auto max-w-6xl px-4 space-y-10">
           <section className="space-y-4">
@@ -626,7 +626,7 @@ const LaiTurnerDemoPage: React.FC = () => {
           </section>
         </div>
       </div>
-    </Layout>
+    
   );
 };
 
