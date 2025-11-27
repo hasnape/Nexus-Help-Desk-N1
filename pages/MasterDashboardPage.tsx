@@ -76,6 +76,8 @@ const MasterDashboardPage: React.FC = () => {
       if (rpcError) {
         setError(rpcError.message || "Failed to load AI settings");
         setAiSettings(null);
+        setDefaultProfileKey("");
+        setProfileOverridesText("{}");
       } else {
         const row = (data && (data as AiSettingsRow[])[0]) || null;
         const normalizedRow: AiSettingsRow | null = row
