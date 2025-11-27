@@ -82,6 +82,8 @@ type RequestBody = FollowUpPayload | SummarizePayload | TicketSummaryPayload;
 
 const DEFAULT_SYSTEM_PROMPT = `You are Nexus, an IT Help Desk AI assistant.`;
 
+const LAI_TURNER_COMPANY_ID = "fe6b59cd-8f99-47ed-be5a-2a0931872070";
+
 const LAI_TURNER_SYSTEM_PROMPT = `
 You are the virtual intake assistant for Lai & Turner Law Firm, a U.S. law firm that handles Family Law, Personal Injury, Criminal Defense, and Business Immigration matters.
 
@@ -147,22 +149,31 @@ suggested_next_steps: ...
 - Do not refer to this block in the visible part of your answer to the user.
 `;
 
-function getSystemPromptForCompany(companyName?: string | null): string {
-  if (!companyName) return DEFAULT_SYSTEM_PROMPT;
-  const normalized = companyName.trim().toLowerCase();
+function isLaiTurnerCompany(opts: {
+  companyId?: string | null;
+  companyName?: string | null;
+}): boolean {
+  const id = opts.companyId ?? "";
+  const name = (opts.companyName ?? "").trim().toLowerCase();
 
-  if (normalized === "lai & turner" || normalized === "lai & turner law firm") {
+  if (id === LAI_TURNER_COMPANY_ID) {
+    return true;
+  }
+
+  if (!name) return false;
+
+  return name === "lai & turner" || name.includes("lai & turner");
+}
+
+function getSystemPromptForCompany(opts: {
+  companyId?: string | null;
+  companyName?: string | null;
+}): string {
+  if (isLaiTurnerCompany(opts)) {
     return LAI_TURNER_SYSTEM_PROMPT;
   }
 
   return DEFAULT_SYSTEM_PROMPT;
-}
-
-function isLaiTurnerCompanyName(companyName?: string | null): boolean {
-  if (!companyName) return false;
-  const normalized = companyName.trim().toLowerCase();
-
-  return normalized === "lai & turner" || normalized === "lai & turner law firm";
 }
 
 // --------------------
@@ -360,8 +371,15 @@ async function handleFollowUp(body: FollowUpPayload) {
   const geminiHistory = formatChatHistoryForGemini(chatHistory);
 
   const companyNameFromContext = companyName ?? null;
-  const isLaiTurnerContext = isLaiTurnerCompanyName(companyNameFromContext);
-  const systemPrompt = getSystemPromptForCompany(companyNameFromContext);
+  const companyIdFromContext = companyId ?? null;
+  const isLaiTurnerContext = isLaiTurnerCompany({
+    companyId: companyIdFromContext,
+    companyName: companyNameFromContext,
+  });
+  const systemPrompt = getSystemPromptForCompany({
+    companyId: companyIdFromContext,
+    companyName: companyNameFromContext,
+  });
 
   // 🔥 Ici on charge VRAIMENT la FAQ de la société + langue
   const knowledgeContext = await buildCompanyKnowledgeContext(
