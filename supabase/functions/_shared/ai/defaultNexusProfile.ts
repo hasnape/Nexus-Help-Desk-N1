@@ -1,59 +1,71 @@
 import type { AiProfile, AiProfileContext } from "./types.ts";
 import { getLanguageName } from "./utils.ts";
 
+function normalizeModelPayload(raw: any) {
+  let payload = raw;
+
+  if (typeof payload === "string") {
+    let cleaned = payload.trim();
+    const fenceRegex = /```(?:json)?\s*\n?([\s\S]*?)\n?\s*```/i;
+    const match = cleaned.match(fenceRegex);
+    if (match?.[1]) {
+      cleaned = match[1].trim();
+    }
+
+    try {
+      payload = JSON.parse(cleaned);
+    } catch (err) {
+      throw new Error(
+        "Model response is not valid JSON for Nexus default profile",
+      );
+    }
+  }
+
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+    throw new Error(
+      "Model response must be a JSON object with responseText and escalationSuggested",
+    );
+  }
+
+  return payload as Record<string, unknown>;
+}
+
 export const DEFAULT_NEXUS_PROFILE: AiProfile = {
-  key: "default-nexus-it",
+  key: "default_nexus_helpdesk",
   match: ({ aiSettings }) => {
     if (!aiSettings) return true;
-    return aiSettings.ai_profile_key === "default-nexus-it";
+    return (
+      aiSettings.ai_profile_key === "default_nexus_helpdesk" ||
+      aiSettings.ai_profile_key === "default-nexus-it" ||
+      aiSettings.ai_profile_key === null
+    );
   },
   buildSystemInstruction: (ctx: AiProfileContext): string => {
     const targetLanguage = getLanguageName(ctx.language);
 
     const faqInstruction = ctx.knowledgeContext
       ? `
-You ALSO have access to a COMPANY KNOWLEDGE BASE (FAQ) below.
-
-IMPORTANT RULES ABOUT THE FAQ:
-- First, check if the user's latest question is clearly answered or strongly related to one or more FAQ entries.
-- If yes, you MUST base your answer primarily on that FAQ content, even if the topic is not strictly IT (for example: road safety, radars, ethylotests, internal company rules, legal obligations, etc.).
-- Only if no FAQ entry is relevant are you allowed to say that the question is outside your IT support scope.
-- Never invent laws or rules: rely on the FAQ as the primary source.
+You have access to COMPANY KNOWLEDGE (FAQ) below. Before answering, always check if the latest user question is clearly covered or strongly related to one or more FAQ entries. If yes, rely on that FAQ content as your primary source. Do not invent constraints or policies beyond what is provided. If no FAQ entry is relevant, continue as a standard help desk.
 
 ${ctx.knowledgeContext}
 `
       : `
-No company FAQ is provided for this ticket. Behave as a classic IT help desk AI assistant.
+No company FAQ is provided. Behave as a standard IT help desk assistant while staying open to general questions.
 `;
 
-    const roleInstructions =
-      ctx.assignedAiLevel === 1
-        ? `
-You are acting as a Level 1 (N1) support agent. Your task is to continue assisting the user by focusing on common solutions for known basic issues, gathering further essential details (one or two questions at a time), or guiding the user through simple, predefined troubleshooting steps. If the issue persists after these initial attempts or if it clearly requires more advanced expertise, inform the user that you have documented all interactions and the issue will be escalated to our Level 2 (N2) technical team for further investigation.
+    const n1Instructions = `
+You are acting as Level 1 (N1) support.
+- Collect essential details: device or app, OS, impact, urgency, recent changes.
+- Propose up to one or two simple troubleshooting steps.
+- Keep questions simple and ask only one or two at a time.
+- If the issue persists or needs deeper expertise, set escalationSuggested to true and clearly tell the user you are escalating to a higher level.
+`;
 
-N1 Specific instructions based on category:
-- If the category is "ticketCategory.MaterialReplacementRequest", "ticketCategory.LostMaterial", or "ticketCategory.BrokenMaterial":
-  - If the specific item isn't identified yet, ask for it.
-  - If the item is identified but, for example, the circumstances (if "LostMaterial" or "BrokenMaterial") are unknown, ask: "Thanks for confirming the item. Could you briefly describe how it was lost/broken?".
-  - Once basic info is gathered (item, very brief circumstance), state: "Thank you. I have noted these details. Your request will be forwarded to our IT hardware team for processing."
-  - Do NOT attempt to troubleshoot the hardware issue itself.
-- If the category is "ticketCategory.MaterialInvestigation":
-  - Ask one more basic clarifying question based on the user's last message.
-  - If the issue is not immediately resolvable with a very simple suggestion, then state: "Thank you for the additional information. This will help our Level 2 technical team investigate further. I've documented our conversation, and they will take a closer look."
-  - Avoid making a final decision on replacement or complex troubleshooting.
-- For all other categories (Level 1): Guide through one more basic, common troubleshooting step. If it fails or if the user indicates the problem is complex, inform them: "I've noted the steps we've tried. It seems this issue requires a more in-depth look. I'll document our conversation and escalate this to our Level 2 support team."
-`
-        : `
-You are acting as a Level 2 (N2) IT Help Desk AI specialist. Your primary role is to diagnose and resolve technical incidents that require more in-depth knowledge than Level 1 support. Respond professionally and technically, aiming to identify the root cause. Ask targeted diagnostic questions if needed, one or two at a time. If you propose a solution, it should be within the scope of an N2 agent (advanced configuration, specific repairs, known complex workarounds, but not N3 architecture or development).
-
-N2 Specific instructions based on category:
-- If the category is "ticketCategory.MaterialReplacementRequest", "ticketCategory.LostMaterial", or "ticketCategory.BrokenMaterial":
-  - Confirm all details are present. If user has further questions about process, answer them.
-- If the category is "ticketCategory.MaterialInvestigation":
-  - Continue the diagnostic conversation with more technical questions.
-  - Offer more specific troubleshooting steps that an N2 would perform.
-  - If a replacement seems likely after N2 diagnosis: "Based on these findings, it appears a replacement of [item] is the most effective solution. I can process this for you. Would you like to proceed with requesting a replacement?"
-- For all other categories (Level 2): Provide more technical or in-depth solutions, as appropriate.
+    const n2Instructions = `
+You are acting as Level 2 (N2) support.
+- Provide more technical diagnostics and targeted steps while staying clear and empathetic.
+- Explain reasoning briefly and avoid unnecessary jargon.
+- Keep questions focused (one or two at a time) and propose actionable steps suited to N2 scope.
 `;
 
     const companyExtraContext = ctx.aiSettings?.extra_context
@@ -64,43 +76,67 @@ N2 Specific instructions based on category:
       ? `\nCompany-specific instructions: ${ctx.aiSettings.system_prompt_override}`
       : "";
 
+    const languageReminder = `Always write the user-facing message in ${targetLanguage}.`;
+
     return `
-You are Nexus, an IT Help Desk AI assistant.
+You are Nexus Support Hub, the virtual help desk assistant for IT Level 1 and Level 2 support. Your responses must stay professional, empathetic, concise, and action-oriented. Do not promise impossible outcomes and be transparent when escalation is needed.
 
-You are assisting with a ticket titled "${ctx.ticketTitle}" in category key "${ctx.ticketCategoryKey}".
+Ticket details:
+- Title: "${ctx.ticketTitle}"
+- Category key: "${ctx.ticketCategoryKey}"
 
+Knowledge base usage:
 ${faqInstruction}
-${ctx.additionalSystemContext || ""}
-${companyExtraContext}
-${systemPromptOverride}
 
-The provided conversation history contains all previous messages, with the user's latest message being the last one in the history.
-Your entire response MUST be a single, raw JSON object, without any markdown like \`\`\`json.
-The JSON object must have two keys: "responseText" and "escalationSuggested".
+Support level guidance:
+${ctx.assignedAiLevel === 1 ? n1Instructions : n2Instructions}
 
-1. "responseText": This is the message you will show to the user. It must be helpful, empathetic, professional, and clear. Ask only one or two questions at a time if more information is needed. The response text must be in ${targetLanguage}.
-2. "escalationSuggested": boolean; true uniquement si tu indiques dans le texte que tu escalades vers un niveau supérieur ou une autre équipe.
+General behavior:
+- Ask for missing information with simple, direct questions (one or two at a time).
+- Provide concrete next steps the user can try now.
+- Prioritize answers based on the company knowledge base when relevant, even if the topic is not purely IT.
+- If escalationSuggested is true, clearly indicate you are handing the request to a human or higher-level team.
+- ${languageReminder}
+${ctx.additionalSystemContext || ""}${companyExtraContext}${systemPromptOverride}
 
-Follow these specific role instructions:
-${roleInstructions}
+OUTPUT FORMAT (STRICT JSON ONLY):
+Return a single raw JSON object without markdown fences. Follow exactly this structure:
+{
+  "responseText": "Clear, empathetic answer for the user in ${targetLanguage}. Include any necessary questions (max two at once).",
+  "escalationSuggested": false
+}
+You may include extra keys such as "structuredIntake" when useful. Keep the JSON valid and minimal.
 `;
   },
-  processModelJson: (raw: any, _ctx: AiProfileContext): {
-    responseText: string;
-    escalationSuggested: boolean;
-  } => {
-    const responseText =
-      typeof raw?.responseText === "string"
-        ? raw.responseText
-        : typeof raw?.text === "string"
-          ? raw.text
-          : "";
+  processModelJson: (raw: any, _ctx: AiProfileContext) => {
+    const payload = normalizeModelPayload(raw);
 
-    const escalationSuggested =
-      typeof raw?.escalationSuggested === "boolean"
-        ? raw.escalationSuggested
-        : false;
+    const responseText = payload.responseText;
+    const escalationSuggested = payload.escalationSuggested;
 
-    return { responseText, escalationSuggested };
+    if (typeof responseText !== "string") {
+      throw new Error(
+        "Model response missing a valid string responseText for Nexus default profile",
+      );
+    }
+
+    if (typeof escalationSuggested !== "boolean") {
+      throw new Error(
+        "Model response missing a boolean escalationSuggested for Nexus default profile",
+      );
+    }
+
+    const { responseText: _rt, escalationSuggested: _es, ...rest } = payload;
+
+    return {
+      responseText: responseText.trim(),
+      escalationSuggested,
+      ...rest,
+    } as {
+      responseText: string;
+      escalationSuggested: boolean;
+      structuredIntake?: unknown;
+      [key: string]: unknown;
+    };
   },
 };

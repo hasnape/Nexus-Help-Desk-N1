@@ -3,11 +3,14 @@ export type SerializableChatMessage = {
   text: string;
 };
 
-export type AiProfileKey = "default-nexus-it" | "lai-turner-intake";
+export type AiProfileKey =
+  | "default-nexus-it"
+  | "default_nexus_helpdesk"
+  | "lai-turner-intake";
 
 export interface CompanyAiSettings {
   company_id: string;
-  ai_profile_key: AiProfileKey;
+  ai_profile_key: AiProfileKey | null;
   system_prompt_override?: string | null;
   extra_context?: any;
   intake_schema?: any;
