@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Layout from "../components/FormElements";
 import { Button } from "../components/FormElements";
 import { useApp } from "../App";
 import { supabase } from "../services/supabaseClient";
@@ -73,29 +72,28 @@ const LaiTurnerAgentInboxPage: React.FC = () => {
 
   if (!user) {
     return (
-      <Layout>
+      
         <div className="mx-auto max-w-3xl space-y-4 py-16 px-4">
           <h1 className="text-3xl font-bold text-slate-900">Authentication required</h1>
           <p className="text-slate-700">Please log in from the Lai & Turner entry page.</p>
           <Button onClick={() => (window.location.href = "#/lai-turner-law")}>Back to Lai & Turner</Button>
         </div>
-      </Layout>
+      
     );
   }
 
   if (user.role !== "agent" || (!companyLoading && !isLaiTurner)) {
     return (
-      <Layout>
+      
         <div className="mx-auto max-w-3xl space-y-4 py-16 px-4">
           <h1 className="text-3xl font-bold text-slate-900">This inbox is reserved for Lai & Turner agents.</h1>
           <p className="text-slate-700">If you need access, contact a manager to add you to the firm workspace.</p>
         </div>
-      </Layout>
+      
     );
   }
 
   return (
-    
       <div className="min-h-[calc(100vh-5rem)] bg-slate-50 py-12">
         <div className="mx-auto max-w-6xl space-y-8 px-4">
           <section className="space-y-3">
@@ -233,7 +231,6 @@ const LaiTurnerAgentInboxPage: React.FC = () => {
           </section>
         </div>
       </div>
-    
   );
 };
 

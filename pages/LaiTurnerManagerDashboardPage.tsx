@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from "react";
-import Layout from "../components/FormElements";
 import { Button } from "../components/FormElements";
 import { useApp } from "../App";
 import { supabase } from "../services/supabaseClient";
@@ -72,28 +71,27 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
 
   if (!user) {
     return (
-      <Layout>
+      
         <div className="mx-auto max-w-3xl space-y-4 py-16 px-4">
           <h1 className="text-3xl font-bold text-slate-900">Authentication required</h1>
           <Button onClick={() => (window.location.href = "#/lai-turner-law")}>Back to Lai & Turner</Button>
         </div>
-      </Layout>
+      
     );
   }
 
   if (user.role !== "manager" || (!companyLoading && !isLaiTurner)) {
     return (
-      <Layout>
+     
         <div className="mx-auto max-w-3xl space-y-4 py-16 px-4">
           <h1 className="text-3xl font-bold text-slate-900">This view is reserved for Lai & Turner managers.</h1>
           <p className="text-slate-700">If you need access, please sign in with a manager account for the firm.</p>
         </div>
-      </Layout>
+      
     );
   }
 
   return (
-    
       <div className="min-h-[calc(100vh-5rem)] bg-slate-50 py-12">
         <div className="mx-auto max-w-6xl space-y-8 px-4">
           <section className="space-y-3">
@@ -222,7 +220,6 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
           </section>
         </div>
       </div>
-    
   );
 };
 

@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Layout from "../components/FormElements";
 import { Button } from "../components/FormElements";
 import TicketCard from "../components/TicketCard";
 import { useApp } from "../App";
@@ -106,113 +105,121 @@ const LaiTurnerClientPortalPage: React.FC = () => {
     }
   };
 
+  // 🔒 Garde : pas connecté
   if (!user) {
     return (
-      <Layout>
+      <div className="min-h-[calc(100vh-5rem)] bg-slate-50 py-12">
         <div className="mx-auto max-w-3xl space-y-4 py-16 px-4">
           <h1 className="text-3xl font-bold text-slate-900">Authentication required</h1>
           <p className="text-slate-700">
-            To access this LAI & TURNER client portal, please sign in from the Lai & Turner entry page.
+            To access this Lai & Turner client portal, please sign in from the Lai & Turner entry page.
           </p>
           <Button onClick={() => navigate("/lai-turner-law")}>Back to Lai & Turner</Button>
         </div>
-      </Layout>
+      </div>
     );
   }
 
+  // 🔒 Garde : pas un compte Lai & Turner
   if (!companyLoading && !isLaiTurner) {
     return (
-      <Layout>
+      <div className="min-h-[calc(100vh-5rem)] bg-slate-50 py-12">
         <div className="mx-auto max-w-3xl space-y-4 py-16 px-4">
-          <h1 className="text-3xl font-bold text-slate-900">This client portal is reserved for Lai & Turner accounts.</h1>
+          <h1 className="text-3xl font-bold text-slate-900">
+            This client portal is reserved for Lai & Turner accounts.
+          </h1>
           <Button onClick={() => navigate("/lai-turner-law")}>Return to Lai & Turner</Button>
         </div>
-      </Layout>
+      </div>
     );
   }
 
+  // Vue principale client
   return (
-    
-      <div className="min-h-[calc(100vh-5rem)] bg-slate-50 py-12">
-        <div className="mx-auto max-w-6xl space-y-10 px-4">
-          <section className="space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Lai & Turner Law</p>
-            <h1 className="text-3xl font-bold text-slate-900">Your Lai & Turner client portal</h1>
-            <p className="max-w-3xl text-lg text-slate-700">
-              This is your live Lai & Turner client space. Use it to start new cases, share documents, and follow updates with your team.
-            </p>
-            <p className="text-sm text-slate-600">Signed in as {user.email}</p>
-          </section>
+    <div className="min-h-[calc(100vh-5rem)] bg-slate-50 py-12">
+      <div className="mx-auto max-w-6xl space-y-10 px-4">
+        <section className="space-y-3">
+          <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Lai & Turner Law</p>
+          <h1 className="text-3xl font-bold text-slate-900">Your Lai & Turner client portal</h1>
+          <p className="max-w-3xl text-lg text-slate-700">
+            This is your live Lai & Turner client space. Use it to start new cases, share documents, and follow updates with your team.
+          </p>
+          <p className="text-sm text-slate-600">Signed in as {user.email}</p>
+        </section>
 
-          <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {Object.entries(practiceAreaCopy).map(([area, description]) => (
-              <div key={area} className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                <div className="space-y-2">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">{area}</p>
-                  <p className="text-sm text-slate-700">{description}</p>
-                </div>
-                <Button
-                  className="mt-4"
-                  variant="secondary"
-                  onClick={() => createLaiTurnerTicket(area as keyof typeof practiceAreaCopy)}
-                  isLoading={creatingArea === area}
-                >
-                  {area === "Family Law"
-                    ? "Start a family law request"
-                    : area === "Personal Injury"
-                    ? "Report an injury case"
-                    : area === "Criminal Defense"
-                    ? "Ask about a criminal charge"
-                    : "Start a business immigration request"}
-                </Button>
+        <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {Object.entries(practiceAreaCopy).map(([area, description]) => (
+            <div
+              key={area}
+              className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+            >
+              <div className="space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">{area}</p>
+                <p className="text-sm text-slate-700">{description}</p>
               </div>
-            ))}
-          </section>
-
-          <section className="space-y-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div className="flex items-center justify-between gap-2">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Your cases</p>
-                <h3 className="text-xl font-bold text-slate-900">Track your cases</h3>
-              </div>
-              {companyLoading && (
-                <span className="text-xs font-semibold text-slate-500">Confirming Lai & Turner access…</span>
-              )}
+              <Button
+                className="mt-4"
+                variant="secondary"
+                onClick={() => createLaiTurnerTicket(area as keyof typeof practiceAreaCopy)}
+                isLoading={creatingArea === area}
+              >
+                {area === "Family Law"
+                  ? "Start a family law request"
+                  : area === "Personal Injury"
+                  ? "Report an injury case"
+                  : area === "Criminal Defense"
+                  ? "Ask about a criminal charge"
+                  : "Start a business immigration request"}
+              </Button>
             </div>
-            {creationMessage && (
-              <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-                {creationMessage}
-              </div>
-            )}
-            {creationError && (
-              <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                {creationError}
-              </div>
-            )}
-            {userTickets.length === 0 ? (
-              <div className="rounded-2xl border border-slate-100 bg-slate-50 p-5 text-sm text-slate-700">
-                No active tickets yet. Use the buttons above to start a request and your updates will appear here in real time.
-              </div>
-            ) : (
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {userTickets.map((ticket) => (
-                  <TicketCard key={ticket.id} ticket={ticket} />
-                ))}
-              </div>
-            )}
-          </section>
+          ))}
+        </section>
 
-          <section className="rounded-3xl border border-indigo-100 bg-indigo-50 p-6 shadow-sm">
-            <h3 className="text-xl font-bold text-slate-900">What this portal does for you</h3>
-            <ul className="mt-3 list-disc space-y-2 pl-5 text-slate-700">
-              <li>Plain-language updates (we speak English, not legalese).</li>
-              <li>Document requests and reminders so you don’t miss deadlines.</li>
-              <li>A clear timeline so you always know what happens next.</li>
-            </ul>
-          </section>
-        </div>
+        <section className="space-y-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="flex items-center justify-between gap-2">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Your cases</p>
+              <h3 className="text-xl font-bold text-slate-900">Track your cases</h3>
+            </div>
+            {companyLoading && (
+              <span className="text-xs font-semibold text-slate-500">
+                Confirming Lai & Turner access…
+              </span>
+            )}
+          </div>
+          {creationMessage && (
+            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+              {creationMessage}
+            </div>
+          )}
+          {creationError && (
+            <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {creationError}
+            </div>
+          )}
+          {userTickets.length === 0 ? (
+            <div className="rounded-2xl border border-slate-100 bg-slate-50 p-5 text-sm text-slate-700">
+              No active tickets yet. Use the buttons above to start a request and your updates will appear here in real time.
+            </div>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {userTickets.map((ticket) => (
+                <TicketCard key={ticket.id} ticket={ticket} />
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section className="rounded-3xl border border-indigo-100 bg-indigo-50 p-6 shadow-sm">
+          <h3 className="text-xl font-bold text-slate-900">What this portal does for you</h3>
+          <ul className="mt-3 list-disc space-y-2 pl-5 text-slate-700">
+            <li>Plain-language updates (we speak English, not legalese).</li>
+            <li>Document requests and reminders so you don’t miss deadlines.</li>
+            <li>A clear timeline so you always know what happens next.</li>
+          </ul>
+        </section>
       </div>
-    
+    </div>
   );
 };
 

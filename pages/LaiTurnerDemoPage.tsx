@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import Layout from "../components/FormElements";
 import { Button, Input } from "../components/FormElements";
 import { useNavigate } from "react-router-dom";
 import { signInWithEmail, signUpWithEmail } from "../services/authService";
@@ -255,7 +254,6 @@ const LaiTurnerDemoPage: React.FC = () => {
   const isLaiTurner = (companyName || "").toLowerCase() === "lai & turner";
 
   return (
-    
       <div className="min-h-[calc(100vh-5rem)] bg-slate-50 py-10">
         <div className="mx-auto max-w-6xl px-4 space-y-10">
           <section className="space-y-4">
@@ -626,7 +624,6 @@ const LaiTurnerDemoPage: React.FC = () => {
           </section>
         </div>
       </div>
-    
   );
 };
 
