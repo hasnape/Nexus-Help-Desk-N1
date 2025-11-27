@@ -50,6 +50,7 @@ type FollowUpPayload = {
   chatHistory: SerializableChatMessage[];
   companyId?: string;
   companyName?: string | null;
+  ticketId?: string;
   additionalSystemContext?: string;
 };
 
@@ -127,9 +128,23 @@ Sources:
 - Present them as general resources, not as instructions.
 
 Summary and escalation:
-- Before ending the conversation or when the user indicates they are done, produce a short structured summary of the situation (practice area, urgency, key facts, suggested next steps).
-- Always propose a concrete next step with the firm (for example: scheduling a consultation, sending documents, or having an attorney review the file).
-- Make it clear that continuing with Lai & Turner is optional, but always offer this path so the firm does not lose potential clients.
+- At the end of each answer, you MUST append a machine-readable block between [ATTORNEY_SUMMARY] and [/ATTORNEY_SUMMARY].
+- Inside this block, write a short structured summary in English that is only meant for Lai & Turner attorneys. It must include:
+  * practice_area: Family Law / Personal Injury / Criminal Defense / Business Immigration / Mixed / Unknown
+  * urgency: low / medium / high
+  * key_facts: one paragraph describing the key facts shared by the user
+  * suggested_next_steps: one paragraph describing what Lai & Turner should do next (for example: schedule a consultation, request documents, clarify status, etc.)
+- Example format (do NOT include bullet points, only plain text):
+
+[ATTORNEY_SUMMARY]
+practice_area: Business Immigration
+urgency: medium
+key_facts: ...
+suggested_next_steps: ...
+[/ATTORNEY_SUMMARY]
+
+- The [ATTORNEY_SUMMARY] block MUST always be present in your answer for Lai & Turner, even if information is incomplete.
+- Do not refer to this block in the visible part of your answer to the user.
 `;
 
 function getSystemPromptForCompany(companyName?: string | null): string {
@@ -141,6 +156,13 @@ function getSystemPromptForCompany(companyName?: string | null): string {
   }
 
   return DEFAULT_SYSTEM_PROMPT;
+}
+
+function isLaiTurnerCompanyName(companyName?: string | null): boolean {
+  if (!companyName) return false;
+  const normalized = companyName.trim().toLowerCase();
+
+  return normalized === "lai & turner" || normalized === "lai & turner law firm";
 }
 
 // --------------------
@@ -165,6 +187,28 @@ function formatChatHistoryForGemini(
     role: m.sender === "user" ? "user" : "model",
     parts: [{ text: m.text }],
   }));
+}
+
+function extractAttorneySummaryBlock(fullText: string): {
+  cleanText: string;
+  summary?: string;
+} {
+  const start = fullText.indexOf("[ATTORNEY_SUMMARY]");
+  const end = fullText.indexOf("[/ATTORNEY_SUMMARY]");
+
+  if (start === -1 || end === -1 || end <= start) {
+    return { cleanText: fullText };
+  }
+
+  const summary = fullText
+    .slice(start + "[ATTORNEY_SUMMARY]".length, end)
+    .trim();
+  const cleanText =
+    fullText.slice(0, start).trimEnd() +
+    "\n\n" +
+    fullText.slice(end + "[/ATTORNEY_SUMMARY]".length).trimStart();
+
+  return { cleanText: cleanText.trim(), summary };
 }
 
 /**
@@ -308,6 +352,7 @@ async function handleFollowUp(body: FollowUpPayload) {
     chatHistory,
     companyId,
     companyName,
+    ticketId,
     additionalSystemContext,
   } = body;
 
@@ -315,6 +360,7 @@ async function handleFollowUp(body: FollowUpPayload) {
   const geminiHistory = formatChatHistoryForGemini(chatHistory);
 
   const companyNameFromContext = companyName ?? null;
+  const isLaiTurnerContext = isLaiTurnerCompanyName(companyNameFromContext);
   const systemPrompt = getSystemPromptForCompany(companyNameFromContext);
 
   // 🔥 Ici on charge VRAIMENT la FAQ de la société + langue
@@ -410,7 +456,7 @@ ${roleInstructions}`;
 
   const parsed = JSON.parse(jsonStr);
 
-  const responseText = parsed.responseText || parsed.text;
+  let responseText = parsed.responseText || parsed.text;
   const escalationSuggested = parsed.escalationSuggested;
 
   if (
@@ -420,6 +466,25 @@ ${roleInstructions}`;
     throw new Error(
       "AI response is not in the expected format. It must contain a 'responseText' (or 'text') string and an 'escalationSuggested' boolean.",
     );
+  }
+
+  if (isLaiTurnerContext) {
+    const { cleanText, summary } = extractAttorneySummaryBlock(responseText);
+    responseText = cleanText;
+
+    if (summary && ticketId) {
+      const { error: noteError } = await supabase.from("internal_notes").insert({
+        ticket_id: ticketId,
+        agent_id: null,
+        note_text: summary,
+        company_id: companyId ?? null,
+        company_name: companyNameFromContext ?? companyName ?? null,
+      });
+
+      if (noteError) {
+        console.error("[nexus-ai] Failed to insert Lai & Turner attorney summary:", noteError);
+      }
+    }
   }
 
   return { responseText, escalationSuggested };
