@@ -58,8 +58,16 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
   const laiTickets: Ticket[] = useMemo(() => {
     if (!user) return [];
     return tickets.filter((ticket) => {
+      if (ticket.company_id && ticket.company_id === user.company_id) {
+        return true;
+      }
+
       const ticketOwner = allUsers.find((u) => u.id === ticket.user_id);
-      return ticketOwner?.company_id && ticketOwner.company_id === user.company_id;
+      if (ticketOwner?.company_id && ticketOwner.company_id === user.company_id) {
+        return true;
+      }
+
+      return false;
     });
   }, [tickets, allUsers, user]);
 
