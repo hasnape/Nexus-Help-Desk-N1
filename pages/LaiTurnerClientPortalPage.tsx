@@ -146,7 +146,8 @@ const LaiTurnerClientPortalPage: React.FC = () => {
         <div className="mx-auto max-w-3xl space-y-4 py-16 px-4">
           <h1 className="text-3xl font-bold text-slate-900">Authentication required</h1>
           <p className="text-slate-700">
-            To access this Lai & Turner client portal, please sign in from the Lai & Turner entry page.
+            To access this Lai & Turner client portal, please sign in from the Lai & Turner entry page using the Nexus login and
+            the company name "Lai & Turner".
           </p>
           <Button onClick={() => navigate("/lai-turner-law")}>Back to Lai & Turner</Button>
         </div>
@@ -162,7 +163,15 @@ const LaiTurnerClientPortalPage: React.FC = () => {
           <h1 className="text-3xl font-bold text-slate-900">
             This client portal is reserved for Lai & Turner accounts.
           </h1>
-          <Button onClick={() => navigate("/lai-turner-law")}>Return to Lai & Turner</Button>
+          <p className="text-slate-700">
+            Please log in through the Nexus login screen with the company name "Lai & Turner" to continue.
+          </p>
+          <div className="flex gap-3">
+            <Button variant="secondary" onClick={() => navigate("/lai-turner-law")}>
+              Return to Lai & Turner
+            </Button>
+            <Button onClick={() => navigate("/login")}>Go to Nexus login</Button>
+          </div>
         </div>
       </div>
     );
@@ -174,11 +183,34 @@ const LaiTurnerClientPortalPage: React.FC = () => {
       <div className="mx-auto max-w-6xl space-y-10 px-4">
         <section className="space-y-3">
           <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Lai & Turner Law</p>
-          <h1 className="text-3xl font-bold text-slate-900">Your Lai & Turner client portal</h1>
+          <h1 className="text-3xl font-bold text-slate-900">Lai & Turner – Client Portal</h1>
           <p className="max-w-3xl text-lg text-slate-700">
-            This is your live Lai & Turner client space. Use it to start new cases, share documents, and follow updates with your team.
+            Premium legal support for Family Law, Personal Injury, Criminal Defense, and Business Immigration. Use this secure
+            space to launch a confidential intake, share documents, and follow updates with your legal team.
           </p>
           <p className="text-sm text-slate-600">Signed in as {user.email}</p>
+        </section>
+
+        <section className="grid gap-4 md:grid-cols-2">
+          <div className="rounded-2xl border border-indigo-200 bg-white p-5 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">New clients</p>
+            <h3 className="text-xl font-bold text-slate-900">Start a confidential intake</h3>
+            <p className="mt-2 text-sm text-slate-700">
+              Share your situation for a tailored case evaluation. A coordinator will guide you through next steps—this is not a
+              Nexus SaaS signup, but a direct request for representation.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Existing clients & team</p>
+            <h3 className="text-xl font-bold text-slate-900">Access through Nexus login</h3>
+            <p className="mt-2 text-sm text-slate-700">
+              If you already have access or are part of the Lai & Turner team, continue through the Nexus login screen using the
+              company name "Lai & Turner" to reach your matters.
+            </p>
+            <Button className="mt-3" variant="secondary" onClick={() => navigate("/login")}>
+              Go to Nexus login
+            </Button>
+          </div>
         </section>
 
         <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
