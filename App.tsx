@@ -292,6 +292,11 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
   useEffect(() => {
     hasCurrentAppointmentColumnRef.current = hasCurrentAppointmentColumn;
   }, [hasCurrentAppointmentColumn]);
+  const [ticketDetailsColumn, setTicketDetailsColumn] = useState<string | null>(null);
+  const ticketDetailsColumnRef = useRef<string | null>(ticketDetailsColumn);
+  useEffect(() => {
+    ticketDetailsColumnRef.current = ticketDetailsColumn;
+  }, [ticketDetailsColumn]);
 
   const { language, setLanguage: setAppLanguage, t: translateHook } = useLanguage();
 
@@ -577,6 +582,40 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   }, []);
 
+  const ensureTicketDetailsColumn = useCallback(async (): Promise<string | null> => {
+    if (ticketDetailsColumnRef.current !== null) {
+      return ticketDetailsColumnRef.current;
+    }
+    const candidates = ["metadata", "details"];
+    for (const column of candidates) {
+      try {
+        const { error } = await supabase.from("tickets").select(column).limit(1);
+        if (!error) {
+          ticketDetailsColumnRef.current = column;
+          setTicketDetailsColumn(column);
+          return column;
+        }
+        const message = (error.message || "").toLowerCase();
+        if (
+          error.code === "42703" ||
+          error.code === "PGRST204" ||
+          message.includes(column) ||
+          message.includes("column")
+        ) {
+          continue;
+        }
+        console.warn(`Unexpected error probing tickets.${column}:`, error);
+        break;
+      } catch (err) {
+        console.warn(`Failed to probe tickets.${column}:`, err);
+        break;
+      }
+    }
+    ticketDetailsColumnRef.current = null;
+    setTicketDetailsColumn(null);
+    return null;
+  }, []);
+
   const persistTicketMessages = useCallback(
     async (ticketId: string, messages: ChatMessage[]) => {
       if (!messages.length) {
@@ -627,11 +666,13 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
           }
           setUser(userProfile);
 
-          const [storageMode, internalNotesAvailable, currentAppointmentAvailable] = await Promise.all([
-            ensureChatStorageMode(),
-            ensureInternalNotesColumn(),
-            ensureCurrentAppointmentColumn(),
-          ]);
+          const [storageMode, internalNotesAvailable, currentAppointmentAvailable, resolvedDetailsColumn] =
+            await Promise.all([
+              ensureChatStorageMode(),
+              ensureInternalNotesColumn(),
+              ensureCurrentAppointmentColumn(),
+              ensureTicketDetailsColumn(),
+            ]);
           const baseTicketColumns = [
             "id",
             "user_id",
@@ -645,10 +686,13 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
             "workstation_id",
             "company_id",
             "company_name",
-            "metadata",
             "created_at",
             "updated_at",
           ];
+          const resolvedTicketDetailsColumn = resolvedDetailsColumn || ticketDetailsColumnRef.current;
+          if (resolvedTicketDetailsColumn) {
+            baseTicketColumns.push(resolvedTicketDetailsColumn);
+          }
           if (internalNotesAvailable) {
             baseTicketColumns.push("internal_notes");
           }
@@ -672,13 +716,16 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
           setAllUsers(usersResponse.data || []);
 
           let fetchedTickets: Ticket[] = [];
+          const ticketRows = ticketsResponse.data || [];
+          const normalizedTicketRows = resolvedTicketDetailsColumn && resolvedTicketDetailsColumn !== "metadata"
+            ? ticketRows.map((row: any) => ({ ...row, metadata: row[resolvedTicketDetailsColumn] ?? row.metadata }))
+            : ticketRows;
           if (storageMode === "embedded") {
-            fetchedTickets = ticketsResponse.data ? ticketsResponse.data.map((row: any) => reviveTicketDates(row)) : [];
+            fetchedTickets = normalizedTicketRows.map((row: any) => reviveTicketDates(row));
           } else if (storageMode === "messages_table") {
-            const ticketRows = ticketsResponse.data || [];
             let messagesByTicket = new Map<string, ChatMessage[]>();
-            if (ticketRows.length > 0) {
-              const ticketIds = ticketRows.map((row: any) => row.id);
+            if (normalizedTicketRows.length > 0) {
+              const ticketIds = normalizedTicketRows.map((row: any) => row.id);
               const { data: messageRows, error: messagesError } = await supabase
                 .from("ticket_messages")
                 .select(
@@ -707,15 +754,13 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
                 messagesByTicket = groupMessagesByTicket(resolvedRows as TicketMessageRow[]);
               }
             }
-            fetchedTickets = ticketRows.map((row: any) => {
+            fetchedTickets = normalizedTicketRows.map((row: any) => {
               const messages = messagesByTicket.get(row.id) ?? [];
               const sortedMessages = messages.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
               return reviveTicketDates(row, sortedMessages);
             });
           } else {
-            fetchedTickets = ticketsResponse.data
-              ? ticketsResponse.data.map((row: any) => reviveTicketDates(row, []))
-              : [];
+            fetchedTickets = normalizedTicketRows.map((row: any) => reviveTicketDates(row, []));
           }
 
           setTicketsDirect(fetchedTickets);
@@ -736,7 +781,13 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         setIsLoading(false);
       }
     },
-    [ensureChatStorageMode, ensureInternalNotesColumn, ensureCurrentAppointmentColumn, setTicketsDirect]
+    [
+      ensureChatStorageMode,
+      ensureInternalNotesColumn,
+      ensureCurrentAppointmentColumn,
+      ensureTicketDetailsColumn,
+      setTicketsDirect,
+    ]
   );
 
   useEffect(() => {
@@ -1012,13 +1063,15 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         return createdTicket;
       }
 
-      const [storageMode, internalNotesAvailable, currentAppointmentAvailable] = await Promise.all([
+      const [storageMode, internalNotesAvailable, currentAppointmentAvailable, detailsColumn] = await Promise.all([
         ensureChatStorageMode(),
         ensureInternalNotesColumn(),
         ensureCurrentAppointmentColumn(),
+        ensureTicketDetailsColumn(),
       ]);
+      const { metadata, details, ...restTicketData } = ticketData as any;
       const newTicketDataBase: Record<string, any> = {
-        ...ticketData,
+        ...restTicketData,
         user_id: creatorUserId,
         assigned_ai_level: DEFAULT_AI_LEVEL,
         assigned_agent_id: undefined,
@@ -1027,6 +1080,9 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         created_at: now.toISOString(),
         updated_at: now.toISOString(),
       };
+      if (detailsColumn) {
+        newTicketDataBase[detailsColumn] = metadata ?? details ?? null;
+      }
       if (internalNotesAvailable) {
         newTicketDataBase.internal_notes = [];
       }
