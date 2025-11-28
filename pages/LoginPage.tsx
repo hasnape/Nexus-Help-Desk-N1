@@ -220,7 +220,6 @@ const LoginPage: React.FC = () => {
                 <li>{t("auth.roles.user")}</li>
                 <li>{t("auth.roles.agent")}</li>
                 <li>{t("auth.roles.manager")}</li>
-                <li>{t("auth.roles.superAdmin")}</li>
               </ul>
               <p className="mt-2 text-[11px] text-slate-500">
                 {t("login.laiTurnerNote")}

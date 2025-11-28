@@ -305,7 +305,6 @@
   "auth.roles.user": "مستخدم: عميل نهائي ينشئ التذاكر ويتابع الردود.",
   "auth.roles.agent": "وكيل: يعالج التذاكر، يساعد المستخدمين ويرفع الحالات عند الحاجة.",
   "auth.roles.manager": "مدير: يدير مساحة الشركة، الوكلاء، الخطط وإعدادات الذكاء الاصطناعي.",
-  "auth.roles.superAdmin": "مشرف عام: دور داخلي في Nexus Support Hub لمالكي المنصة ولوحة التحكم الرئيسية.",
   "login.laiTurnerNote": "إذا كنت ضمن فريق Lai & Turner (محامٍ، مساعد، دعم)، سجّل الدخول هنا ببريدك المهني واسم الشركة \"Lai & Turner\".",
   "managerDashboard.allTicketsTitle": "جميع تذاكر النظام",
   "managerDashboard.assignButton": "تعيين",

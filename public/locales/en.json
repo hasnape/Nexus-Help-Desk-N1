@@ -367,7 +367,6 @@
   "auth.roles.user": "User: end-customer who creates tickets and follows replies.",
   "auth.roles.agent": "Agent: handles tickets, assists users, and escalates when needed.",
   "auth.roles.manager": "Manager: administers the company workspace, agents, plans, and AI settings.",
-  "auth.roles.superAdmin": "Super Admin: internal Nexus Support Hub role for platform owners and the Master Dashboard.",
   "login.laiTurnerNote": "If you are part of the Lai & Turner team (attorney, assistant, support), log in here with your professional email and the company name “Lai & Turner”.",
   "managerDashboard.allTicketsTitle": "All System Tickets",
   "managerDashboard.assignButton": "Assign",

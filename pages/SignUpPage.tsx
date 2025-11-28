@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 import { useApp } from "../App";
-import { Button, Input } from "../components/FormElements";
+import { Button, Input, Select } from "../components/FormElements";
 import type { Locale } from "../contexts/LanguageContext";
 import { UserRole } from "../types";
 import { getPricingPlans, type PricingPlan, type PricingPlanKey } from "@/utils/pricing";
