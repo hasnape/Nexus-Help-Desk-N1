@@ -645,6 +645,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
             "workstation_id",
             "company_id",
             "company_name",
+            "metadata",
             "created_at",
             "updated_at",
           ];

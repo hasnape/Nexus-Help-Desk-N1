@@ -69,7 +69,11 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
         const intake = findLatestLaiTurnerIntake(ticket);
         const practiceArea = getPracticeAreaDisplay(intake, ticket.category || undefined) || ticket.category || "Other";
         const urgency = getUrgencyDisplay(intake);
-        return { ticket, intake, practiceArea, urgency };
+        const details = (ticket as any).metadata || {};
+        const tasks = Array.isArray(details.tasks) ? details.tasks : [];
+        const openTasksCount = tasks.filter((task: any) => !task?.done).length;
+        const caseStage: string | undefined = details.case_stage;
+        return { ticket, intake, practiceArea, urgency, openTasksCount, caseStage };
       }),
     [laiTickets]
   );
@@ -410,11 +414,11 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
           </section>
 
           <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
-            <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Tickets</p>
-                <h3 className="text-xl font-bold text-slate-900">Review, reply, schedule, or delete matters for Lai & Turner.</h3>
-                <p className="text-sm text-slate-700">Latest 20 tickets with intake context.</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Dossiers Lai &amp; Turner</p>
+                <h3 className="text-xl font-bold text-slate-900">Files overview</h3>
+                <p className="text-sm text-slate-700">Review stage, urgency and tasks before diving into the file.</p>
               </div>
               {(ticketActionLoading || appointmentsLoading) && (
                 <span className="text-xs font-semibold text-slate-500">Working…</span>
@@ -435,110 +439,85 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
                 No tickets yet. New intakes will appear here for quick actions.
               </div>
             ) : (
-              <div className="divide-y divide-slate-100">
-                {recentTickets.map(({ ticket, practiceArea, intake, urgency }) => {
+              <div className="space-y-3">
+                {recentTickets.map(({ ticket, practiceArea, intake, urgency, openTasksCount, caseStage }) => {
                   const clientName = getDisplayNameFromIntake(intake);
                   const latestAppointment = (appointmentsByTicket[ticket.id] || [])[0];
+                  const remainingLabel = openTasksCount > 0 ? `${openTasksCount} tâches à traiter` : 'Checklist à jour';
                   return (
-                    <div key={ticket.id} className="grid gap-2 py-4 md:grid-cols-12 md:items-center">
-                      <div className="md:col-span-5">
-                        <p className="text-sm font-semibold text-slate-900">{ticket.title}</p>
-                        <p className="text-xs text-slate-600">
-                          {practiceArea} • Created {new Date(ticket.created_at).toLocaleString()}
-                        </p>
-                        {clientName && <p className="text-xs text-slate-500">Client: {clientName}</p>}
-                        {latestAppointment && (
-                          <div className="mt-2 rounded-lg border border-indigo-100 bg-indigo-50 px-3 py-2 text-[11px] text-slate-700">
-                            <p className="font-semibold text-indigo-800">Appointment</p>
-                            <p>
-                              {new Date(latestAppointment.starts_at).toLocaleString()} • {latestAppointment.status}
-                            </p>
-                            {latestAppointment.notes && <p className="text-slate-600">Notes: {latestAppointment.notes}</p>}
-                            {user?.role === "manager" && (
-                              <div className="mt-2 flex flex-wrap gap-2">
-                                <Button
-                                  size="xs"
-                                  variant="secondary"
-                                  onClick={() =>
-                                    updateAppointmentStatus(latestAppointment.id, ticket.id, "confirmed")
-                                  }
-                                  disabled={ticketActionLoading === ticket.id}
-                                >
-                                  Confirm
-                                </Button>
-                                <Button
-                                  size="xs"
-                                  variant="danger"
-                                  onClick={() =>
-                                    updateAppointmentStatus(latestAppointment.id, ticket.id, "cancelled")
-                                  }
-                                  disabled={ticketActionLoading === ticket.id}
-                                >
-                                  Cancel
-                                </Button>
-                              </div>
+                    <div key={ticket.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4 shadow-sm">
+                      <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                        <div className="space-y-1">
+                          <p className="text-sm font-semibold text-slate-900">{ticket.title}</p>
+                          <p className="text-xs text-slate-600">
+                            {practiceArea} • {new Date(ticket.created_at).toLocaleString()}
+                          </p>
+                          {clientName && <p className="text-xs text-slate-500">Client: {clientName}</p>}
+                          <div className="flex flex-wrap gap-2 text-[11px] font-semibold">
+                            <span className="rounded-full bg-slate-200 px-2 py-1 text-slate-800">Status: {ticket.status}</span>
+                            {urgency && <span className="rounded-full bg-amber-100 px-2 py-1 text-amber-800">Urgence: {urgency}</span>}
+                            {caseStage && (
+                              <span className="rounded-full bg-indigo-100 px-2 py-1 text-indigo-800">Étape: {caseStage}</span>
                             )}
+                            <span className={`rounded-full px-2 py-1 ${openTasksCount > 0 ? 'bg-orange-100 text-orange-800' : 'bg-emerald-100 text-emerald-800'}`}>
+                              {remainingLabel}
+                            </span>
                           </div>
-                        )}
-                      </div>
-                      <div className="md:col-span-3 flex flex-wrap items-center gap-2 text-xs text-slate-700">
-                        <span className="rounded-full bg-slate-100 px-2 py-1 font-semibold text-slate-800">Status: {ticket.status}</span>
-                        {urgency && (
-                          <span className="rounded-full bg-amber-100 px-2 py-1 font-semibold text-amber-800">Urgency: {urgency}</span>
-                        )}
-                      </div>
-                      <div className="md:col-span-4 flex flex-wrap gap-2">
-                        <Button size="sm" onClick={() => handleViewTicket(ticket.id)}>
-                          View / Reply
-                        </Button>
-                        <Button size="sm" variant="secondary" onClick={() => handleScheduleAppointment(ticket)}>
-                          Schedule
-                        </Button>
-                        {user?.role === "manager" && (
-                          <Button
-                            size="sm"
-                            variant="danger"
-                            onClick={() => handleDeleteTicket(ticket)}
-                            isLoading={ticketActionLoading === ticket.id}
-                          >
-                            Delete
+                          {latestAppointment && (
+                            <p className="text-xs text-slate-600">Prochain RDV: {new Date(latestAppointment.starts_at).toLocaleString()} ({latestAppointment.status})</p>
+                          )}
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          <Button size="sm" onClick={() => handleViewTicket(ticket.id)}>
+                            View / Reply
                           </Button>
-                        )}
+                          <Button size="sm" variant="secondary" onClick={() => handleScheduleAppointment(ticket)}>
+                            Planifier un RDV
+                          </Button>
+                          {user?.role === "manager" && (
+                            <Button
+                              size="sm"
+                              variant="danger"
+                              onClick={() => handleDeleteTicket(ticket)}
+                              isLoading={ticketActionLoading === ticket.id}
+                            >
+                              Delete
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   );
                 })}
               </div>
             )}
-
-            {scheduleTarget && (
-              <div className="rounded-2xl border border-indigo-100 bg-indigo-50 p-4 space-y-3">
-                <div className="flex items-center justify-between">
+          </section>
+          {scheduleTarget && (
+            <div className="fixed inset-0 z-30 flex items-center justify-center bg-slate-900/40 px-4">
+              <div className="w-full max-w-lg rounded-2xl border border-indigo-100 bg-white p-6 shadow-xl space-y-3">
+                <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Schedule appointment</p>
-                    <h4 className="text-sm font-bold text-slate-900">{scheduleTarget.title}</h4>
+                    <p className="text-sm font-semibold text-slate-900">Planifier un rendez-vous</p>
+                    <p className="text-xs text-slate-600">Envoyé au client et aux équipes internes.</p>
                   </div>
-                  <Button size="sm" variant="secondary" onClick={() => setScheduleTarget(null)}>
-                    Cancel
-                  </Button>
+                  <button className="text-xs text-slate-500 underline" onClick={() => setScheduleTarget(null)}>
+                    Fermer
+                  </button>
                 </div>
-                <div className="grid gap-3 md:grid-cols-3">
+                <div className="grid gap-3">
                   <Input
                     label="Date & time"
                     type="datetime-local"
                     value={scheduleForm.datetime}
                     onChange={(e) => setScheduleForm((prev) => ({ ...prev, datetime: e.target.value }))}
                   />
-                  <div className="md:col-span-2">
-                    <Textarea
-                      label="Notes"
-                      placeholder="Context or agenda for this appointment"
-                      value={scheduleForm.notes}
-                      onChange={(e) => setScheduleForm((prev) => ({ ...prev, notes: e.target.value }))}
-                    />
-                  </div>
+                  <Input
+                    label="Notes"
+                    value={scheduleForm.notes}
+                    onChange={(e) => setScheduleForm((prev) => ({ ...prev, notes: e.target.value }))}
+                  />
                 </div>
-                <div className="flex gap-2">
+                <div className="flex items-center justify-between gap-3">
                   <Button
                     size="sm"
                     onClick={submitSchedule}
@@ -550,8 +529,8 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
                   <p className="text-xs text-slate-600">Client will see this in their secure thread.</p>
                 </div>
               </div>
-            )}
-          </section>
+            </div>
+          )}
 
           <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {["Family Law", "Personal Injury", "Criminal Defense", "Business Immigration"].map((area) => (
