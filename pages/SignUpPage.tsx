@@ -599,7 +599,7 @@ const SignUpPage: React.FC = () => {
                 <h1 className="text-3xl font-bold text-textPrimary">
                   {t("signup.title")}
                 </h1>
-                <p className="text-textSecondary mt-1">
+                <p className="text-textSecondary mt-1 max-w-3xl mx-auto">
                   {t("signup.subtitle")}
                 </p>
               </div>
@@ -764,6 +764,10 @@ const SignUpPage: React.FC = () => {
                       </p>
                       <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
                         <span>{t("signup.roleSection.roleLabelManager")}</span>
+                      </div>
+                      <div className="mt-3 rounded-md border border-indigo-200 bg-indigo-50 px-3 py-2 text-[13px] text-indigo-900">
+                        <p className="font-semibold">{t("signup.managerInfo.line1")}</p>
+                        <p className="mt-1">{t("signup.managerInfo.line2")}</p>
                       </div>
                     </div>
 
