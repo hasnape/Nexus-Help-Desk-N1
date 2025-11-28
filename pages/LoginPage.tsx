@@ -193,16 +193,6 @@ const LoginPage: React.FC = () => {
               required
               disabled={isLoading}
             />
-            <div className="text-right -mt-3">
-              <button
-                type="button"
-                onClick={handlePasswordReset}
-                className="text-sm font-medium text-primary hover:text-primary-dark disabled:opacity-50"
-                disabled={isLoading || isSendingReset}
-              >
-                {t("login.forgotPasswordLink", { default: "Mot de passe oublié ?" })}
-              </button>
-            </div>
             <Input
               label={t("login.companyNameLabel", { default: "Company Name" })}
               id="companyName"
@@ -217,6 +207,32 @@ const LoginPage: React.FC = () => {
               required
               disabled={isLoading}
             />
+            <div
+              className={`rounded-md border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-700 ${
+                language === "ar" ? "text-right" : ""
+              }`}
+              dir={language === "ar" ? "rtl" : "ltr"}
+            >
+              <p className="font-semibold text-slate-800 mb-1">
+                {t("auth.roles.title")}
+              </p>
+              <ul className={`space-y-1 ${language === "ar" ? "pr-3" : "pl-4"} list-disc`}>
+                <li>{t("auth.roles.user")}</li>
+                <li>{t("auth.roles.agent")}</li>
+                <li>{t("auth.roles.manager")}</li>
+                <li>{t("auth.roles.superAdmin")}</li>
+              </ul>
+            </div>
+            <div className={`${language === "ar" ? "text-left" : "text-right"} -mt-1`}>
+              <button
+                type="button"
+                onClick={handlePasswordReset}
+                className="text-sm font-medium text-primary hover:text-primary-dark disabled:opacity-50"
+                disabled={isLoading || isSendingReset}
+              >
+                {t("login.forgotPasswordLink", { default: "Mot de passe oublié ?" })}
+              </button>
+            </div>
             <Button
               type="submit"
               className="w-full !mt-8"

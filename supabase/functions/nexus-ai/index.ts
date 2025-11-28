@@ -258,6 +258,9 @@ async function handleFollowUp(body: FollowUpPayload) {
     language,
   );
 
+  // Lai & Turner guardrail: when companyId matches "fe6b59cd-8f99-47ed-be5a-2a0931872070"
+  // or companyName contains "lai & turner", the matcher MUST return the
+  // "lai-turner-intake" profile defined in laiTurnerProfile.ts (multi-tenant rules remain intact).
   const profile = pickAiProfile({
     companyId: companyIdFromContext,
     companyName: companyNameFromContext,
