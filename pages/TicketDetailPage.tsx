@@ -54,6 +54,25 @@ const CalendarIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     </svg>
 );
 
+type CaseStage = 'INTAKE' | 'DOCUMENTS' | 'FILED' | 'HEARING' | 'NEGOTIATION' | 'CLOSED';
+
+type CaseTask = {
+  id: string;
+  label: string;
+  done: boolean;
+  created_by?: string;
+  created_at?: string;
+  due_at?: string | null;
+};
+
+type InternalNoteEntry = {
+  id: string;
+  author_id?: string;
+  author_name?: string;
+  body: string;
+  created_at: string;
+};
+
 
 const TicketDetailPage: React.FC = () => {
   const { ticketId } = useParams<{ ticketId: string }>();
@@ -135,6 +154,16 @@ const TicketDetailPage: React.FC = () => {
   const [appointmentError, setAppointmentError] = useState<string | null>(null);
   const [appointmentSuccess, setAppointmentSuccess] = useState<string | null>(null);
 
+  const [ticketDetails, setTicketDetails] = useState<Record<string, any>>({});
+  const [caseStage, setCaseStage] = useState<CaseStage>('INTAKE');
+  const [isSavingStage, setIsSavingStage] = useState(false);
+  const [tasks, setTasks] = useState<CaseTask[]>([]);
+  const [newTaskLabel, setNewTaskLabel] = useState('');
+  const [isSavingTasks, setIsSavingTasks] = useState(false);
+  const [internalNotes, setInternalNotes] = useState<InternalNoteEntry[]>([]);
+  const [newInternalNote, setNewInternalNote] = useState('');
+  const [activeTab, setActiveTab] = useState<'client' | 'internal'>('client');
+
 
   const {
     isListening: isListeningChatInput,
@@ -162,7 +191,7 @@ const TicketDetailPage: React.FC = () => {
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [ticket?.chat_history]);
-  
+
   useEffect(() => {
     if (!ticket && ticketId) {
         const redirectTimer = setTimeout(() => {
@@ -174,6 +203,17 @@ const TicketDetailPage: React.FC = () => {
         return () => clearTimeout(redirectTimer);
     }
   }, [ticket, ticketId, getTicketById, navigate]);
+
+  useEffect(() => {
+    if (!ticket) return;
+    const detailsSource = (ticket as any).details ?? ticket.metadata ?? {};
+    const safeDetails = detailsSource && typeof detailsSource === 'object' ? detailsSource : {};
+    setTicketDetails(safeDetails);
+    const stageValue = (safeDetails.case_stage as CaseStage) || 'INTAKE';
+    setCaseStage(stageValue);
+    setTasks(Array.isArray(safeDetails.tasks) ? safeDetails.tasks : []);
+    setInternalNotes(Array.isArray(safeDetails.internal_notes) ? safeDetails.internal_notes : []);
+  }, [ticket]);
 
   const loadAppointments = useCallback(async () => {
     if (!ticket) return;
@@ -199,6 +239,27 @@ const TicketDetailPage: React.FC = () => {
   useEffect(() => {
     loadAppointments();
   }, [loadAppointments]);
+
+
+  const persistCaseDetails = useCallback(
+    async (nextDetails: Record<string, any>) => {
+      if (!ticket) return false;
+      const columnKey = 'metadata';
+      const { error } = await supabase
+        .from('tickets')
+        .update({ [columnKey]: nextDetails })
+        .eq('id', ticket.id);
+
+      if (error) {
+        console.error('Error updating ticket details', error);
+        return false;
+      }
+
+      setTicketDetails(nextDetails);
+      return true;
+    },
+    [ticket]
+  );
 
 
   const handleSpeakMessage = (text: string, messageId: string, isAiMsg: boolean) => {
@@ -250,6 +311,67 @@ const TicketDetailPage: React.FC = () => {
   const handleChatMicButtonClick = () => {
     if (isSpeaking) { cancelSpeech(); setSpeakingMessageId(null); }
     if (isListeningChatInput) stopChatListening(); else startChatListening();
+  };
+
+  const handleStageChange = async (nextStage: CaseStage) => {
+    if (!isAgentOrManager) return;
+    setIsSavingStage(true);
+    const nextDetails = { ...ticketDetails, case_stage: nextStage };
+    await persistCaseDetails(nextDetails);
+    setCaseStage(nextStage);
+    setIsSavingStage(false);
+  };
+
+  const handleAddTask = async () => {
+    if (!isAgentOrManager || !newTaskLabel.trim()) return;
+    setIsSavingTasks(true);
+    const newTask: CaseTask = {
+      id: crypto.randomUUID(),
+      label: newTaskLabel.trim(),
+      done: false,
+      created_by: user.id,
+      created_at: new Date().toISOString(),
+    };
+    const nextTasks = [...tasks, newTask];
+    const nextDetails = { ...ticketDetails, tasks: nextTasks };
+    const ok = await persistCaseDetails(nextDetails);
+    if (ok) {
+      setTasks(nextTasks);
+      setNewTaskLabel('');
+    }
+    setIsSavingTasks(false);
+  };
+
+  const handleToggleTask = async (taskId: string) => {
+    if (!isAgentOrManager) return;
+    setIsSavingTasks(true);
+    const nextTasks = tasks.map((task) =>
+      task.id === taskId ? { ...task, done: !task.done } : task
+    );
+    const nextDetails = { ...ticketDetails, tasks: nextTasks };
+    const ok = await persistCaseDetails(nextDetails);
+    if (ok) {
+      setTasks(nextTasks);
+    }
+    setIsSavingTasks(false);
+  };
+
+  const handleAddInternalNote = async () => {
+    if (!isAgentOrManager || !newInternalNote.trim()) return;
+    const nextNote: InternalNoteEntry = {
+      id: crypto.randomUUID(),
+      author_id: user.id,
+      author_name: user.full_name,
+      body: newInternalNote.trim(),
+      created_at: new Date().toISOString(),
+    };
+    const nextNotes = [...internalNotes, nextNote];
+    const nextDetails = { ...ticketDetails, internal_notes: nextNotes };
+    const ok = await persistCaseDetails(nextDetails);
+    if (ok) {
+      setInternalNotes(nextNotes);
+      setNewInternalNote('');
+    }
   };
 
   const handleRepeatLastMessage = () => {
@@ -390,6 +512,15 @@ const TicketDetailPage: React.FC = () => {
     value: statusKey,
     label: t(`ticketStatus.${statusKey}`)
   }));
+
+  const stageOptions: { value: CaseStage; label: string }[] = [
+    { value: 'INTAKE', label: 'Intake / Première analyse' },
+    { value: 'DOCUMENTS', label: 'Collecte de pièces' },
+    { value: 'FILED', label: 'Dossier déposé' },
+    { value: 'HEARING', label: 'Audience programmée' },
+    { value: 'NEGOTIATION', label: 'Négociation / Transaction' },
+    { value: 'CLOSED', label: 'Dossier clôturé' },
+  ];
 
   const renderAppointmentSection = () => {
     if (!isAgentOrManager) return null;
@@ -618,38 +749,181 @@ const TicketDetailPage: React.FC = () => {
         <div className="mt-3">
             <Select label={t('ticketDetail.updateStatusLabel')} id="ticketStatus" value={ticket.status} onChange={(e) => handleStatusChange(e.target.value)} options={statusOptions} className="bg-slate-600 border-slate-500 text-white focus:ring-sky-500 focus:border-sky-500 text-sm py-1.5 w-full sm:w-auto"/>
         </div>
-        <div className="mt-4 flex flex-wrap gap-2 items-center justify-start border-t border-slate-600 pt-3">
+      <div className="mt-4 flex flex-wrap gap-2 items-center justify-start border-t border-slate-600 pt-3">
             {browserSupportsTextToSpeech && (<Button onClick={toggleAutoRead} variant="outline" size="sm" className="!py-1.5 !px-2 !border-slate-400 hover:!bg-slate-600 focus:!ring-sky-500" title={isAutoReadEnabled ? t('ticketDetail.autoRead.disableTitle') : t('ticketDetail.autoRead.enableTitle')}>{isAutoReadEnabled ? <SpeakerLoudIcon className="w-5 h-5 text-sky-300 me-1.5" /> : <SpeakerOffIcon className="w-5 h-5 text-slate-300 me-1.5" />}{isAutoReadEnabled ? t('ticketDetail.autoRead.disableButton') : t('ticketDetail.autoRead.enableButton')}</Button>)}
             <Button onClick={handleRepeatLastMessage} variant="outline" size="sm" className="!py-1.5 !px-2 !border-slate-400 hover:!bg-slate-600 focus:!ring-sky-500" disabled={!canRepeatLastMessage || isSpeaking || isListeningChatInput} title={t('ticketDetail.repeatButton.title')}><ReplayIcon className="w-5 h-5 text-slate-300 me-1.5" />{t('ticketDetail.repeatButton.label')}</Button>
             {user.role === UserRole.USER && <Button onClick={handleContactAgent} variant="outline" size="sm" className="!py-1.5 !px-2 !border-amber-400 !text-amber-300 hover:!bg-amber-600 hover:!text-white focus:!ring-amber-500" disabled={isTicketClosedOrResolved} title={t('ticketDetail.contactAgent.buttonTitle')}><HeadsetIcon className="w-5 h-5 me-1.5" />{t('ticketDetail.contactAgent.buttonLabel')}</Button>}
         </div>
       </header>
-      
-      {renderAppointmentSection()}
 
-      <div className="flex-grow p-4 sm:p-6 overflow-y-auto bg-slate-50 border-b border-t border-slate-200">
-        {speechErrorText && <p className="text-xs text-red-600 text-center mb-2">{speechErrorText}</p>}
-        {ttsErrorText && <p className="text-xs text-red-600 text-center mb-2">{t('ticketDetail.speechPlaybackError', {error: ttsErrorText})}</p>}
-        {ticket.chat_history.map(msg => (<ChatMessageComponent key={msg.id} message={msg} userFullName={user.full_name} onSpeak={(text, id) => handleSpeakMessage(text, id, msg.sender === 'ai')} onCancelSpeak={handleCancelCurrentlySpeaking} isCurrentlySpeaking={speakingMessageId === msg.id && isSpeaking} browserSupportsTextToSpeech={browserSupportsTextToSpeech}/>))}
-        {isLoadingAi && user.role === UserRole.USER && ticket.chat_history.length > 0 && ticket.chat_history[ticket.chat_history.length -1].sender === 'user' && !ticket.assigned_agent_id && (
-          <div className="flex justify-start mb-4">
-             <div className="max-w-xl lg:max-w-2xl px-4 py-3 rounded-xl shadow bg-slate-200 text-slate-800 rounded-bl-none">
-                <div className="flex items-center"><p className="font-semibold text-sm me-2">{t('ticketDetail.aiAssistantName')}</p><LoadingSpinner size="sm" className="!p-0" /></div>
-             </div>
+      <div className="space-y-4 p-4 sm:p-6 bg-white border-b border-slate-200">
+        <div className="rounded-2xl border border-slate-200 p-4 bg-slate-50">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Étape du dossier</p>
+              <p className="text-sm text-slate-700">Suivez l'avancement du pipeline.</p>
+            </div>
+            {isAgentOrManager ? (
+              <select
+                value={caseStage}
+                onChange={(e) => handleStageChange(e.target.value as CaseStage)}
+                disabled={isSavingStage}
+                className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm disabled:opacity-60"
+              >
+                {stageOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-800">
+                {stageOptions.find((s) => s.value === caseStage)?.label || 'Intake / Première analyse'}
+              </span>
+            )}
           </div>
-        )}
-        <div ref={chatEndRef} />
+        </div>
+
+        <div className="rounded-2xl border border-slate-200 p-4 bg-slate-50 space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Checklist du dossier</p>
+              <p className="text-sm text-slate-700">Assurez-vous que toutes les tâches sont suivies.</p>
+            </div>
+            {!isAgentOrManager && (
+              <span className="text-[11px] text-slate-500">Lecture seule</span>
+            )}
+          </div>
+          {tasks.length === 0 ? (
+            <p className="text-sm text-slate-600">Aucune tâche pour ce dossier.</p>
+          ) : (
+            <div className="space-y-2">
+              {tasks.map((task) => (
+                <label key={task.id} className="flex items-center gap-2 text-sm text-slate-800">
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 rounded border-slate-300"
+                    checked={task.done}
+                    onChange={() => handleToggleTask(task.id)}
+                    disabled={!isAgentOrManager || isSavingTasks}
+                  />
+                  <span className={task.done ? 'line-through text-slate-500' : ''}>{task.label}</span>
+                </label>
+              ))}
+            </div>
+          )}
+          {isAgentOrManager && (
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <input
+                type="text"
+                value={newTaskLabel}
+                onChange={(e) => setNewTaskLabel(e.target.value)}
+                placeholder="Ajouter une tâche"
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                disabled={isSavingTasks}
+              />
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handleAddTask}
+                disabled={!newTaskLabel.trim() || isSavingTasks}
+                isLoading={isSavingTasks}
+              >
+                Ajouter
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
 
-      <form onSubmit={handleSendMessage} className="p-4 sm:p-6 bg-slate-100 border-t border-slate-200">
-        <div className="flex items-start space-x-2 sm:space-x-3 rtl:space-x-reverse">
-          <Textarea value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder={isListeningChatInput ? t('ticketDetail.chatPlaceholder.listening') : (isTicketClosedOrResolved ? t('ticketDetail.chatPlaceholder.closed') : t('ticketDetail.chatPlaceholder.default'))} rows={2} className="flex-grow resize-none focus:ring-2" disabled={isLoadingAi || isListeningChatInput || isTicketClosedOrResolved} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(e as any); }}}/>
-          {browserSupportsSpeechRecognition && (<Button type="button" onClick={handleChatMicButtonClick} variant={isListeningChatInput ? 'danger' : 'secondary'} size="md" className="h-full px-3 sm:px-4 self-stretch !py-0" aria-label={isListeningChatInput ? t('ticketDetail.micButton.stopRecording') : t('ticketDetail.micButton.startRecording')} disabled={isLoadingAi || isTicketClosedOrResolved} title={isListeningChatInput ? t('ticketDetail.micButton.stopRecording') : t('ticketDetail.micButton.startRecording')}><MicrophoneIcon className={`w-5 h-5`} /></Button>)}
-          <Button type="submit" variant="primary" size="md" className="h-full px-3 sm:px-5 self-stretch !py-0" disabled={(user.role === UserRole.USER && isLoadingAi && !!newMessage.trim() && !ticket.assigned_agent_id) || !newMessage.trim() || isListeningChatInput || isTicketClosedOrResolved} isLoading={user.role === UserRole.USER && isLoadingAi && !!newMessage.trim() && !ticket.assigned_agent_id}><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5"><path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" /></svg><span className="ms-1 sm:ms-2 hidden sm:inline">{ (user.role === UserRole.USER && isLoadingAi && !!newMessage.trim() && !ticket.assigned_agent_id) ? t('ticketDetail.sendMessageButtonLoading') : t('ticketDetail.sendMessageButton')}</span></Button>
+      {renderAppointmentSection()}
+
+      <div className="border-b border-slate-200 bg-white px-4 sm:px-6">
+        <div className="flex gap-2">
+          <button
+            className={`rounded-full px-4 py-2 text-sm font-semibold ${activeTab === 'client' ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-700'}`}
+            onClick={() => setActiveTab('client')}
+            type="button"
+          >
+            Messages client
+          </button>
+          {isAgentOrManager && (
+            <button
+              className={`rounded-full px-4 py-2 text-sm font-semibold ${activeTab === 'internal' ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-700'}`}
+              onClick={() => setActiveTab('internal')}
+              type="button"
+            >
+              Notes internes
+            </button>
+          )}
         </div>
-        {isTicketClosedOrResolved && <p className="text-xs text-center text-orange-600 mt-2">{t('ticketDetail.ticketClosedWarning', {status: t(`ticketStatus.${ticket.status}`)})}</p>}
-        {!browserSupportsSpeechRecognition && !speechErrorText && (<p className="text-xs text-slate-500 mt-2 text-center">{t('ticketDetail.voiceInputForChatNotSupported')}</p>)}
-      </form>
+      </div>
+
+      {activeTab === 'client' ? (
+        <>
+          <div className="flex-grow p-4 sm:p-6 overflow-y-auto bg-slate-50 border-b border-t border-slate-200">
+            {speechErrorText && <p className="text-xs text-red-600 text-center mb-2">{speechErrorText}</p>}
+            {ttsErrorText && <p className="text-xs text-red-600 text-center mb-2">{t('ticketDetail.speechPlaybackError', {error: ttsErrorText})}</p>}
+            {ticket.chat_history.map(msg => (<ChatMessageComponent key={msg.id} message={msg} userFullName={user.full_name} onSpeak={(text, id) => handleSpeakMessage(text, id, msg.sender === 'ai')} onCancelSpeak={handleCancelCurrentlySpeaking} isCurrentlySpeaking={speakingMessageId === msg.id && isSpeaking} browserSupportsTextToSpeech={browserSupportsTextToSpeech}/>))}
+            {isLoadingAi && user.role === UserRole.USER && ticket.chat_history.length > 0 && ticket.chat_history[ticket.chat_history.length -1].sender === 'user' && !ticket.assigned_agent_id && (
+              <div className="flex justify-start mb-4">
+                 <div className="max-w-xl lg:max-w-2xl px-4 py-3 rounded-xl shadow bg-slate-200 text-slate-800 rounded-bl-none">
+                    <div className="flex items-center"><p className="font-semibold text-sm me-2">{t('ticketDetail.aiAssistantName')}</p><LoadingSpinner size="sm" className="!p-0" /></div>
+                 </div>
+              </div>
+            )}
+            <div ref={chatEndRef} />
+          </div>
+
+          <form onSubmit={handleSendMessage} className="p-4 sm:p-6 bg-slate-100 border-t border-slate-200">
+            <div className="flex items-start space-x-2 sm:space-x-3 rtl:space-x-reverse">
+              <Textarea value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder={isListeningChatInput ? t('ticketDetail.chatPlaceholder.listening') : (isTicketClosedOrResolved ? t('ticketDetail.chatPlaceholder.closed') : t('ticketDetail.chatPlaceholder.default'))} rows={2} className="flex-grow resize-none focus:ring-2" disabled={isLoadingAi || isListeningChatInput || isTicketClosedOrResolved} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(e as any); }}}/>
+              {browserSupportsSpeechRecognition && (<Button type="button" onClick={handleChatMicButtonClick} variant={isListeningChatInput ? 'danger' : 'secondary'} size="md" className="h-full px-3 sm:px-4 self-stretch !py-0" aria-label={isListeningChatInput ? t('ticketDetail.micButton.stopRecording') : t('ticketDetail.micButton.startRecording')} disabled={isLoadingAi || isTicketClosedOrResolved} title={isListeningChatInput ? t('ticketDetail.micButton.stopRecording') : t('ticketDetail.micButton.startRecording')}><MicrophoneIcon className={`w-5 h-5`} /></Button>)}
+              <Button type="submit" variant="primary" size="md" className="h-full px-3 sm:px-5 self-stretch !py-0" disabled={(user.role === UserRole.USER && isLoadingAi && !!newMessage.trim() && !ticket.assigned_agent_id) || !newMessage.trim() || isListeningChatInput || isTicketClosedOrResolved} isLoading={user.role === UserRole.USER && isLoadingAi && !!newMessage.trim() && !ticket.assigned_agent_id}><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5"><path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" /></svg><span className="ms-1 sm:ms-2 hidden sm:inline">{ (user.role === UserRole.USER && isLoadingAi && !!newMessage.trim() && !ticket.assigned_agent_id) ? t('ticketDetail.sendMessageButtonLoading') : t('ticketDetail.sendMessageButton')}</span></Button>
+            </div>
+            {isTicketClosedOrResolved && <p className="text-xs text-center text-orange-600 mt-2">{t('ticketDetail.ticketClosedWarning', {status: t(`ticketStatus.${ticket.status}`)})}</p>}
+            {!browserSupportsSpeechRecognition && !speechErrorText && (<p className="text-xs text-slate-500 mt-2 text-center">{t('ticketDetail.voiceInputForChatNotSupported')}</p>)}
+          </form>
+        </>
+      ) : (
+        <div className="flex-grow overflow-y-auto bg-slate-50 border-b border-t border-slate-200 p-4 sm:p-6 space-y-4">
+          <div className="space-y-2">
+            {internalNotes.length === 0 ? (
+              <p className="text-sm text-slate-600">Aucune note interne pour ce dossier.</p>
+            ) : (
+              internalNotes.map((note) => (
+                <div key={note.id} className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+                  <div className="flex items-center justify-between text-xs text-slate-600">
+                    <span className="font-semibold text-slate-800">{note.author_name || 'Équipe'}</span>
+                    <span>{new Date(note.created_at).toLocaleString()}</span>
+                  </div>
+                  <p className="mt-2 text-sm text-slate-800 whitespace-pre-wrap">{note.body}</p>
+                </div>
+              ))
+            )}
+          </div>
+
+          {isAgentOrManager && (
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 space-y-2">
+              <p className="text-sm font-semibold text-slate-900">Ajouter une note interne</p>
+              <Textarea
+                value={newInternalNote}
+                onChange={(e) => setNewInternalNote(e.target.value)}
+                rows={3}
+                placeholder="Partager une note pour l'équipe"
+              />
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handleAddInternalNote}
+                disabled={!newInternalNote.trim()}
+              >
+                Ajouter la note
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
       </div>
     </>
   );
