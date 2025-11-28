@@ -154,6 +154,7 @@ export interface Ticket {
   category: string;
   priority: TicketPriority;
   status: TicketStatus;
+  metadata?: Record<string, any> | null;
   company_id?: string | null;
   company_name?: string | null;
   created_at: Date;

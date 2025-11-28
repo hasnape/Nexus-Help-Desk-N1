@@ -24,12 +24,11 @@ const practiceAreaCopy: Record<string, string> = {
   "Business Immigration": "Get a checklist for visas, entity setup, and cross-border hiring with clear timelines.",
 };
 
-const NEXUS_AI_ENDPOINT = import.meta.env.VITE_NEXUS_AI_ENDPOINT || "/api/edge-proxy/nexus-ai";
-
 const LaiTurnerClientPortalPage: React.FC = () => {
   const { user, tickets, addTicket } = useApp();
   const navigate = useNavigate();
   const [companyName, setCompanyName] = useState<string | null>(null);
+  const [companyId, setCompanyId] = useState<string | null>(null);
   const [companyLoading, setCompanyLoading] = useState(false);
   const [creationError, setCreationError] = useState<string | null>(null);
   const [creationMessage, setCreationMessage] = useState<string | null>(null);
@@ -55,11 +54,12 @@ const LaiTurnerClientPortalPage: React.FC = () => {
       setCompanyLoading(true);
       const { data, error } = await supabase
         .from("companies")
-        .select("name")
+        .select("id,name")
         .eq("id", user.company_id)
         .single();
       if (!active) return;
       setCompanyName(!error ? data?.name ?? null : null);
+      setCompanyId(!error ? data?.id ?? null : null);
       setCompanyLoading(false);
     };
 
@@ -119,11 +119,8 @@ const LaiTurnerClientPortalPage: React.FC = () => {
 
     setIsSubmittingIntake(true);
     try {
-      const aiResponse = await fetch(NEXUS_AI_ENDPOINT, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
+      const { data: aiJson, error: aiError } = await supabase.functions.invoke("nexus-ai", {
+        body: {
           context: "lai_turner_intake",
           mode: "intake_first_contact",
           full_name: intakeForm.fullName,
@@ -134,19 +131,11 @@ const LaiTurnerClientPortalPage: React.FC = () => {
           urgency_raw: intakeForm.urgency,
           story: intakeForm.story,
           objective: intakeForm.objective,
-        }),
+        },
       });
 
-      let aiJson: any = null;
-      try {
-        aiJson = await aiResponse.json();
-      } catch (err) {
-        console.error("Failed parsing AI intake response", err);
-      }
-      if (!aiResponse.ok) {
-        throw new Error(
-          (aiJson && (aiJson.error || aiJson.message)) || "Nexus AI intake unavailable. Please try again."
-        );
+      if (aiError) {
+        throw new Error(aiError.message || "Nexus AI intake unavailable. Please try again.");
       }
 
       const intakePayload: IntakePayload | null = (aiJson?.intakeData as IntakePayload) ?? null;
@@ -193,6 +182,22 @@ const LaiTurnerClientPortalPage: React.FC = () => {
         },
       };
 
+      const intakeMetadata = {
+        context: "lai_turner_intake",
+        company_id: companyId,
+        intake_payload: aiJson?.intakeData ?? null,
+        submitted_form: {
+          full_name: intakeForm.fullName,
+          email: intakeForm.email,
+          phone: intakeForm.phone || null,
+          preferred_language: intakeForm.preferredLanguage,
+          practice_area: intakeForm.practiceArea,
+          urgency: intakeForm.urgency,
+          story: intakeForm.story,
+          objective: intakeForm.objective,
+        },
+      };
+
       const newTicket = await addTicket(
         {
           title,
@@ -202,6 +207,7 @@ const LaiTurnerClientPortalPage: React.FC = () => {
           status: TicketStatus.OPEN,
           chat_history: [],
           internal_notes: [],
+          metadata: intakeMetadata,
         },
         [initialMessage, aiCaptureMessage]
       );
