@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 import { useApp } from "../App";
-import { Button, Input, Select } from "../components/FormElements";
+import { Button, Input } from "../components/FormElements";
 import type { Locale } from "../contexts/LanguageContext";
 import { UserRole } from "../types";
 import { getPricingPlans, type PricingPlan, type PricingPlanKey } from "@/utils/pricing";
@@ -381,7 +381,7 @@ const SignUpPage: React.FC = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [selectedLanguage, setSelectedLanguage] = useState<Locale>(() => (i18n.language as Locale) || "en");
-  const [role, setRole] = useState<UserRole>(UserRole.USER);
+  const [role] = useState<UserRole>(UserRole.MANAGER);
   const [secretCode, setSecretCode] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [error, setError] = useState("");
@@ -408,12 +408,6 @@ const SignUpPage: React.FC = () => {
     { value: "ar", label: "العربية" },
   ];
 
-  const roleOptions = [
-    { value: UserRole.USER, label: t("userRole.user") },
-    { value: UserRole.AGENT, label: t("userRole.agent") },
-    { value: UserRole.MANAGER, label: t("userRole.manager") },
-  ];
-
   useEffect(() => {
     const nextLanguage = (i18n.language as Locale) || "en";
     setSelectedLanguage(nextLanguage);
@@ -427,17 +421,6 @@ const SignUpPage: React.FC = () => {
       i18n.off("languageChanged", handleLanguageChanged);
     };
   }, [i18n]);
-
-  const handleRoleChange = (nextRole: UserRole) => {
-    setRole(nextRole);
-
-    if (nextRole === UserRole.MANAGER) {
-      setSelectedPlan((current) => current);
-    } else {
-      setSelectedPlan(null);
-      setSecretCode("");
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -772,18 +755,17 @@ const SignUpPage: React.FC = () => {
                       required
                       disabled={isLoading}
                     />
-
-                    <Select
-                      label={t("signup.roleLabel")}
-                      id="role"
-                      value={role}
-                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                        handleRoleChange(e.target.value as UserRole)
-                      }
-                      options={roleOptions}
-                      required
-                      disabled={isLoading}
-                    />
+                    <div className="rounded-md border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
+                      <p className="font-semibold text-slate-800">
+                        {t("signup.roleSection.title")}
+                      </p>
+                      <p className="mt-1">
+                        {t("signup.roleSection.description")}
+                      </p>
+                      <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                        <span>{t("signup.roleSection.roleLabelManager")}</span>
+                      </div>
+                    </div>
 
                     {role === UserRole.MANAGER && selectedPlan !== "freemium" && (
                       <div>

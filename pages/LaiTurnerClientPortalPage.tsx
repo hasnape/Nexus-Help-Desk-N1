@@ -103,7 +103,9 @@ const LaiTurnerClientPortalPage: React.FC = () => {
       "Family Law": "I need guidance on custody, support, or visitation and want to know my next deadlines.",
       "Personal Injury": "I was injured and need help with medical bills, insurance timelines, and negotiations.",
       "Criminal Defense": "I’m facing criminal charges and need a defense strategy plus a timeline for hearings.",
-      "Business Immigration": "I’m hiring or relocating talent across borders and need a visa and entity plan.",
+      // Example user message for business immigration testing (do NOT auto-send):
+      // "I live in LA, I am from France, I don’t have a work visa and I want to work. What can I do?"
+      "Business Immigration": "Business immigration intake – please share your situation so we can tailor the intake.",
     };
 
     const initialMessage: ChatMessage = {
