@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useApp } from '../App';
 import ChatMessageComponent from '../components/ChatMessage';
@@ -11,6 +11,7 @@ import useSpeechRecognition from '../hooks/useSpeechRecognition';
 import useTextToSpeech from '../hooks/useTextToSpeech';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useTranslation } from 'react-i18next';
+import { supabase } from '../services/supabaseClient';
 
 
 
@@ -66,8 +67,6 @@ const TicketDetailPage: React.FC = () => {
     updateTicketStatus,
     isAutoReadEnabled,
     toggleAutoRead,
-    proposeOrUpdateAppointment,
-    deleteAppointment,
     restoreAppointment
   } = useApp();
   const { t, getBCP47Locale, language } = useLanguage();
@@ -127,11 +126,14 @@ const TicketDetailPage: React.FC = () => {
   }, []);
 
   // Appointment proposal state for agents/managers
-  const [apptDate, setApptDate] = useState('');
-  const [apptTime, setApptTime] = useState('');
-  const [apptLocationMethod, setApptLocationMethod] = useState('');
+  const [apptDateTime, setApptDateTime] = useState('');
+  const [apptNotes, setApptNotes] = useState('');
   const [showAppointmentForm, setShowAppointmentForm] = useState(false);
   const [isDeletingAppointment, setIsDeletingAppointment] = useState(false);
+  const [appointments, setAppointments] = useState<any[]>([]);
+  const [appointmentsLoading, setAppointmentsLoading] = useState(false);
+  const [appointmentError, setAppointmentError] = useState<string | null>(null);
+  const [appointmentSuccess, setAppointmentSuccess] = useState<string | null>(null);
 
 
   const {
@@ -167,11 +169,36 @@ const TicketDetailPage: React.FC = () => {
             if (!getTicketById(ticketId)) {
                 navigate('/dashboard', { replace: true });
             }
-        }, 1500); 
+        }, 1500);
 
         return () => clearTimeout(redirectTimer);
     }
   }, [ticket, ticketId, getTicketById, navigate]);
+
+  const loadAppointments = useCallback(async () => {
+    if (!ticket) return;
+    setAppointmentsLoading(true);
+    setAppointmentError(null);
+    const { data, error } = await supabase
+      .from('appointment_details')
+      .select('*')
+      .eq('ticket_id', ticket.id)
+      .order('starts_at', { ascending: false });
+
+    if (error) {
+      console.error('Error loading appointments for ticket', error);
+      setAppointmentError('Unable to load appointments for this ticket.');
+      setAppointmentsLoading(false);
+      return;
+    }
+
+    setAppointments(data || []);
+    setAppointmentsLoading(false);
+  }, [ticket]);
+
+  useEffect(() => {
+    loadAppointments();
+  }, [loadAppointments]);
 
 
   const handleSpeakMessage = (text: string, messageId: string, isAiMsg: boolean) => {
@@ -246,52 +273,100 @@ const TicketDetailPage: React.FC = () => {
     alert(t('ticketDetail.contactAgent.alertMessage'));
   };
 
-  const handleDeleteAppointment = async () => {
-    const currentAppointmentId = ticket.current_appointment?.id;
+  const handleDeleteAppointment = async (appointmentId?: string) => {
+    const currentAppointmentId = appointmentId || appointments[0]?.id;
     if (!currentAppointmentId) {
       return;
     }
     setIsDeletingAppointment(true);
-    await deleteAppointment(currentAppointmentId, ticket.id);
+    const { error } = await supabase.from('appointment_details').delete().eq('id', currentAppointmentId);
+    if (error) {
+      console.error('Error deleting appointment', error);
+      setAppointmentError('Unable to delete this appointment.');
+    } else {
+      setAppointments((prev) => prev.filter((appt) => appt.id !== currentAppointmentId));
+      setAppointmentSuccess('Appointment deleted.');
+    }
     setIsDeletingAppointment(false);
   };
 
   const handleProposeAppointment = async () => {
-    if (!apptDate || !apptTime || !apptLocationMethod || !ticketId || (user.role !== UserRole.AGENT && user.role !== UserRole.MANAGER)) return;
-    const currentStatusForProposal: AppointmentDetails['status'] = 'pending_user_approval';
-    await proposeOrUpdateAppointment(
-        ticketId,
-        { 
-            proposedDate: apptDate, 
-            proposedTime: apptTime, 
-            locationOrMethod: apptLocationMethod,
-            status: currentStatusForProposal
-        },
-        'agent',
-        currentStatusForProposal
-    );
+    if (!ticket || !ticketId || (user.role !== UserRole.AGENT && user.role !== UserRole.MANAGER)) return;
+    if (!apptDateTime) return;
+    setAppointmentError(null);
+    setAppointmentSuccess(null);
+
+    const startsAt = new Date(apptDateTime);
+    if (Number.isNaN(startsAt.getTime())) {
+      setAppointmentError('Please provide a valid date and time.');
+      return;
+    }
+
+    const status = user.role === UserRole.MANAGER ? 'confirmed' : 'proposed';
+    const payload = {
+      ticket_id: ticket.id,
+      company_id: user.company_id,
+      created_by: user.id,
+      proposed_by: user.role,
+      status,
+      starts_at: startsAt.toISOString(),
+      ends_at: startsAt.toISOString(),
+      notes: apptNotes || null,
+    };
+
+    const { data, error } = await supabase
+      .from('appointment_details')
+      .insert([payload])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error proposing appointment', error);
+      setAppointmentError('Unable to propose this appointment right now.');
+      return;
+    }
+
+    setAppointments((prev) => [data, ...prev].sort(
+      (a, b) => new Date(b.starts_at).getTime() - new Date(a.starts_at).getTime()
+    ));
+    setAppointmentSuccess('Appointment proposal saved.');
     setShowAppointmentForm(false);
-    setApptDate(''); setApptTime(''); setApptLocationMethod('');
+    setApptDateTime('');
+    setApptNotes('');
+  };
+
+  const updateAppointmentStatus = async (appointmentId: string, status: string) => {
+    setAppointmentError(null);
+    const { data, error } = await supabase
+      .from('appointment_details')
+      .update({ status })
+      .eq('id', appointmentId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error updating appointment status', error);
+      setAppointmentError('Unable to update appointment right now.');
+      return null;
+    }
+
+    setAppointments((prev) => prev.map((appt) => (appt.id === appointmentId ? data : appt)).sort(
+      (a, b) => new Date(b.starts_at).getTime() - new Date(a.starts_at).getTime()
+    ));
+    setAppointmentSuccess('Appointment updated.');
+    return data;
   };
 
   const handleUserAcceptAppointment = () => {
-    if (!ticket.current_appointment || !ticketId) return;
-    proposeOrUpdateAppointment(
-        ticketId,
-        { ...ticket.current_appointment },
-        'user',
-        'confirmed'
-    );
+    const appointmentId = appointments[0]?.id;
+    if (!appointmentId) return;
+    updateAppointmentStatus(appointmentId, 'confirmed');
   };
 
   const handleUserSuggestDifferentAppointment = () => {
-     if (!ticket.current_appointment || !ticketId) return;
-      proposeOrUpdateAppointment(
-        ticketId,
-        { ...ticket.current_appointment },
-        'user',
-        'rescheduled_by_user'
-    );
+    const appointmentId = appointments[0]?.id;
+    if (!appointmentId) return;
+    updateAppointmentStatus(appointmentId, 'cancelled');
   };
 
 
@@ -317,154 +392,95 @@ const TicketDetailPage: React.FC = () => {
   }));
 
   const renderAppointmentSection = () => {
-    if (isAgentOrManager) {
-      return (
-        <div className="my-4 p-3 bg-slate-100 rounded-md border border-slate-300">
-          {!showAppointmentForm && (
-            <Button onClick={() => setShowAppointmentForm(true)} variant="secondary" size="sm">
-              <CalendarIcon className="w-4 h-4 me-2" />
-              {t('appointment.proposeButtonLabel')}
-            </Button>
-          )}
-          {showAppointmentForm && (
-            <div className="space-y-3">
-              <h4 className="text-sm font-semibold text-slate-700">{t('appointment.form.title')}</h4>
-              <Input type="date" label={t('appointment.form.dateLabel')} value={apptDate} onChange={e => setApptDate(e.target.value)} />
-              <Input type="time" label={t('appointment.form.timeLabel')} value={apptTime} onChange={e => setApptTime(e.target.value)} />
-              <Input type="text" label={t('appointment.form.locationMethodLabel')} placeholder={t('appointment.form.locationMethodPlaceholder')} value={apptLocationMethod} onChange={e => setApptLocationMethod(e.target.value)} />
-              <div className="flex gap-2">
-                <Button onClick={handleProposeAppointment} variant="primary" size="sm" disabled={!apptDate || !apptTime || !apptLocationMethod}>
-                  {t('appointment.form.submitButton')}
-                </Button>
-                <Button onClick={() => setShowAppointmentForm(false)} variant="outline" size="sm">
-                  {t('appointment.form.cancelButton')}
-                </Button>
-              </div>
-            </div>
-          )}
-        </div>
-      );
-    } else if (user.role === UserRole.USER && ticket.current_appointment && ticket.current_appointment.status === 'pending_user_approval') {
-      const { proposedDate, proposedTime, locationOrMethod } = ticket.current_appointment;
-      const formattedDate = new Date(proposedDate).toLocaleDateString(language, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'});
-      return (
-        <div className="my-4 p-3 bg-blue-50 border border-blue-300 rounded-md text-sm">
-          <p className="font-semibold text-blue-700">{t('appointment.user.pendingApprovalTitle')}</p>
-          <p>{t('appointment.user.proposalDetails', { date: formattedDate, time: proposedTime, location: locationOrMethod })}</p>
-          <div className="mt-3 flex gap-2">
-            <Button onClick={handleUserAcceptAppointment} variant="primary" size="sm">{t('appointment.user.acceptButton')}</Button>
-            <Button onClick={handleUserSuggestDifferentAppointment} variant="outline" size="sm">{t('appointment.user.suggestDifferentButton')}</Button>
-          </div>
-        </div>
-      );
-    }
-    return null;
-  };
-  
-  const renderCurrentAppointmentInfo = () => {
-    if (!ticket.current_appointment) return null;
-    const { proposedDate, proposedTime, locationOrMethod, status } = ticket.current_appointment;
-    const formattedDate = new Date(proposedDate).toLocaleDateString(language, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'});
-    let statusText = t(`appointment.status.${status}`, { default: status });
-    let statusColor = 'text-slate-700';
-    if (status === 'confirmed') statusColor = 'text-green-700 font-semibold';
-    else if (status.includes('pending')) statusColor = 'text-yellow-700';
-    else if (status.includes('cancelled')) statusColor = 'text-red-700';
+    if (!isAgentOrManager) return null;
 
     return (
-      <div className={`mt-2 p-2 rounded text-xs border ${status === 'confirmed' ? 'bg-green-50 border-green-300' : 'bg-slate-50 border-slate-300'}`}>
-          <span className="font-semibold">{t('appointment.currentStatusLabel')}: </span>
-          <span className={statusColor}>{statusText}</span>
-          <br />
-          {t('appointment.detailsLabel', { date: formattedDate, time: proposedTime, location: locationOrMethod })}
-          {isAgentOrManager && (
-            <div className="mt-2 flex flex-wrap items-center gap-2">
-              <button
-                ref={deleteBtnRef}
-                type="button"
-                className="px-3 py-1 rounded-md border text-sm disabled:opacity-50 shrink-0"
-                disabled={deleting}
-                aria-label={i18nT('appointment.delete_button')}
-                title={i18nT('appointment.delete_button')}
-                onClick={async () => {
-                  if (deleting) return;
-                  const appt = ticket.current_appointment;
-                  if (!appt?.id) return;
-
-                  const confirmed = window.confirm(
-                    `${i18nT('appointment.confirm_title')}\n\n${i18nT('appointment.confirm_body')}`
-                  );
-                  if (!confirmed) return;
-
-                  const normalizedTime = appt.proposedTime?.length === 5
-                    ? `${appt.proposedTime}:00`
-                    : appt.proposedTime;
-
-                  const appointmentSnapshot: AppointmentDetail = {
-                    id: appt.id,
-                    ticket_id: ticket.id,
-                    proposed_by: appt.proposedBy,
-                    status: appt.status,
-                    proposed_date: appt.proposedDate,
-                    proposed_time: normalizedTime,
-                    location_or_method: appt.locationOrMethod,
-                  };
-
-                  setUndoAppt(appointmentSnapshot);
-
-                  setDeleting(true);
-                  const ok = await deleteAppointment(appt.id, ticket.id);
-                  setDeleting(false);
-
-                  if (ok) {
-                    setShowUndo(true);
-                    window.setTimeout(() => {
-                      undoBtnRef.current?.focus();
-                    }, 0);
-                    if (undoTimerRef.current) {
-                      window.clearTimeout(undoTimerRef.current);
-                    }
-                    undoTimerRef.current = window.setTimeout(() => {
-                      setShowUndo(false);
-                      setUndoAppt(null);
-                      undoTimerRef.current = null;
-                    }, 10000);
-                  } else {
-                    if (undoTimerRef.current) {
-                      window.clearTimeout(undoTimerRef.current);
-                      undoTimerRef.current = null;
-                    }
-                    setShowUndo(false);
-                    setUndoAppt(null);
-                  }
-
-                  const successMsg =
-                    i18nT('appointment.delete_success', { defaultValue: 'Rendez-vous supprimé.' }) ||
-                    'Rendez-vous supprimé.';
-                  const errorMsg =
-                    i18nT('appointment.delete_error', {
-                      defaultValue: 'Échec de la suppression du rendez-vous.',
-                    }) || 'Échec de la suppression du rendez-vous.';
-
-                  if (ok) {
-                    setFeedback({ type: 'success', msg: successMsg });
-                  } else {
-                    setFeedback({ type: 'error', msg: errorMsg });
-                    window.setTimeout(() => {
-                      deleteBtnRef.current?.focus();
-                    }, 300);
-                  }
-                }}
-              >
-                {deleting
-                  ? i18nT('common.deleting')
-                  : i18nT('appointment.delete_button')}
-              </button>
+      <div className="my-4 rounded-md border border-slate-300 bg-slate-100 p-3 space-y-3">
+        {appointmentError && (
+          <div className="rounded-md bg-red-100 px-3 py-2 text-xs text-red-700">{appointmentError}</div>
+        )}
+        {appointmentSuccess && (
+          <div className="rounded-md bg-emerald-100 px-3 py-2 text-xs text-emerald-700">{appointmentSuccess}</div>
+        )}
+        {!showAppointmentForm ? (
+          <Button onClick={() => setShowAppointmentForm(true)} variant="secondary" size="sm">
+            <CalendarIcon className="me-2 h-4 w-4" />
+            {t('appointment.proposeButtonLabel')}
+          </Button>
+        ) : (
+          <div className="space-y-3">
+            <h4 className="text-sm font-semibold text-slate-700">{t('appointment.form.title')}</h4>
+            <Input
+              type="datetime-local"
+              label={t('appointment.form.dateLabel')}
+              value={apptDateTime}
+              onChange={(e) => setApptDateTime(e.target.value)}
+            />
+            <Textarea
+              label={t('appointment.form.locationMethodLabel')}
+              placeholder={t('appointment.form.locationMethodPlaceholder')}
+              value={apptNotes}
+              onChange={(e) => setApptNotes(e.target.value)}
+            />
+            <div className="flex gap-2">
+              <Button onClick={handleProposeAppointment} variant="primary" size="sm" disabled={!apptDateTime}>
+                {t('appointment.form.submitButton')}
+              </Button>
+              <Button onClick={() => setShowAppointmentForm(false)} variant="outline" size="sm">
+                {t('appointment.form.cancelButton')}
+              </Button>
             </div>
+          </div>
+        )}
+
+        <div className="space-y-2">
+          {appointmentsLoading ? (
+            <LoadingSpinner text={t('appointment.loading', { defaultValue: 'Chargement…' })} />
+          ) : appointments.length === 0 ? (
+            <p className="text-xs text-slate-600">No appointments yet for this ticket.</p>
+          ) : (
+            appointments.map((appt) => (
+              <div key={appt.id} className="rounded-md border border-slate-200 bg-white p-3 text-xs text-slate-700">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <p className="font-semibold text-slate-900">
+                      {new Date(appt.starts_at).toLocaleString()} – {appt.status}
+                    </p>
+                    {appt.notes && <p className="text-slate-600">{appt.notes}</p>}
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {user.role === UserRole.MANAGER && (
+                      <>
+                        <Button size="xs" variant="secondary" onClick={() => updateAppointmentStatus(appt.id, 'confirmed')}>
+                          {i18nT('appointment.actions.confirm', { defaultValue: 'Confirmer' }) || 'Confirmer'}
+                        </Button>
+                        <Button size="xs" variant="danger" onClick={() => updateAppointmentStatus(appt.id, 'cancelled')}>
+                          {i18nT('appointment.actions.cancel', { defaultValue: 'Annuler' }) || 'Annuler'}
+                        </Button>
+                      </>
+                    )}
+                    {user.role === UserRole.AGENT && appt.proposed_by === 'agent' && appt.status === 'proposed' && (
+                      <Button
+                        size="xs"
+                        variant="danger"
+                        onClick={() => handleDeleteAppointment(appt.id)}
+                        disabled={isDeletingAppointment}
+                      >
+                        {i18nT('appointment.delete_button')}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))
           )}
         </div>
-      );
+      </div>
+    );
   };
+  
+  const renderCurrentAppointmentInfo = () => null;
+
 
 
   return (

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Button, Input } from "../components/FormElements";
 import { useApp } from "../App";
 import { supabase } from "../services/supabaseClient";
@@ -14,7 +14,7 @@ import {
 import { useNavigate } from "react-router-dom";
 
 const LaiTurnerManagerDashboardPage: React.FC = () => {
-  const { user, tickets, getAllUsers, deleteTicket, proposeOrUpdateAppointment } = useApp();
+  const { user, tickets, getAllUsers, deleteTicket } = useApp();
   const navigate = useNavigate();
   const [companyName, setCompanyName] = useState<string | null>(null);
   const [companyLoading, setCompanyLoading] = useState(false);
@@ -24,10 +24,11 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
   const [ticketActionLoading, setTicketActionLoading] = useState<string | null>(null);
   const [scheduleTarget, setScheduleTarget] = useState<Ticket | null>(null);
   const [scheduleForm, setScheduleForm] = useState({
-    date: "",
-    time: "",
-    location: "",
+    datetime: "",
+    notes: "",
   });
+  const [appointmentsByTicket, setAppointmentsByTicket] = useState<Record<string, any[]>>({});
+  const [appointmentsLoading, setAppointmentsLoading] = useState(false);
   const allUsers: User[] = getAllUsers();
 
   useEffect(() => {
@@ -136,6 +137,7 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
   };
 
   const handleDeleteTicket = async (ticket: Ticket) => {
+    if (user?.role !== "manager") return;
     if (!window.confirm("Delete this ticket for Lai & Turner?")) return;
     setTicketActionError(null);
     setTicketActionMessage(null);
@@ -154,43 +156,139 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
   const handleScheduleAppointment = (ticket: Ticket) => {
     setScheduleTarget(ticket);
     setScheduleForm({
-      date: ticket.current_appointment?.proposedDate || "",
-      time: ticket.current_appointment?.proposedTime || "",
-      location: ticket.current_appointment?.locationOrMethod || "",
+      datetime: "",
+      notes: "",
     });
     setTicketActionError(null);
     setTicketActionMessage(null);
   };
 
   const submitSchedule = async () => {
-    if (!scheduleTarget) return;
-    if (!scheduleForm.date || !scheduleForm.time || !scheduleForm.location) {
-      setTicketActionError("Please provide date, time, and location/method to schedule.");
+    if (!scheduleTarget || !user) return;
+    if (!scheduleForm.datetime) {
+      setTicketActionError("Please choose a date and time for the appointment.");
       return;
     }
+
+    const startsAt = new Date(scheduleForm.datetime);
+    if (Number.isNaN(startsAt.getTime())) {
+      setTicketActionError("Invalid date or time provided.");
+      return;
+    }
+
     setTicketActionLoading(scheduleTarget.id);
     setTicketActionError(null);
     setTicketActionMessage(null);
     try {
-      await proposeOrUpdateAppointment(
-        scheduleTarget.id,
-        {
-          proposedDate: scheduleForm.date,
-          proposedTime: scheduleForm.time,
-          locationOrMethod: scheduleForm.location,
-        },
-        "agent",
-        "pending_user_approval"
-      );
-      setTicketActionMessage("Appointment proposal sent to the client.");
+      const appointmentPayload = {
+        ticket_id: scheduleTarget.id,
+        company_id: user.company_id,
+        created_by: user.id,
+        proposed_by: "manager",
+        status: "confirmed",
+        starts_at: startsAt.toISOString(),
+        ends_at: startsAt.toISOString(),
+        notes: scheduleForm.notes || null,
+      };
+
+      const { data, error } = await supabase
+        .from("appointment_details")
+        .insert([appointmentPayload])
+        .select()
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      setAppointmentsByTicket((prev) => {
+        const next = { ...prev };
+        const existing = next[scheduleTarget.id] || [];
+        next[scheduleTarget.id] = [data, ...existing].sort(
+          (a, b) => new Date(b.starts_at).getTime() - new Date(a.starts_at).getTime()
+        );
+        return next;
+      });
+
+      setTicketActionMessage("Appointment scheduled successfully.");
       setScheduleTarget(null);
-      setScheduleForm({ date: "", time: "", location: "" });
+      setScheduleForm({ datetime: "", notes: "" });
     } catch (err) {
       console.error("Schedule appointment error", err);
       setTicketActionError("Unable to schedule this appointment right now.");
     } finally {
       setTicketActionLoading(null);
     }
+  };
+
+  const loadAppointments = useCallback(async () => {
+    if (!user) return;
+    const ids = recentTickets.map(({ ticket }) => ticket.id);
+    if (ids.length === 0) {
+      setAppointmentsByTicket({});
+      return;
+    }
+    setAppointmentsLoading(true);
+    const { data, error } = await supabase
+      .from("appointment_details")
+      .select("*")
+      .in("ticket_id", ids)
+      .order("starts_at", { ascending: false });
+
+    if (error) {
+      console.error("Error loading Lai & Turner appointments", error);
+      setAppointmentsLoading(false);
+      return;
+    }
+
+    const grouped = (data || []).reduce<Record<string, any[]>>((acc, appt) => {
+      if (!acc[appt.ticket_id]) acc[appt.ticket_id] = [];
+      acc[appt.ticket_id].push(appt);
+      return acc;
+    }, {});
+
+    Object.keys(grouped).forEach((key) => {
+      grouped[key] = grouped[key].sort(
+        (a, b) => new Date(b.starts_at).getTime() - new Date(a.starts_at).getTime()
+      );
+    });
+
+    setAppointmentsByTicket(grouped);
+    setAppointmentsLoading(false);
+  }, [recentTickets, user]);
+
+  useEffect(() => {
+    loadAppointments();
+  }, [loadAppointments]);
+
+  const updateAppointmentStatus = async (appointmentId: string, ticketId: string, status: string) => {
+    setTicketActionLoading(ticketId);
+    setTicketActionError(null);
+    setTicketActionMessage(null);
+    const { data, error } = await supabase
+      .from("appointment_details")
+      .update({ status })
+      .eq("id", appointmentId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error updating appointment status", error);
+      setTicketActionError("Unable to update appointment status.");
+      setTicketActionLoading(null);
+      return;
+    }
+
+    setAppointmentsByTicket((prev) => {
+      const next = { ...prev };
+      const updated = (next[ticketId] || []).map((appt) => (appt.id === appointmentId ? data : appt));
+      next[ticketId] = updated.sort(
+        (a, b) => new Date(b.starts_at).getTime() - new Date(a.starts_at).getTime()
+      );
+      return next;
+    });
+    setTicketActionMessage("Appointment updated.");
+    setTicketActionLoading(null);
   };
 
   if (!user) {
@@ -318,7 +416,7 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
                 <h3 className="text-xl font-bold text-slate-900">Review, reply, schedule, or delete matters for Lai & Turner.</h3>
                 <p className="text-sm text-slate-700">Latest 20 tickets with intake context.</p>
               </div>
-              {ticketActionLoading && (
+              {(ticketActionLoading || appointmentsLoading) && (
                 <span className="text-xs font-semibold text-slate-500">Working…</span>
               )}
             </div>
@@ -340,6 +438,7 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
               <div className="divide-y divide-slate-100">
                 {recentTickets.map(({ ticket, practiceArea, intake, urgency }) => {
                   const clientName = getDisplayNameFromIntake(intake);
+                  const latestAppointment = (appointmentsByTicket[ticket.id] || [])[0];
                   return (
                     <div key={ticket.id} className="grid gap-2 py-4 md:grid-cols-12 md:items-center">
                       <div className="md:col-span-5">
@@ -348,6 +447,39 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
                           {practiceArea} • Created {new Date(ticket.created_at).toLocaleString()}
                         </p>
                         {clientName && <p className="text-xs text-slate-500">Client: {clientName}</p>}
+                        {latestAppointment && (
+                          <div className="mt-2 rounded-lg border border-indigo-100 bg-indigo-50 px-3 py-2 text-[11px] text-slate-700">
+                            <p className="font-semibold text-indigo-800">Appointment</p>
+                            <p>
+                              {new Date(latestAppointment.starts_at).toLocaleString()} • {latestAppointment.status}
+                            </p>
+                            {latestAppointment.notes && <p className="text-slate-600">Notes: {latestAppointment.notes}</p>}
+                            {user?.role === "manager" && (
+                              <div className="mt-2 flex flex-wrap gap-2">
+                                <Button
+                                  size="xs"
+                                  variant="secondary"
+                                  onClick={() =>
+                                    updateAppointmentStatus(latestAppointment.id, ticket.id, "confirmed")
+                                  }
+                                  disabled={ticketActionLoading === ticket.id}
+                                >
+                                  Confirm
+                                </Button>
+                                <Button
+                                  size="xs"
+                                  variant="danger"
+                                  onClick={() =>
+                                    updateAppointmentStatus(latestAppointment.id, ticket.id, "cancelled")
+                                  }
+                                  disabled={ticketActionLoading === ticket.id}
+                                >
+                                  Cancel
+                                </Button>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                       <div className="md:col-span-3 flex flex-wrap items-center gap-2 text-xs text-slate-700">
                         <span className="rounded-full bg-slate-100 px-2 py-1 font-semibold text-slate-800">Status: {ticket.status}</span>
@@ -362,14 +494,16 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
                         <Button size="sm" variant="secondary" onClick={() => handleScheduleAppointment(ticket)}>
                           Schedule
                         </Button>
-                        <Button
-                          size="sm"
-                          variant="danger"
-                          onClick={() => handleDeleteTicket(ticket)}
-                          isLoading={ticketActionLoading === ticket.id}
-                        >
-                          Delete
-                        </Button>
+                        {user?.role === "manager" && (
+                          <Button
+                            size="sm"
+                            variant="danger"
+                            onClick={() => handleDeleteTicket(ticket)}
+                            isLoading={ticketActionLoading === ticket.id}
+                          >
+                            Delete
+                          </Button>
+                        )}
                       </div>
                     </div>
                   );
@@ -390,23 +524,19 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
                 </div>
                 <div className="grid gap-3 md:grid-cols-3">
                   <Input
-                    label="Date"
-                    type="date"
-                    value={scheduleForm.date}
-                    onChange={(e) => setScheduleForm((prev) => ({ ...prev, date: e.target.value }))}
+                    label="Date & time"
+                    type="datetime-local"
+                    value={scheduleForm.datetime}
+                    onChange={(e) => setScheduleForm((prev) => ({ ...prev, datetime: e.target.value }))}
                   />
-                  <Input
-                    label="Time"
-                    type="time"
-                    value={scheduleForm.time}
-                    onChange={(e) => setScheduleForm((prev) => ({ ...prev, time: e.target.value }))}
-                  />
-                  <Input
-                    label="Location or method"
-                    placeholder="Zoom, phone, office..."
-                    value={scheduleForm.location}
-                    onChange={(e) => setScheduleForm((prev) => ({ ...prev, location: e.target.value }))}
-                  />
+                  <div className="md:col-span-2">
+                    <Textarea
+                      label="Notes"
+                      placeholder="Context or agenda for this appointment"
+                      value={scheduleForm.notes}
+                      onChange={(e) => setScheduleForm((prev) => ({ ...prev, notes: e.target.value }))}
+                    />
+                  </div>
                 </div>
                 <div className="flex gap-2">
                   <Button
