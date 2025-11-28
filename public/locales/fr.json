@@ -385,7 +385,6 @@
   "auth.roles.user": "Utilisateur : client final qui crée des tickets et suit les réponses.",
   "auth.roles.agent": "Agent : traite les tickets, assiste les utilisateurs et escalade si besoin.",
   "auth.roles.manager": "Manager : administre l'espace entreprise, les agents, les plans et les réglages IA.",
-  "auth.roles.superAdmin": "Super Admin : rôle interne à Nexus Support Hub pour les propriétaires de plateforme et le Master Dashboard.",
   "login.laiTurnerNote": "Si vous faites partie de l'équipe Lai & Turner (avocat, assistant, support), connectez-vous ici avec votre email professionnel et le nom d'entreprise “Lai & Turner”.",
   "mainSubtitle": "Promotional Document | October 26, 2025",
   "mainTitle": "Nexus Support Hub – The Revolution in Intelligent Customer Support",
