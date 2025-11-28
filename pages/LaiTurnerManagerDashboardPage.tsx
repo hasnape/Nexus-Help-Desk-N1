@@ -1,17 +1,33 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Button } from "../components/FormElements";
+import { Button, Input } from "../components/FormElements";
 import { useApp } from "../App";
 import { supabase } from "../services/supabaseClient";
 import { Ticket, TicketStatus, User } from "../types";
 import ManagerInviteUserCard from "../components/ManagerInviteUserCard";
 import PlanLimits from "../components/PlanLimits";
-import { findLatestLaiTurnerIntake, getPracticeAreaDisplay, getUrgencyDisplay } from "@/utils/laiTurnerIntake";
+import {
+  findLatestLaiTurnerIntake,
+  getDisplayNameFromIntake,
+  getPracticeAreaDisplay,
+  getUrgencyDisplay,
+} from "@/utils/laiTurnerIntake";
+import { useNavigate } from "react-router-dom";
 
 const LaiTurnerManagerDashboardPage: React.FC = () => {
-  const { user, tickets, getAllUsers } = useApp();
+  const { user, tickets, getAllUsers, deleteTicket, proposeOrUpdateAppointment } = useApp();
+  const navigate = useNavigate();
   const [companyName, setCompanyName] = useState<string | null>(null);
   const [companyLoading, setCompanyLoading] = useState(false);
   const [selectedPracticeArea, setSelectedPracticeArea] = useState<string | null>(null);
+  const [ticketActionMessage, setTicketActionMessage] = useState<string | null>(null);
+  const [ticketActionError, setTicketActionError] = useState<string | null>(null);
+  const [ticketActionLoading, setTicketActionLoading] = useState<string | null>(null);
+  const [scheduleTarget, setScheduleTarget] = useState<Ticket | null>(null);
+  const [scheduleForm, setScheduleForm] = useState({
+    date: "",
+    time: "",
+    location: "",
+  });
   const allUsers: User[] = getAllUsers();
 
   useEffect(() => {
@@ -55,6 +71,14 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
         return { ticket, intake, practiceArea, urgency };
       }),
     [laiTickets]
+  );
+
+  const recentTickets = useMemo(
+    () =>
+      [...laiTicketsWithIntake]
+        .sort((a, b) => new Date(b.ticket.created_at).getTime() - new Date(a.ticket.created_at).getTime())
+        .slice(0, 20),
+    [laiTicketsWithIntake]
   );
 
   const focusTickets = useMemo(
@@ -106,6 +130,68 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
     .slice(0, 5);
 
   const isLaiTurner = (companyName || "").toLowerCase() === "lai & turner";
+
+  const handleViewTicket = (ticketId: string) => {
+    navigate(`/ticket/${ticketId}`);
+  };
+
+  const handleDeleteTicket = async (ticket: Ticket) => {
+    if (!window.confirm("Delete this ticket for Lai & Turner?")) return;
+    setTicketActionError(null);
+    setTicketActionMessage(null);
+    setTicketActionLoading(ticket.id);
+    try {
+      await deleteTicket(ticket.id);
+      setTicketActionMessage("Ticket deleted successfully.");
+    } catch (err) {
+      console.error("Delete ticket error", err);
+      setTicketActionError("Unable to delete this ticket. Please try again.");
+    } finally {
+      setTicketActionLoading(null);
+    }
+  };
+
+  const handleScheduleAppointment = (ticket: Ticket) => {
+    setScheduleTarget(ticket);
+    setScheduleForm({
+      date: ticket.current_appointment?.proposedDate || "",
+      time: ticket.current_appointment?.proposedTime || "",
+      location: ticket.current_appointment?.locationOrMethod || "",
+    });
+    setTicketActionError(null);
+    setTicketActionMessage(null);
+  };
+
+  const submitSchedule = async () => {
+    if (!scheduleTarget) return;
+    if (!scheduleForm.date || !scheduleForm.time || !scheduleForm.location) {
+      setTicketActionError("Please provide date, time, and location/method to schedule.");
+      return;
+    }
+    setTicketActionLoading(scheduleTarget.id);
+    setTicketActionError(null);
+    setTicketActionMessage(null);
+    try {
+      await proposeOrUpdateAppointment(
+        scheduleTarget.id,
+        {
+          proposedDate: scheduleForm.date,
+          proposedTime: scheduleForm.time,
+          locationOrMethod: scheduleForm.location,
+        },
+        "agent",
+        "pending_user_approval"
+      );
+      setTicketActionMessage("Appointment proposal sent to the client.");
+      setScheduleTarget(null);
+      setScheduleForm({ date: "", time: "", location: "" });
+    } catch (err) {
+      console.error("Schedule appointment error", err);
+      setTicketActionError("Unable to schedule this appointment right now.");
+    } finally {
+      setTicketActionLoading(null);
+    }
+  };
 
   if (!user) {
     return (
@@ -223,6 +309,118 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
                 ))
               )}
             </div>
+          </section>
+
+          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Tickets</p>
+                <h3 className="text-xl font-bold text-slate-900">Review, reply, schedule, or delete matters for Lai & Turner.</h3>
+                <p className="text-sm text-slate-700">Latest 20 tickets with intake context.</p>
+              </div>
+              {ticketActionLoading && (
+                <span className="text-xs font-semibold text-slate-500">Working…</span>
+              )}
+            </div>
+            {ticketActionMessage && (
+              <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                {ticketActionMessage}
+              </div>
+            )}
+            {ticketActionError && (
+              <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                {ticketActionError}
+              </div>
+            )}
+            {recentTickets.length === 0 ? (
+              <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm text-slate-700">
+                No tickets yet. New intakes will appear here for quick actions.
+              </div>
+            ) : (
+              <div className="divide-y divide-slate-100">
+                {recentTickets.map(({ ticket, practiceArea, intake, urgency }) => {
+                  const clientName = getDisplayNameFromIntake(intake);
+                  return (
+                    <div key={ticket.id} className="grid gap-2 py-4 md:grid-cols-12 md:items-center">
+                      <div className="md:col-span-5">
+                        <p className="text-sm font-semibold text-slate-900">{ticket.title}</p>
+                        <p className="text-xs text-slate-600">
+                          {practiceArea} • Created {new Date(ticket.created_at).toLocaleString()}
+                        </p>
+                        {clientName && <p className="text-xs text-slate-500">Client: {clientName}</p>}
+                      </div>
+                      <div className="md:col-span-3 flex flex-wrap items-center gap-2 text-xs text-slate-700">
+                        <span className="rounded-full bg-slate-100 px-2 py-1 font-semibold text-slate-800">Status: {ticket.status}</span>
+                        {urgency && (
+                          <span className="rounded-full bg-amber-100 px-2 py-1 font-semibold text-amber-800">Urgency: {urgency}</span>
+                        )}
+                      </div>
+                      <div className="md:col-span-4 flex flex-wrap gap-2">
+                        <Button size="sm" onClick={() => handleViewTicket(ticket.id)}>
+                          View / Reply
+                        </Button>
+                        <Button size="sm" variant="secondary" onClick={() => handleScheduleAppointment(ticket)}>
+                          Schedule
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="danger"
+                          onClick={() => handleDeleteTicket(ticket)}
+                          isLoading={ticketActionLoading === ticket.id}
+                        >
+                          Delete
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {scheduleTarget && (
+              <div className="rounded-2xl border border-indigo-100 bg-indigo-50 p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Schedule appointment</p>
+                    <h4 className="text-sm font-bold text-slate-900">{scheduleTarget.title}</h4>
+                  </div>
+                  <Button size="sm" variant="secondary" onClick={() => setScheduleTarget(null)}>
+                    Cancel
+                  </Button>
+                </div>
+                <div className="grid gap-3 md:grid-cols-3">
+                  <Input
+                    label="Date"
+                    type="date"
+                    value={scheduleForm.date}
+                    onChange={(e) => setScheduleForm((prev) => ({ ...prev, date: e.target.value }))}
+                  />
+                  <Input
+                    label="Time"
+                    type="time"
+                    value={scheduleForm.time}
+                    onChange={(e) => setScheduleForm((prev) => ({ ...prev, time: e.target.value }))}
+                  />
+                  <Input
+                    label="Location or method"
+                    placeholder="Zoom, phone, office..."
+                    value={scheduleForm.location}
+                    onChange={(e) => setScheduleForm((prev) => ({ ...prev, location: e.target.value }))}
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    onClick={submitSchedule}
+                    isLoading={ticketActionLoading === scheduleTarget.id}
+                    disabled={ticketActionLoading === scheduleTarget.id}
+                  >
+                    Send proposal
+                  </Button>
+                  <p className="text-xs text-slate-600">Client will see this in their secure thread.</p>
+                </div>
+              </div>
+            )}
           </section>
 
           <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
