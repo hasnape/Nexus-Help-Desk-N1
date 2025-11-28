@@ -11,6 +11,7 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
   const { user, tickets, getAllUsers } = useApp();
   const [companyName, setCompanyName] = useState<string | null>(null);
   const [companyLoading, setCompanyLoading] = useState(false);
+  const [selectedPracticeArea, setSelectedPracticeArea] = useState<string | null>(null);
   const allUsers: User[] = getAllUsers();
 
   useEffect(() => {
@@ -54,6 +55,14 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
         return { ticket, intake, practiceArea, urgency };
       }),
     [laiTickets]
+  );
+
+  const focusTickets = useMemo(
+    () =>
+      selectedPracticeArea
+        ? laiTicketsWithIntake.filter((item) => item.practiceArea === selectedPracticeArea)
+        : [],
+    [selectedPracticeArea, laiTicketsWithIntake]
   );
 
   const openFights = laiTickets.filter(
@@ -231,18 +240,55 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
                       : "Review business immigration pipeline and global hiring milestones."}
                   </p>
                 </div>
-                <Button className="mt-4" variant="secondary">
-                  {area === "Family Law"
-                    ? "Review family law flows"
-                    : area === "Personal Injury"
-                    ? "Tune injury intake script"
-                    : area === "Criminal Defense"
-                    ? "Review defense workflows"
-                    : "Review business immigration pipeline"}
+                <Button className="mt-4 text-xs" variant="secondary" onClick={() => setSelectedPracticeArea(area)}>
+                  View {area} tickets
                 </Button>
               </div>
             ))}
           </section>
+
+          {selectedPracticeArea && (
+            <section className="rounded-3xl border border-indigo-100 bg-white p-6 shadow-sm space-y-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Practice area focus</p>
+                  <h3 className="text-xl font-bold text-slate-900">{selectedPracticeArea} – recent tickets</h3>
+                  <p className="text-sm text-slate-700">
+                    Manager view of recent files in this practice area. Use it to review caseload, urgency, and intake quality.
+                  </p>
+                </div>
+                <Button size="sm" variant="secondary" onClick={() => setSelectedPracticeArea(null)}>
+                  Clear focus
+                </Button>
+              </div>
+              {focusTickets.length === 0 ? (
+                <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm text-slate-700">
+                  No tickets found for this practice area yet.
+                </div>
+              ) : (
+                <div className="divide-y divide-slate-100">
+                  {focusTickets.map(({ ticket, practiceArea, urgency }) => (
+                    <div key={ticket.id} className="flex flex-col gap-1 py-3 md:flex-row md:items-center md:justify-between">
+                      <div>
+                        <p className="text-sm font-semibold text-slate-900">{ticket.title}</p>
+                        <p className="text-xs text-slate-600">
+                          {practiceArea} • Created {new Date(ticket.created_at).toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="flex flex-col items-end gap-1">
+                        {urgency && (
+                          <span className="rounded-full bg-amber-100 px-2 py-1 text-[11px] font-semibold text-amber-800">
+                            Urgency: {urgency}
+                          </span>
+                        )}
+                        <span className="text-[11px] text-slate-500">Status: {ticket.status}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+          )}
 
           <section className="rounded-3xl border border-indigo-100 bg-indigo-50 p-6 shadow-sm space-y-4">
             <h3 className="text-xl font-bold text-slate-900">Firm promise in action</h3>
