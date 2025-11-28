@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "../components/FormElements";
+import { Button, Input, Select, Textarea } from "../components/FormElements";
 import TicketCard from "../components/TicketCard";
 import { useApp } from "../App";
 import { supabase } from "../services/supabaseClient";
@@ -24,6 +24,8 @@ const practiceAreaCopy: Record<string, string> = {
   "Business Immigration": "Get a checklist for visas, entity setup, and cross-border hiring with clear timelines.",
 };
 
+const NEXUS_AI_ENDPOINT = import.meta.env.VITE_NEXUS_AI_ENDPOINT || "/api/edge-proxy/nexus-ai";
+
 const LaiTurnerClientPortalPage: React.FC = () => {
   const { user, tickets, addTicket } = useApp();
   const navigate = useNavigate();
@@ -31,7 +33,17 @@ const LaiTurnerClientPortalPage: React.FC = () => {
   const [companyLoading, setCompanyLoading] = useState(false);
   const [creationError, setCreationError] = useState<string | null>(null);
   const [creationMessage, setCreationMessage] = useState<string | null>(null);
-  const [creatingArea, setCreatingArea] = useState<string | null>(null);
+  const [isSubmittingIntake, setIsSubmittingIntake] = useState(false);
+  const [intakeForm, setIntakeForm] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    preferredLanguage: "en",
+    practiceArea: "",
+    urgency: "medium",
+    story: "",
+    objective: "",
+  });
 
   useEffect(() => {
     let active = true;
@@ -87,55 +99,136 @@ const LaiTurnerClientPortalPage: React.FC = () => {
       .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
   }, [tickets, user, isLaiTurner]);
 
-  const createLaiTurnerTicket = async (area: keyof typeof practiceAreaCopy) => {
+  const handlePracticeAreaSelect = (area: keyof typeof practiceAreaCopy) => {
+    setIntakeForm((prev) => ({ ...prev, practiceArea: area }));
+    const intakeFormElement = document.getElementById("laiTurnerIntakeForm");
+    if (intakeFormElement) {
+      intakeFormElement.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const submitIntake = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!user) return;
     setCreationError(null);
     setCreationMessage(null);
-    setCreatingArea(area);
-    const category = area;
-    const titleMap: Record<string, string> = {
-      "Family Law": "Family law consultation",
-      "Personal Injury": "Injury claim – intake",
-      "Criminal Defense": "Criminal defense request",
-      "Business Immigration": "Business immigration intake",
-    };
-    const descriptionMap: Record<string, string> = {
-      "Family Law": "I need guidance on custody, support, or visitation and want to know my next deadlines.",
-      "Personal Injury": "I was injured and need help with medical bills, insurance timelines, and negotiations.",
-      "Criminal Defense": "I’m facing criminal charges and need a defense strategy plus a timeline for hearings.",
-      // Example user message for business immigration testing (do NOT auto-send):
-      // "I live in LA, I am from France, I don’t have a work visa and I want to work. What can I do?"
-      "Business Immigration": "Business immigration intake – please share your situation so we can tailor the intake.",
-    };
+    if (!intakeForm.fullName || !intakeForm.email || !intakeForm.practiceArea || !intakeForm.story || !intakeForm.objective) {
+      setCreationError("Please complete the required fields before submitting.");
+      return;
+    }
 
-    const initialMessage: ChatMessage = {
-      id: crypto.randomUUID(),
-      sender: "user",
-      text: descriptionMap[area],
-      timestamp: new Date(),
-    };
-
+    setIsSubmittingIntake(true);
     try {
+      const aiResponse = await fetch(NEXUS_AI_ENDPOINT, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          context: "lai_turner_intake",
+          mode: "intake_first_contact",
+          full_name: intakeForm.fullName,
+          email: intakeForm.email,
+          phone: intakeForm.phone,
+          preferred_language: intakeForm.preferredLanguage,
+          practice_area_raw: intakeForm.practiceArea,
+          urgency_raw: intakeForm.urgency,
+          story: intakeForm.story,
+          objective: intakeForm.objective,
+        }),
+      });
+
+      let aiJson: any = null;
+      try {
+        aiJson = await aiResponse.json();
+      } catch (err) {
+        console.error("Failed parsing AI intake response", err);
+      }
+      if (!aiResponse.ok) {
+        throw new Error(
+          (aiJson && (aiJson.error || aiJson.message)) || "Nexus AI intake unavailable. Please try again."
+        );
+      }
+
+      const intakePayload: IntakePayload | null = (aiJson?.intakeData as IntakePayload) ?? null;
+      const normalizedPracticeArea =
+        getPracticeAreaDisplay(intakePayload, intakeForm.practiceArea) || intakeForm.practiceArea || "Other";
+      const normalizedUrgency = getUrgencyDisplay(intakePayload) || intakeForm.urgency;
+      const priorityMap: Record<string, TicketPriority> = {
+        low: TicketPriority.LOW,
+        medium: TicketPriority.MEDIUM,
+        high: TicketPriority.HIGH,
+        emergency: TicketPriority.HIGH,
+      };
+      const title = `New intake – ${normalizedPracticeArea} – ${intakeForm.fullName}`;
+      const combinedStory = `${intakeForm.story}\n\nObjective: ${intakeForm.objective}`;
+      const contactLine = `Contact: ${intakeForm.email}${intakeForm.phone ? ` • ${intakeForm.phone}` : ""}`;
+
+      const initialMessage: ChatMessage = {
+        id: crypto.randomUUID(),
+        sender: "user",
+        text: `${combinedStory}\n${contactLine}`,
+        timestamp: new Date(),
+      };
+
+      const aiCaptureMessage: ChatMessage = {
+        id: crypto.randomUUID(),
+        sender: "ai",
+        text: `AI intake captured for Lai & Turner. Practice area: ${normalizedPracticeArea}. Urgency: ${
+          normalizedUrgency || "n/a"
+        }. Preferred language: ${intakeForm.preferredLanguage}.`,
+        timestamp: new Date(),
+        ai_profile_key: "lai_turner_intake",
+        intake_payload: {
+          ...intakePayload,
+          submitted_form: {
+            full_name: intakeForm.fullName,
+            email: intakeForm.email,
+            phone: intakeForm.phone,
+            preferred_language: intakeForm.preferredLanguage,
+            practice_area: intakeForm.practiceArea,
+            urgency: intakeForm.urgency,
+            story: intakeForm.story,
+            objective: intakeForm.objective,
+          },
+        },
+      };
+
       const newTicket = await addTicket(
         {
-          title: titleMap[area],
-          description: descriptionMap[area],
-          category,
-          priority: area === "Criminal Defense" ? TicketPriority.HIGH : TicketPriority.MEDIUM,
+          title,
+          description: `${combinedStory}\n\n${contactLine}`,
+          category: normalizedPracticeArea,
+          priority: priorityMap[normalizedUrgency] || TicketPriority.MEDIUM,
           status: TicketStatus.OPEN,
+          chat_history: [],
+          internal_notes: [],
         },
-        [initialMessage]
+        [initialMessage, aiCaptureMessage]
       );
-      if (newTicket) {
-        setCreationMessage("Your request has been created. You can follow it below.");
-        navigate(`/ticket/${newTicket.id}`);
+
+      if (!newTicket) {
+        setCreationError("Unable to create Lai & Turner ticket. Please try again.");
       } else {
-        setCreationError("We couldn’t create this request right now. Please try again.");
+        const displayName = getDisplayNameFromIntake(intakePayload) || intakeForm.fullName;
+        setCreationMessage(
+          `Your request has been received${displayName ? `, ${displayName}` : ""}. A Lai & Turner coordinator will follow up shortly.`
+        );
+        setIntakeForm({
+          fullName: "",
+          email: "",
+          phone: "",
+          preferredLanguage: intakeForm.preferredLanguage,
+          practiceArea: "",
+          urgency: "medium",
+          story: "",
+          objective: "",
+        });
       }
-    } catch (error: any) {
-      setCreationError(error?.message || "We couldn’t create this request right now. Please try again.");
+    } catch (err: any) {
+      console.error("Intake submission error", err);
+      setCreationError(err?.message || "Unexpected error while creating your Lai & Turner request.");
     } finally {
-      setCreatingArea(null);
+      setIsSubmittingIntake(false);
     }
   };
 
@@ -191,14 +284,110 @@ const LaiTurnerClientPortalPage: React.FC = () => {
           <p className="text-sm text-slate-600">Signed in as {user.email}</p>
         </section>
 
-        <section className="grid gap-4 md:grid-cols-2">
-          <div className="rounded-2xl border border-indigo-200 bg-white p-5 shadow-sm">
+        <section className="grid gap-4 lg:grid-cols-3">
+          <div
+            id="laiTurnerIntakeForm"
+            className="lg:col-span-2 space-y-4 rounded-2xl border border-indigo-200 bg-white p-5 shadow-sm"
+          >
             <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">New clients</p>
             <h3 className="text-xl font-bold text-slate-900">Start a confidential intake</h3>
-            <p className="mt-2 text-sm text-slate-700">
+            <p className="text-sm text-slate-700">
               Share your situation for a tailored case evaluation. A coordinator will guide you through next steps—this is not a
               Nexus SaaS signup, but a direct request for representation.
             </p>
+            {creationMessage && (
+              <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                {creationMessage}
+              </div>
+            )}
+            {creationError && (
+              <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{creationError}</div>
+            )}
+            <form onSubmit={submitIntake} className="space-y-3">
+              <div className="grid gap-3 md:grid-cols-2">
+                <Input
+                  label="Full name"
+                  name="fullName"
+                  value={intakeForm.fullName}
+                  onChange={(e) => setIntakeForm((prev) => ({ ...prev, fullName: e.target.value }))}
+                  placeholder="Your name"
+                  required
+                />
+                <Input
+                  label="Email"
+                  type="email"
+                  name="email"
+                  value={intakeForm.email}
+                  onChange={(e) => setIntakeForm((prev) => ({ ...prev, email: e.target.value }))}
+                  placeholder="you@example.com"
+                  required
+                />
+                <Input
+                  label="Phone (optional)"
+                  name="phone"
+                  value={intakeForm.phone}
+                  onChange={(e) => setIntakeForm((prev) => ({ ...prev, phone: e.target.value }))}
+                  placeholder="+1 (555) 555-1234"
+                />
+                <Select
+                  label="Preferred language"
+                  name="preferredLanguage"
+                  value={intakeForm.preferredLanguage}
+                  onChange={(e) => setIntakeForm((prev) => ({ ...prev, preferredLanguage: e.target.value }))}
+                  options={[
+                    { value: "en", label: "English" },
+                    { value: "fr", label: "Français" },
+                  ]}
+                />
+              </div>
+              <div className="grid gap-3 md:grid-cols-2">
+                <Select
+                  label="Practice area"
+                  name="practiceArea"
+                  value={intakeForm.practiceArea}
+                  onChange={(e) => setIntakeForm((prev) => ({ ...prev, practiceArea: e.target.value }))}
+                  options={Object.keys(practiceAreaCopy).map((area) => ({ value: area, label: area }))}
+                  placeholder="Select a practice area"
+                  required
+                />
+                <Select
+                  label="Urgency"
+                  name="urgency"
+                  value={intakeForm.urgency}
+                  onChange={(e) => setIntakeForm((prev) => ({ ...prev, urgency: e.target.value }))}
+                  options={[
+                    { value: "low", label: "Low" },
+                    { value: "medium", label: "Medium" },
+                    { value: "high", label: "High" },
+                    { value: "emergency", label: "Emergency" },
+                  ]}
+                />
+              </div>
+              <Textarea
+                label="Describe what happened"
+                name="story"
+                value={intakeForm.story}
+                onChange={(e) => setIntakeForm((prev) => ({ ...prev, story: e.target.value }))}
+                placeholder="Tell us the timeline, who is involved, and any deadlines."
+                rows={4}
+                required
+              />
+              <Textarea
+                label="Your main objective"
+                name="objective"
+                value={intakeForm.objective}
+                onChange={(e) => setIntakeForm((prev) => ({ ...prev, objective: e.target.value }))}
+                placeholder="Example: custody, settlement, visa approval, dismissal, etc."
+                rows={3}
+                required
+              />
+              <div className="flex items-center gap-3">
+                <Button type="submit" isLoading={isSubmittingIntake} disabled={isSubmittingIntake}>
+                  Submit confidential intake
+                </Button>
+                <p className="text-xs text-slate-500">Secure intake. No marketing emails.</p>
+              </div>
+            </form>
           </div>
           <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 shadow-sm">
             <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Existing clients & team</p>
@@ -226,8 +415,7 @@ const LaiTurnerClientPortalPage: React.FC = () => {
               <Button
                 className="mt-4"
                 variant="secondary"
-                onClick={() => createLaiTurnerTicket(area as keyof typeof practiceAreaCopy)}
-                isLoading={creatingArea === area}
+                onClick={() => handlePracticeAreaSelect(area as keyof typeof practiceAreaCopy)}
               >
                 {area === "Family Law"
                   ? "Start a family law request"
@@ -248,9 +436,7 @@ const LaiTurnerClientPortalPage: React.FC = () => {
               <h3 className="text-xl font-bold text-slate-900">Track your cases</h3>
             </div>
             {companyLoading && (
-              <span className="text-xs font-semibold text-slate-500">
-                Confirming Lai & Turner access…
-              </span>
+              <span className="text-xs font-semibold text-slate-500">Confirming Lai & Turner access…</span>
             )}
           </div>
           {creationMessage && (
@@ -259,9 +445,7 @@ const LaiTurnerClientPortalPage: React.FC = () => {
             </div>
           )}
           {creationError && (
-            <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-              {creationError}
-            </div>
+            <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{creationError}</div>
           )}
           {userTickets.length === 0 ? (
             <div className="rounded-2xl border border-slate-100 bg-slate-50 p-5 text-sm text-slate-700">
@@ -280,9 +464,7 @@ const LaiTurnerClientPortalPage: React.FC = () => {
                     return (
                       <div className="rounded-2xl border border-indigo-100 bg-indigo-50 p-4 text-sm text-slate-900 shadow-sm">
                         <div className="mb-2 flex items-center justify-between">
-                          <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">
-                            What we captured so far
-                          </p>
+                          <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">What we captured so far</p>
                           <span className="text-[10px] font-semibold text-indigo-600">AI intake</span>
                         </div>
                         <dl className="space-y-1">
