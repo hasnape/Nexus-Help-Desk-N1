@@ -1,11 +1,12 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { useApp } from "../../App";
-import { Ticket } from "../../types";
+import { Ticket, TicketPriority, TicketStatus } from "../../types";
 import { Button } from "../../components/FormElements";
 import { useLanguage } from "../../contexts/LanguageContext";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import FloatingActionButton from "../../components/FloatingActionButton";
+import Layout from "../../components/Layout";
 import { supabase } from "../../services/supabaseClient";
 
 const PlusIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
@@ -117,114 +118,171 @@ const AgentDashboardPage: React.FC = () => {
     [tickets, user.id]
   );
 
+  const assignedCount = myTickets.length;
+  const openCount = myTickets.filter((ticket) => ticket.status === TicketStatus.OPEN || ticket.status === TicketStatus.IN_PROGRESS).length;
+  const highPriorityCount = myTickets.filter((ticket) => ticket.priority === TicketPriority.HIGH).length;
+  const resolvedCount = myTickets.filter((ticket) => ticket.status === TicketStatus.RESOLVED).length;
+
   return (
-    <div className="space-y-8">
-      <div className="pb-4 border-b border-slate-300 flex flex-col sm:flex-row justify-between items-start sm:items-center">
-        <div className="mb-4 sm:mb-0">
-          <h1 className="text-3xl font-bold text-textPrimary">
-            {t("agentDashboard.title", { username: user.full_name })}
-          </h1>
-          {user.company_id && (
-            <p className="text-lg text-slate-500 font-medium">
-              {companyLoading
-                ? t("dashboard.company.loading", { default: "Chargement…" })
-                : companyName ?? t("dashboard.company.unknown", { default: "Société" })}
-            </p>
-          )}
-          <p className="text-sm text-slate-600 mt-1">{t("agentDashboard.subtitle")}</p>
-        </div>
-        <div className="flex-shrink-0">
-          <Link to="/help">
-            <Button variant="primary" size="md">
-              <PlusIcon className="w-5 h-5 me-2" />
-              {t("agentDashboard.createTicketButton")}
-            </Button>
-          </Link>
+    <Layout>
+      <div className="min-h-[calc(100vh-5rem)] bg-slate-50 py-8">
+        <div className="mx-auto max-w-6xl space-y-8 px-4">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="space-y-2">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-indigo-600">{t("dashboard.agent.badge")}</p>
+              <h1 className="text-3xl font-bold text-slate-900">{t("dashboard.agent.title")}</h1>
+              <p className="text-base text-slate-600">{t("dashboard.agent.subtitle")}</p>
+              {user.company_id && (
+                <p className="text-sm text-slate-500">
+                  {companyLoading
+                    ? t("dashboard.company.loading", { default: "Chargement…" })
+                    : companyName ?? t("dashboard.company.unknown", { default: "Société" })}
+                </p>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Link to="/help">
+                <Button variant="primary" size="md" className="shadow-md">
+                  <PlusIcon className="w-5 h-5 me-2" />
+                  {t("agentDashboard.createTicketButton")}
+                </Button>
+              </Link>
+            </div>
+          </div>
+
+          {isLoading && <LoadingSpinner text={t("agentDashboard.loadingTickets")} />}
+
+          <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-2xl border border-indigo-100 bg-white p-5 shadow-sm">
+              <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">{t("dashboard.agent.stats.assigned")}</p>
+              <p className="mt-2 text-3xl font-bold text-slate-900">{assignedCount}</p>
+              <p className="text-xs text-slate-600">{t("dashboard.agent.stats.assignedHelp")}</p>
+            </div>
+            <div className="rounded-2xl border border-indigo-100 bg-white p-5 shadow-sm">
+              <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">{t("dashboard.agent.stats.open")}</p>
+              <p className="mt-2 text-3xl font-bold text-slate-900">{openCount}</p>
+              <p className="text-xs text-slate-600">{t("dashboard.agent.stats.openHelp")}</p>
+            </div>
+            <div className="rounded-2xl border border-indigo-100 bg-white p-5 shadow-sm">
+              <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">{t("dashboard.agent.stats.priority")}</p>
+              <p className="mt-2 text-3xl font-bold text-slate-900">{highPriorityCount}</p>
+              <p className="text-xs text-slate-600">{t("dashboard.agent.stats.priorityHelp")}</p>
+            </div>
+            <div className="rounded-2xl border border-indigo-100 bg-white p-5 shadow-sm">
+              <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">{t("dashboard.agent.stats.resolved")}</p>
+              <p className="mt-2 text-3xl font-bold text-slate-900">{resolvedCount}</p>
+              <p className="text-xs text-slate-600">{t("dashboard.agent.stats.resolvedHelp")}</p>
+            </div>
+          </section>
+
+          <section className="rounded-3xl border bg-white p-6 shadow-sm">
+            <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-4">
+              <div>
+                <h2 className="text-xl font-semibold text-slate-900">{t("dashboard.agent.myTickets.title")}</h2>
+                <p className="text-sm text-slate-600">{t("dashboard.agent.myTickets.subtitle")}</p>
+              </div>
+            </div>
+            {myTickets.length === 0 ? (
+              <p className="text-slate-500">{t("agentDashboard.noMyTickets")}</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-slate-200">
+                  <thead className="bg-slate-50">
+                    <tr>
+                      <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                        {t("agentDashboard.tableHeader.title")}
+                      </th>
+                      <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                        {t("agentDashboard.tableHeader.client")}
+                      </th>
+                      <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                        {t("agentDashboard.tableHeader.workstation")}
+                      </th>
+                      <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                        {t("agentDashboard.tableHeader.lastUpdated")}
+                      </th>
+                      <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                        {t("agentDashboard.tableHeader.status")}
+                      </th>
+                      <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                        {t("agentDashboard.tableHeader.action")}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-slate-200">
+                    {myTickets.map((ticket) => (
+                      <AgentTicketRow key={ticket.id} ticket={ticket} />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
+
+          <section className="rounded-3xl border bg-white p-6 shadow-sm">
+            <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-4">
+              <div>
+                <h2 className="text-xl font-semibold text-slate-900">{t("dashboard.agent.unassigned.title")}</h2>
+                <p className="text-sm text-slate-600">{t("dashboard.agent.unassigned.subtitle")}</p>
+              </div>
+            </div>
+            {unassignedTickets.length === 0 ? (
+              <p className="text-slate-500">{t("agentDashboard.noUnassignedTickets")}</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-slate-200">
+                  <thead className="bg-slate-50">
+                    <tr>
+                      <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                        {t("agentDashboard.tableHeader.title")}
+                      </th>
+                      <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                        {t("agentDashboard.tableHeader.client")}
+                      </th>
+                      <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                        {t("agentDashboard.tableHeader.workstation")}
+                      </th>
+                      <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                        {t("agentDashboard.tableHeader.created")}
+                      </th>
+                      <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                        {t("agentDashboard.tableHeader.status")}
+                      </th>
+                      <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                        {t("agentDashboard.tableHeader.action")}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-slate-200">
+                    {unassignedTickets.map((ticket) => (
+                      <AgentTicketRow key={ticket.id} ticket={ticket} onTakeCharge={agentTakeTicket} isUnassigned />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
+
+          <section className="rounded-3xl border bg-white p-6 shadow-sm">
+            <h2 className="text-xl font-semibold text-slate-900 mb-3">{t("dashboard.agent.tools.title")}</h2>
+            <p className="text-sm text-slate-600 mb-4">{t("dashboard.agent.tools.subtitle")}</p>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <Link to="/help" className="rounded-xl border border-indigo-100 bg-indigo-50 px-4 py-3 text-sm font-medium text-indigo-800 hover:border-indigo-200">
+                {t("dashboard.agent.tools.newTicket")}
+              </Link>
+              <Link to="/help" className="rounded-xl border bg-white px-4 py-3 text-sm font-medium text-slate-800 hover:border-slate-200">
+                {t("dashboard.agent.tools.knowledge")}
+              </Link>
+              <Link to="/manager/faq" className="rounded-xl border bg-white px-4 py-3 text-sm font-medium text-slate-800 hover:border-slate-200">
+                {t("dashboard.agent.tools.faq")}
+              </Link>
+            </div>
+          </section>
+
+          <FloatingActionButton to="/help" title={t("agentDashboard.createTicketButton")} />
         </div>
       </div>
-
-      {isLoading && <LoadingSpinner text={t("agentDashboard.loadingTickets")} />}
-
-      <section className="bg-surface shadow-lg rounded-lg p-4 sm:p-6">
-        <h2 className="text-xl font-semibold text-textPrimary mb-4">{t("agentDashboard.unassignedTicketsTitle")}</h2>
-        {unassignedTickets.length === 0 ? (
-          <p className="text-slate-500">{t("agentDashboard.noUnassignedTickets")}</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-slate-200">
-              <thead className="bg-slate-100">
-                <tr>
-                  <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                    {t("agentDashboard.tableHeader.title")}
-                  </th>
-                  <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                    {t("agentDashboard.tableHeader.client")}
-                  </th>
-                  <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                    {t("agentDashboard.tableHeader.workstation")}
-                  </th>
-                  <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                    {t("agentDashboard.tableHeader.created")}
-                  </th>
-                  <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                    {t("agentDashboard.tableHeader.status")}
-                  </th>
-                  <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                    {t("agentDashboard.tableHeader.action")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-slate-200">
-                {unassignedTickets.map((ticket) => (
-                  <AgentTicketRow key={ticket.id} ticket={ticket} onTakeCharge={agentTakeTicket} isUnassigned />
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
-
-      <section className="bg-surface shadow-lg rounded-lg p-4 sm:p-6">
-        <h2 className="text-xl font-semibold text-textPrimary mb-4">{t("agentDashboard.myTicketsTitle")}</h2>
-        {myTickets.length === 0 ? (
-          <p className="text-slate-500">{t("agentDashboard.noMyTickets")}</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-slate-200">
-              <thead className="bg-slate-100">
-                <tr>
-                  <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                    {t("agentDashboard.tableHeader.title")}
-                  </th>
-                  <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                    {t("agentDashboard.tableHeader.client")}
-                  </th>
-                  <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                    {t("agentDashboard.tableHeader.workstation")}
-                  </th>
-                  <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                    {t("agentDashboard.tableHeader.lastUpdated")}
-                  </th>
-                  <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                    {t("agentDashboard.tableHeader.status")}
-                  </th>
-                  <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                    {t("agentDashboard.tableHeader.action")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-slate-200">
-                {myTickets.map((ticket) => (
-                  <AgentTicketRow key={ticket.id} ticket={ticket} />
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
-
-      <FloatingActionButton to="/help" title={t("agentDashboard.createTicketButton")} />
-    </div>
+    </Layout>
   );
 };
 

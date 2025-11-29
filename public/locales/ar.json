@@ -986,6 +986,113 @@
     "tzHint": "Calculé sur le fuseau {tz}",
     "unlimitedBadge": "Illimité"
   },
+  "dashboard.manager": {
+    "badge": "مساحة المدير",
+    "title": "لوحة تحكم المدير – {{username}}",
+    "subtitle": "أشرف على التذاكر والفريق وسعة مساحة Nexus الخاصة بك.",
+    "company": {
+      "label": "الشركة: {{name}} ({{id}})",
+      "nameLabel": "اسم الشركة",
+      "cardTitle": "معلومات الشركة",
+      "cardSubtitle": "الهوية والخطة والموارد الأساسية لمساحتك.",
+      "onboardingHint": "شارك هذا الاسم لدعوة فريقك إلى Nexus.",
+      "planLabel": "الخطة: {{plan}}",
+      "planUnknown": "خطة غير معروفة",
+      "unlimited": "تذاكر غير محدودة",
+      "limitHelper": "الحد الحالي لشركتك.",
+      "supportTitle": "مساعدة Nexus",
+      "supportSubtitle": "تحتاج مساعدة أو دليلاً سريعاً؟",
+      "supportCta": "تواصل",
+      "helpLink": "الحصول على مساعدة Nexus",
+      "faqLink": "إدارة الأسئلة الشائعة للشركة"
+    },
+    "stats": {
+      "totalTickets": "إجمالي التذاكر",
+      "totalHelp": "كل التذاكر في مساحة Nexus الخاصة بك.",
+      "open": "مفتوحة / قيد المعالجة",
+      "openHelp": "تذاكر نشطة تحتاج للانتباه.",
+      "remaining": "التذاكر المتبقية هذا الشهر: {{used}} / {{limit}}",
+      "noLimit": "غير محدود"
+    },
+    "invite": {
+      "title": "دعوة أو إنشاء عضو",
+      "subtitle": "أضف وكلاء أو مستخدمين إلى مساحتك."
+    },
+    "filters": {
+      "title": "التذاكر المصفاة",
+      "subtitle": "صنّف حسب الحالة أو المنشئ أو التاريخ."
+    },
+    "filtered": {
+      "title": "التذاكر المصفاة",
+      "subtitle": "التذاكر المطابقة لمعاييرك.",
+      "active": "مرشحات مفعّلة"
+    },
+    "users": {
+      "title": "إدارة المستخدمين",
+      "subtitle": "اضبط الأدوار وتابع أعضاء الشركة."
+    },
+    "welcome": {
+      "title": "مرحباً بك في Nexus",
+      "congratulations": "تهانينا {{username}}، مساحتك جاهزة.",
+      "body": "ادعُ فريقك واضبط إعدادات شركتك للبدء.",
+      "close": "ابدأ"
+    }
+  },
+  "dashboard.agent": {
+    "badge": "عرض الوكيل",
+    "title": "لوحة تحكم الوكيل",
+    "subtitle": "استعرض تذاكرك وأولوياتك والتفاعلات القادمة.",
+    "stats": {
+      "assigned": "التذاكر المسندة",
+      "assignedHelp": "كل التذاكر المسندة إليك.",
+      "open": "مفتوحة / قيد المعالجة",
+      "openHelp": "تذاكر نشطة للمتابعة.",
+      "priority": "أولوية عالية",
+      "priorityHelp": "تذاكر حرجة مسندة إليك.",
+      "resolved": "تم الحل",
+      "resolvedHelp": "التذاكر التي أغلقتها."
+    },
+    "myTickets": {
+      "title": "تذاكري الجارية",
+      "subtitle": "الطلبات المسندة إليك مؤخراً."
+    },
+    "unassigned": {
+      "title": "التذاكر المتاحة",
+      "subtitle": "تولَّ التذاكر غير المسندة لفريقك."
+    },
+    "tools": {
+      "title": "صندوق الأدوات",
+      "subtitle": "وصول سريع للإجراءات الشائعة.",
+      "newTicket": "إنشاء تذكرة لعميل",
+      "knowledge": "استعراض قاعدة المعرفة",
+      "faq": "عرض الأسئلة الشائعة للشركة"
+    }
+  },
+  "dashboard.user": {
+    "badge": "مساحة العميل",
+    "title": "مرحباً بك في مساحة الدعم",
+    "subtitle": "تابع طلباتك وحالتها وتواصل مع الفريق.",
+    "stats": {
+      "total": "التذاكر التي أنشأتها",
+      "totalHelp": "إجمالي عدد التذاكر التي فتحتها.",
+      "open": "مفتوحة / قيد المعالجة",
+      "openHelp": "تذاكر نشطة بانتظار الرد أو الحل.",
+      "resolved": "تم الحل",
+      "resolvedHelp": "تذاكر أغلقتها الفرق."
+    },
+    "recent": {
+      "title": "تذاكري الأخيرة",
+      "subtitle": "أحدث طلباتك ومحادثاتك."
+    },
+    "cta": {
+      "title": "إنشاء طلب جديد",
+      "subtitle": "صف مشكلتك، وسيساعدك الذكاء الاصطناعي والوكلاء.",
+      "button": "فتح تذكرة جديدة",
+      "tips": "نصائح لشرح طلبك جيداً",
+      "knowledge": "تصفح قاعدة المعرفة",
+      "faq": "عرض الأسئلة الشائعة للشركة"
+    }
+  },
   "featuresContent": "<ul><li><strong>Instant AI Assistance:</strong> Our AI, Nexus, provides 24/7 support, capable of categorizing, summarizing, and responding to common queries. It automatically creates clear tickets for human agents when needed.</li><li><strong>Secure & Multi-Tenant:</strong> Each company has a completely isolated data environment, ensuring confidentiality and security. Our role-based access control ensures that data is seen only by authorized personnel.</li><li><strong>Voice Enabled:</strong> Enhance accessibility with voice commands for chat and automatic text-to-speech for AI responses, making support more inclusive.</li></ul>",
   "featuresTitle": "Key Features of Nexus Support Hub",
   "futureContent": "<ul><li><strong>Advanced Integrations:</strong> We plan to integrate with popular CRM and messaging platforms for a smoother workflow.</li><li><strong>AI Customization:</strong> Future developments will allow businesses to train the AI with their own knowledge bases for even more accurate and specific responses.</li><li><strong>Appointment Module:</strong> An integrated system for scheduling appointments with agents will be added for more efficient management of complex interactions.</li></ul>",
