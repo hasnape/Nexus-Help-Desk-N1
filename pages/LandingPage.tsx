@@ -328,7 +328,17 @@ const LandingPage: React.FC = () => {
                 </div>
               </div>
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 shadow-sm">
-                <InfographieNexus />
+                <Suspense
+                  fallback={
+                    <div className="flex h-72 items-center justify-center text-slate-500">
+                      <span className="text-sm font-medium">
+                        {t("landing.hero.previewLoading", { defaultValue: "Chargement de l’infographie..." })}
+                      </span>
+                    </div>
+                  }
+                >
+                  <LazyInfographieNexus />
+                </Suspense>
               </div>
             </div>
           </section>
