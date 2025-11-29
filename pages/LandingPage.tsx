@@ -36,7 +36,7 @@ const VoiceIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 );
 
 const LandingPage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [showVideo, setShowVideo] = useState(false);
 
   const benefits = [
@@ -122,7 +122,7 @@ const LandingPage: React.FC = () => {
   return (
     <>
       <Layout>
-        <main className="min-h-[calc(100vh-5rem)] bg-slate-50">
+        <main className="min-h-[calc(100vh-5rem)] bg-slate-50" lang={i18n.language}>
           <section className="border-b border-slate-200 bg-gradient-to-b from-white to-slate-50">
             <div className="mx-auto max-w-6xl px-4 py-12 lg:py-16 grid gap-10 lg:grid-cols-2 lg:items-center">
               <div className="space-y-6">

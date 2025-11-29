@@ -5,7 +5,6 @@ import { Link, useLocation } from "react-router-dom";
 import Layout from "../components/Layout";
 import { useApp } from "../App";
 import { getPricingPlans, type PricingPlanKey } from "@/utils/pricing";
-import { useLanguage } from "../contexts/LanguageContext";
 
 const ArrowLeftIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" {...props}>
@@ -19,7 +18,6 @@ const ArrowLeftIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 
 const PricingPage: React.FC = () => {
   const { t } = useTranslation();
-  const { t: legacyTranslate } = useLanguage();
   const { user } = useApp();
   const location = useLocation();
 
@@ -34,9 +32,7 @@ const PricingPage: React.FC = () => {
   });
 
   const backLinkDestination = user ? "/dashboard" : "/landing";
-  const backLinkText = t("pricing.backToApp", {
-    defaultValue: legacyTranslate("pricing.backToApp", { defaultValue: "Back" }),
-  });
+  const backLinkText = t("pricing.backToApp", { defaultValue: "Back" });
 
   const orderedPlans: Array<{ key: PricingPlanKey; isPopular: boolean }> = [
     { key: "freemium", isPopular: false },
