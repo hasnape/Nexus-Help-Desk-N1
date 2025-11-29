@@ -8,13 +8,15 @@ interface LayoutProps {
   className?: string;
   includeFooter?: boolean;
   mainClassName?: string;
+  mainProps?: React.HTMLAttributes<HTMLElement>;
 }
 
 const Layout: React.FC<LayoutProps> = ({
   children,
   className = '',
   includeFooter = true,
-  mainClassName = ''
+  mainClassName = '',
+  mainProps = {},
 }) => {
   const { t } = useLanguage();
 
@@ -38,6 +40,7 @@ const Layout: React.FC<LayoutProps> = ({
         id="main-content"
         role="main"
         className={`flex-1 ${mainClassName}`}
+        {...mainProps}
       >
         {children}
       </main>
