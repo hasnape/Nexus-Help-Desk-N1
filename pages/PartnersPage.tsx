@@ -13,7 +13,7 @@ const PartnersPage: React.FC = () => (
       <div className="flex flex-wrap gap-8 items-center">
         {partners.map((p) => (
           <div key={p.name} className="flex flex-col items-center">
-            <img src={p.logo} alt={p.name} className="h-16 mb-2" />
+            <img src={p.logo} alt={p.name} className="h-16 mb-2" loading="lazy" width={64} height={64} />
             <span className="text-slate-700">{p.name}</span>
           </div>
         ))}

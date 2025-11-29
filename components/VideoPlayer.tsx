@@ -64,6 +64,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
+                loading="lazy"
                 className="w-full h-96 rounded"
               ></iframe>
             </div>

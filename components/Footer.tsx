@@ -18,6 +18,9 @@ const Footer: React.FC = () => {
                 src="https://yt3.ggpht.com/vbfaZncvDLBv7B4Xo9mFggNozPaGAaGMkwciDaL-UtdLClEQmWB5blCibQacHzdrI1RL_5C9_g=s108-c-k-c0x00ffffff-no-rj"
                 alt="Nexus Support Hub Logo"
                 className="w-10 h-10 mr-3 rounded-full object-cover"
+                loading="lazy"
+                width={40}
+                height={40}
                 onError={(e) => {
                   // Fallback vers l'ancien SVG si l'image ne charge pas
                   console.log("Logo failed to load, using fallback");

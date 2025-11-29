@@ -30,6 +30,9 @@ const CheckIcon = () => (
     alt="Nexus Support Hub Logo"
     className="w-5 h-5 rounded-full object-cover"
     src="https://yt3.ggpht.com/vbfaZncvDLBv7B4Xo9mFggNozPaGAaGMkwciDaL-UtdLClEQmWB5blCibQacHzdrI1RL_5C9_g=s108-c-k-c0x00ffffff-no-rj"
+    loading="lazy"
+    width={20}
+    height={20}
   />
 );
 
