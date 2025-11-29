@@ -122,10 +122,12 @@ const LandingPage: React.FC = () => {
 
   return (
     <>
-      <Layout>
-        <main className="min-h-[calc(100vh-5rem)] bg-slate-50" lang={i18n.language}>
-          <section className="border-b border-slate-200 bg-gradient-to-b from-white to-slate-50">
-            <div className="mx-auto max-w-6xl px-4 py-12 lg:py-16 grid gap-10 lg:grid-cols-2 lg:items-center">
+      <Layout
+        mainClassName="page-shell pb-16"
+        mainProps={{ lang: i18n.language }}
+      >
+        <section className="border-b border-slate-200 bg-gradient-to-b from-white to-slate-50">
+            <div className="page-container grid gap-10 lg:grid-cols-2 lg:items-center py-12 lg:py-16">
               <div className="space-y-6">
                 <div className="inline-flex items-center gap-2 rounded-full bg-indigo-100 px-4 py-2 text-sm font-semibold text-indigo-800">
                   <span className="inline-block h-2 w-2 rounded-full bg-indigo-500" aria-hidden />
@@ -412,8 +414,7 @@ const LandingPage: React.FC = () => {
               </div>
             </div>
           </section>
-        </main>
-      </Layout>
+        </Layout>
 
       <NexusSalesBotWidget />
 
