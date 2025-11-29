@@ -1,36 +1,14 @@
 import React, { useEffect, useRef } from "react";
-import {
-  ArcElement,
-  CategoryScale,
-  Chart,
-  Filler,
-  Legend,
-  LineElement,
-  LinearScale,
-  PointElement,
-  RadialLinearScale,
-  Tooltip,
-} from "chart.js";
+import type { Chart as ChartType, ChartOptions, TooltipItem } from "chart.js";
+import Chart from "chart.js/auto";
 import { useTranslation } from "react-i18next";
-
-Chart.register(
-  ArcElement,
-  CategoryScale,
-  Filler,
-  Legend,
-  LineElement,
-  LinearScale,
-  PointElement,
-  RadialLinearScale,
-  Tooltip
-);
 
 const InfographieNexus: React.FC = () => {
   const { t } = useTranslation();
-  const chartRef = useRef<HTMLCanvasElement>(null);
-  const donutChartRef = useRef<Chart | null>(null);
-  const radarChartRef = useRef<Chart | null>(null);
-  const lineChartRef = useRef<Chart | null>(null);
+  const donutCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const donutChartRef = useRef<ChartType | null>(null);
+  const radarChartRef = useRef<ChartType | null>(null);
+  const lineChartRef = useRef<ChartType | null>(null);
 
   useEffect(() => {
     // Palette couleurs
@@ -72,16 +50,18 @@ const InfographieNexus: React.FC = () => {
       });
     };
 
-    const tooltipTitleCallback = (tooltipItems: any) => {
+    const tooltipTitleCallback = (
+      tooltipItems: TooltipItem<"doughnut" | "radar" | "line">[]
+    ) => {
       const item = tooltipItems[0];
-      let label = item.chart.data.labels[item.dataIndex];
+      const label = item.chart.data.labels?.[item.dataIndex];
       if (Array.isArray(label)) {
         return label.join(" ");
       }
       return label;
     };
 
-    const defaultChartOptions = {
+    const defaultChartOptions: ChartOptions<"line" | "radar" | "doughnut"> = {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
@@ -112,17 +92,11 @@ const InfographieNexus: React.FC = () => {
     };
 
     // Donut chart
-    const featuresDonutCanvas = document.getElementById(
-      "featuresDonutChart"
-    ) as HTMLCanvasElement | null;
+    const featuresDonutCanvas = donutCanvasRef.current;
     if (featuresDonutCanvas) {
-      Chart.getChart("featuresDonutChart")?.destroy();
-      if (donutChartRef.current) donutChartRef.current.destroy();
+      donutChartRef.current?.destroy();
 
-      const donutCtx = featuresDonutCanvas.getContext("2d");
-      if (!donutCtx) return;
-
-      donutChartRef.current = new Chart(donutCtx, {
+      donutChartRef.current = new Chart(featuresDonutCanvas, {
         type: "doughnut",
         data: {
           labels: [
@@ -326,7 +300,7 @@ const InfographieNexus: React.FC = () => {
                   maxHeight: 400,
                 }}
               >
-                <canvas ref={chartRef} id="featuresDonutChart" />
+                <canvas ref={donutCanvasRef} id="featuresDonutChart" />
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
