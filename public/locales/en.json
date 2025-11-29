@@ -147,6 +147,113 @@
     "tzHint": "Computed in {tz} timezone",
     "unlimitedBadge": "Unlimited"
   },
+  "dashboard.manager": {
+    "badge": "Manager workspace",
+    "title": "Manager dashboard – {{username}}",
+    "subtitle": "Oversee tickets, the team, and the capacity of your Nexus space.",
+    "company": {
+      "label": "Company: {{name}} ({{id}})",
+      "nameLabel": "Company name",
+      "cardTitle": "Company information",
+      "cardSubtitle": "Identity, plan, and key resources for your space.",
+      "onboardingHint": "Share this name to invite your team to Nexus.",
+      "planLabel": "Plan: {{plan}}",
+      "planUnknown": "Unknown plan",
+      "unlimited": "Unlimited tickets",
+      "limitHelper": "Current limit for your company.",
+      "supportTitle": "Nexus assistance",
+      "supportSubtitle": "Need help or a quick guide?",
+      "supportCta": "Contact",
+      "helpLink": "Get Nexus help",
+      "faqLink": "Manage company FAQ"
+    },
+    "stats": {
+      "totalTickets": "Total tickets",
+      "totalHelp": "All tickets in your Nexus space.",
+      "open": "Open / In progress",
+      "openHelp": "Active tickets needing attention.",
+      "remaining": "Tickets remaining this month: {{used}} / {{limit}}",
+      "noLimit": "Unlimited"
+    },
+    "invite": {
+      "title": "Invite or create a member",
+      "subtitle": "Add agents or users to your space."
+    },
+    "filters": {
+      "title": "Filtered tickets",
+      "subtitle": "Refine by status, creator, or date."
+    },
+    "filtered": {
+      "title": "Filtered tickets",
+      "subtitle": "Tickets that match your criteria.",
+      "active": "Filters active"
+    },
+    "users": {
+      "title": "User management",
+      "subtitle": "Adjust roles and track company members."
+    },
+    "welcome": {
+      "title": "Welcome to Nexus",
+      "congratulations": "Congrats {{username}}, your space is ready.",
+      "body": "Invite your team and set up your company to get started.",
+      "close": "Begin"
+    }
+  },
+  "dashboard.agent": {
+    "badge": "Agent view",
+    "title": "Agent dashboard",
+    "subtitle": "See your tickets, priorities, and upcoming interactions.",
+    "stats": {
+      "assigned": "Assigned tickets",
+      "assignedHelp": "All tickets assigned to you.",
+      "open": "Open / In progress",
+      "openHelp": "Active tickets to follow.",
+      "priority": "High priority",
+      "priorityHelp": "Critical tickets assigned to you.",
+      "resolved": "Resolved",
+      "resolvedHelp": "Tickets you have closed."
+    },
+    "myTickets": {
+      "title": "My active tickets",
+      "subtitle": "Requests recently assigned to you."
+    },
+    "unassigned": {
+      "title": "Available tickets",
+      "subtitle": "Take over unassigned tickets for your team."
+    },
+    "tools": {
+      "title": "Toolbox",
+      "subtitle": "Quick access to frequent actions.",
+      "newTicket": "Create a ticket for a client",
+      "knowledge": "Browse knowledge base",
+      "faq": "View company FAQ"
+    }
+  },
+  "dashboard.user": {
+    "badge": "Customer space",
+    "title": "Welcome to your support space",
+    "subtitle": "Track your requests, their statuses, and chat with the team.",
+    "stats": {
+      "total": "Tickets created",
+      "totalHelp": "Total number of tickets you've opened.",
+      "open": "Open / In progress",
+      "openHelp": "Active tickets awaiting reply or resolution.",
+      "resolved": "Resolved",
+      "resolvedHelp": "Tickets closed by the team."
+    },
+    "recent": {
+      "title": "My recent tickets",
+      "subtitle": "Your latest requests and conversations."
+    },
+    "cta": {
+      "title": "Create a new request",
+      "subtitle": "Describe your issue; AI and agents will assist you.",
+      "button": "Open a new ticket",
+      "tips": "Tips to describe your request well",
+      "knowledge": "Browse the knowledge base",
+      "faq": "View company FAQ"
+    }
+  },
   "dashboard.welcomeMessage": "Welcome, {{username}}!",
   "demo": {
     "company": "Company name",

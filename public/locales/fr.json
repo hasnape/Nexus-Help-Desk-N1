@@ -154,6 +154,113 @@
     "tzHint": "Calculé sur le fuseau {tz}",
     "unlimitedBadge": "Illimité"
   },
+  "dashboard.manager": {
+    "badge": "Espace Manager",
+    "title": "Tableau de bord Manager – {{username}}",
+    "subtitle": "Supervisez les tickets, l'équipe et la capacité de votre espace Nexus.",
+    "company": {
+      "label": "Entreprise : {{name}} ({{id}})",
+      "nameLabel": "Nom de l'entreprise",
+      "cardTitle": "Informations entreprise",
+      "cardSubtitle": "Identité, plan et ressources clés de votre espace.",
+      "onboardingHint": "Partagez ce nom pour inviter votre équipe sur Nexus.",
+      "planLabel": "Plan : {{plan}}",
+      "planUnknown": "Plan inconnu",
+      "unlimited": "Tickets illimités",
+      "limitHelper": "Limite actuelle pour votre entreprise.",
+      "supportTitle": "Assistance Nexus",
+      "supportSubtitle": "Besoin d'aide ou d'un guide rapide ?",
+      "supportCta": "Contacter",
+      "helpLink": "Obtenir de l'aide Nexus",
+      "faqLink": "Gérer la FAQ entreprise"
+    },
+    "stats": {
+      "totalTickets": "Tickets totaux",
+      "totalHelp": "Tous les tickets de votre espace Nexus.",
+      "open": "Ouverts / En cours",
+      "openHelp": "Tickets actifs nécessitant une attention.",
+      "remaining": "Tickets restants ce mois-ci : {{used}} / {{limit}}",
+      "noLimit": "Illimité"
+    },
+    "invite": {
+      "title": "Inviter ou créer un membre",
+      "subtitle": "Ajoutez des agents ou des utilisateurs à votre espace."
+    },
+    "filters": {
+      "title": "Tickets filtrés",
+      "subtitle": "Affinez par statut, créateur ou date."
+    },
+    "filtered": {
+      "title": "Tickets filtrés",
+      "subtitle": "Vue des tickets correspondant à vos critères.",
+      "active": "Filtres actifs"
+    },
+    "users": {
+      "title": "Gestion des utilisateurs",
+      "subtitle": "Ajustez les rôles et suivez les membres de l'entreprise."
+    },
+    "welcome": {
+      "title": "Bienvenue dans Nexus",
+      "congratulations": "Félicitations {{username}}, votre espace est prêt.",
+      "body": "Invitez votre équipe et configurez votre entreprise pour démarrer.",
+      "close": "Commencer"
+    }
+  },
+  "dashboard.agent": {
+    "badge": "Vue Agent",
+    "title": "Tableau de bord Agent",
+    "subtitle": "Visualisez vos tickets, priorités et prochains échanges.",
+    "stats": {
+      "assigned": "Tickets assignés",
+      "assignedHelp": "Tous les tickets qui vous sont confiés.",
+      "open": "Ouverts / En cours",
+      "openHelp": "Tickets actifs à suivre.",
+      "priority": "Haute priorité",
+      "priorityHelp": "Tickets critiques assignés.",
+      "resolved": "Résolus",
+      "resolvedHelp": "Tickets clôturés par vous."
+    },
+    "myTickets": {
+      "title": "Mes tickets en cours",
+      "subtitle": "Les demandes qui vous sont assignées récemment."
+    },
+    "unassigned": {
+      "title": "Tickets disponibles",
+      "subtitle": "Reprenez les tickets non assignés à votre équipe."
+    },
+    "tools": {
+      "title": "Boîte à outils",
+      "subtitle": "Accès rapide aux actions courantes.",
+      "newTicket": "Créer un ticket pour un client",
+      "knowledge": "Consulter la base de connaissances",
+      "faq": "Consulter la FAQ entreprise"
+    }
+  },
+  "dashboard.user": {
+    "badge": "Espace client",
+    "title": "Bienvenue dans votre espace d'assistance",
+    "subtitle": "Suivez vos demandes, leurs statuts et échangez avec l'équipe.",
+    "stats": {
+      "total": "Tickets créés",
+      "totalHelp": "Nombre total de tickets que vous avez ouverts.",
+      "open": "Ouverts / En cours",
+      "openHelp": "Tickets actifs en attente de réponse ou de résolution.",
+      "resolved": "Résolus",
+      "resolvedHelp": "Tickets clôturés par l'équipe."
+    },
+    "recent": {
+      "title": "Mes tickets récents",
+      "subtitle": "Vos dernières demandes et conversations."
+    },
+    "cta": {
+      "title": "Créer une nouvelle demande",
+      "subtitle": "Décrivez votre problème, l'IA et les agents vous aideront.",
+      "button": "Ouvrir un nouveau ticket",
+      "tips": "Conseils pour bien décrire votre demande",
+      "knowledge": "Parcourir la base de connaissances",
+      "faq": "Consulter la FAQ entreprise"
+    }
+  },
   "dashboard.welcomeMessage": "Bienvenue, {{username}} !",
   "demo": {
     "company": "Nom de l’entreprise",
