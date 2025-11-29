@@ -1,6 +1,29 @@
 import React, { useEffect, useRef } from "react";
-import Chart from "chart.js/auto";
+import {
+  ArcElement,
+  CategoryScale,
+  Chart,
+  Filler,
+  Legend,
+  LineElement,
+  LinearScale,
+  PointElement,
+  RadialLinearScale,
+  Tooltip,
+} from "chart.js";
 import { useTranslation } from "react-i18next";
+
+Chart.register(
+  ArcElement,
+  CategoryScale,
+  Filler,
+  Legend,
+  LineElement,
+  LinearScale,
+  PointElement,
+  RadialLinearScale,
+  Tooltip
+);
 
 const InfographieNexus: React.FC = () => {
   const { t } = useTranslation();
@@ -89,12 +112,17 @@ const InfographieNexus: React.FC = () => {
     };
 
     // Donut chart
-    const featuresDonutCtx = document.getElementById(
+    const featuresDonutCanvas = document.getElementById(
       "featuresDonutChart"
     ) as HTMLCanvasElement | null;
-    if (featuresDonutCtx) {
+    if (featuresDonutCanvas) {
+      Chart.getChart("featuresDonutChart")?.destroy();
       if (donutChartRef.current) donutChartRef.current.destroy();
-      donutChartRef.current = new Chart(featuresDonutCtx, {
+
+      const donutCtx = featuresDonutCanvas.getContext("2d");
+      if (!donutCtx) return;
+
+      donutChartRef.current = new Chart(donutCtx, {
         type: "doughnut",
         data: {
           labels: [
@@ -124,12 +152,17 @@ const InfographieNexus: React.FC = () => {
     }
 
     // Radar chart
-    const securityRadarCtx = document.getElementById(
+    const securityRadarCanvas = document.getElementById(
       "securityRadarChart"
     ) as HTMLCanvasElement | null;
-    if (securityRadarCtx) {
+    if (securityRadarCanvas) {
+      Chart.getChart("securityRadarChart")?.destroy();
       if (radarChartRef.current) radarChartRef.current.destroy();
-      radarChartRef.current = new Chart(securityRadarCtx, {
+
+      const radarCtx = securityRadarCanvas.getContext("2d");
+      if (!radarCtx) return;
+
+      radarChartRef.current = new Chart(radarCtx, {
         type: "radar",
         data: {
           labels: processLabels([
@@ -177,12 +210,17 @@ const InfographieNexus: React.FC = () => {
     }
 
     // Line chart
-    const satisfactionLineCtx = document.getElementById(
+    const satisfactionLineCanvas = document.getElementById(
       "satisfactionLineChart"
     ) as HTMLCanvasElement | null;
-    if (satisfactionLineCtx) {
+    if (satisfactionLineCanvas) {
+      Chart.getChart("satisfactionLineChart")?.destroy();
       if (lineChartRef.current) lineChartRef.current.destroy();
-      lineChartRef.current = new Chart(satisfactionLineCtx, {
+
+      const lineCtx = satisfactionLineCanvas.getContext("2d");
+      if (!lineCtx) return;
+
+      lineChartRef.current = new Chart(lineCtx, {
         type: "line",
         data: {
           labels: [
