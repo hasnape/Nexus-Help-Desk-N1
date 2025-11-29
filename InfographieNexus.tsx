@@ -1,14 +1,16 @@
 import React, { useEffect, useRef } from "react";
-import type { Chart as ChartType, ChartOptions, TooltipItem } from "chart.js";
+import type { ChartOptions, TooltipItem } from "chart.js";
 import Chart from "chart.js/auto";
 import { useTranslation } from "react-i18next";
 
 const InfographieNexus: React.FC = () => {
   const { t } = useTranslation();
   const donutCanvasRef = useRef<HTMLCanvasElement | null>(null);
-  const donutChartRef = useRef<ChartType | null>(null);
-  const radarChartRef = useRef<ChartType | null>(null);
-  const lineChartRef = useRef<ChartType | null>(null);
+  const radarCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const lineCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const donutChartRef = useRef<Chart | null>(null);
+  const radarChartRef = useRef<Chart | null>(null);
+  const lineChartRef = useRef<Chart | null>(null);
 
   useEffect(() => {
     // Palette couleurs
@@ -94,7 +96,10 @@ const InfographieNexus: React.FC = () => {
     // Donut chart
     const featuresDonutCanvas = donutCanvasRef.current;
     if (featuresDonutCanvas) {
-      donutChartRef.current?.destroy();
+      if (donutChartRef.current) {
+        donutChartRef.current.destroy();
+        donutChartRef.current = null;
+      }
 
       donutChartRef.current = new Chart(featuresDonutCanvas, {
         type: "doughnut",
@@ -126,17 +131,14 @@ const InfographieNexus: React.FC = () => {
     }
 
     // Radar chart
-    const securityRadarCanvas = document.getElementById(
-      "securityRadarChart"
-    ) as HTMLCanvasElement | null;
+    const securityRadarCanvas = radarCanvasRef.current;
     if (securityRadarCanvas) {
-      Chart.getChart("securityRadarChart")?.destroy();
-      if (radarChartRef.current) radarChartRef.current.destroy();
+      if (radarChartRef.current) {
+        radarChartRef.current.destroy();
+        radarChartRef.current = null;
+      }
 
-      const radarCtx = securityRadarCanvas.getContext("2d");
-      if (!radarCtx) return;
-
-      radarChartRef.current = new Chart(radarCtx, {
+      radarChartRef.current = new Chart(securityRadarCanvas, {
         type: "radar",
         data: {
           labels: processLabels([
@@ -184,17 +186,14 @@ const InfographieNexus: React.FC = () => {
     }
 
     // Line chart
-    const satisfactionLineCanvas = document.getElementById(
-      "satisfactionLineChart"
-    ) as HTMLCanvasElement | null;
+    const satisfactionLineCanvas = lineCanvasRef.current;
     if (satisfactionLineCanvas) {
-      Chart.getChart("satisfactionLineChart")?.destroy();
-      if (lineChartRef.current) lineChartRef.current.destroy();
+      if (lineChartRef.current) {
+        lineChartRef.current.destroy();
+        lineChartRef.current = null;
+      }
 
-      const lineCtx = satisfactionLineCanvas.getContext("2d");
-      if (!lineCtx) return;
-
-      lineChartRef.current = new Chart(lineCtx, {
+      lineChartRef.current = new Chart(satisfactionLineCanvas, {
         type: "line",
         data: {
           labels: [
@@ -236,11 +235,20 @@ const InfographieNexus: React.FC = () => {
 
     // Nettoyage à la destruction du composant
     return () => {
-      donutChartRef.current?.destroy();
-      radarChartRef.current?.destroy();
-      lineChartRef.current?.destroy();
+      if (donutChartRef.current) {
+        donutChartRef.current.destroy();
+        donutChartRef.current = null;
+      }
+      if (radarChartRef.current) {
+        radarChartRef.current.destroy();
+        radarChartRef.current = null;
+      }
+      if (lineChartRef.current) {
+        lineChartRef.current.destroy();
+        lineChartRef.current = null;
+      }
     };
-  }, [t]);
+  }, []);
 
   return (
     <div className="bg-[#f0f4f8] font-sans text-gray-800">
@@ -457,7 +465,7 @@ const InfographieNexus: React.FC = () => {
                   maxHeight: 400,
                 }}
               >
-                <canvas id="securityRadarChart"></canvas>
+                <canvas id="securityRadarChart" ref={radarCanvasRef}></canvas>
               </div>
             </div>
             <div className="bg-white rounded-lg shadow-lg p-6">
@@ -538,7 +546,7 @@ const InfographieNexus: React.FC = () => {
                   maxHeight: 400,
                 }}
               >
-                <canvas id="satisfactionLineChart"></canvas>
+                <canvas id="satisfactionLineChart" ref={lineCanvasRef}></canvas>
               </div>
             </div>
             <div className="lg:col-span-2 space-y-6 flex flex-col justify-center">
