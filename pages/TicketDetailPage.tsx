@@ -526,13 +526,19 @@ const TicketDetailPage: React.FC = () => {
     if (!isAgentOrManager) return null;
 
     return (
-      <div className="my-4 rounded-md border border-slate-300 bg-slate-100 p-3 space-y-3">
+      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm space-y-2">
+        <div className="space-y-1">
+          <h3 className="text-sm font-semibold text-slate-900">Rendez-vous</h3>
+          <p className="text-xs text-slate-600">Proposez ou confirmez un créneau avec le client.</p>
+        </div>
+
         {appointmentError && (
           <div className="rounded-md bg-red-100 px-3 py-2 text-xs text-red-700">{appointmentError}</div>
         )}
         {appointmentSuccess && (
           <div className="rounded-md bg-emerald-100 px-3 py-2 text-xs text-emerald-700">{appointmentSuccess}</div>
         )}
+
         {!showAppointmentForm ? (
           <Button onClick={() => setShowAppointmentForm(true)} variant="secondary" size="sm">
             <CalendarIcon className="me-2 h-4 w-4" />
@@ -606,7 +612,7 @@ const TicketDetailPage: React.FC = () => {
             ))
           )}
         </div>
-      </div>
+      </section>
     );
   };
   
@@ -615,317 +621,221 @@ const TicketDetailPage: React.FC = () => {
 
 
   return (
-    <>
-      <div className="max-w-4xl mx-auto bg-surface shadow-xl rounded-lg overflow-hidden flex flex-col h-[calc(100vh-10rem)] sm:h-[calc(100vh-8rem)]">
-      <header className="bg-slate-700 text-white p-4 sm:p-6">
-        <div className="flex justify-between items-center mb-3">
-          <h1 className="text-xl sm:text-2xl font-bold truncate" title={ticket.title}>{ticket.title}</h1>
-          <Link to={user.role === UserRole.USER ? "/dashboard" : (user.role === UserRole.AGENT ? "/agent/dashboard" : "/manager/dashboard")}>
-            <Button variant="outline" size="sm" className="!text-white !border-white hover:!bg-slate-600">
-              {t('ticketDetail.backToDashboardButton')}
-            </Button>
-          </Link>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 text-xs sm:text-sm">
-          <div><span className="font-semibold block text-slate-300">{t('ticketDetail.categoryLabel')}</span><span className="text-slate-100">{t(ticket.category)}</span></div>
-          <div><span className="font-semibold block text-slate-300">{t('ticketDetail.priorityLabel')}</span><span className={`${priorityColors[ticket.priority] || 'text-slate-100'} font-medium`}>{t(`ticketPriority.${ticket.priority}`)}</span></div>
-          <div><span className="font-semibold block text-slate-300">{t('ticketDetail.createdLabel')}</span><span className="text-slate-100">{new Date(ticket.created_at).toLocaleDateString(getBCP47Locale())}</span></div>
-          <div><span className="font-semibold block text-slate-300">{t('ticketDetail.statusLabel')}</span><span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${statusColorsTag[ticket.status]}`}>{t(`ticketStatus.${ticket.status}`)}</span></div>
-        </div>
-        {ticket.workstation_id && <div className="mt-2 text-xs"><span className="font-semibold text-slate-300">{t('newTicket.form.workstationIdLabel')}: </span><span className="text-slate-100">{ticket.workstation_id}</span></div>}
-        {ticket.assigned_agent_id && isAgentOrManager && <div className="mt-2 text-xs"><span className="font-semibold text-slate-300">{t('managerDashboard.tableHeader.assignedAgent')}: </span><span className="text-slate-100">{ticket.assigned_agent_id}</span></div>}
-        {renderCurrentAppointmentInfo()}
-        {feedback && (
-          <div
-            ref={feedbackRef}
-            tabIndex={-1}
-            role={feedback.type === 'error' ? 'alert' : 'status'}
-            aria-live={feedback.type === 'error' ? 'assertive' : 'polite'}
-            className={
-              'mt-2 rounded-md px-3 py-2 text-sm outline-none ' +
-              (feedback.type === 'success'
-                ? 'bg-green-50 text-green-700 border border-green-200'
-                : 'bg-red-50 text-red-700 border border-red-200')
-            }
-          >
-            <div className="flex items-start gap-2">
-              {feedback.type === 'success' ? (
-                <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5 flex-shrink-0">
-                  <path
-                    d="M9 12l2 2 4-4"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <circle
-                    cx="12"
-                    cy="12"
-                    r="9"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  />
-                </svg>
-              ) : (
-                <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5 flex-shrink-0">
-                  <path
-                    d="M10.29 3.86l-8.4 14.58A2 2 0 003.53 22h16.94a2 2 0 001.74-3.56L13.82 3.86a2 2 0 00-3.53 0z"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M12 9v4m0 4h.01"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              )}
-              <span>{feedback.msg}</span>
-            </div>
-          </div>
-        )}
-        {showUndo && undoAppt && (
-          <div
-            className="mt-2 rounded-md border px-3 py-2 text-sm flex items-center justify-between"
-            role="status"
-            aria-live="polite"
-          >
-            <span>{i18nT('appointment.deleted_banner', { defaultValue: 'Rendez-vous supprimé.' }) || 'Rendez-vous supprimé.'}</span>
-            <div className="flex items-center gap-2">
-              <button
-                ref={undoBtnRef}
-                className="px-3 py-1 rounded-md border"
-                onClick={async () => {
-                  if (undoTimerRef.current) {
-                    window.clearTimeout(undoTimerRef.current);
-                    undoTimerRef.current = null;
-                  }
-                  setShowUndo(false);
-                  if (!undoAppt) return;
-                  const ok = await restoreAppointment(undoAppt, undoAppt.ticket_id);
-                  if (!ok) {
-                    console.error('Failed to restore appointment');
-                    const restoreErrorMsg =
-                      i18nT('appointments.restore_error', {
-                        defaultValue: 'Échec de la restauration du rendez-vous.',
-                      }) || 'Échec de la restauration du rendez-vous.';
-                    setFeedback({ type: 'error', msg: restoreErrorMsg });
-                  } else {
-                    const restoreSuccessMsg =
-                      i18nT('appointments.restore_success', {
-                        defaultValue: 'Rendez-vous restauré.',
-                      }) || 'Rendez-vous restauré.';
-                    setFeedback({ type: 'success', msg: restoreSuccessMsg });
-                  }
-                  setUndoAppt(null);
-                }}
-              >
-                {i18nT('appointment.undo', { defaultValue: 'Annuler' }) || 'Annuler'}
-              </button>
-              <button
-                className="px-2 py-1 text-xs opacity-70 hover:opacity-100"
-                onClick={() => {
-                  if (undoTimerRef.current) {
-                    window.clearTimeout(undoTimerRef.current);
-                    undoTimerRef.current = null;
-                  }
-                  setShowUndo(false);
-                  setUndoAppt(null);
-                }}
-                aria-label={i18nT('common.close', { defaultValue: 'Fermer' }) || 'Fermer'}
-                title={i18nT('common.close', { defaultValue: 'Fermer' }) || 'Fermer'}
-              >
-                {i18nT('common.close', { defaultValue: 'Fermer' }) || 'Fermer'}
-              </button>
-            </div>
-          </div>
-        )}
-        <div className="mt-3">
-            <Select label={t('ticketDetail.updateStatusLabel')} id="ticketStatus" value={ticket.status} onChange={(e) => handleStatusChange(e.target.value)} options={statusOptions} className="bg-slate-600 border-slate-500 text-white focus:ring-sky-500 focus:border-sky-500 text-sm py-1.5 w-full sm:w-auto"/>
-        </div>
-      <div className="mt-4 flex flex-wrap gap-2 items-center justify-start border-t border-slate-600 pt-3">
-            {browserSupportsTextToSpeech && (<Button onClick={toggleAutoRead} variant="outline" size="sm" className="!py-1.5 !px-2 !border-slate-400 hover:!bg-slate-600 focus:!ring-sky-500" title={isAutoReadEnabled ? t('ticketDetail.autoRead.disableTitle') : t('ticketDetail.autoRead.enableTitle')}>{isAutoReadEnabled ? <SpeakerLoudIcon className="w-5 h-5 text-sky-300 me-1.5" /> : <SpeakerOffIcon className="w-5 h-5 text-slate-300 me-1.5" />}{isAutoReadEnabled ? t('ticketDetail.autoRead.disableButton') : t('ticketDetail.autoRead.enableButton')}</Button>)}
-            <Button onClick={handleRepeatLastMessage} variant="outline" size="sm" className="!py-1.5 !px-2 !border-slate-400 hover:!bg-slate-600 focus:!ring-sky-500" disabled={!canRepeatLastMessage || isSpeaking || isListeningChatInput} title={t('ticketDetail.repeatButton.title')}><ReplayIcon className="w-5 h-5 text-slate-300 me-1.5" />{t('ticketDetail.repeatButton.label')}</Button>
-            {user.role === UserRole.USER && <Button onClick={handleContactAgent} variant="outline" size="sm" className="!py-1.5 !px-2 !border-amber-400 !text-amber-300 hover:!bg-amber-600 hover:!text-white focus:!ring-amber-500" disabled={isTicketClosedOrResolved} title={t('ticketDetail.contactAgent.buttonTitle')}><HeadsetIcon className="w-5 h-5 me-1.5" />{t('ticketDetail.contactAgent.buttonLabel')}</Button>}
-        </div>
-      </header>
+    <div className="mx-auto max-w-6xl px-4 py-6 lg:py-10">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr),minmax(280px,1fr)]">
+        <div className="space-y-4">
+          <div className="overflow-hidden rounded-2xl bg-surface shadow-xl flex flex-col min-h-[calc(100vh-10rem)] lg:min-h-[calc(100vh-8rem)]">
+            <header className="bg-slate-700 text-white p-4 sm:p-6">
+              <div className="flex justify-between items-center mb-3">
+                <h1 className="text-xl sm:text-2xl font-bold truncate" title={ticket.title}>{ticket.title}</h1>
+                <Link to={user.role === UserRole.USER ? "/dashboard" : (user.role === UserRole.AGENT ? "/agent/dashboard" : "/manager/dashboard")}>
+                  <Button variant="outline" size="sm" className="!text-white !border-white hover:!bg-slate-600">
+                    {t('ticketDetail.backToDashboardButton')}
+                  </Button>
+                </Link>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 text-xs sm:text-sm">
+                <div><span className="font-semibold block text-slate-300">{t('ticketDetail.categoryLabel')}</span><span className="text-slate-100">{t(ticket.category)}</span></div>
+                <div><span className="font-semibold block text-slate-300">{t('ticketDetail.priorityLabel')}</span><span className={`${priorityColors[ticket.priority] || 'text-slate-100'} font-medium`}>{t(`ticketPriority.${ticket.priority}`)}</span></div>
+                <div><span className="font-semibold block text-slate-300">{t('ticketDetail.createdLabel')}</span><span className="text-slate-100">{new Date(ticket.created_at).toLocaleDateString(getBCP47Locale())}</span></div>
+                <div><span className="font-semibold block text-slate-300">{t('ticketDetail.statusLabel')}</span><span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${statusColorsTag[ticket.status]}`}>{t(`ticketStatus.${ticket.status}`)}</span></div>
+              </div>
+              {ticket.workstation_id && <div className="mt-2 text-xs"><span className="font-semibold text-slate-300">{t('newTicket.form.workstationIdLabel')}: </span><span className="text-slate-100">{ticket.workstation_id}</span></div>}
 
-      <div className="space-y-4 p-4 sm:p-6 bg-white border-b border-slate-200">
-        <div className="rounded-2xl border border-slate-200 p-4 bg-slate-50">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Étape du dossier</p>
-              <p className="text-sm text-slate-700">Suivez l'avancement du pipeline.</p>
+              <div className="mt-3">
+                <Select label={t('ticketDetail.updateStatusLabel')} id="ticketStatus" value={ticket.status} onChange={(e) => handleStatusChange(e.target.value)} options={statusOptions} className="bg-slate-600 border-slate-500 text-white focus:ring-sky-500 focus:border-sky-500 text-sm py-1.5 w-full sm:w-auto"/>
+              </div>
+              <div className="mt-4 flex flex-wrap gap-2 items-center justify-start border-t border-slate-600 pt-3">
+                {browserSupportsTextToSpeech && (<Button onClick={toggleAutoRead} variant="outline" size="sm" className="!py-1.5 !px-2 !border-slate-400 hover:!bg-slate-600 focus:!ring-sky-500" title={isAutoReadEnabled ? t('ticketDetail.autoRead.disableTitle') : t('ticketDetail.autoRead.enableTitle')}>{isAutoReadEnabled ? <SpeakerLoudIcon className="w-5 h-5 text-sky-300 me-1.5" /> : <SpeakerOffIcon className="w-5 h-5 text-slate-300 me-1.5" />}{isAutoReadEnabled ? t('ticketDetail.autoRead.disableButton') : t('ticketDetail.autoRead.enableButton')}</Button>)}
+                <Button onClick={handleRepeatLastMessage} variant="outline" size="sm" className="!py-1.5 !px-2 !border-slate-400 hover:!bg-slate-600 focus:!ring-sky-500" disabled={!canRepeatLastMessage || isSpeaking || isListeningChatInput} title={t('ticketDetail.repeatButton.title')}><ReplayIcon className="w-5 h-5 text-slate-300 me-1.5" />{t('ticketDetail.repeatButton.label')}</Button>
+                {user.role === UserRole.USER && <Button onClick={handleContactAgent} variant="outline" size="sm" className="!py-1.5 !px-2 !border-amber-400 !text-amber-300 hover:!bg-amber-600 hover:!text-white focus:!ring-amber-500" disabled={isTicketClosedOrResolved} title={t('ticketDetail.contactAgent.buttonTitle')}><HeadsetIcon className="w-5 h-5 me-1.5" />{t('ticketDetail.contactAgent.buttonLabel')}</Button>}
+              </div>
+            </header>
+
+          <div className="flex flex-1 flex-col bg-white">
+            <div className="border-b border-slate-200 bg-white px-4 sm:px-6">
+              <div className="flex gap-2">
+                <button
+                  className={`rounded-full px-4 py-2 text-sm font-semibold ${activeTab === 'client' ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-700'}`}
+                  onClick={() => setActiveTab('client')}
+                  type="button"
+                >
+                  Messages client
+                </button>
+                {isAgentOrManager && (
+                  <button
+                    className={`rounded-full px-4 py-2 text-sm font-semibold ${activeTab === 'internal' ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-700'}`}
+                    onClick={() => setActiveTab('internal')}
+                    type="button"
+                  >
+                    Notes internes
+                  </button>
+                )}
+              </div>
             </div>
-            {isAgentOrManager ? (
-              <select
-                value={caseStage}
-                onChange={(e) => handleStageChange(e.target.value as CaseStage)}
-                disabled={isSavingStage}
-                className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm disabled:opacity-60"
-              >
-                {stageOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+
+            {activeTab === 'client' ? (
+              <>
+                <div className="flex-grow p-4 sm:p-6 overflow-y-auto bg-slate-50 border-b border-t border-slate-200">
+                  {speechErrorText && <p className="text-xs text-red-600 text-center mb-2">{speechErrorText}</p>}
+                  {ttsErrorText && <p className="text-xs text-red-600 text-center mb-2">{t('ticketDetail.speechPlaybackError', {error: ttsErrorText})}</p>}
+                  {ticket.chat_history.map(msg => (<ChatMessageComponent key={msg.id} message={msg} userFullName={user.full_name} onSpeak={(text, id) => handleSpeakMessage(text, id, msg.sender === 'ai')} onCancelSpeak={handleCancelCurrentlySpeaking} isCurrentlySpeaking={speakingMessageId === msg.id && isSpeaking} browserSupportsTextToSpeech={browserSupportsTextToSpeech}/>))}
+                  {isLoadingAi && user.role === UserRole.USER && ticket.chat_history.length > 0 && ticket.chat_history[ticket.chat_history.length -1].sender === 'user' && !ticket.assigned_agent_id && (
+                    <div className="flex justify-start mb-4">
+                       <div className="max-w-xl lg:max-w-2xl px-4 py-3 rounded-xl shadow bg-slate-200 text-slate-800 rounded-bl-none">
+                          <div className="flex items-center"><p className="font-semibold text-sm me-2">{t('ticketDetail.aiAssistantName')}</p><LoadingSpinner size="sm" className="!p-0" /></div>
+                       </div>
+                    </div>
+                  )}
+                  <div ref={chatEndRef} />
+                </div>
+
+                <form onSubmit={handleSendMessage} className="p-4 sm:p-6 bg-slate-100 border-t border-slate-200">
+                  <div className="flex items-start space-x-2 sm:space-x-3 rtl:space-x-reverse">
+                    <Textarea value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder={isListeningChatInput ? t('ticketDetail.chatPlaceholder.listening') : (isTicketClosedOrResolved ? t('ticketDetail.chatPlaceholder.closed') : t('ticketDetail.chatPlaceholder.default'))} rows={2} className="flex-grow resize-none focus:ring-2" disabled={isLoadingAi || isListeningChatInput || isTicketClosedOrResolved} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(e as any); }}}/>
+                    {browserSupportsSpeechRecognition && (<Button type="button" onClick={handleChatMicButtonClick} variant={isListeningChatInput ? 'danger' : 'secondary'} size="md" className="h-full px-3 sm:px-4 self-stretch !py-0" aria-label={isListeningChatInput ? t('ticketDetail.micButton.stopRecording') : t('ticketDetail.micButton.startRecording')} disabled={isLoadingAi || isTicketClosedOrResolved} title={isListeningChatInput ? t('ticketDetail.micButton.stopRecording') : t('ticketDetail.micButton.startRecording')}><MicrophoneIcon className={`w-5 h-5`} /></Button>)}
+                    <Button type="submit" variant="primary" size="md" className="h-full px-3 sm:px-5 self-stretch !py-0" disabled={(user.role === UserRole.USER && isLoadingAi && !!newMessage.trim() && !ticket.assigned_agent_id) || !newMessage.trim() || isListeningChatInput || isTicketClosedOrResolved} isLoading={user.role === UserRole.USER && isLoadingAi && !!newMessage.trim() && !ticket.assigned_agent_id}><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5"><path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" /></svg><span className="ms-1 sm:ms-2 hidden sm:inline">{ (user.role=== UserRole.USER && isLoadingAi && !!newMessage.trim() && !ticket.assigned_agent_id) ? t('ticketDetail.sendMessageButtonLoading') : t('ticketDetail.sendMessageButton')}</span></Button>
+                  </div>
+                  {isTicketClosedOrResolved && <p className="text-xs text-center text-orange-600 mt-2">{t('ticketDetail.ticketClosedWarning', {status: t(`ticketStatus.${ticket.status}`)})}</p>}
+                  {!browserSupportsSpeechRecognition && !speechErrorText && (<p className="text-xs text-slate-500 mt-2 text-center">{t('ticketDetail.voiceInputForChatNotSupported')}</p>)}
+                </form>
+              </>
             ) : (
-              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-800">
-                {stageOptions.find((s) => s.value === caseStage)?.label || 'Intake / Première analyse'}
-              </span>
-            )}
-          </div>
-        </div>
+              <div className="flex-grow overflow-y-auto bg-slate-50 border-b border-t border-slate-200 p-4 sm:p-6 space-y-4">
+                <div className="space-y-2">
+                  {internalNotes.length === 0 ? (
+                    <p className="text-sm text-slate-600">Aucune note interne pour ce dossier.</p>
+                  ) : (
+                    internalNotes.map((note) => (
+                      <div key={note.id} className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+                        <div className="flex items-center justify-between text-xs text-slate-600">
+                          <span className="font-semibold text-slate-800">{note.author_name || 'Équipe'}</span>
+                          <span>{new Date(note.created_at).toLocaleString()}</span>
+                        </div>
+                        <p className="mt-2 text-sm text-slate-800 whitespace-pre-wrap">{note.body}</p>
+                      </div>
+                    ))
+                  )}
+                </div>
 
-        <div className="rounded-2xl border border-slate-200 p-4 bg-slate-50 space-y-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Checklist du dossier</p>
-              <p className="text-sm text-slate-700">Assurez-vous que toutes les tâches sont suivies.</p>
-            </div>
-            {!isAgentOrManager && (
-              <span className="text-[11px] text-slate-500">Lecture seule</span>
-            )}
-          </div>
-          {tasks.length === 0 ? (
-            <p className="text-sm text-slate-600">Aucune tâche pour ce dossier.</p>
-          ) : (
-            <div className="space-y-2">
-              {tasks.map((task) => (
-                <label key={task.id} className="flex items-center gap-2 text-sm text-slate-800">
-                  <input
-                    type="checkbox"
-                    className="h-4 w-4 rounded border-slate-300"
-                    checked={task.done}
-                    onChange={() => handleToggleTask(task.id)}
-                    disabled={!isAgentOrManager || isSavingTasks}
-                  />
-                  <span className={task.done ? 'line-through text-slate-500' : ''}>{task.label}</span>
-                </label>
-              ))}
-            </div>
-          )}
-          {isAgentOrManager && (
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-              <input
-                type="text"
-                value={newTaskLabel}
-                onChange={(e) => setNewTaskLabel(e.target.value)}
-                placeholder="Ajouter une tâche"
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-                disabled={isSavingTasks}
-              />
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={handleAddTask}
-                disabled={!newTaskLabel.trim() || isSavingTasks}
-                isLoading={isSavingTasks}
-              >
-                Ajouter
-              </Button>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {renderAppointmentSection()}
-
-      <div className="border-b border-slate-200 bg-white px-4 sm:px-6">
-        <div className="flex gap-2">
-          <button
-            className={`rounded-full px-4 py-2 text-sm font-semibold ${activeTab === 'client' ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-700'}`}
-            onClick={() => setActiveTab('client')}
-            type="button"
-          >
-            Messages client
-          </button>
-          {isAgentOrManager && (
-            <button
-              className={`rounded-full px-4 py-2 text-sm font-semibold ${activeTab === 'internal' ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-700'}`}
-              onClick={() => setActiveTab('internal')}
-              type="button"
-            >
-              Notes internes
-            </button>
-          )}
-        </div>
-      </div>
-
-      {activeTab === 'client' ? (
-        <>
-          <div className="flex-grow p-4 sm:p-6 overflow-y-auto bg-slate-50 border-b border-t border-slate-200">
-            {speechErrorText && <p className="text-xs text-red-600 text-center mb-2">{speechErrorText}</p>}
-            {ttsErrorText && <p className="text-xs text-red-600 text-center mb-2">{t('ticketDetail.speechPlaybackError', {error: ttsErrorText})}</p>}
-            {ticket.chat_history.map(msg => (<ChatMessageComponent key={msg.id} message={msg} userFullName={user.full_name} onSpeak={(text, id) => handleSpeakMessage(text, id, msg.sender === 'ai')} onCancelSpeak={handleCancelCurrentlySpeaking} isCurrentlySpeaking={speakingMessageId === msg.id && isSpeaking} browserSupportsTextToSpeech={browserSupportsTextToSpeech}/>))}
-            {isLoadingAi && user.role === UserRole.USER && ticket.chat_history.length > 0 && ticket.chat_history[ticket.chat_history.length -1].sender === 'user' && !ticket.assigned_agent_id && (
-              <div className="flex justify-start mb-4">
-                 <div className="max-w-xl lg:max-w-2xl px-4 py-3 rounded-xl shadow bg-slate-200 text-slate-800 rounded-bl-none">
-                    <div className="flex items-center"><p className="font-semibold text-sm me-2">{t('ticketDetail.aiAssistantName')}</p><LoadingSpinner size="sm" className="!p-0" /></div>
-                 </div>
+                {isAgentOrManager && (
+                  <div className="rounded-2xl border border-slate-200 bg-white p-4 space-y-2">
+                    <p className="text-sm font-semibold text-slate-900">Ajouter une note interne</p>
+                    <Textarea
+                      value={newInternalNote}
+                      onChange={(e) => setNewInternalNote(e.target.value)}
+                      rows={3}
+                      placeholder="Partager une note pour l'équipe"
+                    />
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={handleAddInternalNote}
+                      disabled={!newInternalNote.trim()}
+                    >
+                      Ajouter la note
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
-            <div ref={chatEndRef} />
           </div>
-
-          <form onSubmit={handleSendMessage} className="p-4 sm:p-6 bg-slate-100 border-t border-slate-200">
-            <div className="flex items-start space-x-2 sm:space-x-3 rtl:space-x-reverse">
-              <Textarea value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder={isListeningChatInput ? t('ticketDetail.chatPlaceholder.listening') : (isTicketClosedOrResolved ? t('ticketDetail.chatPlaceholder.closed') : t('ticketDetail.chatPlaceholder.default'))} rows={2} className="flex-grow resize-none focus:ring-2" disabled={isLoadingAi || isListeningChatInput || isTicketClosedOrResolved} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(e as any); }}}/>
-              {browserSupportsSpeechRecognition && (<Button type="button" onClick={handleChatMicButtonClick} variant={isListeningChatInput ? 'danger' : 'secondary'} size="md" className="h-full px-3 sm:px-4 self-stretch !py-0" aria-label={isListeningChatInput ? t('ticketDetail.micButton.stopRecording') : t('ticketDetail.micButton.startRecording')} disabled={isLoadingAi || isTicketClosedOrResolved} title={isListeningChatInput ? t('ticketDetail.micButton.stopRecording') : t('ticketDetail.micButton.startRecording')}><MicrophoneIcon className={`w-5 h-5`} /></Button>)}
-              <Button type="submit" variant="primary" size="md" className="h-full px-3 sm:px-5 self-stretch !py-0" disabled={(user.role === UserRole.USER && isLoadingAi && !!newMessage.trim() && !ticket.assigned_agent_id) || !newMessage.trim() || isListeningChatInput || isTicketClosedOrResolved} isLoading={user.role === UserRole.USER && isLoadingAi && !!newMessage.trim() && !ticket.assigned_agent_id}><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5"><path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" /></svg><span className="ms-1 sm:ms-2 hidden sm:inline">{ (user.role === UserRole.USER && isLoadingAi && !!newMessage.trim() && !ticket.assigned_agent_id) ? t('ticketDetail.sendMessageButtonLoading') : t('ticketDetail.sendMessageButton')}</span></Button>
-            </div>
-            {isTicketClosedOrResolved && <p className="text-xs text-center text-orange-600 mt-2">{t('ticketDetail.ticketClosedWarning', {status: t(`ticketStatus.${ticket.status}`)})}</p>}
-            {!browserSupportsSpeechRecognition && !speechErrorText && (<p className="text-xs text-slate-500 mt-2 text-center">{t('ticketDetail.voiceInputForChatNotSupported')}</p>)}
-          </form>
-        </>
-      ) : (
-        <div className="flex-grow overflow-y-auto bg-slate-50 border-b border-t border-slate-200 p-4 sm:p-6 space-y-4">
-          <div className="space-y-2">
-            {internalNotes.length === 0 ? (
-              <p className="text-sm text-slate-600">Aucune note interne pour ce dossier.</p>
-            ) : (
-              internalNotes.map((note) => (
-                <div key={note.id} className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
-                  <div className="flex items-center justify-between text-xs text-slate-600">
-                    <span className="font-semibold text-slate-800">{note.author_name || 'Équipe'}</span>
-                    <span>{new Date(note.created_at).toLocaleString()}</span>
-                  </div>
-                  <p className="mt-2 text-sm text-slate-800 whitespace-pre-wrap">{note.body}</p>
-                </div>
-              ))
-            )}
-          </div>
-
-          {isAgentOrManager && (
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 space-y-2">
-              <p className="text-sm font-semibold text-slate-900">Ajouter une note interne</p>
-              <Textarea
-                value={newInternalNote}
-                onChange={(e) => setNewInternalNote(e.target.value)}
-                rows={3}
-                placeholder="Partager une note pour l'équipe"
-              />
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={handleAddInternalNote}
-                disabled={!newInternalNote.trim()}
-              >
-                Ajouter la note
-              </Button>
-            </div>
-          )}
         </div>
-      )}
+
+        </div>
+
+        <aside className="space-y-4">
+          <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm space-y-2">
+            <div className="space-y-1">
+              <h3 className="text-sm font-semibold text-slate-900">
+                Étape du dossier
+              </h3>
+              <p className="text-xs text-slate-600">
+                Suivez l'avancement du pipeline.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              {isAgentOrManager ? (
+                <select
+                  value={caseStage}
+                  onChange={(e) => handleStageChange(e.target.value as CaseStage)}
+                  disabled={isSavingStage}
+                  className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm disabled:opacity-60"
+                >
+                  {stageOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-800">
+                  {stageOptions.find((s) => s.value === caseStage)?.label || 'Intake / Première analyse'}
+                </span>
+              )}
+              {isSavingStage && <LoadingSpinner size="sm" />}
+            </div>
+          </section>
+
+          <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm space-y-2">
+            <div className="flex items-start justify-between gap-2">
+              <div className="space-y-1">
+                <h3 className="text-sm font-semibold text-slate-900">
+                  Checklist du dossier
+                </h3>
+                <p className="text-xs text-slate-600">
+                  Assurez-vous que toutes les tâches sont suivies.
+                </p>
+              </div>
+              {!isAgentOrManager && (
+                <span className="text-[11px] text-slate-500">Lecture seule</span>
+              )}
+            </div>
+            {tasks.length === 0 ? (
+              <p className="text-sm text-slate-600">Aucune tâche pour ce dossier.</p>
+            ) : (
+              <div className="space-y-2">
+                {tasks.map((task) => (
+                  <label key={task.id} className="flex items-center gap-2 text-sm text-slate-800">
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4 rounded border-slate-300"
+                      checked={task.done}
+                      onChange={() => handleToggleTask(task.id)}
+                      disabled={!isAgentOrManager || isSavingTasks}
+                    />
+                    <span className={task.done ? 'line-through text-slate-500' : ''}>{task.label}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+            {isAgentOrManager && (
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <input
+                  type="text"
+                  value={newTaskLabel}
+                  onChange={(e) => setNewTaskLabel(e.target.value)}
+                  placeholder="Ajouter une tâche"
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                  disabled={isSavingTasks}
+                />
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={handleAddTask}
+                  disabled={!newTaskLabel.trim() || isSavingTasks}
+                  isLoading={isSavingTasks}
+                >
+                  Ajouter
+                </Button>
+              </div>
+            )}
+          </section>
+
+          {renderAppointmentSection()}
+        </aside>
       </div>
-    </>
+    </div>
   );
 };
 
