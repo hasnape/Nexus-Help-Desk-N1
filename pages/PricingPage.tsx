@@ -5,6 +5,7 @@ import { Link, useLocation } from "react-router-dom";
 import Layout from "../components/Layout";
 import { useApp } from "../App";
 import { getPricingPlans, type PricingPlanKey } from "@/utils/pricing";
+import { useLanguage } from "../contexts/LanguageContext";
 
 const ArrowLeftIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" {...props}>
@@ -18,6 +19,7 @@ const ArrowLeftIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 
 const PricingPage: React.FC = () => {
   const { t } = useTranslation();
+  const { t: legacyTranslate } = useLanguage();
   const { user } = useApp();
   const location = useLocation();
 
@@ -32,6 +34,9 @@ const PricingPage: React.FC = () => {
   });
 
   const backLinkDestination = user ? "/dashboard" : "/landing";
+  const backLinkText = t("pricing.backToApp", {
+    defaultValue: legacyTranslate("pricing.backToApp", { defaultValue: "Back" }),
+  });
 
   const orderedPlans: Array<{ key: PricingPlanKey; isPopular: boolean }> = [
     { key: "freemium", isPopular: false },
@@ -56,7 +61,7 @@ const PricingPage: React.FC = () => {
               className="inline-flex items-center text-primary hover:text-primary-dark font-semibold text-sm"
             >
               <ArrowLeftIcon className="w-5 h-5 me-2" />
-              {t("pricing.backToApp", { defaultValue: "Retour" })}
+              {backLinkText}
             </Link>
           </div>
 
@@ -81,48 +86,43 @@ const PricingPage: React.FC = () => {
                       {popularBadge}
                     </span>
                   ) : null}
-
-                  <div className="mb-4 text-center space-y-1">
-                    <h2 className="text-xl font-semibold text-slate-900">{plan.name}</h2>
-                    <div className="text-3xl font-bold text-slate-900">{plan.price}</div>
-                    {plan.yearly ? <div className="text-xs text-slate-500">{plan.yearly}</div> : null}
+                  <div className="space-y-1">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">{plan.badge}</p>
+                    <h2 className="text-xl font-bold text-slate-900">{plan.name}</h2>
+                    <p className="text-sm text-slate-600">{plan.description}</p>
                   </div>
-
-                  <ul className="space-y-2 text-sm text-slate-700 flex-1">
+                  <div className="mt-4 flex items-baseline gap-1">
+                    <span className="text-3xl font-bold text-slate-900">{plan.price}</span>
+                    <span className="text-sm text-slate-500">{plan.period}</span>
+                  </div>
+                  <ul className="mt-4 space-y-2 text-sm text-slate-700">
                     {plan.features.map((feature) => (
-                      <li key={`${plan.name}-${feature}`} className="flex items-start gap-2">
-                        <span className="text-indigo-600">•</span>
+                      <li key={feature} className="flex items-start gap-2">
+                        <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
+                          ✓
+                        </span>
                         <span>{feature}</span>
                       </li>
                     ))}
                   </ul>
-
-                  <div className="mt-6 flex flex-col gap-3">
-                    <Link
-                      to="/demo"
-                      className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2 font-semibold text-slate-900 transition hover:bg-slate-900 hover:text-white"
-                      aria-label={`${ctaDemo} - ${plan.name}`}
+                  <div className="mt-auto pt-6 space-y-2">
+                    <a
+                      href={subscribeLinks[key]}
+                      className={`inline-flex w-full items-center justify-center rounded-xl px-4 py-2.5 text-sm font-semibold shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-600 ${
+                        isPopular
+                          ? "bg-indigo-600 text-white hover:bg-indigo-700"
+                          : "bg-slate-900 text-white hover:bg-slate-800"
+                      }`}
                     >
-                      {ctaDemo}
-                    </Link>
-                    {key === "freemium" ? (
+                      {key === "freemium" ? ctaActivate : ctaBuyNow}
+                    </a>
+                    {key !== "freemium" && (
                       <Link
-                        to={subscribeLinks.freemium}
-                        className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 font-semibold text-white transition hover:bg-primary-dark"
-                        aria-label={`${ctaActivate} - ${plan.name}`}
+                        to="/contact"
+                        className="block text-center text-sm font-semibold text-primary hover:text-primary-dark"
                       >
-                        {ctaActivate}
+                        {ctaDemo}
                       </Link>
-                    ) : (
-                      <a
-                        href={subscribeLinks[key]}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 font-semibold text-white transition hover:bg-primary-dark"
-                        aria-label={`${ctaBuyNow} - ${plan.name}`}
-                      >
-                        {ctaBuyNow}
-                      </a>
                     )}
                   </div>
                 </div>
@@ -130,8 +130,8 @@ const PricingPage: React.FC = () => {
             })}
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 text-center text-sm text-slate-600 shadow-sm">
-            <p>{t("pricing.additionalNote", { defaultValue: "Tout hébergé sur Supabase (RLS). Aucun stockage local." })}</p>
+          <div className="mx-auto max-w-3xl rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-sm">
+            <p className="text-sm text-slate-700">{t("pricing.additionalNote")}</p>
           </div>
         </div>
       </main>
