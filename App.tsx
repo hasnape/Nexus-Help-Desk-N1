@@ -1,4 +1,14 @@
-import React, { createContext, useState, useContext, ReactNode, useCallback, useEffect, useRef } from "react";
+import React, {
+  createContext,
+  useState,
+  useContext,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  lazy,
+  Suspense,
+} from "react";
 import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import {
   Ticket,
@@ -15,47 +25,48 @@ import { supabase } from "./services/supabaseClient";
 import { ensureUserProfile } from "./services/authService";
 import { guardedLogin, GuardedLoginError } from "./services/guardedLogin";
 import type { GuardedLoginErrorKey } from "./services/guardedLogin";
-import PricingPage from "./pages/PricingPage";
-import LoginPage from "./pages/LoginPage";
-import DashboardPage from "./pages/DashboardPage";
-import NewTicketPage from "./pages/NewTicketPage";
-import TicketDetailPage from "./pages/TicketDetailPage";
-import SignUpPage from "./pages/SignUpPage";
-import AgentDashboardPage from "./pages/AgentDashboardPage";
-import ManagerDashboardPage from "./pages/ManagerDashboardPage";
-import ManagerFaqPage from "./pages/ManagerFaqPage";
-import HelpChatPage from "./pages/HelpChatPage";
-import LegalPage from "./pages/LegalPage";
-import UserManualPage from "./pages/UserManualPage";
-import PromotionalPage from "./pages/PromotionalPage";
-import LandingPage from "./pages/LandingPage";
-import AccessibilitePage from "./pages/AccessibilitePage";
-import SubscriptionPage from "./pages/SubscriptionPage";
-import ContactPage from "./pages/ContactPage";
-import AboutPage from "./pages/AboutPage";
-import TestimonialsPage from "./pages/TestimonialsPage";
-import PartnersPage from "./pages/PartnersPage";
-import InfographiePage from "./pages/InfographiePage";
-import DemoPage from "./pages/DemoPage";
 import { DEFAULT_AI_LEVEL, DEFAULT_USER_ROLE, TICKET_STATUS_KEYS } from "./constants";
 import { LanguageProvider, useLanguage } from "./contexts/LanguageContext";
 import LoadingSpinner from "./components/LoadingSpinner";
 import CookieConsentBanner from "./components/CookieConsentBanner";
 import type { Session } from "@supabase/supabase-js";
 import Layout from "./components/Layout";
-import GuideOnboardingPage from "./pages/GuideOnboardingPage";
-import EnterprisePage from "./pages/EnterprisePage";
-import InvestorPage from "./pages/InvestorPage";
-import InvestorDeckPage from "./pages/InvestorDeckPage";
-import DetailedDemoPage from "./pages/DetailedDemoPage";
-import TechnicalOverviewPage from "./pages/TechnicalOverviewPage";
-import RoadmapPage from "./pages/RoadmapPage";
-import ImplementationScenariosPage from "./pages/ImplementationScenariosPage";
-import LaiTurnerDemoPage from "./pages/LaiTurnerDemoPage";
-import LaiTurnerClientPortalPage from "./pages/LaiTurnerClientPortalPage";
-import LaiTurnerAgentInboxPage from "./pages/LaiTurnerAgentInboxPage";
-import LaiTurnerManagerDashboardPage from "./pages/LaiTurnerManagerDashboardPage";
-import MasterDashboardPage from "./pages/MasterDashboardPage";
+
+const LandingPage = lazy(() => import("./pages/LandingPage"));
+const LoginPage = lazy(() => import("./pages/LoginPage"));
+const SignUpPage = lazy(() => import("./pages/SignUpPage"));
+const PricingPage = lazy(() => import("./pages/PricingPage"));
+const DashboardPage = lazy(() => import("./pages/DashboardPage"));
+const NewTicketPage = lazy(() => import("./pages/NewTicketPage"));
+const TicketDetailPage = lazy(() => import("./pages/TicketDetailPage"));
+const AgentDashboardPage = lazy(() => import("./pages/AgentDashboardPage"));
+const ManagerDashboardPage = lazy(() => import("./pages/ManagerDashboardPage"));
+const ManagerFaqPage = lazy(() => import("./pages/ManagerFaqPage"));
+const HelpChatPage = lazy(() => import("./pages/HelpChatPage"));
+const LegalPage = lazy(() => import("./pages/LegalPage"));
+const UserManualPage = lazy(() => import("./pages/UserManualPage"));
+const PromotionalPage = lazy(() => import("./pages/PromotionalPage"));
+const AccessibilitePage = lazy(() => import("./pages/AccessibilitePage"));
+const SubscriptionPage = lazy(() => import("./pages/SubscriptionPage"));
+const ContactPage = lazy(() => import("./pages/ContactPage"));
+const AboutPage = lazy(() => import("./pages/AboutPage"));
+const TestimonialsPage = lazy(() => import("./pages/TestimonialsPage"));
+const PartnersPage = lazy(() => import("./pages/PartnersPage"));
+const InfographiePage = lazy(() => import("./pages/InfographiePage"));
+const DemoPage = lazy(() => import("./pages/DemoPage"));
+const GuideOnboardingPage = lazy(() => import("./pages/GuideOnboardingPage"));
+const EnterprisePage = lazy(() => import("./pages/EnterprisePage"));
+const InvestorPage = lazy(() => import("./pages/InvestorPage"));
+const InvestorDeckPage = lazy(() => import("./pages/InvestorDeckPage"));
+const DetailedDemoPage = lazy(() => import("./pages/DetailedDemoPage"));
+const TechnicalOverviewPage = lazy(() => import("./pages/TechnicalOverviewPage"));
+const RoadmapPage = lazy(() => import("./pages/RoadmapPage"));
+const ImplementationScenariosPage = lazy(() => import("./pages/ImplementationScenariosPage"));
+const LaiTurnerDemoPage = lazy(() => import("./pages/LaiTurnerDemoPage"));
+const LaiTurnerClientPortalPage = lazy(() => import("./pages/LaiTurnerClientPortalPage"));
+const LaiTurnerAgentInboxPage = lazy(() => import("./pages/LaiTurnerAgentInboxPage"));
+const LaiTurnerManagerDashboardPage = lazy(() => import("./pages/LaiTurnerManagerDashboardPage"));
+const MasterDashboardPage = lazy(() => import("./pages/MasterDashboardPage"));
 
 
 interface AppContextType {
@@ -1772,6 +1783,12 @@ const MainAppContent: React.FC = () => {
     );
   }
 
+  const suspenseFallback = (
+    <div className="flex items-center justify-center min-h-[50vh] bg-slate-50">
+      <LoadingSpinner size="lg" text={t("appName") + "..."} />
+    </div>
+  );
+
   const isLaiTurnerTenant = (companyName || "").toLowerCase() === "lai & turner";
 
   const renderRoutes = () => {
@@ -1946,7 +1963,7 @@ const MainAppContent: React.FC = () => {
   };
   return (
     <Layout>
-      {renderRoutes()}
+      <Suspense fallback={suspenseFallback}>{renderRoutes()}</Suspense>
       {!consentGiven && <CookieConsentBanner onAccept={giveConsent} />}
     </Layout>
   );

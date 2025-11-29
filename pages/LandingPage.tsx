@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { Suspense, lazy, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Layout from "../components/Layout";
 import PricingSection from "../components/PricingSection";
-import InfographieNexus from "../InfographieNexus";
 import { Button } from "../components/FormElements";
 import NexusSalesBotWidget from "../components/NexusSalesBotWidget";
+
+const LazyInfographieNexus = lazy(() => import("../InfographieNexus"));
 
 const AiIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -134,10 +135,10 @@ const LandingPage: React.FC = () => {
                   <h1 className="text-3xl leading-tight font-bold text-slate-900 sm:text-4xl lg:text-5xl">
                     {t("landing.hero.title")}
                   </h1>
-                  <p className="text-base sm:text-lg text-slate-700 leading-relaxed">
+                  <p className="text-base sm:text-lg text-slate-800 leading-relaxed">
                     {t("landing.hero.subtitlePrimary")}
                   </p>
-                  <p className="text-base sm:text-lg text-slate-700 leading-relaxed">
+                  <p className="text-base sm:text-lg text-slate-800 leading-relaxed">
                     {t("landing.hero.subtitleSecondary")}
                   </p>
                 </div>
@@ -168,14 +169,14 @@ const LandingPage: React.FC = () => {
                     {t("landing.hero.accessContact")}
                   </Link>
                 </div>
-                <div className="grid gap-4 sm:grid-cols-2 text-sm text-slate-700">
+                <div className="grid gap-4 sm:grid-cols-2 text-sm text-slate-800">
                   <div className="rounded-xl border border-slate-200 bg-white/70 p-4 shadow-sm">
                     <p className="font-semibold text-slate-900">{t("landing.hero.assuranceTitle")}</p>
-                    <p className="text-slate-600">{t("landing.hero.assuranceBody")}</p>
+                    <p className="text-slate-700">{t("landing.hero.assuranceBody")}</p>
                   </div>
                   <div className="rounded-xl border border-slate-200 bg-white/70 p-4 shadow-sm">
                     <p className="font-semibold text-slate-900">{t("landing.hero.complianceTitle")}</p>
-                    <p className="text-slate-600">{t("landing.hero.complianceBody")}</p>
+                    <p className="text-slate-700">{t("landing.hero.complianceBody")}</p>
                   </div>
                 </div>
               </div>
@@ -188,7 +189,17 @@ const LandingPage: React.FC = () => {
                       {t("landing.hero.previewBadge")}
                     </p>
                     <div className="rounded-2xl border border-white/10 bg-slate-800/60 p-4 shadow-sm">
-                      <InfographieNexus />
+                      <Suspense
+                        fallback={
+                          <div className="flex h-72 items-center justify-center text-indigo-100">
+                            <span className="text-sm font-medium">
+                              {t("landing.hero.previewLoading", { defaultValue: "Chargement de l’infographie..." })}
+                            </span>
+                          </div>
+                        }
+                      >
+                        <LazyInfographieNexus />
+                      </Suspense>
                     </div>
                     <p className="text-sm text-slate-200 leading-relaxed">
                       {t("landing.hero.previewCaption")}
@@ -204,7 +215,7 @@ const LandingPage: React.FC = () => {
               <div className="space-y-3">
                 <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">{t("landing.video.title")}</p>
                 <h2 className="text-2xl lg:text-3xl font-bold text-slate-900">{t("landing.videoSection.title")}</h2>
-                <p className="text-sm text-slate-600 leading-relaxed">{t("landing.videoSection.subtitle")}</p>
+                <p className="text-sm text-slate-700 leading-relaxed">{t("landing.videoSection.subtitle")}</p>
                 <div className="flex flex-wrap gap-3 pt-2">
                   <Link to="/demo">
                     <Button className="px-5 py-3 text-sm font-semibold">{t("landing.video.watchOnYoutube")}</Button>
@@ -227,6 +238,7 @@ const LandingPage: React.FC = () => {
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
                     className="absolute inset-0 h-full w-full"
+                    loading="lazy"
                   ></iframe>
                 </div>
               </div>
@@ -238,7 +250,7 @@ const LandingPage: React.FC = () => {
               <div className="space-y-2">
                 <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">{t("landing.features.badge", { defaultValue: t("landing.features.title") })}</p>
                 <h2 className="text-2xl lg:text-3xl font-bold text-slate-900">{t("landing.features.title")}</h2>
-                <p className="max-w-3xl text-sm text-slate-600">{t("landing.features.subtitle")}</p>
+                <p className="max-w-3xl text-sm text-slate-700">{t("landing.features.subtitle")}</p>
               </div>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {pillars.map(({ title, description, Icon }) => (
@@ -261,7 +273,7 @@ const LandingPage: React.FC = () => {
               <div className="space-y-2">
                 <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">{t("landing.advantages.title")}</p>
                 <h2 className="text-2xl lg:text-3xl font-bold text-slate-900">{t("landing.advantages.title")}</h2>
-                <p className="max-w-3xl text-sm text-slate-600">{t("landing.advantages.subtitle")}</p>
+                <p className="max-w-3xl text-sm text-slate-700">{t("landing.advantages.subtitle")}</p>
               </div>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {advantages.map((advantage) => (
@@ -279,7 +291,7 @@ const LandingPage: React.FC = () => {
               <div className="space-y-2">
                 <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">{t("landing.benefits.badge")}</p>
                 <h2 className="text-2xl lg:text-3xl font-bold text-slate-900">{t("landing.benefits.title")}</h2>
-                <p className="max-w-3xl text-sm text-slate-600">{t("landing.benefits.subtitle")}</p>
+                <p className="max-w-3xl text-sm text-slate-700">{t("landing.benefits.subtitle")}</p>
               </div>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {benefits.map((benefit) => (
@@ -297,7 +309,7 @@ const LandingPage: React.FC = () => {
               <div className="space-y-3">
                 <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">{t("landing.rgaa.title")}</p>
                 <h2 className="text-2xl lg:text-3xl font-bold text-slate-900">{t("landing.rgaa.title")}</h2>
-                <p className="text-sm text-slate-600 leading-relaxed">{t("landing.rgaa.subtitle")}</p>
+                <p className="text-sm text-slate-700 leading-relaxed">{t("landing.rgaa.subtitle")}</p>
                 <ul className="space-y-2 text-sm text-slate-700">
                   {rgaaList.map((item) => (
                     <li key={item} className="flex items-start gap-2">
@@ -350,7 +362,7 @@ const LandingPage: React.FC = () => {
               <div className="space-y-2">
                 <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">{t("landing.pricing.badge")}</p>
                 <h2 className="text-2xl lg:text-3xl font-bold text-slate-900">{t("landing.pricing.title")}</h2>
-                <p className="max-w-2xl text-sm text-slate-600">{t("landing.pricing.subtitle")}</p>
+                <p className="max-w-2xl text-sm text-slate-700">{t("landing.pricing.subtitle")}</p>
               </div>
               <PricingSection />
             </div>
@@ -361,7 +373,7 @@ const LandingPage: React.FC = () => {
               <div className="space-y-2">
                 <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">{t("landing.useCases.badge")}</p>
                 <h2 className="text-2xl lg:text-3xl font-bold text-slate-900">{t("landing.useCases.title")}</h2>
-                <p className="max-w-3xl text-sm text-slate-600">{t("landing.useCases.subtitle")}</p>
+                <p className="max-w-3xl text-sm text-slate-700">{t("landing.useCases.subtitle")}</p>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 {useCases.map((useCase) => (
@@ -413,6 +425,7 @@ const LandingPage: React.FC = () => {
                 title="Nexus Support Hub Demo"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
+                loading="lazy"
                 className="absolute inset-0 h-full w-full"
               ></iframe>
             </div>

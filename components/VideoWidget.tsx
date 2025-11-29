@@ -56,6 +56,7 @@ const VideoWidget: React.FC = () => {
               frameBorder="0"
               allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
+              loading="lazy"
               className="w-full h-40 rounded"
             ></iframe>
           </div>

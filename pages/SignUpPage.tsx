@@ -595,6 +595,9 @@ const SignUpPage: React.FC = () => {
                   src="https://yt3.ggpht.com/vbfaZncvDLBv7B4Xo9mFggNozPaGAaGMkwciDaL-UtdLClEQmWB5blCibQacHzdrI1RL_5C9_g=s108-c-k-c0x00ffffff-no-rj"
                   alt="Nexus Support Hub Logo"
                   className="w-16 h-16 mx-auto mb-2 rounded-full object-cover"
+                  loading="lazy"
+                  width={64}
+                  height={64}
                 />
                 <h1 className="text-3xl font-bold text-textPrimary">
                   {t("signup.title")}

@@ -250,6 +250,8 @@ const Navbar: React.FC = () => {
               src="https://yt3.ggpht.com/vbfaZncvDLBv7B4Xo9mFggNozPaGAaGMkwciDaL-UtdLClEQmWB5blCibQacHzdrI1RL_5C9_g=s108-c-k-c0x00ffffff-no-rj"
               alt="Logo Nexus"
               className="w-10 h-10 rounded-full object-cover border-2 border-sky-400 bg-white"
+              width={40}
+              height={40}
               style={{ minWidth: 40, minHeight: 40, background: "#fff" }}
             />
           </Link>
@@ -331,6 +333,8 @@ const Navbar: React.FC = () => {
             src="https://yt3.ggpht.com/vbfaZncvDLBv7B4Xo9mFggNozPaGAaGMkwciDaL-UtdLClEQmWB5blCibQacHzdrI1RL_5C9_g=s108-c-k-c0x00ffffff-no-rj"
             alt="Logo Nexus"
             className="w-9 h-9 rounded-full object-cover border-2 border-sky-400 bg-white"
+            width={36}
+            height={36}
             style={{ minWidth: 36, minHeight: 36, background: "#fff" }}
           />
         </Link>
@@ -526,7 +530,7 @@ const Footer: React.FC = () => {
     <footer className="bg-slate-900 text-slate-300 py-8 mt-12">
       <div className="container mx-auto flex flex-col md:flex-row justify-between items-center">
         <div className="flex items-center mb-4 md:mb-0">
-          <img src="/logo.png" alt="Logo Nexus" className="w-8 h-8 mr-2" />
+          <img src="/logo.png" alt="Logo Nexus" className="w-8 h-8 mr-2" loading="lazy" width={32} height={32} />
           <span className="font-bold text-lg">Nexus Support Hub</span>
         </div>
         <div className="flex flex-wrap gap-4 mb-4 md:mb-0">

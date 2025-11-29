@@ -79,6 +79,9 @@ const ContactPage: React.FC = () => {
                   src="https://yt3.ggpht.com/vbfaZncvDLBv7B4Xo9mFggNozPaGAaGMkwciDaL-UtdLClEQmWB5blCibQacHzdrI1RL_5C9_g=s108-c-k-c0x00ffffff-no-rj"
                   alt="Nexus Support Hub Logo"
                   className="w-12 h-12 rounded-full object-cover"
+                  loading="lazy"
+                  width={48}
+                  height={48}
                 />
                 <div>
                   <p className="text-sm font-semibold text-slate-900">{t("appName")}</p>
@@ -106,6 +109,7 @@ const ContactPage: React.FC = () => {
                     frameBorder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
+                    loading="lazy"
                     style={{
                       position: "absolute",
                       top: 0,

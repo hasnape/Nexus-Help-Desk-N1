@@ -119,6 +119,9 @@ const LoginPage: React.FC = () => {
                 src="https://yt3.ggpht.com/vbfaZncvDLBv7B4Xo9mFggNozPaGAaGMkwciDaL-UtdLClEQmWB5blCibQacHzdrI1RL_5C9_g=s108-c-k-c0x00ffffff-no-rj"
                 alt="Nexus Support Hub Logo"
                 className="w-16 h-16 rounded-full object-cover mr-3"
+                loading="lazy"
+                width={64}
+                height={64}
                 onError={(e) => {
                   e.currentTarget.style.display = "none";
                   const fallback = e.currentTarget
