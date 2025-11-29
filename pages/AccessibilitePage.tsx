@@ -1,10 +1,25 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Layout from "../components/Layout";
+import { useApp } from "../App";
+
+const ArrowLeftIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" {...props}>
+    <path
+      fillRule="evenodd"
+      d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z"
+      clipRule="evenodd"
+    />
+  </svg>
+);
 
 const AccessibilitePage: React.FC = () => {
   const { t, i18n } = useTranslation();
+  const { user } = useApp();
+  const location = useLocation();
+
+  const backLinkDestination = user ? "/dashboard" : "/landing";
 
   const org = {
     name: "Rép&Web",
@@ -28,10 +43,19 @@ const AccessibilitePage: React.FC = () => {
     <Layout>
       <main className="min-h-[calc(100vh-5rem)] bg-slate-50 py-8 lg:py-12">
         <div className="mx-auto max-w-5xl px-4 space-y-8">
+          <div>
+            <Link
+              to={backLinkDestination}
+              state={{ from: location }}
+              className="inline-flex items-center text-primary hover:text-primary-dark font-semibold text-sm"
+            >
+              <ArrowLeftIcon className="w-5 h-5 me-2" />
+              {t("pricing.backToApp", { defaultValue: "Back" })}
+            </Link>
+          </div>
+
           <header className="space-y-2">
-            <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">
-              {t("accessibility.title")}
-            </p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">{t("accessibility.title")}</p>
             <h1 className="text-2xl lg:text-3xl font-bold text-slate-900">{t("accessibility.title")}</h1>
             <p className="text-sm text-slate-600 leading-relaxed">
               {t("accessibility.intro", {
