@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
+import Layout from "../components/Layout";
 
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xqaqogdv";
 
 type SubmissionState = null | "ok" | "ko";
 
-const DemoPage: React.FC = () => {
+const DemoPageContent: React.FC = () => {
   const { t } = useTranslation();
   const [sent, setSent] = useState<SubmissionState>(null);
   const [loading, setLoading] = useState(false);
@@ -78,6 +79,14 @@ const DemoPage: React.FC = () => {
         ) : null}
       </form>
     </main>
+  );
+};
+
+const DemoPage: React.FC = () => {
+  return (
+    <Layout>
+      <DemoPageContent />
+    </Layout>
   );
 };
 
