@@ -19,7 +19,7 @@ const UserManualPage: React.FC = () => {
   const { user } = useApp();
   const location = useLocation();
 
-  const backLinkDestination = user ? '/dashboard' : '/login';
+  const backLinkDestination = user ? '/dashboard' : '/landing';
 
   return (
     <Layout mainClassName='page-shell py-10 lg:py-14'>
