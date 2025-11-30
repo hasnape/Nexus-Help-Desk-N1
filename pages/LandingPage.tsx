@@ -221,13 +221,10 @@ const LandingPage: React.FC = () => {
             </div>
           </section>
 
-          {/* ACCESSIBILITÉ / INFOGRAPHIE */}
-          <section
-            id="infographie"
-            className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr),minmax(0,1fr)] items-start"
-          >
-            <div className="surface-card space-y-3">
-              <h2 className="section-title text-left text-2xl">
+                 {/* ACCESSIBILITÉ / INFOGRAPHIE */}
+          <section id="infographie" className="section-stack">
+            <div className="surface-card space-y-3 max-w-3xl mx-auto text-center lg:text-left">
+              <h2 className="section-title text-2xl text-left">
                 {t("infographie.title", {
                   defaultValue: "Architecture & automatisation",
                 })}
@@ -253,9 +250,12 @@ const LandingPage: React.FC = () => {
             </div>
 
             <div className="surface-card-soft">
-              <InfographieNexus />
+              <div className="w-full max-w-5xl mx-auto">
+                <InfographieNexus />
+              </div>
             </div>
           </section>
+
         </div>
       </Layout>
 
