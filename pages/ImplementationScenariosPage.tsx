@@ -1,8 +1,10 @@
 import React from "react";
-import { useLanguage } from "../contexts/LanguageContext";
+import { useTranslation } from "react-i18next";
+
+import Layout from "../components/Layout";
 
 const ImplementationScenariosPage: React.FC = () => {
-  const { t } = useLanguage();
+  const { t } = useTranslation();
 
   const scenarios = [
     {
@@ -32,53 +34,48 @@ const ImplementationScenariosPage: React.FC = () => {
   ];
 
   return (
-    <div className="bg-slate-50">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
-        <header className="space-y-3">
-          <p className="inline-flex items-center rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-semibold tracking-wide">
-            {t("docs.implementationScenarios.title")}
-          </p>
-          <h1 className="text-3xl sm:text-4xl font-bold text-slate-900">
-            {t("docs.implementationScenarios.title")}
-          </h1>
-          <p className="text-lg text-slate-700 leading-relaxed">
-            {t("docs.implementationScenarios.subtitle")}
-          </p>
+    <Layout mainClassName="page-shell py-10 lg:py-14">
+      <div className="page-container section-stack">
+        <header className="surface-card p-6 lg:p-8 space-y-3">
+          <p className="section-eyebrow">{t("docs.implementationScenarios.title")}</p>
+          <h1 className="section-title">{t("docs.implementationScenarios.title")}</h1>
+          <p className="section-subtitle">{t("docs.implementationScenarios.subtitle")}</p>
         </header>
 
         <div className="grid gap-6 md:grid-cols-2">
           {scenarios.map((scenario) => (
-            <section key={scenario.title} className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 space-y-3">
-              <h2 className="text-xl font-semibold text-slate-900">{scenario.title}</h2>
-              <div className="space-y-2 text-sm text-slate-700">
-                <p className="font-semibold text-slate-900">{t("landing.setup.s1.text", { defaultValue: "Contexte" })}</p>
-                <p className="leading-relaxed">{scenario.context}</p>
-                <p className="font-semibold text-slate-900">{t("landing.setup.s2.text", { defaultValue: "Mise en place" })}</p>
-                <p className="leading-relaxed">{scenario.setup}</p>
-                <p className="font-semibold text-slate-900">{t("landing.setup.s3.text", { defaultValue: "Gains attendus" })}</p>
-                <p className="leading-relaxed">{scenario.benefits}</p>
+            <section key={scenario.title} className="surface-card p-6 space-y-3">
+              <h2 className="text-xl font-semibold text-white">{scenario.title}</h2>
+              <div className="space-y-2 text-sm text-slate-200">
+                <p className="font-semibold text-white">
+                  {t("landing.setup.s1.text", { defaultValue: "Contexte" })}
+                </p>
+                <p className="muted-copy">{scenario.context}</p>
+                <p className="font-semibold text-white">
+                  {t("landing.setup.s2.text", { defaultValue: "Mise en place" })}
+                </p>
+                <p className="muted-copy">{scenario.setup}</p>
+                <p className="font-semibold text-white">
+                  {t("landing.setup.s3.text", { defaultValue: "Gains attendus" })}
+                </p>
+                <p className="muted-copy">{scenario.benefits}</p>
               </div>
             </section>
           ))}
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 space-y-3">
-          <p className="text-slate-700 text-sm leading-relaxed">
-            {t("docs.implementationScenarios.gainsNotice")}
-          </p>
-          <p className="text-sm text-slate-500 mt-4">
-            {t("docs.downloadHint")}
-          </p>
-          {/* Lien prêt pour futur PDF exporté depuis les .md (fichier non encore présent) */}
+        <div className="surface-card-soft p-6 space-y-3">
+          <p className="muted-copy">{t("docs.implementationScenarios.gainsNotice")}</p>
+          <p className="text-sm text-slate-300">{t("docs.downloadHint")}</p>
           <a
             href="/docs/scenarios-implementation.pdf"
-            className="inline-flex items-center text-sm font-medium text-primary hover:underline"
+            className="pill-link"
           >
             {t("docs.downloadPdf")}
           </a>
         </div>
       </div>
-    </div>
+    </Layout>
   );
 };
 
