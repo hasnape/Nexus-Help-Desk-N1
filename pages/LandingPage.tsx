@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import Layout from "../components/Layout";
 import { Button } from "../components/FormElements";
 import NexusSalesBotWidget from "../components/NexusSalesBotWidget";
-import InfographieNexus from "@/InfographieNexus";
+import InfographieNexus from "InfographieNexus";
 
 const LandingPage: React.FC = () => {
   const { t } = useTranslation();
