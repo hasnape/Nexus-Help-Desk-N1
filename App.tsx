@@ -59,6 +59,8 @@ const EnterprisePage = lazy(() => import("./pages/EnterprisePage"));
 const InvestorPage = lazy(() => import("./pages/InvestorPage"));
 const InvestorDeckPage = lazy(() => import("./pages/InvestorDeckPage"));
 const DetailedDemoPage = lazy(() => import("./pages/DetailedDemoPage"));
+const PresentationVideoPage = lazy(() => import("./pages/PresentationVideoPage"));
+const EmailSupportPage = lazy(() => import("./pages/EmailSupportPage"));
 const TechnicalOverviewPage = lazy(() => import("./pages/TechnicalOverviewPage"));
 const RoadmapPage = lazy(() => import("./pages/RoadmapPage"));
 const ImplementationScenariosPage = lazy(() => import("./pages/ImplementationScenariosPage"));
@@ -1808,6 +1810,8 @@ const MainAppContent: React.FC = () => {
         <Route path="/infographie" element={<InfographiePage />} />
         <Route path="/demo" element={<DemoPage />} />
         <Route path="/guide-onboarding" element={<GuideOnboardingPage />} />
+        <Route path="/presentation-video" element={<PresentationVideoPage />} />
+        <Route path="/email-support" element={<EmailSupportPage />} />
         <Route path="/enterprise" element={<EnterprisePage />} />
         <Route path="/investors" element={<InvestorPage />} />
         <Route path="/investor-deck" element={<InvestorDeckPage />} />

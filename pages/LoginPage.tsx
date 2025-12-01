@@ -88,7 +88,8 @@ const LoginPage: React.FC = () => {
         })
       );
     } catch (resetError: any) {
-      const readableError = resetError?.message ||
+      const readableError =
+        resetError?.message ||
         t("login.resetPasswordError", {
           default: "Impossible d'envoyer l'email de réinitialisation. Veuillez réessayer.",
         });
@@ -110,239 +111,196 @@ const LoginPage: React.FC = () => {
           </div>
         </div>
       )}
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-700 p-4">
-        <div className="bg-surface p-6 sm:p-8 rounded-xl shadow-2xl w-full max-w-md">
-          <div className="text-center mb-6">
-            {/* Ajouter votre logo ici */}
-            <div className="flex justify-center items-center mb-4">
-              <img
-                src="https://yt3.ggpht.com/vbfaZncvDLBv7B4Xo9mFggNozPaGAaGMkwciDaL-UtdLClEQmWB5blCibQacHzdrI1RL_5C9_g=s108-c-k-c0x00ffffff-no-rj"
-                alt="Nexus Support Hub Logo"
-                className="w-16 h-16 rounded-full object-cover mr-3"
-                loading="lazy"
-                width={64}
-                height={64}
-                onError={(e) => {
-                  e.currentTarget.style.display = "none";
-                  const fallback = e.currentTarget
-                    .nextElementSibling as HTMLElement;
-                  if (fallback) {
-                    fallback.style.display = "block";
-                  }
-                }}
-              />
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-16 h-16 text-primary"
-                style={{ display: "none" }}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15"
+      <div className="page-container section-stack">
+        <div className="flex justify-center">
+          <div className="surface-card p-6 sm:p-8 w-full max-w-2xl space-y-8">
+            <div className="text-center space-y-3">
+              <div className="flex justify-center items-center gap-3">
+                <img
+                  src="https://yt3.ggpht.com/vbfaZncvDLBv7B4Xo9mFggNozPaGAaGMkwciDaL-UtdLClEQmWB5blCibQacHzdrI1RL_5C9_g=s108-c-k-c0x00ffffff-no-rj"
+                  alt="Nexus Support Hub Logo"
+                  className="w-14 h-14 rounded-full object-cover"
+                  loading="lazy"
+                  width={56}
+                  height={56}
                 />
-              </svg>
+                <div className="text-left">
+                  <p className="text-xs uppercase tracking-wide text-slate-300">{t("appName")}</p>
+                  <h1 className="text-3xl font-bold text-white">{t("login.title")}</h1>
+                </div>
+              </div>
+              <p className="section-subtitle">{t("login.subtitleSimple")}</p>
+              <div className="rounded-2xl border border-indigo-500/20 bg-indigo-500/10 px-4 py-3 text-sm text-slate-200">
+                <p>{t("login.appDescription")}</p>
+              </div>
             </div>
-            <h1 className="text-3xl font-bold text-textPrimary">
-              {t("login.title")}
-            </h1>
-            <p className="text-textSecondary mt-1">
-              {t("login.subtitleSimple")}
-            </p>
-          </div>
 
-          <div className="mb-6 text-sm bg-primary/5 border border-primary/20 text-slate-700 p-4 rounded-lg text-center">
-            <p>{t("login.appDescription")}</p>
-          </div>
+            {error && (
+              <p className="rounded-lg border border-red-500/40 bg-red-500/10 p-3 text-center text-sm text-red-100">
+                {error}
+              </p>
+            )}
+            {infoMessage && (
+              <p className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 p-3 text-center text-sm text-emerald-100">
+                {infoMessage}
+              </p>
+            )}
 
-          {error && (
-            <p className="mb-4 text-center text-red-600 bg-red-100 p-2 rounded-md text-sm">
-              {error}
-            </p>
-          )}
-          {infoMessage && (
-            <p className="mb-4 text-center text-green-600 bg-green-100 p-2 rounded-md text-sm">
-              {infoMessage}
-            </p>
-          )}
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <Input
+                label={t("login.emailLabel")}
+                id="email"
+                type="email"
+                name="email"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder={t("login.emailPlaceholder")}
+                autoFocus
+                required
+                disabled={isLoading}
+              />
+              <Input
+                label={t("login.passwordLabel")}
+                id="password"
+                type="password"
+                name="password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder={t("login.passwordPlaceholder")}
+                required
+                disabled={isLoading}
+              />
+              <Input
+                label={t("login.companyNameLabel", { defaultValue: "Company Name" })}
+                id="companyName"
+                type="text"
+                name="companyName"
+                autoComplete="organization"
+                value={companyName}
+                onChange={(e) => setCompanyName(e.target.value)}
+                placeholder={t("login.companyNamePlaceholder", {
+                  defaultValue: "Enter your company's name",
+                })}
+                required
+                disabled={isLoading}
+              />
+              <div
+                className={`surface-card-soft px-4 py-3 text-xs text-slate-200 ${
+                  language === "ar" ? "text-right" : ""
+                }`}
+                dir={language === "ar" ? "rtl" : "ltr"}
+              >
+                <p className="font-semibold text-white mb-1">{t("auth.roles.title")}</p>
+                <ul className={`space-y-1 ${language === "ar" ? "pr-3" : "pl-4"} list-disc`}>
+                  <li>{t("auth.roles.user")}</li>
+                  <li>{t("auth.roles.agent")}</li>
+                  <li>{t("auth.roles.manager")}</li>
+                </ul>
+                <p className="mt-2 text-[11px] text-slate-300">{t("login.laiTurnerNote")}</p>
+              </div>
+              <div className={`${language === "ar" ? "text-left" : "text-right"} -mt-1`}>
+                <button
+                  type="button"
+                  onClick={handlePasswordReset}
+                  className="text-sm font-medium text-indigo-200 hover:text-white disabled:opacity-50"
+                  disabled={isLoading || isSendingReset}
+                >
+                  {t("login.forgotPasswordLink", { defaultValue: "Mot de passe oublié ?" })}
+                </button>
+              </div>
+              <Button
+                type="submit"
+                className="w-full !mt-8"
+                size="lg"
+                isLoading={isLoading}
+                disabled={isLoading}
+              >
+                {t("login.signInButton")}
+              </Button>
+            </form>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <Input
-              label={t("login.emailLabel")}
-              id="email"
-              type="email"
-              name="email"
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder={t("login.emailPlaceholder")}
-              autoFocus
-              required
-              disabled={isLoading}
-            />
-            <Input
-              label={t("login.passwordLabel")}
-              id="password"
-              type="password"
-              name="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder={t("login.passwordPlaceholder")}
-              required
-              disabled={isLoading}
-            />
-            <Input
-              label={t("login.companyNameLabel", { default: "Company Name" })}
-              id="companyName"
-              type="text"
-              name="companyName"
-              autoComplete="organization"
-              value={companyName}
-              onChange={(e) => setCompanyName(e.target.value)}
-              placeholder={t("login.companyNamePlaceholder", {
-                default: "Enter your company's name",
-              })}
-              required
-              disabled={isLoading}
-            />
-            <div
-              className={`rounded-md border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-700 ${
-                language === "ar" ? "text-right" : ""
-              }`}
+            <section
+              className={`surface-card-soft mt-6 rounded-2xl p-4 text-left ${language === "ar" ? "text-right" : ""}`}
               dir={language === "ar" ? "rtl" : "ltr"}
             >
-              <p className="font-semibold text-slate-800 mb-1">
-                {t("auth.roles.title")}
-              </p>
-              <ul className={`space-y-1 ${language === "ar" ? "pr-3" : "pl-4"} list-disc`}>
-                <li>{t("auth.roles.user")}</li>
-                <li>{t("auth.roles.agent")}</li>
-                <li>{t("auth.roles.manager")}</li>
-              </ul>
-              <p className="mt-2 text-[11px] text-slate-500">
-                {t("login.laiTurnerNote")}
-              </p>
-            </div>
-            <div className={`${language === "ar" ? "text-left" : "text-right"} -mt-1`}>
-              <button
-                type="button"
-                onClick={handlePasswordReset}
-                className="text-sm font-medium text-primary hover:text-primary-dark disabled:opacity-50"
-                disabled={isLoading || isSendingReset}
-              >
-                {t("login.forgotPasswordLink", { default: "Mot de passe oublié ?" })}
-              </button>
-            </div>
-            <Button
-              type="submit"
-              className="w-full !mt-8"
-              size="lg"
-              isLoading={isLoading}
-              disabled={isLoading}
-            >
-              {t("login.signInButton")}
-            </Button>
-          </form>
-          <section
-            className={`mt-8 bg-slate-50 border border-slate-200 rounded-lg p-4 text-left ${
-              language === "ar" ? "text-right" : ""
-            }`}
-            dir={language === "ar" ? "rtl" : "ltr"}
-          >
-            <h2 className="text-sm font-semibold text-slate-800 mb-2">{t("roleHelp.title")}</h2>
-            <p className="text-xs text-slate-600 mb-4">{t("roleHelp.subtitle")}</p>
+              <h2 className="text-sm font-semibold text-white mb-2">{t("roleHelp.title")}</h2>
+              <p className="text-xs text-slate-200 mb-4">{t("roleHelp.subtitle")}</p>
 
-            <div className="grid gap-4 md:grid-cols-3">
-              <div className="space-y-1">
-                <h3 className="text-sm font-semibold text-slate-800">{t("roleHelp.manager.title")}</h3>
-                <p className="text-xs text-slate-600">{t("roleHelp.manager.description")}</p>
-                <h4 className="text-xs font-semibold text-slate-800 mt-2">{t("roleHelp.manager.loginTitle")}</h4>
-                <ul
-                  className={`list-disc space-y-1 text-xs text-slate-700 ${language === "ar" ? "pr-4" : "pl-4"}`}
-                >
-                  <li>{t("roleHelp.manager.loginStep1")}</li>
-                  <li>{t("roleHelp.manager.loginStep2")}</li>
-                </ul>
+              <div className="grid gap-4 md:grid-cols-3">
+                <div className="space-y-1">
+                  <h3 className="text-sm font-semibold text-white">{t("roleHelp.manager.title")}</h3>
+                  <p className="text-xs text-slate-300">{t("roleHelp.manager.description")}</p>
+                  <h4 className="text-xs font-semibold text-white mt-2">{t("roleHelp.manager.loginTitle")}</h4>
+                  <ul
+                    className={`list-disc space-y-1 text-xs text-slate-200 ${language === "ar" ? "pr-4" : "pl-4"}`}
+                  >
+                    <li>{t("roleHelp.manager.loginStep1")}</li>
+                    <li>{t("roleHelp.manager.loginStep2")}</li>
+                  </ul>
+                </div>
+
+                <div className="space-y-1">
+                  <h3 className="text-sm font-semibold text-white">{t("roleHelp.agent.title")}</h3>
+                  <p className="text-xs text-slate-300">{t("roleHelp.agent.description")}</p>
+                  <h4 className="text-xs font-semibold text-white mt-2">{t("roleHelp.agent.loginTitle")}</h4>
+                  <ul
+                    className={`list-disc space-y-1 text-xs text-slate-200 ${language === "ar" ? "pr-4" : "pl-4"}`}
+                  >
+                    <li>{t("roleHelp.agent.loginStep1")}</li>
+                    <li>{t("roleHelp.agent.loginStep2")}</li>
+                  </ul>
+                </div>
+
+                <div className="space-y-1">
+                  <h3 className="text-sm font-semibold text-white">{t("roleHelp.user.title")}</h3>
+                  <p className="text-xs text-slate-300">{t("roleHelp.user.description")}</p>
+                  <h4 className="text-xs font-semibold text-white mt-2">{t("roleHelp.user.loginTitle")}</h4>
+                  <ul
+                    className={`list-disc space-y-1 text-xs text-slate-200 ${language === "ar" ? "pr-4" : "pl-4"}`}
+                  >
+                    <li>{t("roleHelp.user.loginStep1")}</li>
+                    <li>{t("roleHelp.user.loginStep2")}</li>
+                  </ul>
+                </div>
               </div>
+            </section>
 
-              <div className="space-y-1">
-                <h3 className="text-sm font-semibold text-slate-800">{t("roleHelp.agent.title")}</h3>
-                <p className="text-xs text-slate-600">{t("roleHelp.agent.description")}</p>
-                <h4 className="text-xs font-semibold text-slate-800 mt-2">{t("roleHelp.agent.loginTitle")}</h4>
-                <ul
-                  className={`list-disc space-y-1 text-xs text-slate-700 ${language === "ar" ? "pr-4" : "pl-4"}`}
-                >
-                  <li>{t("roleHelp.agent.loginStep1")}</li>
-                  <li>{t("roleHelp.agent.loginStep2")}</li>
-                </ul>
-              </div>
-
-              <div className="space-y-1">
-                <h3 className="text-sm font-semibold text-slate-800">{t("roleHelp.user.title")}</h3>
-                <p className="text-xs text-slate-600">{t("roleHelp.user.description")}</p>
-                <h4 className="text-xs font-semibold text-slate-800 mt-2">{t("roleHelp.user.loginTitle")}</h4>
-                <ul
-                  className={`list-disc space-y-1 text-xs text-slate-700 ${language === "ar" ? "pr-4" : "pl-4"}`}
-                >
-                  <li>{t("roleHelp.user.loginStep1")}</li>
-                  <li>{t("roleHelp.user.loginStep2")}</li>
-                </ul>
-              </div>
-            </div>
-          </section>
-          <p className="mt-6 text-sm text-center text-slate-500">
-            {t("login.noAccount")}{" "}
-            <Link
-              to="/signup"
-              className="font-medium text-primary hover:text-primary-dark"
-            >
-              {t("login.signUpLink")}
-            </Link>
-          </p>
-
-          {/* Le "Back" style signUpPage */}
-          <div className="mt-6 text-sm text-center text-slate-500 space-y-2">
-            <p>
-              <Link
-                to="/landing"
-                className="inline-flex items-center font-medium text-slate-600 hover:text-primary-dark"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  className="w-4 h-4 me-1"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                {t("login.backToLanding", { default: "Back to Plans" })}
+            <p className="text-sm text-center text-slate-300">
+              {t("login.noAccount")} {" "}
+              <Link to="/signup" className="font-medium text-indigo-200 hover:text-white">
+                {t("login.signUpLink")}
               </Link>
             </p>
-          </div>
 
-          {/* Le paragraphe avec la note démo */}
-          <p className="mt-4 text-xs text-center text-slate-400">
-            {t("login.demoNotes.supabase.production")}
-          </p>
+            <div className="text-sm text-center text-slate-400 space-y-2">
+              <p>
+                <Link to="/landing" className="inline-flex items-center font-medium text-indigo-200 hover:text-white">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    className="w-4 h-4 me-1"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  {t("login.backToLanding", { defaultValue: "Back to Plans" })}
+                </Link>
+              </p>
+            </div>
 
-          {/* Footer legal */}
-          <div className="mt-6 pt-4 border-t border-slate-200 text-center">
-            <Link
+            <p className="text-xs text-center text-slate-500">{t("login.demoNotes.supabase.production")}</p>
 
-                         to="/legal"
-              className="text-xs text-slate-500 hover:text-primary hover:underline"
-            >
-              {t("footer.legalLink", { default: "Legal & Documentation" })}
-            </Link>
+            <div className="pt-4 border-t border-slate-800 text-center">
+              <Link to="/legal" className="text-xs text-slate-400 hover:text-white hover:underline">
+                {t("footer.legalLink", { defaultValue: "Legal & Documentation" })}
+              </Link>
+            </div>
           </div>
         </div>
       </div>

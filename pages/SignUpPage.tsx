@@ -34,7 +34,7 @@ const FreemiumModal = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="surface-card rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-gray-900">
@@ -104,7 +104,7 @@ const ProModal = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="surface-card rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-gray-900">
@@ -178,7 +178,7 @@ const StandardModal = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="surface-card rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-gray-900">
@@ -267,18 +267,15 @@ const PlanCard: React.FC<{
 
   return (
     <div
-      className={`relative p-6 rounded-xl border-2 bg-white transition-all duration-200 ${
-        isSelected
-          ? "border-success border-3 shadow-lg ring-2 ring-green-200/60"
-          : "border-slate-200 hover:border-slate-300 hover:shadow-md"
+      className={`relative p-6 surface-card-soft transition-all duration-200 ${
+        isSelected ? "border-indigo-400/60 shadow-indigo-900/40" : "border-slate-800"
       }`}
       role="group"
       aria-label={planTitle}
     >
       {isSelected ? (
-        <span className="position-absolute top-0 end-0 translate-middle mt-4 me-4 rounded-circle bg-success text-white d-flex align-items-center justify-content-center shadow">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-               fill="currentColor" className="w-4 h-4">
+        <span className="absolute -top-3 right-4 inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white shadow-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
             <path
               fillRule="evenodd"
               d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -295,7 +292,7 @@ const PlanCard: React.FC<{
       ) : null}
 
       <div className="text-center mb-6">
-        <h3 className="text-xl font-bold text-gray-900 mb-2" data-i18n={`pricing.plans.${planKey}.name`}>
+        <h3 className="text-xl font-bold text-white mb-2" data-i18n={`pricing.plans.${planKey}.name`}>
           {plan.name}
         </h3>
         <span className="visually-hidden" data-i18n={`pricing.${planKey}`}>
@@ -314,7 +311,7 @@ const PlanCard: React.FC<{
             <span className="visually-hidden" data-i18n="pricing.billed_yearly">
               {t("pricing.billed_yearly", { defaultValue: "Billed yearly" })}
             </span>
-            <p className="text-gray-600 text-sm" data-i18n={`pricing.plans.${planKey}.yearly`}>
+            <p className="text-slate-300 text-sm" data-i18n={`pricing.plans.${planKey}.yearly`}>
               {plan.yearly}
             </p>
           </>
@@ -328,26 +325,26 @@ const PlanCard: React.FC<{
       <ul className="space-y-3 mb-6">
         {plan.features.map((feature, index) => (
           <li key={`${plan.name}-${feature}`} className="flex items-start">
-            <svg className="w-5 h-5 text-success me-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="w-5 h-5 text-primary me-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
               <path
                 fillRule="evenodd"
                 d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                 clipRule="evenodd"
               />
             </svg>
-            <span className="text-gray-700 text-sm" data-i18n={`pricing.plans.${planKey}.features.${index}`}>
+            <span className="text-slate-200 text-sm" data-i18n={`pricing.plans.${planKey}.features.${index}`}>
               {feature}
             </span>
           </li>
         ))}
       </ul>
 
-      <div className="mt-6 d-flex flex-column gap-3">
+      <div className="mt-6 flex flex-col gap-3">
         <button
           type="button"
           onClick={handleSelectClick}
-          className={`btn btn-success btn-lg ${actionButtonBase} focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-green-600 ${
-            isSelectable && isSelected ? "shadow" : ""
+          className={`inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold text-white transition ${
+            isSelected ? "bg-primary hover:bg-indigo-400" : "bg-slate-800 hover:bg-slate-700"
           }`}
           {...(isSelectable ? { "data-plan": planKey, "aria-pressed": isSelected } : {})}
           data-i18n={buttonKey}
@@ -588,51 +585,41 @@ const SignUpPage: React.FC = () => {
 
       <div className="page-container section-stack">
         <div className="surface-card shadow-2xl overflow-hidden p-6 lg:p-8 space-y-8">
-              <div className="text-center mb-8">
-                <img
-                  src="https://yt3.ggpht.com/vbfaZncvDLBv7B4Xo9mFggNozPaGAaGMkwciDaL-UtdLClEQmWB5blCibQacHzdrI1RL_5C9_g=s108-c-k-c0x00ffffff-no-rj"
-                  alt="Nexus Support Hub Logo"
-                  className="w-16 h-16 mx-auto mb-2 rounded-full object-cover"
-                  loading="lazy"
-                  width={64}
-                  height={64}
-                />
-                <h1 className="text-3xl font-bold text-textPrimary">
-                  {t("signup.title")}
-                </h1>
-                <p className="text-textSecondary mt-1 max-w-3xl mx-auto">
-                  {t("signup.subtitle")}
-                </p>
+          <div className="text-center mb-8 space-y-3">
+            <img
+              src="https://yt3.ggpht.com/vbfaZncvDLBv7B4Xo9mFggNozPaGAaGMkwciDaL-UtdLClEQmWB5blCibQacHzdrI1RL_5C9_g=s108-c-k-c0x00ffffff-no-rj"
+              alt="Nexus Support Hub Logo"
+              className="w-16 h-16 mx-auto rounded-full object-cover"
+              loading="lazy"
+              width={64}
+              height={64}
+            />
+            <h1 className="section-title">{t("signup.title")}</h1>
+            <p className="section-subtitle max-w-3xl mx-auto">{t("signup.subtitle")}</p>
+          </div>
+
+          {error && (
+            <p className="mb-4 text-center rounded-md border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-100">
+              {error}
+            </p>
+          )}
+
+          {success && (
+            <div className="mb-4 text-center rounded-md border border-emerald-500/40 bg-emerald-500/10 p-3 text-sm text-emerald-100">
+              <div className="flex items-center justify-center mb-2 gap-2">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <span className="font-semibold">Inscription réussie !</span>
               </div>
-
-              {error && (
-                <p className="mb-4 text-center text-red-600 bg-red-100 p-3 rounded-md border border-red-200">
-                  {error}
-                </p>
-              )}
-
-              {success && (
-                <div className="mb-4 text-center text-green-600 bg-green-100 p-3 rounded-md border border-green-200">
-                  <div className="flex items-center justify-center mb-2">
-                    <svg
-                      className="w-5 h-5 mr-2"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    <span className="font-semibold">Inscription réussie !</span>
-                  </div>
-                  <p className="text-sm">{success}</p>
-                  <p className="text-xs mt-2 text-green-500">
-                    Redirection vers la connexion...
-                  </p>
-                </div>
-              )}
+              <p className="text-sm text-emerald-50">{success}</p>
+              <p className="text-xs mt-2 text-emerald-200">Redirection vers la connexion...</p>
+            </div>
+          )}
 
               {role === UserRole.MANAGER && !success && (
                 <div className="mb-8" ref={offersRef}>
@@ -791,7 +778,7 @@ const SignUpPage: React.FC = () => {
                             >
                               ?
                             </button>
-                            <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-64 p-3 bg-white border border-slate-200 rounded shadow-lg text-xs text-slate-700 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition pointer-events-none group-hover:pointer-events-auto z-20">
+                            <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-64 p-3 surface-card-soft text-xs text-slate-200 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition pointer-events-none group-hover:pointer-events-auto z-20">
                               {t("activationKey.help", {
                                 defaultValue:
                                   "Pour obtenir le code d’activation, contactez le support Nexus ou consultez votre email de bienvenue après l’achat du plan.",
