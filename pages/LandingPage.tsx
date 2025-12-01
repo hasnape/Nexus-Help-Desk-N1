@@ -38,6 +38,7 @@ const LandingPage: React.FC = () => {
 
   return (
     <>
+      {/* Navbar and Footer are already handled by the global Layout wrapper */}
       <MarketingLayout>
         <section className="space-y-8 text-center">
           <header className="space-y-3 max-w-3xl mx-auto">

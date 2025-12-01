@@ -13,6 +13,7 @@ const MarketingLayout: React.FC<MarketingLayoutProps> = ({
 }) => {
   return (
     <div className={`${mainClassName}`}>
+      {/* Navbar and Footer are provided by the global Layout wrapper */}
       <div className={`page-container marketing-layout ${className}`}>{children}</div>
     </div>
   );
