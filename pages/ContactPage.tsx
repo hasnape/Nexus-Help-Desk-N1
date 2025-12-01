@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import Layout from '../components/Layout';
 import { useApp } from '../App';
 import VideoPlayer from '../components/VideoPlayer';
 import { useTranslation } from 'react-i18next';
@@ -33,11 +32,10 @@ const ContactPage: React.FC = () => {
     : t('contact.backToHome', { defaultValue: 'Back to Home' });
 
   return (
-    <Layout mainClassName='page-shell py-10 lg:py-14'>
-      <div className='page-container section-stack'>
-        <div>
-          <Link to={backLinkDestination} state={{ from: location }} className='pill-link'>
-            <ArrowLeftIcon className='w-5 h-5' />
+    <div className='page-container section-stack'>
+      <div>
+        <Link to={backLinkDestination} state={{ from: location }} className='pill-link'>
+          <ArrowLeftIcon className='w-5 h-5' />
             {backLinkText}
           </Link>
         </div>
@@ -125,7 +123,7 @@ const ContactPage: React.FC = () => {
           </section>
         </div>
       </div>
-    </Layout>
+    </div>
   );
 };
 

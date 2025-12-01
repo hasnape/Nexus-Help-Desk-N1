@@ -39,13 +39,12 @@ const LandingPage: React.FC = () => {
 
   return (
     <>
-      <main ClassName="page-shell py-10 lg:py-14">
-        <div className="page-container section-stack">
-          <div>
-            <Link to={backLinkDestination} state={{ from: location }} className="pill-link">
-              <ArrowLeftIcon className="w-5 h-5" />
-              {backLinkText}
-            </Link>
+      <div className="page-container section-stack">
+        <div>
+          <Link to={backLinkDestination} state={{ from: location }} className="pill-link">
+            <ArrowLeftIcon className="w-5 h-5" />
+            {backLinkText}
+          </Link>
           </div>
 
           {/* HERO */}
@@ -256,7 +255,7 @@ const LandingPage: React.FC = () => {
           </section>
 
         </div>
-      </main>
+      </div>
 
       <NexusSalesBotWidget />
     </>

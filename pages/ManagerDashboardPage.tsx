@@ -7,7 +7,6 @@ import { Button, Select, Input } from '../components/FormElements';
 import { useLanguage } from '../contexts/LanguageContext';
 import LoadingSpinner from '../components/LoadingSpinner';
 import FloatingActionButton from '../components/FloatingActionButton';
-import Layout from '../components/Layout';
 import { formatQuota } from '@/utils/formatQuota';
 import { supabase } from '@/services/supabaseClient';
 
@@ -684,9 +683,8 @@ const ManagerDashboardPage: React.FC = () => {
 
 
     return (
-        <Layout>
-            <div className="min-h-[calc(100vh-5rem)] bg-slate-50 py-8">
-                <div className="mx-auto max-w-6xl space-y-8 px-4">
+        <div className="min-h-[calc(100vh-5rem)] bg-slate-50 py-8">
+            <div className="mx-auto max-w-6xl space-y-8 px-4">
                     {showWelcomeModal && (
                         <div className={`fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 transition-opacity duration-300 ${isModalVisible ? 'opacity-100' : 'opacity-0'}`}>
                             <div className={`bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-lg w-full text-center transform transition-all duration-300 ${isModalVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}>
@@ -973,7 +971,6 @@ const ManagerDashboardPage: React.FC = () => {
                     <FloatingActionButton to="/help" title={t('managerDashboard.createNewTicketButton')} />
                 </div>
             </div>
-        </Layout>
     );
 };
 

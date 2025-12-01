@@ -2,7 +2,6 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
-import Layout from "../components/Layout";
 import { Button } from "../components/FormElements";
 import NexusSalesBotWidget from "../components/NexusSalesBotWidget";
 
@@ -10,7 +9,7 @@ const EnterprisePage: React.FC = () => {
   const { t } = useTranslation();
 
   return (
-    <Layout mainClassName="page-shell py-10 lg:py-14">
+    <>
       <div className="page-container section-stack">
         <section className="surface-card p-6 lg:p-8 space-y-4">
           <p className="section-eyebrow">{t("enterprise.badge")}</p>
@@ -136,7 +135,7 @@ const EnterprisePage: React.FC = () => {
         </div>
       </div>
       <NexusSalesBotWidget />
-    </Layout>
+    </>
   );
 };
 

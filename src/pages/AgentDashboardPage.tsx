@@ -6,7 +6,6 @@ import { Button } from "../../components/FormElements";
 import { useLanguage } from "../../contexts/LanguageContext";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import FloatingActionButton from "../../components/FloatingActionButton";
-import Layout from "../../components/Layout";
 import { supabase } from "../../services/supabaseClient";
 
 const PlusIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
@@ -124,9 +123,8 @@ const AgentDashboardPage: React.FC = () => {
   const resolvedCount = myTickets.filter((ticket) => ticket.status === TicketStatus.RESOLVED).length;
 
   return (
-    <Layout>
-      <div className="min-h-[calc(100vh-5rem)] bg-slate-50 py-8">
-        <div className="mx-auto max-w-6xl space-y-8 px-4">
+    <div className="min-h-[calc(100vh-5rem)] bg-slate-50 py-8">
+      <div className="mx-auto max-w-6xl space-y-8 px-4">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="space-y-2">
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-indigo-600">{t("dashboard.agent.badge")}</p>
@@ -282,7 +280,7 @@ const AgentDashboardPage: React.FC = () => {
           <FloatingActionButton to="/help" title={t("agentDashboard.createTicketButton")} />
         </div>
       </div>
-    </Layout>
+    </div>
   );
 };
 

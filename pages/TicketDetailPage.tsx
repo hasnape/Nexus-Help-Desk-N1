@@ -2,7 +2,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useApp } from '../App';
-import Layout from '../components/Layout';
 import ChatMessageComponent from '../components/ChatMessage';
 import { Button, Textarea, Select, Input } from '../components/FormElements'; // Added Input
 import { TicketStatus, ChatMessage as ChatMessageType, TicketPriority, UserRole, AppointmentDetails } from '../types';
@@ -603,9 +602,8 @@ const TicketDetailPage: React.FC = () => {
   };
 
   return (
-    <Layout>
-      <div className="min-h-[calc(100vh-5rem)] bg-slate-50 py-6 lg:py-10">
-        <div className="mx-auto max-w-6xl px-4 space-y-4 lg:space-y-6">
+    <div className="min-h-[calc(100vh-5rem)] bg-slate-50 py-6 lg:py-10">
+      <div className="mx-auto max-w-6xl px-4 space-y-4 lg:space-y-6">
           <section className="rounded-3xl border border-slate-200 bg-white p-4 lg:p-5 shadow-sm space-y-3">
             <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
               <div className="space-y-1">
@@ -961,7 +959,7 @@ const TicketDetailPage: React.FC = () => {
           </div>
         </div>
       </div>
-    </Layout>
+    </div>
   );
 };
 

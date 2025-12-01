@@ -1,8 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 
-import Layout from "../components/Layout";
-
 const ImplementationScenariosPage: React.FC = () => {
   const { t } = useTranslation();
 
@@ -34,11 +32,10 @@ const ImplementationScenariosPage: React.FC = () => {
   ];
 
   return (
-    <Layout mainClassName="page-shell py-10 lg:py-14">
-      <div className="page-container section-stack">
-        <header className="surface-card p-6 lg:p-8 space-y-3">
-          <p className="section-eyebrow">{t("docs.implementationScenarios.title")}</p>
-          <h1 className="section-title">{t("docs.implementationScenarios.title")}</h1>
+    <div className="page-container section-stack">
+      <header className="surface-card p-6 lg:p-8 space-y-3">
+        <p className="section-eyebrow">{t("docs.implementationScenarios.title")}</p>
+        <h1 className="section-title">{t("docs.implementationScenarios.title")}</h1>
           <p className="section-subtitle">{t("docs.implementationScenarios.subtitle")}</p>
         </header>
 
@@ -71,11 +68,10 @@ const ImplementationScenariosPage: React.FC = () => {
             href="/docs/scenarios-implementation.pdf"
             className="pill-link"
           >
-            {t("docs.downloadPdf")}
-          </a>
-        </div>
+          {t("docs.downloadPdf")}
+        </a>
       </div>
-    </Layout>
+    </div>
   );
 };
 
