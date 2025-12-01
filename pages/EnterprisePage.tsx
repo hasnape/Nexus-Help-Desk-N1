@@ -11,6 +11,7 @@ const EnterprisePage: React.FC = () => {
 
   return (
     <>
+      {/* Navbar and Footer are already handled by the global Layout wrapper */}
       <MarketingLayout>
         <div className="section-stack">
           <section className="surface-card p-6 lg:p-8 space-y-4">

@@ -1,5 +1,4 @@
 import React from "react";
-import Layout from "./Layout";
 
 interface MarketingLayoutProps {
   children: React.ReactNode;
@@ -13,9 +12,10 @@ const MarketingLayout: React.FC<MarketingLayoutProps> = ({
   mainClassName = "page-shell py-12 lg:py-16",
 }) => {
   return (
-    <Layout mainClassName={mainClassName}>
+    <div className={`${mainClassName}`}>
+      {/* Navbar and Footer are provided by the global Layout wrapper */}
       <div className={`page-container marketing-layout ${className}`}>{children}</div>
-    </Layout>
+    </div>
   );
 };
 
