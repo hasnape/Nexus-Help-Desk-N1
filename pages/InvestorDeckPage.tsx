@@ -1,8 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 
-import Layout from "../components/Layout";
-
 const InvestorDeckPage: React.FC = () => {
   const { t } = useTranslation();
 
@@ -27,11 +25,10 @@ const InvestorDeckPage: React.FC = () => {
   ];
 
   return (
-    <Layout mainClassName="page-shell py-10 lg:py-14">
-      <div className="page-container section-stack">
-        <header className="surface-card p-6 lg:p-8 space-y-3">
-          <p className="section-eyebrow">{t("docs.investorDeck.title")}</p>
-          <h1 className="section-title">{t("docs.investorDeck.title")}</h1>
+    <div className="page-container section-stack">
+      <header className="surface-card p-6 lg:p-8 space-y-3">
+        <p className="section-eyebrow">{t("docs.investorDeck.title")}</p>
+        <h1 className="section-title">{t("docs.investorDeck.title")}</h1>
           <p className="section-subtitle">{t("docs.investorDeck.subtitle")}</p>
           <div className="inline-flex items-center rounded-full bg-amber-200/20 text-amber-100 px-3 py-1 text-sm font-medium">
             {t("docs.investorDeck.confidential")}
@@ -73,12 +70,11 @@ const InvestorDeckPage: React.FC = () => {
             ))}
           </ul>
           <p className="text-sm text-slate-300 mt-4">{t("docs.downloadHint")}</p>
-          <a href="/docs/investor-deck.pdf" className="pill-link">
-            {t("docs.downloadPdf")}
-          </a>
-        </section>
-      </div>
-    </Layout>
+        <a href="/docs/investor-deck.pdf" className="pill-link">
+          {t("docs.downloadPdf")}
+        </a>
+      </section>
+    </div>
   );
 };
 

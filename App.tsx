@@ -1962,7 +1962,7 @@ const MainAppContent: React.FC = () => {
     return routes;
   };
   return (
-    <Layout>
+    <Layout mainClassName="page-shell py-10 lg:py-14">
       <Suspense fallback={suspenseFallback}>{renderRoutes()}</Suspense>
       {!consentGiven && <CookieConsentBanner onAccept={giveConsent} />}
     </Layout>

@@ -13,15 +13,15 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({
   children,
-  className = '',
+  className = "",
   includeFooter = true,
-  mainClassName = '',
+  mainClassName = "page-shell py-10 lg:py-14",
   mainProps = {},
 }) => {
   const { t } = useLanguage();
 
   return (
-    <div className={`min-h-screen flex flex-col ${className}`}>
+    <div className={`min-h-screen flex flex-col bg-slate-950 text-slate-50 ${className}`}>
       {/* Lien d’accessibilité */}
       <a
         href="#main-content"

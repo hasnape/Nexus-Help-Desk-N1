@@ -1,7 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 
-import Layout from "../components/Layout";
 
 const TechnicalOverviewPage: React.FC = () => {
   const { t } = useTranslation();
@@ -24,11 +23,10 @@ const TechnicalOverviewPage: React.FC = () => {
   ];
 
   return (
-    <Layout mainClassName="page-shell py-10 lg:py-14">
-      <div className="page-container section-stack">
-        <header className="surface-card p-6 lg:p-8 space-y-3">
-          <p className="section-eyebrow">{t("docs.technicalOverview.title")}</p>
-          <h1 className="section-title">{t("docs.technicalOverview.title")}</h1>
+    <div className="page-container section-stack">
+      <header className="surface-card p-6 lg:p-8 space-y-3">
+        <p className="section-eyebrow">{t("docs.technicalOverview.title")}</p>
+        <h1 className="section-title">{t("docs.technicalOverview.title")}</h1>
           <p className="section-subtitle">{t("docs.technicalOverview.subtitle")}</p>
         </header>
 
@@ -73,12 +71,11 @@ const TechnicalOverviewPage: React.FC = () => {
             ))}
           </ul>
           <p className="text-sm text-slate-300 mt-4">{t("docs.downloadHint")}</p>
-          <a href="/docs/aspects-techniques.pdf" className="pill-link">
-            {t("docs.downloadPdf")}
-          </a>
-        </section>
-      </div>
-    </Layout>
+        <a href="/docs/aspects-techniques.pdf" className="pill-link">
+          {t("docs.downloadPdf")}
+        </a>
+      </section>
+    </div>
   );
 };
 

@@ -39,19 +39,18 @@ const LandingPage: React.FC = () => {
 
   return (
     <>
-      <main ClassName="page-shell py-10 lg:py-14">
-        <div className="page-container section-stack">
-          <div>
-            <Link to={backLinkDestination} state={{ from: location }} className="pill-link">
-              <ArrowLeftIcon className="w-5 h-5" />
-              {backLinkText}
-            </Link>
-          </div>
+      <div className="page-container section-stack">
+        <div>
+          <Link to={backLinkDestination} state={{ from: location }} className="pill-link">
+            <ArrowLeftIcon className="w-5 h-5" />
+            {backLinkText}
+          </Link>
+        </div>
 
-          {/* HERO */}
-          <section className="space-y-8 text-center">
-            <header className="space-y-3 max-w-3xl mx-auto">
-              <p className="section-eyebrow">
+        {/* HERO */}
+        <section className="space-y-8 text-center">
+          <header className="space-y-3 max-w-3xl mx-auto">
+            <p className="section-eyebrow">
                 {t("landing.hero.badge", {
                   defaultValue: "Help desk IA autonome N1 → N2",
                 })}
@@ -255,8 +254,7 @@ const LandingPage: React.FC = () => {
             </div>
           </section>
 
-        </div>
-      </main>
+      </div>
 
       <NexusSalesBotWidget />
     </>

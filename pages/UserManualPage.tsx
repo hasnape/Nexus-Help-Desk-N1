@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import Layout from '../components/Layout';
 import { useApp } from '../App';
 import { useTranslation } from 'react-i18next';
 
@@ -22,8 +21,7 @@ const UserManualPage: React.FC = () => {
   const backLinkDestination = user ? '/dashboard' : '/landing';
 
   return (
-    <Layout mainClassName='page-shell py-10 lg:py-14'>
-      <div className='page-container section-stack'>
+    <div className='page-container section-stack'>
         <div>
           <Link to={backLinkDestination} state={{ from: location }} className='pill-link'>
             <ArrowLeftIcon className='w-5 h-5' />
@@ -163,7 +161,6 @@ const UserManualPage: React.FC = () => {
           </section>
         </div>
       </div>
-    </Layout>
   );
 };
 

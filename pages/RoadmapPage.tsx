@@ -1,8 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 
-import Layout from "../components/Layout";
-
 const RoadmapPage: React.FC = () => {
   const { t } = useTranslation();
 
@@ -26,11 +24,10 @@ const RoadmapPage: React.FC = () => {
   ];
 
   return (
-    <Layout mainClassName="page-shell py-10 lg:py-14">
-      <div className="page-container section-stack">
-        <header className="surface-card p-6 lg:p-8 space-y-3">
-          <p className="section-eyebrow">{t("docs.roadmap.title")}</p>
-          <h1 className="section-title">{t("docs.roadmap.title")}</h1>
+    <div className="page-container section-stack">
+      <header className="surface-card p-6 lg:p-8 space-y-3">
+        <p className="section-eyebrow">{t("docs.roadmap.title")}</p>
+        <h1 className="section-title">{t("docs.roadmap.title")}</h1>
           <p className="section-subtitle">{t("docs.roadmap.subtitle")}</p>
         </header>
 
@@ -58,7 +55,6 @@ const RoadmapPage: React.FC = () => {
           </a>
         </div>
       </div>
-    </Layout>
   );
 };
 

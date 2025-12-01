@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import Layout from '../components/Layout';
 import { useApp } from '../App';
 import { useTranslation } from 'react-i18next';
 
@@ -43,11 +42,10 @@ const LegalPage: React.FC = () => {
   const backLinkDestination = user ? '/dashboard' : '/landing';
 
   return (
-    <Layout mainClassName='page-shell py-10 lg:py-14'>
-      <div className='page-container section-stack'>
-        <div>
-          <Link to={backLinkDestination} state={{ from: location }} className='pill-link'>
-            <ArrowLeftIcon className='w-5 h-5' />
+    <div className='page-container section-stack'>
+      <div>
+        <Link to={backLinkDestination} state={{ from: location }} className='pill-link'>
+          <ArrowLeftIcon className='w-5 h-5' />
             {t('legal.backToApp', { defaultValue: 'Back to Application' })}
           </Link>
         </div>
@@ -82,7 +80,6 @@ const LegalPage: React.FC = () => {
           <section className='surface-card p-6'>{renderSection(activeTab)}</section>
         </div>
       </div>
-    </Layout>
   );
 };
 

@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import Layout from '../components/Layout';
 import { useApp } from '../App';
 
 const ArrowLeftIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
@@ -40,11 +39,10 @@ const AccessibilitePage: React.FC = () => {
   ];
 
   return (
-    <Layout mainClassName='page-shell py-10 lg:py-14'>
-      <div className='page-container section-stack'>
-        <div>
-          <Link to={backLinkDestination} state={{ from: location }} className='pill-link'>
-            <ArrowLeftIcon className='w-5 h-5' />
+    <div className='page-container section-stack'>
+      <div>
+        <Link to={backLinkDestination} state={{ from: location }} className='pill-link'>
+          <ArrowLeftIcon className='w-5 h-5' />
             {t('pricing.backToApp', { defaultValue: 'Back' })}
           </Link>
         </div>
@@ -182,11 +180,10 @@ const AccessibilitePage: React.FC = () => {
             <h2 id='h-maj' className='text-lg font-semibold text-white'>
               {t('accessibility.updated.title')}
             </h2>
-            <p className='muted-copy'>{t('accessibility.updated.content', { date: today })}</p>
-          </section>
-        </div>
+          <p className='muted-copy'>{t('accessibility.updated.content', { date: today })}</p>
+        </section>
       </div>
-    </Layout>
+    </div>
   );
 };
 

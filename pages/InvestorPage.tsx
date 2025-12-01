@@ -2,13 +2,12 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../components/FormElements";
 import NexusSalesBotWidget from "../components/NexusSalesBotWidget";
-import Layout from "../components/Layout";
 
 const InvestorPage: React.FC = () => {
   const { t } = useTranslation();
 
   return (
-    <Layout mainClassName="page-shell py-10 lg:py-14">
+    <>
       <div className="page-container section-stack">
         <section className="surface-card p-6 lg:p-8 space-y-4">
           <p className="section-eyebrow">{t("investor.badge")}</p>
@@ -152,7 +151,7 @@ const InvestorPage: React.FC = () => {
         </div>
       </div>
       <NexusSalesBotWidget />
-    </Layout>
+    </>
   );
 };
 

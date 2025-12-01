@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import Layout from "../components/Layout";
 
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xqaqogdv";
 
@@ -12,17 +11,20 @@ const DemoPageContent: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   return (
-    <main className="container mx-auto py-12 px-4">
-      <h1 className="text-2xl font-bold">{t("demo.title")}</h1>
-      <p className="opacity-70 mb-6">{t("demo.subtitle")}</p>
+    <div className="page-container section-stack">
+      <section className="surface-card p-6 lg:p-8 space-y-5 max-w-3xl">
+        <div className="space-y-2">
+          <h1 className="section-title">{t("demo.title")}</h1>
+          <p className="section-subtitle">{t("demo.subtitle")}</p>
+        </div>
 
-      <form
-        className="max-w-xl space-y-4"
-        onSubmit={async (event) => {
-          event.preventDefault();
-          setLoading(true);
-          setSent(null);
-          const data = new FormData(event.currentTarget);
+        <form
+          className="space-y-4"
+          onSubmit={async (event) => {
+            event.preventDefault();
+            setLoading(true);
+            setSent(null);
+            const data = new FormData(event.currentTarget);
 
           try {
             const response = await fetch(FORMSPREE_ENDPOINT, {
@@ -38,56 +40,79 @@ const DemoPageContent: React.FC = () => {
           }
         }}
       >
-        <div>
-          <label className="block text-sm mb-1" htmlFor="demo-name">
-            {t("demo.name")}
-          </label>
-          <input id="demo-name" name="name" className="w-full border rounded px-3 py-2" required />
-        </div>
-        <div>
-          <label className="block text-sm mb-1" htmlFor="demo-email">
-            {t("demo.email")}
-          </label>
-          <input id="demo-email" type="email" name="email" className="w-full border rounded px-3 py-2" required />
-        </div>
-        <div>
-          <label className="block text-sm mb-1" htmlFor="demo-company">
-            {t("demo.company")}
-          </label>
-          <input id="demo-company" name="company" className="w-full border rounded px-3 py-2" required />
-        </div>
-        <div>
-          <label className="block text-sm mb-1" htmlFor="demo-message">
-            {t("demo.message")}
-          </label>
-          <textarea id="demo-message" name="message" rows={4} className="w-full border rounded px-3 py-2" />
-        </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-slate-200" htmlFor="demo-name">
+                {t("demo.name")}
+              </label>
+              <input
+                id="demo-name"
+                name="name"
+                className="w-full rounded-xl border border-slate-700 bg-slate-900/60 px-3 py-2 text-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500"
+                required
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-slate-200" htmlFor="demo-email">
+                {t("demo.email")}
+              </label>
+              <input
+                id="demo-email"
+                type="email"
+                name="email"
+                className="w-full rounded-xl border border-slate-700 bg-slate-900/60 px-3 py-2 text-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500"
+                required
+              />
+            </div>
+          </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="px-4 py-2 rounded border hover:bg-black hover:text-white disabled:opacity-50"
-        >
-          {loading ? "…" : t("demo.send")}
-        </button>
+          <div className="space-y-1">
+            <label className="text-sm font-medium text-slate-200" htmlFor="demo-company">
+              {t("demo.company")}
+            </label>
+            <input
+              id="demo-company"
+              name="company"
+              className="w-full rounded-xl border border-slate-700 bg-slate-900/60 px-3 py-2 text-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500"
+              required
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-sm font-medium text-slate-200" htmlFor="demo-message">
+              {t("demo.message")}
+            </label>
+            <textarea
+              id="demo-message"
+              name="message"
+              rows={4}
+              className="w-full rounded-xl border border-slate-700 bg-slate-900/60 px-3 py-2 text-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
 
-        {sent === "ok" ? (
-          <p className="text-green-600 mt-2">{t("demo.success")}</p>
-        ) : null}
-        {sent === "ko" ? (
-          <p className="text-red-600 mt-2">{t("demo.error")}</p>
-        ) : null}
-      </form>
-    </main>
+          <div className="flex items-center gap-3">
+            <button
+              type="submit"
+              disabled={loading}
+              className="inline-flex items-center rounded-xl bg-indigo-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 disabled:opacity-50"
+            >
+              {loading ? "…" : t("demo.send")}
+            </button>
+
+            {sent === "ok" ? (
+              <p className="text-sm text-green-400">{t("demo.success")}</p>
+            ) : null}
+            {sent === "ko" ? (
+              <p className="text-sm text-rose-300">{t("demo.error")}</p>
+            ) : null}
+          </div>
+        </form>
+      </section>
+    </div>
   );
 };
 
 const DemoPage: React.FC = () => {
-  return (
-    <Layout>
-      <DemoPageContent />
-    </Layout>
-  );
+  return <DemoPageContent />;
 };
 
 export default DemoPage;
