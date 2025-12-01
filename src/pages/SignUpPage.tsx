@@ -286,11 +286,11 @@ const PlanCard: React.FC<{
         <h3 className="text-xl font-bold text-gray-900 mb-2" data-i18n={`pricing.plans.${planKey}.name`}>
           {plan.name}
         </h3>
-        <span className="visually-hidden" data-i18n={`pricing.${planKey}`}>
+        <span className="sr-only" data-i18n={`pricing.${planKey}`}>
           {planTitle}
         </span>
         <div className="mb-2">
-          <span className="visually-hidden" data-i18n="pricing.billed_monthly">
+          <span className="sr-only" data-i18n="pricing.billed_monthly">
             {t("pricing.billed_monthly", { defaultValue: "Billed monthly" })}
           </span>
           <span className="text-3xl font-bold text-primary" data-i18n={`pricing.plans.${planKey}.price`}>
@@ -299,7 +299,7 @@ const PlanCard: React.FC<{
         </div>
         {plan.yearly ? (
           <>
-            <span className="visually-hidden" data-i18n="pricing.billed_yearly">
+            <span className="sr-only" data-i18n="pricing.billed_yearly">
               {t("pricing.billed_yearly", { defaultValue: "Billed yearly" })}
             </span>
             <p className="text-gray-600 text-sm" data-i18n={`pricing.plans.${planKey}.yearly`}>
@@ -309,7 +309,7 @@ const PlanCard: React.FC<{
         ) : null}
       </div>
 
-      <span className="visually-hidden" data-i18n="pricing.features">
+      <span className="sr-only" data-i18n="pricing.features">
         {t("pricing.features", { defaultValue: "Fonctionnalités" })}
       </span>
 
@@ -333,8 +333,12 @@ const PlanCard: React.FC<{
       <button
         type="button"
         onClick={() => onSelect(planKey)}
-        className={`btn btn-success btn-lg w-100 fw-semibold d-flex align-items-center justify-content-center gap-2 focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-green-600 ${
-          isSelectable && isSelected ? "shadow" : ""
+        className={`inline-flex w-full items-center justify-center gap-2 rounded-lg px-5 py-3 text-sm font-semibold text-white transition focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-green-600 ${
+          isSelectable
+            ? isSelected
+              ? "bg-green-600 shadow shadow-green-500/30"
+              : "bg-green-500 hover:bg-green-600"
+            : "bg-slate-800 hover:bg-slate-700"
         }`}
         {...(isSelectable ? { "data-plan": planKey, "aria-pressed": isSelected } : {})}
         data-i18n={buttonKey}

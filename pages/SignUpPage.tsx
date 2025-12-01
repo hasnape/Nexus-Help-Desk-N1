@@ -295,11 +295,11 @@ const PlanCard: React.FC<{
         <h3 className="text-xl font-bold text-white mb-2" data-i18n={`pricing.plans.${planKey}.name`}>
           {plan.name}
         </h3>
-        <span className="visually-hidden" data-i18n={`pricing.${planKey}`}>
+        <span className="sr-only" data-i18n={`pricing.${planKey}`}>
           {planTitle}
         </span>
         <div className="mb-2">
-          <span className="visually-hidden" data-i18n="pricing.billed_monthly">
+          <span className="sr-only" data-i18n="pricing.billed_monthly">
             {t("pricing.billed_monthly", { defaultValue: "Billed monthly" })}
           </span>
           <span className="text-3xl font-bold text-primary" data-i18n={`pricing.plans.${planKey}.price`}>
@@ -308,7 +308,7 @@ const PlanCard: React.FC<{
         </div>
         {plan.yearly ? (
           <>
-            <span className="visually-hidden" data-i18n="pricing.billed_yearly">
+            <span className="sr-only" data-i18n="pricing.billed_yearly">
               {t("pricing.billed_yearly", { defaultValue: "Billed yearly" })}
             </span>
             <p className="text-slate-300 text-sm" data-i18n={`pricing.plans.${planKey}.yearly`}>
@@ -318,7 +318,7 @@ const PlanCard: React.FC<{
         ) : null}
       </div>
 
-      <span className="visually-hidden" data-i18n="pricing.features">
+      <span className="sr-only" data-i18n="pricing.features">
         {t("pricing.features", { defaultValue: "Fonctionnalités" })}
       </span>
 

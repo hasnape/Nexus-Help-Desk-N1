@@ -58,6 +58,22 @@ const Navbar: React.FC = () => {
   const mainLinks = [
     { to: "/landing", label: t("navbar.home", { default: "Accueil" }) },
     {
+      to: "/pricing",
+      label: t("navbar.pricingpage", { default: "Tarifs" }),
+    },
+    {
+      to: "/demo",
+      label: t("navbar.demo", { default: "Demander une démo" }),
+    },
+    { to: "/contact", label: t("navbar.contact", { default: "Contact" }) },
+    {
+      to: "/help",
+      label: t("navbar.helpCenter", { default: "Centre d'aide" }),
+    },
+  ];
+
+  const resourceLinks = [
+    {
       to: "/presentation",
       label: t("navbar.presentation", { default: "Présentation" }),
     },
@@ -68,11 +84,6 @@ const Navbar: React.FC = () => {
       }),
     },
     {
-      to: "/pricing",
-      label: t("navbar.pricingpage", { default: "Tarifs" }),
-    },
-    // 🔹 NOUVELLES PAGES B2B / INVEST
-    {
       to: "/enterprise",
       label: t("navbar.enterprise", { default: "Entreprise" }),
     },
@@ -81,14 +92,9 @@ const Navbar: React.FC = () => {
       label: t("navbar.investors", { default: "Investisseurs" }),
     },
     {
-      to: "/demo",
-      label: t("navbar.demo", { default: "Demander une démo" }),
-    },
-    {
       to: "/infographie",
       label: t("navbar.infographie", { default: "Infographie" }),
     },
-    // 🔹 Guide onboarding (pour les managers / IT)
     {
       to: "/guide-onboarding",
       label: t("navbar.onboardingGuide", {
@@ -100,22 +106,35 @@ const Navbar: React.FC = () => {
       label: t("navbar.userManual", { default: "Manuel utilisateur" }),
     },
     {
-      to: "/help",
-      label: t("navbar.helpCenter", { default: "Centre d'aide" }),
-    },
-    { to: "/help", label: t("navbar.support", { default: "Support" }) },
-    { to: "/contact", label: t("navbar.contact", { default: "Contact" }) },
-    {
-      to: "/legal",
-      label: t("navbar.legal", { default: "Légal & Documentation" }),
-    },
-    {
       to: "/email-support",
       label: t("navbar.emailSupport", { default: "Support par email" }),
     },
     {
       to: "/presentation-video",
       label: t("navbar.demoVideo", { default: "Démonstration vidéo" }),
+    },
+    {
+      to: "/investor-deck",
+      label: t("navbar.investorDeck", { default: "Deck investisseur" }),
+    },
+    {
+      to: "/demo-detaillee",
+      label: t("navbar.detailedDemo", { default: "Démonstration détaillée" }),
+    },
+    {
+      to: "/technical-overview",
+      label: t("navbar.technicalOverview", { default: "Aspects techniques" }),
+    },
+    { to: "/roadmap", label: t("navbar.roadmap", { default: "Roadmap" }) },
+    {
+      to: "/implementation-scenarios",
+      label: t("navbar.implementationScenarios", {
+        default: "Scénarios d’implémentation",
+      }),
+    },
+    {
+      to: "/legal",
+      label: t("navbar.legal", { default: "Légal & Documentation" }),
     },
   ];
 
@@ -135,13 +154,7 @@ const Navbar: React.FC = () => {
     {
       key: "resources",
       title: t("navbar.group.resources", { default: "Ressources" }),
-      links: [
-        { to: "/investor-deck", label: t("navbar.investorDeck", { default: "Deck investisseur" }) },
-        { to: "/demo-detaillee", label: t("navbar.detailedDemo", { default: "Démonstration détaillée" }) },
-        { to: "/technical-overview", label: t("navbar.technicalOverview", { default: "Aspects techniques" }) },
-        { to: "/roadmap", label: t("navbar.roadmap", { default: "Roadmap" }) },
-        { to: "/implementation-scenarios", label: t("navbar.implementationScenarios", { default: "Scénarios d’implémentation" }) },
-      ],
+      links: resourceLinks,
     },
     {
       key: "community",

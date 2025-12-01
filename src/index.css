@@ -1,10 +1,6 @@
-@import './styles/bootstrap-lite.css';
 @import './styles/marketing.css';
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-body {
-  @apply text-center;
-}

@@ -5,9 +5,12 @@ import { useTranslation } from "react-i18next";
 import { Button } from "../components/FormElements";
 import NexusSalesBotWidget from "../components/NexusSalesBotWidget";
 import InfographieNexus from "../InfographieNexus";
+import MarketingLayout from "../components/MarketingLayout";
 
 const LandingPage: React.FC = () => {
   const { t } = useTranslation();
+
+  const videoDescriptionId = "nexus-video-caption";
 
   const primaryCta = t("landing.hero.primaryCta", {
     defaultValue: t("landing.hero.ctaButton", {
@@ -21,10 +24,21 @@ const LandingPage: React.FC = () => {
     }),
   });
 
+  const presentationHighlights = [
+    t("landing.presentation.highlights.0", {
+      defaultValue: "Multi-tenant, multi-langue (FR / EN / AR) et RGAA 4.1",
+    }),
+    t("landing.presentation.highlights.1", {
+      defaultValue: "Automatise le N1 et assiste le N2 avec IA + Supabase",
+    }),
+    t("landing.presentation.highlights.2", {
+      defaultValue: "Onboarding documenté et traçabilité bout-en-bout",
+    }),
+  ];
+
   return (
     <>
-      <div className="page-container section-stack">
-        {/* HERO */}
+      <MarketingLayout>
         <section className="space-y-8 text-center">
           <header className="space-y-3 max-w-3xl mx-auto">
             <p className="section-eyebrow">
@@ -63,6 +77,7 @@ const LandingPage: React.FC = () => {
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center rounded-xl border border-slate-500/60 px-5 py-2.5 text-sm font-semibold text-slate-50 bg-slate-900/60 hover:bg-slate-800/80 transition"
+              aria-label="Voir la démo vidéo Nexus sur YouTube"
             >
               <svg
                 className="w-5 h-5 me-2"
@@ -95,7 +110,6 @@ const LandingPage: React.FC = () => {
           </p>
         </section>
 
-        {/* PRÉSENTATION + VIDÉO */}
         <section
           id="presentation"
           className="grid gap-8 lg:grid-cols-[minmax(0,1.3fr),minmax(0,1fr)] items-start"
@@ -169,24 +183,78 @@ const LandingPage: React.FC = () => {
                 </li>
               </ul>
             </div>
+
+            <div className="lg:hidden rounded-2xl border border-slate-800/70 bg-slate-900/60 p-4 space-y-2">
+              <h3 className="text-sm font-semibold text-slate-100">
+                {t("landing.presentation.summary.title", {
+                  defaultValue: "En bref",
+                })}
+              </h3>
+              <ul className="space-y-2 text-sm text-slate-200">
+                {presentationHighlights.map((item, index) => (
+                  <li key={index} className="flex items-start gap-2">
+                    <span className="mt-1 h-2 w-2 rounded-full bg-sky-400" aria-hidden="true" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
 
           <div className="surface-card-soft space-y-4">
-            <div className="aspect-video rounded-xl overflow-hidden border border-slate-600/60 bg-black">
+            <div className="lg:hidden space-y-3">
+              <a
+                href="https://youtu.be/OnfUuaRlukQ"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group block"
+                aria-label="Voir la démo vidéo Nexus sur YouTube"
+              >
+                <div className="relative aspect-video overflow-hidden rounded-xl border border-slate-700/70 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800">
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(56,189,248,0.18),transparent_45%),radial-gradient(circle_at_70%_20%,rgba(99,102,241,0.22),transparent_40%)]" aria-hidden="true" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white ring-1 ring-white/20 backdrop-blur group-hover:bg-white/20">
+                      <svg
+                        className="w-5 h-5"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        aria-hidden="true"
+                      >
+                        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                      </svg>
+                      {t("landing.hero.watchDemo", {
+                        defaultValue: "Voir la démo vidéo",
+                      })}
+                    </span>
+                  </div>
+                </div>
+                <span className="sr-only" id={`${videoDescriptionId}-mobile`}>
+                  {t("landing.video.description", {
+                    defaultValue:
+                      "Démonstration vidéo montrant l’interface Nexus Support Hub et la gestion automatisée des tickets.",
+                  })}
+                </span>
+              </a>
+            </div>
+
+            <div className="hidden lg:block aspect-video rounded-xl overflow-hidden border border-slate-600/60 bg-black">
               <iframe
                 src="https://www.youtube.com/embed/OnfUuaRlukQ"
-                title="Nexus Support Hub Demo"
+                title="Démonstration vidéo de Nexus Support Hub"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
                 className="w-full h-full"
+                aria-describedby={videoDescriptionId}
               />
             </div>
-            <p className="muted-copy text-center">
+
+            <p className="muted-copy text-center" id={videoDescriptionId}>
               <a
                 href="https://youtu.be/OnfUuaRlukQ"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary hover:text-primary-light font-semibold"
+                aria-label="Voir la démo vidéo Nexus sur YouTube"
               >
                 {t("landing.video.watchOnYoutube", {
                   defaultValue: "Voir la démo complète sur YouTube",
@@ -196,7 +264,6 @@ const LandingPage: React.FC = () => {
           </div>
         </section>
 
-        {/* ACCESSIBILITÉ / INFOGRAPHIE */}
         <section id="infographie" className="section-stack">
           <div className="surface-card space-y-3 max-w-3xl mx-auto text-center lg:text-left">
             <h2 className="section-title text-2xl text-left">
@@ -230,7 +297,7 @@ const LandingPage: React.FC = () => {
             </div>
           </div>
         </section>
-      </div>
+      </MarketingLayout>
 
       <NexusSalesBotWidget />
     </>
