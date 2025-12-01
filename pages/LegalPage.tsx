@@ -80,7 +80,6 @@ const LegalPage: React.FC = () => {
           <section className='surface-card p-6'>{renderSection(activeTab)}</section>
         </div>
       </div>
-    </div>
   );
 };
 

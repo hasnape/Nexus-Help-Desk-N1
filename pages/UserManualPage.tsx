@@ -161,7 +161,6 @@ const UserManualPage: React.FC = () => {
           </section>
         </div>
       </div>
-    </div>
   );
 };
 

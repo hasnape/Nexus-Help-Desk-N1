@@ -173,10 +173,9 @@ const ClientDashboardPage: React.FC = () => {
                 {t("dashboard.user.cta.faq")}
               </Link>
             </div>
-          </section>
+        </section>
 
-          <FloatingActionButton to="/help" title={t("dashboard.createNewTicketButton")} />
-        </div>
+        <FloatingActionButton to="/help" title={t("dashboard.createNewTicketButton")} />
       </div>
     </div>
   );

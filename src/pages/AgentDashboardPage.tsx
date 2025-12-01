@@ -275,10 +275,9 @@ const AgentDashboardPage: React.FC = () => {
                 {t("dashboard.agent.tools.faq")}
               </Link>
             </div>
-          </section>
+        </section>
 
-          <FloatingActionButton to="/help" title={t("agentDashboard.createTicketButton")} />
-        </div>
+        <FloatingActionButton to="/help" title={t("agentDashboard.createTicketButton")} />
       </div>
     </div>
   );

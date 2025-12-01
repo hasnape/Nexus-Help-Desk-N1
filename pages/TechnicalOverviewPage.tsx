@@ -76,7 +76,6 @@ const TechnicalOverviewPage: React.FC = () => {
         </a>
       </section>
     </div>
-    </div>
   );
 };
 

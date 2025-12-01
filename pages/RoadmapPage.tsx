@@ -55,7 +55,6 @@ const RoadmapPage: React.FC = () => {
           </a>
         </div>
       </div>
-    </div>
   );
 };
 

@@ -957,7 +957,6 @@ const TicketDetailPage: React.FC = () => {
               </section>
             </aside>
           </div>
-        </div>
       </div>
     </div>
   );

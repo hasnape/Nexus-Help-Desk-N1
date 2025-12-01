@@ -180,9 +180,8 @@ const AccessibilitePage: React.FC = () => {
             <h2 id='h-maj' className='text-lg font-semibold text-white'>
               {t('accessibility.updated.title')}
             </h2>
-            <p className='muted-copy'>{t('accessibility.updated.content', { date: today })}</p>
-          </section>
-        </div>
+          <p className='muted-copy'>{t('accessibility.updated.content', { date: today })}</p>
+        </section>
       </div>
     </div>
   );

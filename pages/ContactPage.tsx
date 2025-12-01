@@ -123,7 +123,6 @@ const ContactPage: React.FC = () => {
           </section>
         </div>
       </div>
-    </div>
   );
 };
 
