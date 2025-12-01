@@ -315,28 +315,28 @@ const InfographieNexus: React.FC = () => {
               <div className="bg-white rounded-lg shadow-lg p-6 text-center">
                 <div className="text-5xl mb-3">🎫</div>
                 <h4 className="font-bold text-lg">{t("infographie.features.cards.0.title")}</h4>
-                <p className="text-gray-600 text-sm mt-1">
+                <p className="text-black-600 text-sm mt-1">
                   {t("infographie.features.cards.0.description")}
                 </p>
               </div>
               <div className="bg-white rounded-lg shadow-lg p-6 text-center">
                 <div className="text-5xl mb-3">🤖</div>
                 <h4 className="font-bold text-lg">{t("infographie.features.cards.1.title")}</h4>
-                <p className="text-gray-600 text-sm mt-1">
+                <p className="text-black-600 text-sm mt-1">
                   {t("infographie.features.cards.1.description")}
                 </p>
               </div>
               <div className="bg-white rounded-lg shadow-lg p-6 text-center">
                 <div className="text-5xl mb-3">🌐</div>
                 <h4 className="font-bold text-lg">{t("infographie.features.cards.2.title")}</h4>
-                <p className="text-gray-600 text-sm mt-1">
+                <p className="text-black-600 text-sm mt-1">
                   {t("infographie.features.cards.2.description")}
                 </p>
               </div>
               <div className="bg-white rounded-lg shadow-lg p-6 text-center">
                 <div className="text-5xl mb-3">📊</div>
                 <h4 className="font-bold text-lg">{t("infographie.features.cards.3.title")}</h4>
-                <p className="text-gray-600 text-sm mt-1">
+                <p className="text-black-600 text-sm mt-1">
                   {t("infographie.features.cards.3.description")}
                 </p>
               </div>
