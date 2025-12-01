@@ -1,35 +1,44 @@
-// filepath: c:\Users\HARBI Amine\Documents\Web projet\AI N28\Nexus-Help-Desk-N1\pages\InfographiePage.tsx
 import React from "react";
-import InfographieNexus from "../InfographieNexus";
 import { Link } from "react-router-dom";
+
 import { Button } from "../components/FormElements";
+import InfographieNexus from "../InfographieNexus";
 
 const InfographiePage: React.FC = () => {
   return (
-    <div className="bg-white">
-      <div className="flex justify-end mb-6 max-w-5xl mx-auto px-4 pt-6">
-        <Link to="/landing">
-          <Button variant="outline" className="mr-2">
-            Retour à l’accueil
-          </Button>
-        </Link>
-        <a href="/infographie.pdf" target="_blank" rel="noopener noreferrer">
-          <Button variant="primary" className="mr-2">
-            Télécharger PDF
-          </Button>
-        </a>
-        <Link to="/contact">
-          <Button variant="secondary">Nous contacter</Button>
-        </Link>
+    <div className="page-container section-stack">
+      <div className="surface-card p-4 lg:p-6 space-y-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="text-center sm:text-left">
+            <p className="section-eyebrow">Infographie</p>
+            <h1 className="section-title">Nexus Support Hub</h1>
+            <p className="section-subtitle">Découvrez notre infographie en un coup d’œil.</p>
+          </div>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <Link to="/landing">
+              <Button variant="outline" className="w-full sm:w-auto">
+                Retour à l’accueil
+              </Button>
+            </Link>
+            <a href="/infographie.pdf" target="_blank" rel="noopener noreferrer">
+              <Button variant="primary" className="w-full sm:w-auto">
+                Télécharger PDF
+              </Button>
+            </a>
+            <Link to="/contact">
+              <Button variant="secondary" className="w-full sm:w-auto">
+                Nous contacter
+              </Button>
+            </Link>
+          </div>
+        </div>
       </div>
-      <InfographieNexus />
+
+      <div className="surface-card-soft p-3 lg:p-5">
+        <InfographieNexus />
+      </div>
     </div>
   );
 };
 
 export default InfographiePage;
-
-// {/* Testimonials Section */}
-// <section id="testimonials" className="py-20 bg-white">
-//   ...contenu témoignages...
-// </section>
