@@ -291,7 +291,7 @@ const InfographieNexus: React.FC = () => {
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             <div className="bg-white rounded-lg shadow-lg p-6">
-              <h3 className="font-bold text-xl mb-4 text-center">
+              <h3 className="font-bold text-xl mb-4 text-center text-slate-900">
                 {t("infographie.features.chartTitle")}
               </h3>
               <p className="text-center text-gray-600 mb-4">
@@ -314,29 +314,37 @@ const InfographieNexus: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="bg-white rounded-lg shadow-lg p-6 text-center">
                 <div className="text-5xl mb-3">🎫</div>
-                <h4 className="font-bold text-lg">{t("infographie.features.cards.0.title")}</h4>
-                <p className="text-black-600 text-sm mt-1">
+                <h4 className="font-bold text-lg text-slate-900">
+                  {t("infographie.features.cards.0.title")}
+                </h4>
+                <p className="text-gray-600 text-sm mt-1">
                   {t("infographie.features.cards.0.description")}
                 </p>
               </div>
               <div className="bg-white rounded-lg shadow-lg p-6 text-center">
                 <div className="text-5xl mb-3">🤖</div>
-                <h4 className="font-bold text-lg">{t("infographie.features.cards.1.title")}</h4>
-                <p className="text-black-600 text-sm mt-1">
+                <h4 className="font-bold text-lg text-slate-900">
+                  {t("infographie.features.cards.1.title")}
+                </h4>
+                <p className="text-gray-600 text-sm mt-1">
                   {t("infographie.features.cards.1.description")}
                 </p>
               </div>
               <div className="bg-white rounded-lg shadow-lg p-6 text-center">
                 <div className="text-5xl mb-3">🌐</div>
-                <h4 className="font-bold text-lg">{t("infographie.features.cards.2.title")}</h4>
-                <p className="text-black-600 text-sm mt-1">
+                <h4 className="font-bold text-lg text-slate-900">
+                  {t("infographie.features.cards.2.title")}
+                </h4>
+                <p className="text-gray-600 text-sm mt-1">
                   {t("infographie.features.cards.2.description")}
                 </p>
               </div>
               <div className="bg-white rounded-lg shadow-lg p-6 text-center">
                 <div className="text-5xl mb-3">📊</div>
-                <h4 className="font-bold text-lg">{t("infographie.features.cards.3.title")}</h4>
-                <p className="text-black-600 text-sm mt-1">
+                <h4 className="font-bold text-lg text-slate-900">
+                  {t("infographie.features.cards.3.title")}
+                </h4>
+                <p className="text-gray-600 text-sm mt-1">
                   {t("infographie.features.cards.3.description")}
                 </p>
               </div>
@@ -357,7 +365,9 @@ const InfographieNexus: React.FC = () => {
           <div className="bg-white rounded-3xl shadow-xl p-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
               <div className="h-full rounded-3xl bg-white shadow-xl p-6 flex flex-col border border-slate-200">
-                <h4 className="text-lg font-semibold text-slate-900">{t("infographie.tech.frontend.title")}</h4>
+                <h4 className="text-lg font-semibold text-slate-900">
+                  {t("infographie.tech.frontend.title")}
+                </h4>
                 <p className="mt-2 text-sm text-slate-700">
                   {t("infographie.tech.frontend.subtitle")}
                 </p>
@@ -448,7 +458,7 @@ const InfographieNexus: React.FC = () => {
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             <div className="bg-white rounded-lg shadow-lg p-6">
-              <h3 className="font-bold text-xl mb-4 text-center">
+              <h3 className="font-bold text-xl mb-4 text-center text-slate-900">
                 {t("infographie.security.title")}
               </h3>
               <p className="text-center text-gray-600 mb-4">
@@ -469,7 +479,7 @@ const InfographieNexus: React.FC = () => {
               </div>
             </div>
             <div className="bg-white rounded-lg shadow-lg p-6">
-              <h3 className="font-bold text-xl mb-4 text-center">
+              <h3 className="font-bold text-xl mb-4 text-center text-slate-900">
                 {t("infographie.security.measuresTitle")}
               </h3>
               <p className="text-center text-gray-600 mb-4">
@@ -479,7 +489,9 @@ const InfographieNexus: React.FC = () => {
                 <li className="flex items-start">
                   <span className="text-2xl text-green-500 mr-3">✔</span>
                   <div>
-                    <h5 className="font-semibold">{t("infographie.security.measures.items.0.title")}</h5>
+                    <h5 className="font-semibold">
+                      {t("infographie.security.measures.items.0.title")}
+                    </h5>
                     <p className="text-gray-600 text-sm">
                       {t("infographie.security.measures.items.0.description")}
                     </p>
@@ -488,7 +500,9 @@ const InfographieNexus: React.FC = () => {
                 <li className="flex items-start">
                   <span className="text-2xl text-green-500 mr-3">✔</span>
                   <div>
-                    <h5 className="font-semibold">{t("infographie.security.measures.items.1.title")}</h5>
+                    <h5 className="font-semibold">
+                      {t("infographie.security.measures.items.1.title")}
+                    </h5>
                     <p className="text-gray-600 text-sm">
                       {t("infographie.security.measures.items.1.description")}
                     </p>
@@ -497,7 +511,9 @@ const InfographieNexus: React.FC = () => {
                 <li className="flex items-start">
                   <span className="text-2xl text-green-500 mr-3">✔</span>
                   <div>
-                    <h5 className="font-semibold">{t("infographie.security.measures.items.2.title")}</h5>
+                    <h5 className="font-semibold">
+                      {t("infographie.security.measures.items.2.title")}
+                    </h5>
                     <p className="text-gray-600 text-sm">
                       {t("infographie.security.measures.items.2.description")}
                     </p>
@@ -506,7 +522,9 @@ const InfographieNexus: React.FC = () => {
                 <li className="flex items-start">
                   <span className="text-2xl text-green-500 mr-3">✔</span>
                   <div>
-                    <h5 className="font-semibold">{t("infographie.security.measures.items.3.title")}</h5>
+                    <h5 className="font-semibold">
+                      {t("infographie.security.measures.items.3.title")}
+                    </h5>
                     <p className="text-gray-600 text-sm">
                       {t("infographie.security.measures.items.3.description")}
                     </p>
@@ -529,12 +547,12 @@ const InfographieNexus: React.FC = () => {
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
             <div className="lg:col-span-3 bg-white rounded-lg shadow-lg p-6">
-              <h3 className="font-bold text-xl mb-4 text-center">
+              <h3 className="font-bold text-xl mb-4 text-center text-slate-900">
                 {t("infographie.satisfaction.title")}
               </h3>
-            <p className="text-center text-gray-600 mb-4">
+              <p className="text-center text-gray-600 mb-4">
                 {t("infographie.satisfaction.description")}
-            </p>
+              </p>
               <div
                 className="chart-container h-80 md:h-96"
                 style={{
@@ -546,7 +564,10 @@ const InfographieNexus: React.FC = () => {
                   maxHeight: 400,
                 }}
               >
-                <canvas id="satisfactionLineChart" ref={lineCanvasRef}></canvas>
+                <canvas
+                  id="satisfactionLineChart"
+                  ref={lineCanvasRef}
+                ></canvas>
               </div>
             </div>
             <div className="lg:col-span-2 space-y-6 flex flex-col justify-center">
