@@ -572,7 +572,7 @@ const InfographieNexus: React.FC = () => {
             </div>
             <div className="lg:col-span-2 space-y-6 flex flex-col justify-center">
               <div className="stat-card rounded-lg p-6 shadow-md text-center bg-white bg-opacity-80 backdrop-blur border border-white/20">
-                <div className="text-3xl font-extrabold text-[#7a5195]">
+                <div className="text-3xl font-extrabold text-slate-900">
                   {t("infographie.impact.cards.0.title")}
                 </div>
                 <p className="mt-2 font-semibold text-gray-700">
@@ -580,7 +580,7 @@ const InfographieNexus: React.FC = () => {
                 </p>
               </div>
               <div className="stat-card rounded-lg p-6 shadow-md text-center bg-white bg-opacity-80 backdrop-blur border border-white/20">
-                <div className="text-3xl font-extrabold text-[#ff764a]">
+                <div className="text-3xl font-extrabold text-slate-900">
                   {t("infographie.impact.cards.1.title")}
                 </div>
                 <p className="mt-2 font-semibold text-gray-700">
