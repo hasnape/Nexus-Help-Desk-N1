@@ -38,14 +38,7 @@ const LandingPage: React.FC = () => {
   });
 
   return (
-    <>
-      <div className="page-container section-stack">
-        <div>
-          <Link to={backLinkDestination} state={{ from: location }} className="pill-link">
-            <ArrowLeftIcon className="w-5 h-5" />
-            {backLinkText}
-          </Link>
-        </div>
+     
 
         {/* HERO */}
         <section className="space-y-8 text-center">
