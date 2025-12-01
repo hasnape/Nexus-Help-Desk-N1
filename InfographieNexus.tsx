@@ -354,81 +354,81 @@ const InfographieNexus: React.FC = () => {
               {t("infographie.tech.subtitle")}
             </p>
           </div>
-          <div className="bg-white rounded-lg shadow-lg p-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-              <div className="tech-card rounded-lg p-6 border border-[#003f5c20] transition-transform duration-300 ease-in-out hover:-translate-y-1 hover:shadow-xl">
-                <h4 className="font-bold text-xl text-[#003f5c]">{t("infographie.tech.frontend.title")}</h4>
-                <p className="text-gray-500 text-sm mb-4">
+          <div className="bg-white rounded-3xl shadow-xl p-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
+              <div className="h-full rounded-3xl bg-white shadow-xl p-6 flex flex-col border border-slate-200">
+                <h4 className="text-lg font-semibold text-slate-900">{t("infographie.tech.frontend.title")}</h4>
+                <p className="mt-2 text-sm text-slate-700">
                   {t("infographie.tech.frontend.subtitle")}
                 </p>
-                <ul className="space-y-2 text-left">
-                  <li className="flex items-center">
-                    <span className="font-bold text-[#7a5195] mr-2">●</span>
-                    {t("infographie.tech.frontend.items.0")}
+                <ul className="mt-4 space-y-2 text-sm text-slate-700">
+                  <li className="flex items-start gap-3">
+                    <span className="mt-1 h-2 w-2 rounded-full bg-indigo-500" />
+                    <span>{t("infographie.tech.frontend.items.0")}</span>
                   </li>
-                  <li className="flex items-center">
-                    <span className="font-bold text-[#7a5195] mr-2">●</span>
-                    {t("infographie.tech.frontend.items.1")}
+                  <li className="flex items-start gap-3">
+                    <span className="mt-1 h-2 w-2 rounded-full bg-indigo-500" />
+                    <span>{t("infographie.tech.frontend.items.1")}</span>
                   </li>
-                  <li className="flex items-center">
-                    <span className="font-bold text-[#7a5195] mr-2">●</span>
-                    {t("infographie.tech.frontend.items.2")}
+                  <li className="flex items-start gap-3">
+                    <span className="mt-1 h-2 w-2 rounded-full bg-indigo-500" />
+                    <span>{t("infographie.tech.frontend.items.2")}</span>
                   </li>
-                  <li className="flex items-center">
-                    <span className="font-bold text-[#7a5195] mr-2">●</span>
-                    {t("infographie.tech.frontend.items.3")}
+                  <li className="flex items-start gap-3">
+                    <span className="mt-1 h-2 w-2 rounded-full bg-indigo-500" />
+                    <span>{t("infographie.tech.frontend.items.3")}</span>
                   </li>
                 </ul>
               </div>
-            <div className="tech-card rounded-lg p-6 border border-[#003f5c20] transition-transform duration-300 ease-in-out hover:-translate-y-1 hover:shadow-xl">
-              <h4 className="font-bold text-xl text-[#003f5c]">
+              <div className="h-full rounded-3xl bg-white shadow-xl p-6 flex flex-col border border-slate-200">
+                <h4 className="text-lg font-semibold text-slate-900">
                   {t("infographie.tech.backend.title")}
                 </h4>
-                <p className="text-gray-500 text-sm mb-4">
+                <p className="mt-2 text-sm text-slate-700">
                   {t("infographie.tech.backend.subtitle")}
                 </p>
-                <ul className="space-y-2 text-left">
-                  <li className="flex items-center">
-                    <span className="font-bold text-[#bc5090] mr-2">●</span>
-                    {t("infographie.tech.backend.items.0")}
+                <ul className="mt-4 space-y-2 text-sm text-slate-700">
+                  <li className="flex items-start gap-3">
+                    <span className="mt-1 h-2 w-2 rounded-full bg-indigo-500" />
+                    <span>{t("infographie.tech.backend.items.0")}</span>
                   </li>
-                  <li className="flex items-center">
-                    <span className="font-bold text-[#bc5090] mr-2">●</span>
-                    {t("infographie.tech.backend.items.1")}
+                  <li className="flex items-start gap-3">
+                    <span className="mt-1 h-2 w-2 rounded-full bg-indigo-500" />
+                    <span>{t("infographie.tech.backend.items.1")}</span>
                   </li>
-                  <li className="flex items-center">
-                    <span className="font-bold text-[#bc5090] mr-2">●</span>
-                    {t("infographie.tech.backend.items.2")}
+                  <li className="flex items-start gap-3">
+                    <span className="mt-1 h-2 w-2 rounded-full bg-indigo-500" />
+                    <span>{t("infographie.tech.backend.items.2")}</span>
                   </li>
-                  <li className="flex items-center">
-                    <span className="font-bold text-[#bc5090] mr-2">●</span>
-                    {t("infographie.tech.backend.items.3")}
+                  <li className="flex items-start gap-3">
+                    <span className="mt-1 h-2 w-2 rounded-full bg-indigo-500" />
+                    <span>{t("infographie.tech.backend.items.3")}</span>
                   </li>
                 </ul>
               </div>
-              <div className="tech-card rounded-lg p-6 border border-[#003f5c20] transition-transform duration-300 ease-in-out hover:-translate-y-1 hover:shadow-xl">
-                <h4 className="font-bold text-xl text-[#003f5c]">
+              <div className="h-full rounded-3xl bg-white shadow-xl p-6 flex flex-col border border-slate-200">
+                <h4 className="text-lg font-semibold text-slate-900">
                   {t("infographie.tech.services.title")}
                 </h4>
-                <p className="text-gray-500 text-sm mb-4">
+                <p className="mt-2 text-sm text-slate-700">
                   {t("infographie.tech.services.subtitle")}
                 </p>
-                <ul className="space-y-2 text-left">
-                  <li className="flex items-center">
-                    <span className="font-bold text-[#ff764a] mr-2">●</span>
-                    {t("infographie.tech.services.items.0")}
+                <ul className="mt-4 space-y-2 text-sm text-slate-700">
+                  <li className="flex items-start gap-3">
+                    <span className="mt-1 h-2 w-2 rounded-full bg-indigo-500" />
+                    <span>{t("infographie.tech.services.items.0")}</span>
                   </li>
-                  <li className="flex items-center">
-                    <span className="font-bold text-[#ff764a] mr-2">●</span>
-                    {t("infographie.tech.services.items.1")}
+                  <li className="flex items-start gap-3">
+                    <span className="mt-1 h-2 w-2 rounded-full bg-indigo-500" />
+                    <span>{t("infographie.tech.services.items.1")}</span>
                   </li>
-                  <li className="flex items-center">
-                    <span className="font-bold text-[#ff764a] mr-2">●</span>
-                    {t("infographie.tech.services.items.2")}
+                  <li className="flex items-start gap-3">
+                    <span className="mt-1 h-2 w-2 rounded-full bg-indigo-500" />
+                    <span>{t("infographie.tech.services.items.2")}</span>
                   </li>
-                  <li className="flex items-center">
-                    <span className="font-bold text-[#ff764a] mr-2">●</span>
-                    {t("infographie.tech.services.items.3")}
+                  <li className="flex items-start gap-3">
+                    <span className="mt-1 h-2 w-2 rounded-full bg-indigo-500" />
+                    <span>{t("infographie.tech.services.items.3")}</span>
                   </li>
                 </ul>
               </div>
