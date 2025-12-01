@@ -586,10 +586,8 @@ const SignUpPage: React.FC = () => {
         />
       )}
 
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-700 p-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="bg-surface rounded-xl shadow-2xl overflow-hidden">
-            <div className="p-8">
+      <div className="page-container section-stack">
+        <div className="surface-card shadow-2xl overflow-hidden p-6 lg:p-8 space-y-8">
               <div className="text-center mb-8">
                 <img
                   src="https://yt3.ggpht.com/vbfaZncvDLBv7B4Xo9mFggNozPaGAaGMkwciDaL-UtdLClEQmWB5blCibQacHzdrI1RL_5C9_g=s108-c-k-c0x00ffffff-no-rj"
@@ -758,17 +756,13 @@ const SignUpPage: React.FC = () => {
                       required
                       disabled={isLoading}
                     />
-                    <div className="rounded-md border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
-                      <p className="font-semibold text-slate-800">
-                        {t("signup.roleSection.title")}
-                      </p>
-                      <p className="mt-1">
-                        {t("signup.roleSection.description")}
-                      </p>
-                      <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                    <div className="surface-card-soft p-4 text-sm text-slate-200 space-y-3">
+                      <p className="font-semibold text-white">{t("signup.roleSection.title")}</p>
+                      <p className="text-slate-200">{t("signup.roleSection.description")}</p>
+                      <div className="inline-flex items-center gap-2 rounded-full bg-primary/20 px-3 py-1 text-xs font-semibold text-primary-light">
                         <span>{t("signup.roleSection.roleLabelManager")}</span>
                       </div>
-                      <div className="mt-3 rounded-md border border-indigo-200 bg-indigo-50 px-3 py-2 text-[13px] text-indigo-900">
+                      <div className="rounded-md border border-indigo-500/30 bg-indigo-500/10 px-3 py-2 text-[13px] text-indigo-100">
                         <p className="font-semibold">{t("signup.managerInfo.line1")}</p>
                         <p className="mt-1">{t("signup.managerInfo.line2")}</p>
                       </div>
@@ -882,24 +876,24 @@ const SignUpPage: React.FC = () => {
                 </div>
               )}
               <section
-                className={`mt-10 bg-slate-50 border border-slate-200 rounded-lg p-4 md:p-6 ${
+                className={`mt-10 surface-card-soft p-4 md:p-6 ${
                   selectedLanguage === "ar" ? "text-right" : "text-left"
                 }`}
                 dir={selectedLanguage === "ar" ? "rtl" : "ltr"}
               >
-                <h2 className="text-xl font-semibold text-slate-800">{t("roleHelp.title")}</h2>
-                <p className="mt-1 text-sm text-slate-600">{t("roleHelp.subtitle")}</p>
+                <h2 className="text-xl font-semibold text-white">{t("roleHelp.title")}</h2>
+                <p className="mt-1 text-sm text-slate-200">{t("roleHelp.subtitle")}</p>
 
                 <div className="grid gap-6 md:grid-cols-3 mt-4">
                   <div className="space-y-3">
                     <div className="space-y-1">
-                      <h3 className="text-lg font-semibold text-slate-800">{t("roleHelp.manager.title")}</h3>
-                      <p className="text-sm text-slate-600">{t("roleHelp.manager.description")}</p>
+                      <h3 className="text-lg font-semibold text-white">{t("roleHelp.manager.title")}</h3>
+                      <p className="text-sm text-slate-200">{t("roleHelp.manager.description")}</p>
                     </div>
                     <div className="space-y-2">
-                      <h4 className="text-sm font-semibold text-slate-800">{t("roleHelp.manager.signupTitle")}</h4>
+                      <h4 className="text-sm font-semibold text-white">{t("roleHelp.manager.signupTitle")}</h4>
                       <ul
-                        className={`list-disc space-y-1 text-sm text-slate-700 ${
+                        className={`list-disc space-y-1 text-sm text-slate-200 ${
                           selectedLanguage === "ar" ? "pr-5" : "pl-5"
                         }`}
                       >
@@ -910,9 +904,9 @@ const SignUpPage: React.FC = () => {
                       </ul>
                     </div>
                     <div className="space-y-2">
-                      <h4 className="text-sm font-semibold text-slate-800">{t("roleHelp.manager.loginTitle")}</h4>
+                      <h4 className="text-sm font-semibold text-white">{t("roleHelp.manager.loginTitle")}</h4>
                       <ul
-                        className={`list-disc space-y-1 text-sm text-slate-700 ${
+                        className={`list-disc space-y-1 text-sm text-slate-200 ${
                           selectedLanguage === "ar" ? "pr-5" : "pl-5"
                         }`}
                       >
@@ -924,13 +918,13 @@ const SignUpPage: React.FC = () => {
 
                   <div className="space-y-3">
                     <div className="space-y-1">
-                      <h3 className="text-lg font-semibold text-slate-800">{t("roleHelp.agent.title")}</h3>
-                      <p className="text-sm text-slate-600">{t("roleHelp.agent.description")}</p>
+                      <h3 className="text-lg font-semibold text-white">{t("roleHelp.agent.title")}</h3>
+                      <p className="text-sm text-slate-200">{t("roleHelp.agent.description")}</p>
                     </div>
                     <div className="space-y-2">
-                      <h4 className="text-sm font-semibold text-slate-800">{t("roleHelp.agent.signupTitle")}</h4>
+                      <h4 className="text-sm font-semibold text-white">{t("roleHelp.agent.signupTitle")}</h4>
                       <ul
-                        className={`list-disc space-y-1 text-sm text-slate-700 ${
+                        className={`list-disc space-y-1 text-sm text-slate-200 ${
                           selectedLanguage === "ar" ? "pr-5" : "pl-5"
                         }`}
                       >
@@ -940,9 +934,9 @@ const SignUpPage: React.FC = () => {
                       </ul>
                     </div>
                     <div className="space-y-2">
-                      <h4 className="text-sm font-semibold text-slate-800">{t("roleHelp.agent.loginTitle")}</h4>
+                      <h4 className="text-sm font-semibold text-white">{t("roleHelp.agent.loginTitle")}</h4>
                       <ul
-                        className={`list-disc space-y-1 text-sm text-slate-700 ${
+                        className={`list-disc space-y-1 text-sm text-slate-200 ${
                           selectedLanguage === "ar" ? "pr-5" : "pl-5"
                         }`}
                       >
@@ -954,13 +948,13 @@ const SignUpPage: React.FC = () => {
 
                   <div className="space-y-3">
                     <div className="space-y-1">
-                      <h3 className="text-lg font-semibold text-slate-800">{t("roleHelp.user.title")}</h3>
-                      <p className="text-sm text-slate-600">{t("roleHelp.user.description")}</p>
+                      <h3 className="text-lg font-semibold text-white">{t("roleHelp.user.title")}</h3>
+                      <p className="text-sm text-slate-200">{t("roleHelp.user.description")}</p>
                     </div>
                     <div className="space-y-2">
-                      <h4 className="text-sm font-semibold text-slate-800">{t("roleHelp.user.signupTitle")}</h4>
+                      <h4 className="text-sm font-semibold text-white">{t("roleHelp.user.signupTitle")}</h4>
                       <ul
-                        className={`list-disc space-y-1 text-sm text-slate-700 ${
+                        className={`list-disc space-y-1 text-sm text-slate-200 ${
                           selectedLanguage === "ar" ? "pr-5" : "pl-5"
                         }`}
                       >
@@ -970,9 +964,9 @@ const SignUpPage: React.FC = () => {
                       </ul>
                     </div>
                     <div className="space-y-2">
-                      <h4 className="text-sm font-semibold text-slate-800">{t("roleHelp.user.loginTitle")}</h4>
+                      <h4 className="text-sm font-semibold text-white">{t("roleHelp.user.loginTitle")}</h4>
                       <ul
-                        className={`list-disc space-y-1 text-sm text-slate-700 ${
+                        className={`list-disc space-y-1 text-sm text-slate-200 ${
                           selectedLanguage === "ar" ? "pr-5" : "pl-5"
                         }`}
                       >
@@ -1025,8 +1019,6 @@ const SignUpPage: React.FC = () => {
                   {t("footer.legalLink", { defaultValue: "Legal & Documentation" })}
                 </Link>
               </div>
-            </div>
-          </div>
         </div>
       </div>
     </>
