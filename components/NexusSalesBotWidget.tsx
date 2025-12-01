@@ -1,10 +1,10 @@
-import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
-import { ChatMessage } from '../types';
-import useSpeechRecognition from '../hooks/useSpeechRecognition';
-import useTextToSpeech from '../hooks/useTextToSpeech';
-import { useLanguage } from '../contexts/LanguageContext';
-import { getFollowUpHelpResponse } from '../services/geminiService';
-import { TICKET_CATEGORY_KEYS } from '../constants';
+import React, { useEffect, useId, useMemo, useRef, useState } from "react";
+import { ChatMessage } from "../types";
+import useSpeechRecognition from "../hooks/useSpeechRecognition";
+import useTextToSpeech from "../hooks/useTextToSpeech";
+import { useLanguage } from "../contexts/LanguageContext";
+import { getFollowUpHelpResponse } from "../services/geminiService";
+import { TICKET_CATEGORY_KEYS } from "../constants";
 
 type NexusSalesBotWidgetProps = {
   allowAutoRead?: boolean;
@@ -86,33 +86,33 @@ const CloseIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 );
 
 const buildInitialMessage = (language: string): string => {
-  if (language === 'fr') {
+  if (language === "fr") {
     return "Bonjour, je suis Nexus, l’assistant commercial. Je peux vous présenter les offres Freemium, Standard et Pro, et vous aider à naviguer sur le site. Que souhaitez-vous savoir ?";
   }
-  if (language === 'ar') {
-    return 'مرحبًا، أنا نيكسوس، المساعد التجاري. يمكنني شرح عروض Freemium وStandard وPro ومساعدتك في تصفح الموقع. ما الذي تود معرفته؟';
+  if (language === "ar") {
+    return "مرحبًا، أنا نيكسوس، المساعد التجاري. يمكنني شرح عروض Freemium وStandard وPro ومساعدتك في تصفح الموقع. ما الذي تود معرفته؟";
   }
   return "Hello, I'm Nexus, the sales assistant. I can present the Freemium, Standard, and Pro plans and guide you through the site. What would you like to know?";
 };
 
 const buildIntroBubbleText = (language: string): string => {
-  if (language === 'fr') {
+  if (language === "fr") {
     return "Bonjour ! Je suis NexusBot, le chatbot IA créé pour vous assister dans vos démarches sur Nexus Support Hub. Interrogez-moi ! :)";
   }
-  if (language === 'ar') {
-    return 'مرحبًا! أنا NexusBot، الشات بوت الذكي هنا لمساعدتك في استكشاف منصة Nexus Support Hub. اسألني ما تشاء! :)';
+  if (language === "ar") {
+    return "مرحبًا! أنا NexusBot، الشات بوت الذكي هنا لمساعدتك في استكشاف منصة Nexus Support Hub. اسألني ما تشاء! :)";
   }
   return "Hi! I'm NexusBot, the AI chatbot here to help you explore Nexus Support Hub. Ask me anything! :)";
 };
 
 const buildErrorFallback = (language: string): string => {
-  if (language === 'fr') {
-    return 'Notre assistant est momentanément indisponible. Vous pouvez réessayer dans quelques instants ou nous contacter via la page Support.';
+  if (language === "fr") {
+    return "Notre assistant est momentanément indisponible. Vous pouvez réessayer dans quelques instants ou nous contacter via la page Support.";
   }
-  if (language === 'ar') {
-    return 'المساعد غير متاح حاليًا. يمكنك المحاولة مرة أخرى بعد قليل أو الاتصال بنا عبر صفحة الدعم.';
+  if (language === "ar") {
+    return "المساعد غير متاح حاليًا. يمكنك المحاولة مرة أخرى بعد قليل أو الاتصال بنا عبر صفحة الدعم.";
   }
-  return 'Our assistant is temporarily unavailable. Please try again shortly or contact us via the Support page.';
+  return "Our assistant is temporarily unavailable. Please try again shortly or contact us via the Support page.";
 };
 
 const additionalContext = `Tu es Nexus, un assistant commercial pour Nexus Support Hub. Ton rôle est :
@@ -123,14 +123,18 @@ const additionalContext = `Tu es Nexus, un assistant commercial pour Nexus Suppo
 - d’adopter un ton professionnel, clair, honnête, sans inventer de chiffres non vérifiés,
 - de répondre dans la langue de l’utilisateur.`;
 
-const NexusSalesBotWidget: React.FC<NexusSalesBotWidgetProps> = ({ allowAutoRead = false }) => {
+const NexusSalesBotWidget: React.FC<NexusSalesBotWidgetProps> = ({
+  allowAutoRead = false,
+}) => {
   const { t, language } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [showIntroBubble, setShowIntroBubble] = useState(true);
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
-  const [newMessage, setNewMessage] = useState('');
+  const [newMessage, setNewMessage] = useState("");
   const [isLoadingAi, setIsLoadingAi] = useState(false);
-  const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
+  const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(
+    null
+  );
   const panelId = useId();
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -144,31 +148,37 @@ const NexusSalesBotWidget: React.FC<NexusSalesBotWidgetProps> = ({ allowAutoRead
     error: speechError,
   } = useSpeechRecognition();
 
-  const { isSpeaking, speak, cancel, browserSupportsTextToSpeech, error: ttsError } = useTextToSpeech();
+  const {
+    isSpeaking,
+    speak,
+    cancel,
+    browserSupportsTextToSpeech,
+    error: ttsError,
+  } = useTextToSpeech();
 
   const ticketCategoryKey = useMemo(
     () =>
-      TICKET_CATEGORY_KEYS.includes('ticketCategory.SalesQuestion')
-        ? 'ticketCategory.SalesQuestion'
-        : 'ticketCategory.GeneralQuestion',
+      TICKET_CATEGORY_KEYS.includes("ticketCategory.SalesQuestion")
+        ? "ticketCategory.SalesQuestion"
+        : "ticketCategory.GeneralQuestion",
     []
   );
 
   useEffect(() => {
     if (transcript) {
-      setNewMessage((prev) => `${prev}${prev ? ' ' : ''}${transcript}`);
+      setNewMessage((prev) => `${prev}${prev ? " " : ""}${transcript}`);
     }
   }, [transcript]);
 
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatHistory]);
 
   useEffect(() => {
     if (isOpen && chatHistory.length === 0) {
       const initial: ChatMessage = {
         id: crypto.randomUUID(),
-        sender: 'ai',
+        sender: "ai",
         text: buildInitialMessage(language),
         timestamp: new Date(),
       };
@@ -178,7 +188,14 @@ const NexusSalesBotWidget: React.FC<NexusSalesBotWidgetProps> = ({ allowAutoRead
         setSpeakingMessageId(initial.id);
       }
     }
-  }, [isOpen, chatHistory.length, language, allowAutoRead, browserSupportsTextToSpeech, speak]);
+  }, [
+    isOpen,
+    chatHistory.length,
+    language,
+    allowAutoRead,
+    browserSupportsTextToSpeech,
+    speak,
+  ]);
 
   useEffect(() => {
     if (isOpen) {
@@ -206,19 +223,19 @@ const NexusSalesBotWidget: React.FC<NexusSalesBotWidgetProps> = ({ allowAutoRead
 
     const userMessage: ChatMessage = {
       id: crypto.randomUUID(),
-      sender: 'user',
+      sender: "user",
       text: trimmed,
       timestamp: new Date(),
     };
 
     const currentHistory = [...chatHistory, userMessage];
     setChatHistory(currentHistory);
-    setNewMessage('');
+    setNewMessage("");
     setIsLoadingAi(true);
 
     try {
       const aiResponse = await getFollowUpHelpResponse(
-        'Nexus Sales Assistant',
+        "Nexus Sales Assistant",
         ticketCategoryKey,
         currentHistory,
         1,
@@ -228,7 +245,7 @@ const NexusSalesBotWidget: React.FC<NexusSalesBotWidgetProps> = ({ allowAutoRead
 
       const aiMessage: ChatMessage = {
         id: crypto.randomUUID(),
-        sender: 'ai',
+        sender: "ai",
         text: aiResponse.text,
         timestamp: new Date(),
       };
@@ -239,10 +256,10 @@ const NexusSalesBotWidget: React.FC<NexusSalesBotWidgetProps> = ({ allowAutoRead
         setSpeakingMessageId(aiMessage.id);
       }
     } catch (error) {
-      console.error('Sales bot response error', error);
+      console.error("Sales bot response error", error);
       const fallbackMessage: ChatMessage = {
         id: crypto.randomUUID(),
-        sender: 'ai',
+        sender: "ai",
         text: buildErrorFallback(language),
         timestamp: new Date(),
       };
@@ -253,7 +270,7 @@ const NexusSalesBotWidget: React.FC<NexusSalesBotWidgetProps> = ({ allowAutoRead
   };
 
   const handleSpeakMessage = (message: ChatMessage) => {
-    if (message.sender !== 'ai' || !browserSupportsTextToSpeech) return;
+    if (message.sender !== "ai" || !browserSupportsTextToSpeech) return;
     if (isSpeaking && speakingMessageId === message.id) {
       cancel();
       setSpeakingMessageId(null);
@@ -267,14 +284,17 @@ const NexusSalesBotWidget: React.FC<NexusSalesBotWidgetProps> = ({ allowAutoRead
   };
 
   const renderMessage = (message: ChatMessage) => {
-    const isUser = message.sender === 'user';
+    const isUser = message.sender === "user";
     return (
-      <div key={message.id} className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
+      <div
+        key={message.id}
+        className={`flex ${isUser ? "justify-end" : "justify-start"}`}
+      >
         <div
           className={`relative max-w-[80%] rounded-2xl px-4 py-2 text-sm shadow ${
             isUser
-              ? 'bg-primary text-white rounded-br-none'
-              : 'bg-gray-100 text-gray-900 rounded-bl-none'
+              ? "bg-primary text-white rounded-br-none"
+              : "bg-gray-100 text-gray-900 rounded-bl-none"
           }`}
         >
           <p className="whitespace-pre-wrap break-words">{message.text}</p>
@@ -285,8 +305,8 @@ const NexusSalesBotWidget: React.FC<NexusSalesBotWidgetProps> = ({ allowAutoRead
               className="absolute -left-2 -bottom-2 flex h-8 w-8 items-center justify-center rounded-full bg-white text-primary shadow hover:bg-gray-50"
               aria-label={
                 isSpeaking && speakingMessageId === message.id
-                  ? t('salesBot.stopReading', { default: 'Stop reading' })
-                  : t('salesBot.readAloud', { default: 'Read aloud' })
+                  ? t("salesBot.stopReading", { default: "Stop reading" })
+                  : t("salesBot.readAloud", { default: "Read aloud" })
               }
             >
               {isSpeaking && speakingMessageId === message.id ? (
@@ -308,7 +328,9 @@ const NexusSalesBotWidget: React.FC<NexusSalesBotWidgetProps> = ({ allowAutoRead
           <button
             type="button"
             onClick={() => setShowIntroBubble(false)}
-            aria-label={t('common.close', { default: 'Fermer le message de présentation du chatbot' })}
+            aria-label={t("common.close", {
+              default: "Fermer le message de présentation du chatbot",
+            })}
             className="absolute right-2 top-2 text-white/80 transition hover:text-white"
           >
             <CloseIcon className="h-4 w-4" />
@@ -320,7 +342,9 @@ const NexusSalesBotWidget: React.FC<NexusSalesBotWidgetProps> = ({ allowAutoRead
       <button
         type="button"
         onClick={toggleWidget}
-        aria-label={t('salesBot.openAssistant', { default: "Ouvrir l’assistant commercial Nexus" })}
+        aria-label={t("salesBot.openAssistant", {
+          default: "Ouvrir l’assistant commercial Nexus",
+        })}
         aria-expanded={isOpen}
         aria-controls={panelId}
         className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-lg transition hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
@@ -338,16 +362,21 @@ const NexusSalesBotWidget: React.FC<NexusSalesBotWidgetProps> = ({ allowAutoRead
           <div className="flex items-start justify-between border-b border-gray-200 p-4">
             <div>
               <h2 className="text-lg font-semibold text-gray-900">
-                {t('salesBot.title', { default: 'Assistant commercial Nexus' })}
+                {t("salesBot.title", {
+                  default: "Assistant commercial Nexus",
+                })}
               </h2>
               <p className="text-sm text-gray-600">
-                {t('salesBot.subtitle', { default: 'Des réponses rapides sur nos offres et fonctionnalités.' })}
+                {t("salesBot.subtitle", {
+                  default:
+                    "Des réponses rapides sur nos offres et fonctionnalités.",
+                })}
               </p>
             </div>
             <button
               type="button"
               onClick={toggleWidget}
-              aria-label={t('common.close', { default: 'Close' })}
+              aria-label={t("common.close", { default: "Close" })}
               className="rounded-full p-1 text-gray-500 transition hover:bg-gray-100 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-primary"
             >
               <CloseIcon className="h-5 w-5" />
@@ -358,13 +387,18 @@ const NexusSalesBotWidget: React.FC<NexusSalesBotWidgetProps> = ({ allowAutoRead
             {chatHistory.map(renderMessage)}
             {isLoadingAi && (
               <div className="text-center text-xs text-gray-500">
-                {t('salesBot.loading', { default: 'Nexus rédige une réponse…' })}
+                {t("salesBot.loading", {
+                  default: "Nexus rédige une réponse…",
+                })}
               </div>
             )}
             <div ref={chatEndRef} />
           </div>
 
-          <form onSubmit={handleSendMessage} className="space-y-2 border-t border-gray-200 bg-white p-4">
+          <form
+            onSubmit={handleSendMessage}
+            className="space-y-2 border-t border-gray-200 bg-white p-4"
+          >
             {(speechError || ttsError) && (
               <p className="text-xs text-red-600">{speechError || ttsError}</p>
             )}
@@ -374,30 +408,43 @@ const NexusSalesBotWidget: React.FC<NexusSalesBotWidgetProps> = ({ allowAutoRead
                 onClick={isListening ? stopListening : startListening}
                 aria-label={
                   isListening
-                    ? t('speechRecognition.stop', { default: 'Stop listening' })
-                    : t('speechRecognition.start', { default: 'Start listening' })
+                    ? t("speechRecognition.stop", {
+                        default: "Stop listening",
+                      })
+                    : t("speechRecognition.start", {
+                        default: "Start listening",
+                      })
                 }
                 className={`flex h-10 w-10 items-center justify-center rounded-full border text-primary shadow transition hover:bg-primary/10 focus:outline-none focus:ring-2 focus:ring-primary ${
-                  isListening ? 'bg-primary/10' : 'bg-white'
+                  isListening ? "bg-primary/10" : "bg-white"
                 }`}
               >
                 <MicrophoneIcon className="h-5 w-5" />
               </button>
+
+              {/* ICI on force le texte en NOIR */}
               <textarea
                 ref={textareaRef}
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
-                placeholder={t('salesBot.placeholder', { default: 'Posez votre question...' })}
-                className="min-h-[56px] flex-1 resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                placeholder={t("salesBot.placeholder", {
+                  default: "Posez votre question...",
+                })}
+                style={{
+                  color: "#020617", // noir (slate-900)
+                  backgroundColor: "#ffffff",
+                }}
+                className="min-h-[56px] flex-1 resize-none rounded-lg border border-gray-300 bg-white !text-slate-900 placeholder-gray-500 px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
+
               <button
                 type="submit"
                 disabled={isLoadingAi || !newMessage.trim()}
                 className="inline-flex h-10 items-center rounded-full bg-primary px-4 text-sm font-semibold text-white shadow transition hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {isLoadingAi
-                  ? t('common.loading', { default: '...' })
-                  : t('common.send', { default: 'Envoyer' })}
+                  ? t("common.loading", { default: "..." })
+                  : t("common.send", { default: "Envoyer" })}
               </button>
             </div>
           </form>
