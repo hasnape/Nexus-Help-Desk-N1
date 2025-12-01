@@ -2,7 +2,6 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
-import Layout from "../components/Layout";
 import { Button } from "../components/FormElements";
 import NexusSalesBotWidget from "../components/NexusSalesBotWidget";
 import InfographieNexus from "../InfographieNexus";
@@ -40,7 +39,7 @@ const LandingPage: React.FC = () => {
 
   return (
     <>
-      <Layout mainClassName="page-shell py-10 lg:py-14">
+      <main ClassName="page-shell py-10 lg:py-14">
         <div className="page-container section-stack">
           <div>
             <Link to={backLinkDestination} state={{ from: location }} className="pill-link">
@@ -257,7 +256,7 @@ const LandingPage: React.FC = () => {
           </section>
 
         </div>
-      </Layout>
+      </main>
 
       <NexusSalesBotWidget />
     </>
