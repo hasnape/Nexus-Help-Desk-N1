@@ -1180,20 +1180,18 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         deleteQuery = deleteQuery.eq("company_id", user.company_id);
       }
 
-      const { data, error } = await deleteQuery.select("id").single();
+      const { data, error } = await deleteQuery.select("id").maybeSingle();
       if (error) {
         console.error("Error deleting ticket:", error);
         alert(translateHook("managerDashboard.deleteTicketError.rpc", { message: error.message }));
-      } else if (data) {
-        updateTicketsState((prev) => prev.filter((t) => t.id !== ticketId));
-      } else {
-        console.error("Ticket deletion failed: no matching row returned.");
-        alert(
-          translateHook("managerDashboard.deleteTicketError.rpc", {
-            message: "No matching ticket found or insufficient permissions.",
-          })
-        );
+        return;
       }
+
+      if (!data) {
+        console.warn("Ticket delete returned no row; proceeding without representation.");
+      }
+
+      updateTicketsState((prev) => prev.filter((t) => t.id !== ticketId));
     } catch (e: any) {
       console.error("Critical error deleting ticket:", e);
       alert(translateHook("managerDashboard.deleteTicketError.critical", { message: e.message }));
