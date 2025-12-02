@@ -159,6 +159,7 @@ const LoginPage: React.FC = () => {
                 autoFocus
                 required
                 disabled={isLoading}
+                className="text-slate-900 placeholder:text-slate-500"
               />
               <Input
                 label={t("login.passwordLabel")}
@@ -171,6 +172,7 @@ const LoginPage: React.FC = () => {
                 placeholder={t("login.passwordPlaceholder")}
                 required
                 disabled={isLoading}
+                className="text-slate-900 placeholder:text-slate-500"
               />
               <Input
                 label={t("login.companyNameLabel", { defaultValue: "Company Name" })}
@@ -185,6 +187,7 @@ const LoginPage: React.FC = () => {
                 })}
                 required
                 disabled={isLoading}
+                className="text-slate-900 placeholder:text-slate-500"
               />
               <div
                 className={`surface-card-soft px-4 py-3 text-xs text-slate-200 ${
