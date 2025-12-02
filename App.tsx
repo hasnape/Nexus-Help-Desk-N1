@@ -1175,12 +1175,24 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       return;
     }
     try {
-      const { error } = await supabase.from("tickets").delete().eq("id", ticketId);
+      let deleteQuery = supabase.from("tickets").delete().eq("id", ticketId);
+      if (user?.company_id) {
+        deleteQuery = deleteQuery.eq("company_id", user.company_id);
+      }
+
+      const { data, error } = await deleteQuery.select("id").single();
       if (error) {
         console.error("Error deleting ticket:", error);
         alert(translateHook("managerDashboard.deleteTicketError.rpc", { message: error.message }));
-      } else {
+      } else if (data) {
         updateTicketsState((prev) => prev.filter((t) => t.id !== ticketId));
+      } else {
+        console.error("Ticket deletion failed: no matching row returned.");
+        alert(
+          translateHook("managerDashboard.deleteTicketError.rpc", {
+            message: "No matching ticket found or insufficient permissions.",
+          })
+        );
       }
     } catch (e: any) {
       console.error("Critical error deleting ticket:", e);
