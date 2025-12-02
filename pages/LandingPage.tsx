@@ -115,8 +115,8 @@ const LandingPage: React.FC = () => {
           id="presentation"
           className="grid gap-8 lg:grid-cols-[minmax(0,1.3fr),minmax(0,1fr)] items-start"
         >
-          <div className="surface-card space-y-4">
-            <h2 className="section-title text-left text-2xl">
+          <div className="surface-card space-y-4 max-w-3xl mx-auto text-center">
+            <h2 className="section-title text-2xl text-center">
               {t("landing.presentation.title", {
                 defaultValue:
                   "Un hub intelligent pour centraliser votre support",
@@ -130,12 +130,12 @@ const LandingPage: React.FC = () => {
             </p>
 
             <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-slate-100">
+              <h3 className="text-sm font-semibold text-slate-100 text-center">
                 {t("landing.presentation.forWho.title", {
                   defaultValue: "Pour qui ?",
                 })}
               </h3>
-              <ul className="list-disc pl-5 text-sm text-slate-200 space-y-1">
+              <ul className="list-disc pl-5 text-sm text-slate-200 space-y-1 inline-block text-left mx-auto">
                 <li>
                   {t("landing.presentation.forWho.items.0", {
                     defaultValue:
@@ -158,12 +158,12 @@ const LandingPage: React.FC = () => {
             </div>
 
             <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-slate-100">
+              <h3 className="text-sm font-semibold text-slate-100 text-center">
                 {t("landing.presentation.problems.title", {
                   defaultValue: "Les problèmes que Nexus adresse",
                 })}
               </h3>
-              <ul className="list-disc pl-5 text-sm text-slate-200 space-y-1">
+              <ul className="list-disc pl-5 text-sm text-slate-200 space-y-1 inline-block text-left mx-auto">
                 <li>
                   {t("landing.presentation.problems.items.0", {
                     defaultValue:
@@ -266,8 +266,8 @@ const LandingPage: React.FC = () => {
         </section>
 
         <section id="infographie" className="section-stack">
-          <div className="surface-card space-y-3 max-w-3xl mx-auto text-center lg:text-left">
-            <h2 className="section-title text-2xl text-left">
+          <div className="surface-card space-y-3 max-w-3xl mx-auto text-center">
+            <h2 className="section-title text-2xl text-center">
               {t("infographie.title", {
                 defaultValue: "Architecture & automatisation",
               })}
