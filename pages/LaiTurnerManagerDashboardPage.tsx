@@ -326,35 +326,35 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
   }
 
   return (
-      <div className="min-h-[calc(100vh-5rem)] bg-slate-50 py-12">
-        <div className="mx-auto max-w-6xl space-y-8 px-4">
-          <section className="space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Lai & Turner Law</p>
-            <h1 className="text-3xl font-bold text-slate-900">Lai & Turner – Manager Overview</h1>
-            <p className="max-w-3xl text-lg text-slate-700">
+      <div className="page-container section-stack">
+        <div className="section-stack">
+          <section className="surface-card p-6 rounded-2xl space-y-3">
+            <p className="section-eyebrow">Lai & Turner Law</p>
+            <h1 className="section-title">Lai & Turner – Manager Overview</h1>
+            <p className="section-subtitle max-w-3xl">
               Track every fight across family, injury, criminal defense, and business immigration while keeping the Lai & Turner promise visible.
             </p>
           </section>
 
-          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm space-y-3">
+          <section className="surface-card p-6 rounded-2xl space-y-3">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Recent structured intakes</p>
-                <h3 className="text-xl font-bold text-slate-900">Quick view</h3>
+                <p className="section-eyebrow">Recent structured intakes</p>
+                <h3 className="text-xl font-bold text-slate-50">Quick view</h3>
               </div>
               <span className="text-xs font-semibold text-slate-500">Last 5 with intake payload</span>
             </div>
             {recentIntakes.length === 0 ? (
-              <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm text-slate-700">
+              <div className="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-4 text-sm text-slate-200">
                 No structured intakes yet. As soon as AI captures details, they will surface here.
               </div>
             ) : (
-              <div className="divide-y divide-slate-100">
+              <div className="divide-y divide-slate-800">
                 {recentIntakes.map(({ ticket, practiceArea, urgency }) => (
                   <div key={ticket.id} className="flex flex-col gap-1 py-3 md:flex-row md:items-center md:justify-between">
                     <div>
-                      <p className="text-sm font-semibold text-slate-900">{ticket.title}</p>
-                      <p className="text-xs text-slate-600">
+                      <p className="text-sm font-semibold text-slate-50">{ticket.title}</p>
+                      <p className="text-xs text-slate-300">
                         {practiceArea} • Created {new Date(ticket.created_at).toLocaleDateString()}
                       </p>
                     </div>
@@ -518,11 +518,13 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
                     type="datetime-local"
                     value={scheduleForm.datetime}
                     onChange={(e) => setScheduleForm((prev) => ({ ...prev, datetime: e.target.value }))}
+                    className="bg-white text-slate-900 placeholder:text-slate-500 border border-slate-300"
                   />
                   <Input
                     label="Notes"
                     value={scheduleForm.notes}
                     onChange={(e) => setScheduleForm((prev) => ({ ...prev, notes: e.target.value }))}
+                    className="bg-white text-slate-900 placeholder:text-slate-500 border border-slate-300"
                   />
                 </div>
                 <div className="flex items-center justify-between gap-3">
