@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Input, Select, Textarea } from "../components/FormElements";
 import TicketCard from "../components/TicketCard";
+import Layout from "../components/Layout";
 import { useApp } from "../App";
 import { supabase } from "../services/supabaseClient";
 import { ChatMessage, Ticket, TicketPriority, TicketStatus } from "../types";
@@ -241,220 +242,287 @@ const LaiTurnerClientPortalPage: React.FC = () => {
   // 🔒 Garde : pas connecté
   if (!user) {
     return (
-      <div className="min-h-[calc(100vh-5rem)] bg-slate-50 py-12">
-        <div className="mx-auto max-w-3xl space-y-4 py-16 px-4">
-          <h1 className="text-3xl font-bold text-slate-900">Authentication required</h1>
-          <p className="text-slate-700">
-            To access this Lai & Turner client portal, please sign in from the Lai & Turner entry page using the Nexus login and
-            the company name "Lai & Turner".
-          </p>
-          <Button onClick={() => navigate("/lai-turner-law")}>Back to Lai & Turner</Button>
+      <Layout>
+        <div className="page-container section-stack">
+          <section className="surface-card p-6 lg:p-8 space-y-4 text-center">
+            <p className="section-eyebrow mx-auto">Lai & Turner Law</p>
+            <h1 className="section-title">Authentication required</h1>
+            <p className="section-subtitle max-w-2xl mx-auto">
+              To access this Lai & Turner client portal, please sign in from the Lai & Turner entry page using the Nexus login
+              and the company name "Lai & Turner".
+            </p>
+            <div className="flex justify-center">
+              <Button onClick={() => navigate("/lai-turner-law")}>Back to Lai & Turner</Button>
+            </div>
+          </section>
         </div>
-      </div>
+      </Layout>
     );
   }
 
   // 🔒 Garde : pas un compte Lai & Turner
   if (!companyLoading && !isLaiTurner) {
     return (
-      <div className="min-h-[calc(100vh-5rem)] bg-slate-50 py-12">
-        <div className="mx-auto max-w-3xl space-y-4 py-16 px-4">
-          <h1 className="text-3xl font-bold text-slate-900">
-            This client portal is reserved for Lai & Turner accounts.
-          </h1>
-          <p className="text-slate-700">
-            Please log in through the Nexus login screen with the company name "Lai & Turner" to continue.
-          </p>
-          <div className="flex gap-3">
-            <Button variant="secondary" onClick={() => navigate("/lai-turner-law")}>
-              Return to Lai & Turner
-            </Button>
-            <Button onClick={() => navigate("/login")}>Go to Nexus login</Button>
-          </div>
+      <Layout>
+        <div className="page-container section-stack">
+          <section className="surface-card p-6 lg:p-8 space-y-4 text-center">
+            <p className="section-eyebrow mx-auto">Lai & Turner Law</p>
+            <h1 className="section-title">This client portal is reserved for Lai & Turner accounts.</h1>
+            <p className="section-subtitle max-w-2xl mx-auto">
+              Please log in through the Nexus login screen with the company name "Lai & Turner" to continue.
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <Button variant="secondary" onClick={() => navigate("/lai-turner-law")}>
+                Return to Lai & Turner
+              </Button>
+              <Button onClick={() => navigate("/login")}>Go to Nexus login</Button>
+            </div>
+          </section>
         </div>
-      </div>
+      </Layout>
     );
   }
 
   // Vue principale client
   return (
-    <div className="min-h-[calc(100vh-5rem)] bg-slate-50 py-12">
-      <div className="mx-auto max-w-6xl space-y-10 px-4">
-        <section className="space-y-3">
-          <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Lai & Turner Law</p>
-          <h1 className="text-3xl font-bold text-slate-900">Lai & Turner – Client Portal</h1>
-          <p className="max-w-3xl text-lg text-slate-700">
+    <Layout>
+      <div className="page-container section-stack">
+        <section className="surface-card p-6 lg:p-8 space-y-4 text-center">
+          <p className="section-eyebrow mx-auto">Lai & Turner Law</p>
+          <h1 className="section-title">Lai & Turner – Client Portal</h1>
+          <p className="section-subtitle max-w-3xl mx-auto">
             Premium legal support for Family Law, Personal Injury, Criminal Defense, and Business Immigration. Use this secure
             space to launch a confidential intake, share documents, and follow updates with your legal team.
           </p>
-          <p className="text-sm text-slate-600">Signed in as {user.email}</p>
+          <p className="text-sm text-slate-300">Signed in as {user.email}</p>
         </section>
 
-        <section className="grid gap-4 lg:grid-cols-3">
+        <section className="grid gap-6 lg:grid-cols-3">
           <div
             id="laiTurnerIntakeForm"
-            className="lg:col-span-2 space-y-4 rounded-2xl border border-indigo-200 bg-white p-5 shadow-sm"
+            className="surface-card-soft lg:col-span-2 p-5 lg:p-6 space-y-4"
           >
-            <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">New clients</p>
-            <h3 className="text-xl font-bold text-slate-900">Start a confidential intake</h3>
-            <p className="text-sm text-slate-700">
-              Share your situation for a tailored case evaluation. A coordinator will guide you through next steps—this is not a
-              Nexus SaaS signup, but a direct request for representation.
-            </p>
+            <div className="space-y-2">
+              <p className="text-xs font-semibold uppercase tracking-wide text-indigo-300">New clients</p>
+              <h3 className="text-xl font-bold text-white">Start a confidential intake</h3>
+              <p className="text-sm text-slate-200">
+                Share your situation for a tailored case evaluation. A coordinator will guide you through next steps—this is not a
+                Nexus SaaS signup, but a direct request for representation.
+              </p>
+            </div>
             {creationMessage && (
-              <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+              <div className="rounded-2xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
                 {creationMessage}
               </div>
             )}
             {creationError && (
-              <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{creationError}</div>
+              <div className="rounded-2xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-100">
+                {creationError}
+              </div>
             )}
-            <form onSubmit={submitIntake} className="space-y-3">
-              <div className="grid gap-3 md:grid-cols-2">
-                <Input
-                  label="Full name"
-                  name="fullName"
-                  value={intakeForm.fullName}
-                  onChange={(e) => setIntakeForm((prev) => ({ ...prev, fullName: e.target.value }))}
-                  placeholder="Your name"
+            <form onSubmit={submitIntake} className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <label htmlFor="fullName" className="block text-sm font-semibold text-slate-100">
+                    Full name
+                  </label>
+                  <Input
+                    id="fullName"
+                    name="fullName"
+                    value={intakeForm.fullName}
+                    onChange={(e) => setIntakeForm((prev) => ({ ...prev, fullName: e.target.value }))}
+                    placeholder="Your name"
+                    required
+                    className="border-slate-700 bg-slate-950/40 text-slate-50 placeholder:text-slate-500"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="email" className="block text-sm font-semibold text-slate-100">
+                    Email
+                  </label>
+                  <Input
+                    id="email"
+                    type="email"
+                    name="email"
+                    value={intakeForm.email}
+                    onChange={(e) => setIntakeForm((prev) => ({ ...prev, email: e.target.value }))}
+                    placeholder="you@example.com"
+                    required
+                    className="border-slate-700 bg-slate-950/40 text-slate-50 placeholder:text-slate-500"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="phone" className="block text-sm font-semibold text-slate-100">
+                    Phone (optional)
+                  </label>
+                  <Input
+                    id="phone"
+                    name="phone"
+                    value={intakeForm.phone}
+                    onChange={(e) => setIntakeForm((prev) => ({ ...prev, phone: e.target.value }))}
+                    placeholder="+1 (555) 555-1234"
+                    className="border-slate-700 bg-slate-950/40 text-slate-50 placeholder:text-slate-500"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="preferredLanguage" className="block text-sm font-semibold text-slate-100">
+                    Preferred language
+                  </label>
+                  <Select
+                    id="preferredLanguage"
+                    name="preferredLanguage"
+                    value={intakeForm.preferredLanguage}
+                    onChange={(e) => setIntakeForm((prev) => ({ ...prev, preferredLanguage: e.target.value }))}
+                    options={[
+                      { value: "en", label: "English" },
+                      { value: "fr", label: "Français" },
+                    ]}
+                    className="border-slate-700 bg-slate-950/40 text-slate-50"
+                  />
+                </div>
+              </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <label htmlFor="practiceArea" className="block text-sm font-semibold text-slate-100">
+                    Practice area
+                  </label>
+                  <Select
+                    id="practiceArea"
+                    name="practiceArea"
+                    value={intakeForm.practiceArea}
+                    onChange={(e) => setIntakeForm((prev) => ({ ...prev, practiceArea: e.target.value }))}
+                    options={Object.keys(practiceAreaCopy).map((area) => ({ value: area, label: area }))}
+                    placeholder="Select a practice area"
+                    required
+                    className="border-slate-700 bg-slate-950/40 text-slate-50"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="urgency" className="block text-sm font-semibold text-slate-100">
+                    Urgency
+                  </label>
+                  <Select
+                    id="urgency"
+                    name="urgency"
+                    value={intakeForm.urgency}
+                    onChange={(e) => setIntakeForm((prev) => ({ ...prev, urgency: e.target.value }))}
+                    options={[
+                      { value: "low", label: "Low" },
+                      { value: "medium", label: "Medium" },
+                      { value: "high", label: "High" },
+                      { value: "emergency", label: "Emergency" },
+                    ]}
+                    className="border-slate-700 bg-slate-950/40 text-slate-50"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="story" className="block text-sm font-semibold text-slate-100">
+                  Describe what happened
+                </label>
+                <Textarea
+                  id="story"
+                  name="story"
+                  value={intakeForm.story}
+                  onChange={(e) => setIntakeForm((prev) => ({ ...prev, story: e.target.value }))}
+                  placeholder="Tell us the timeline, who is involved, and any deadlines."
+                  rows={4}
                   required
-                />
-                <Input
-                  label="Email"
-                  type="email"
-                  name="email"
-                  value={intakeForm.email}
-                  onChange={(e) => setIntakeForm((prev) => ({ ...prev, email: e.target.value }))}
-                  placeholder="you@example.com"
-                  required
-                />
-                <Input
-                  label="Phone (optional)"
-                  name="phone"
-                  value={intakeForm.phone}
-                  onChange={(e) => setIntakeForm((prev) => ({ ...prev, phone: e.target.value }))}
-                  placeholder="+1 (555) 555-1234"
-                />
-                <Select
-                  label="Preferred language"
-                  name="preferredLanguage"
-                  value={intakeForm.preferredLanguage}
-                  onChange={(e) => setIntakeForm((prev) => ({ ...prev, preferredLanguage: e.target.value }))}
-                  options={[
-                    { value: "en", label: "English" },
-                    { value: "fr", label: "Français" },
-                  ]}
+                  className="border-slate-700 bg-slate-950/40 text-slate-50 placeholder:text-slate-500"
                 />
               </div>
-              <div className="grid gap-3 md:grid-cols-2">
-                <Select
-                  label="Practice area"
-                  name="practiceArea"
-                  value={intakeForm.practiceArea}
-                  onChange={(e) => setIntakeForm((prev) => ({ ...prev, practiceArea: e.target.value }))}
-                  options={Object.keys(practiceAreaCopy).map((area) => ({ value: area, label: area }))}
-                  placeholder="Select a practice area"
+              <div className="space-y-2">
+                <label htmlFor="objective" className="block text-sm font-semibold text-slate-100">
+                  Your main objective
+                </label>
+                <Textarea
+                  id="objective"
+                  name="objective"
+                  value={intakeForm.objective}
+                  onChange={(e) => setIntakeForm((prev) => ({ ...prev, objective: e.target.value }))}
+                  placeholder="Example: custody, settlement, visa approval, dismissal, etc."
+                  rows={3}
                   required
-                />
-                <Select
-                  label="Urgency"
-                  name="urgency"
-                  value={intakeForm.urgency}
-                  onChange={(e) => setIntakeForm((prev) => ({ ...prev, urgency: e.target.value }))}
-                  options={[
-                    { value: "low", label: "Low" },
-                    { value: "medium", label: "Medium" },
-                    { value: "high", label: "High" },
-                    { value: "emergency", label: "Emergency" },
-                  ]}
+                  className="border-slate-700 bg-slate-950/40 text-slate-50 placeholder:text-slate-500"
                 />
               </div>
-              <Textarea
-                label="Describe what happened"
-                name="story"
-                value={intakeForm.story}
-                onChange={(e) => setIntakeForm((prev) => ({ ...prev, story: e.target.value }))}
-                placeholder="Tell us the timeline, who is involved, and any deadlines."
-                rows={4}
-                required
-              />
-              <Textarea
-                label="Your main objective"
-                name="objective"
-                value={intakeForm.objective}
-                onChange={(e) => setIntakeForm((prev) => ({ ...prev, objective: e.target.value }))}
-                placeholder="Example: custody, settlement, visa approval, dismissal, etc."
-                rows={3}
-                required
-              />
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-3">
                 <Button type="submit" isLoading={isSubmittingIntake} disabled={isSubmittingIntake}>
                   Submit confidential intake
                 </Button>
-                <p className="text-xs text-slate-500">Secure intake. No marketing emails.</p>
+                <p className="text-xs text-slate-400">Secure intake. No marketing emails.</p>
               </div>
             </form>
           </div>
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 shadow-sm">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Existing clients & team</p>
-            <h3 className="text-xl font-bold text-slate-900">Access through Nexus login</h3>
-            <p className="mt-2 text-sm text-slate-700">
+          <div className="surface-card-soft p-5 lg:p-6 space-y-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-indigo-300">Existing clients & team</p>
+            <h3 className="text-xl font-bold text-white">Access through Nexus login</h3>
+            <p className="text-sm text-slate-200">
               If you already have access or are part of the Lai & Turner team, continue through the Nexus login screen using the
               company name "Lai & Turner" to reach your matters.
             </p>
-            <Button className="mt-3" variant="secondary" onClick={() => navigate("/login")}>
+            <Button className="w-full md:w-auto" variant="secondary" onClick={() => navigate("/login")}>
               Go to Nexus login
             </Button>
           </div>
         </section>
 
-        <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {Object.entries(practiceAreaCopy).map(([area, description]) => (
-            <div
-              key={area}
-              className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
-            >
-              <div className="space-y-2">
-                <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">{area}</p>
-                <p className="text-sm text-slate-700">{description}</p>
-              </div>
-              <Button
-                className="mt-4"
-                variant="secondary"
-                onClick={() => handlePracticeAreaSelect(area as keyof typeof practiceAreaCopy)}
+        <section className="surface-card p-5 lg:p-6 space-y-4">
+          <div className="flex flex-col gap-2 text-center">
+            <p className="text-xs font-semibold uppercase tracking-wide text-indigo-300">Practice areas</p>
+            <h3 className="text-xl font-bold text-white">Choose your path</h3>
+            <p className="text-sm text-slate-200">
+              Select the practice area closest to your matter to pre-fill the intake below.
+            </p>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {Object.entries(practiceAreaCopy).map(([area, description]) => (
+              <div
+                key={area}
+                className="surface-card-soft h-full flex flex-col justify-between p-4"
               >
-                {area === "Family Law"
-                  ? "Start a family law request"
-                  : area === "Personal Injury"
-                  ? "Report an injury case"
-                  : area === "Criminal Defense"
-                  ? "Ask about a criminal charge"
-                  : "Start a business immigration request"}
-              </Button>
-            </div>
-          ))}
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-indigo-300">{area}</p>
+                  <p className="text-sm text-slate-200">{description}</p>
+                </div>
+                <Button
+                  className="mt-4"
+                  variant="secondary"
+                  onClick={() => handlePracticeAreaSelect(area as keyof typeof practiceAreaCopy)}
+                >
+                  {area === "Family Law"
+                    ? "Start a family law request"
+                    : area === "Personal Injury"
+                    ? "Report an injury case"
+                    : area === "Criminal Defense"
+                    ? "Ask about a criminal charge"
+                    : "Start a business immigration request"}
+                </Button>
+              </div>
+            ))}
+          </div>
         </section>
 
-        <section className="space-y-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="flex items-center justify-between gap-2">
+        <section className="surface-card p-6 space-y-4">
+          <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Your cases</p>
-              <h3 className="text-xl font-bold text-slate-900">Track your cases</h3>
+              <p className="text-xs font-semibold uppercase tracking-wide text-indigo-300">Your cases</p>
+              <h3 className="text-xl font-bold text-white">Track your cases</h3>
             </div>
             {companyLoading && (
-              <span className="text-xs font-semibold text-slate-500">Confirming Lai & Turner access…</span>
+              <span className="text-xs font-semibold text-slate-400">Confirming Lai & Turner access…</span>
             )}
           </div>
           {creationMessage && (
-            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+            <div className="rounded-2xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
               {creationMessage}
             </div>
           )}
           {creationError && (
-            <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{creationError}</div>
+            <div className="rounded-2xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-100">{creationError}</div>
           )}
           {userTickets.length === 0 ? (
-            <div className="rounded-2xl border border-slate-100 bg-slate-50 p-5 text-sm text-slate-700">
+            <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-5 text-sm text-slate-200">
               No active tickets yet. Use the buttons above to start a request and your updates will appear here in real time.
             </div>
           ) : (
@@ -468,20 +536,20 @@ const LaiTurnerClientPortalPage: React.FC = () => {
                     const summary = buildClientSummary(intakePayload);
                     if (summary.length === 0) return null;
                     return (
-                      <div className="rounded-2xl border border-indigo-100 bg-indigo-50 p-4 text-sm text-slate-900 shadow-sm">
+                      <div className="rounded-2xl border border-indigo-500/30 bg-indigo-500/10 p-4 text-sm text-slate-50 shadow-lg">
                         <div className="mb-2 flex items-center justify-between">
-                          <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">What we captured so far</p>
-                          <span className="text-[10px] font-semibold text-indigo-600">AI intake</span>
+                          <p className="text-xs font-semibold uppercase tracking-wide text-indigo-200">What we captured so far</p>
+                          <span className="text-[10px] font-semibold text-indigo-200">AI intake</span>
                         </div>
                         <dl className="space-y-1">
                           {summary.map((item) => (
-                            <div key={item.label} className="flex gap-2 text-xs text-slate-800">
-                              <dt className="w-28 shrink-0 font-semibold text-slate-700">{item.label}</dt>
-                              <dd className="text-slate-900">{item.value}</dd>
+                            <div key={item.label} className="flex gap-2 text-xs text-slate-200">
+                              <dt className="w-28 shrink-0 font-semibold text-slate-300">{item.label}</dt>
+                              <dd className="text-slate-50">{item.value}</dd>
                             </div>
                           ))}
                         </dl>
-                        <p className="mt-2 text-[11px] text-slate-600">
+                        <p className="mt-2 text-[11px] text-slate-300">
                           Your attorney will confirm these details and ask follow-up questions if needed.
                         </p>
                       </div>
@@ -493,16 +561,16 @@ const LaiTurnerClientPortalPage: React.FC = () => {
           )}
         </section>
 
-        <section className="rounded-3xl border border-indigo-100 bg-indigo-50 p-6 shadow-sm">
-          <h3 className="text-xl font-bold text-slate-900">What this portal does for you</h3>
-          <ul className="mt-3 list-disc space-y-2 pl-5 text-slate-700">
+        <section className="surface-card-soft p-6 space-y-3">
+          <h3 className="text-xl font-bold text-white">What this portal does for you</h3>
+          <ul className="list-disc space-y-2 pl-5 text-slate-200">
             <li>Plain-language updates (we speak English, not legalese).</li>
             <li>Document requests and reminders so you don’t miss deadlines.</li>
             <li>A clear timeline so you always know what happens next.</li>
           </ul>
         </section>
       </div>
-    </div>
+    </Layout>
   );
 };
 
