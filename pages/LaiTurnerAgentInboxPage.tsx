@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "../components/FormElements";
+import { Button, baseFieldClasses } from "../components/FormElements";
 import { useApp } from "../App";
 import { supabase } from "../services/supabaseClient";
 import { Ticket, TicketPriority, TicketStatus, User } from "../types";
@@ -183,7 +183,7 @@ const LaiTurnerAgentInboxPage: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <span className="text-[11px] font-semibold text-slate-600">Urgency</span>
                   <select
-                    className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700"
+                    className={`${baseFieldClasses} text-xs sm:w-auto`}
                     value={urgencyFilter}
                     onChange={(e) => setUrgencyFilter(e.target.value)}
                   >

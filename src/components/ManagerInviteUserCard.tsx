@@ -14,6 +14,9 @@ interface Props {
 type EdgeSuccess = { ok: true; mode: Mode; user_id: string };
 type EdgeError = { error: string; details?: string; inviteLink?: string };
 
+const fieldClasses =
+  'block w-full rounded-lg border border-gray-300 bg-white text-slate-900 placeholder-slate-500 px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:bg-gray-100 disabled:text-gray-400';
+
 export default function ManagerInviteUserCard({ companyId }: Props) {
   const { t, language } = useLanguage();
   const preferredLanguage: Lang = (language as Lang) ?? 'fr';
@@ -257,7 +260,7 @@ export default function ManagerInviteUserCard({ companyId }: Props) {
             {t('manager.invite.fullName')}
           </label>
           <input
-            className="w-full rounded border border-slate-300 px-3 py-2"
+            className={fieldClasses}
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             required
@@ -271,7 +274,7 @@ export default function ManagerInviteUserCard({ companyId }: Props) {
           </label>
           <input
             type="email"
-            className="w-full rounded border border-slate-300 px-3 py-2"
+            className={fieldClasses}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -322,7 +325,7 @@ export default function ManagerInviteUserCard({ companyId }: Props) {
               </label>
               <input
                 type="password"
-                className="w-full rounded border border-slate-300 px-3 py-2"
+                className={fieldClasses}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 minLength={8}
@@ -336,7 +339,7 @@ export default function ManagerInviteUserCard({ companyId }: Props) {
               </label>
               <input
                 type="password"
-                className="w-full rounded border border-slate-300 px-3 py-2"
+                className={fieldClasses}
                 value={passwordConfirm}
                 onChange={(e) => setPasswordConfirm(e.target.value)}
                 minLength={8}

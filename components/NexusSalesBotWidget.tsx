@@ -422,7 +422,6 @@ const NexusSalesBotWidget: React.FC<NexusSalesBotWidgetProps> = ({
                 <MicrophoneIcon className="h-5 w-5" />
               </button>
 
-              {/* ICI on force le texte en NOIR */}
               <textarea
                 ref={textareaRef}
                 value={newMessage}
@@ -430,11 +429,7 @@ const NexusSalesBotWidget: React.FC<NexusSalesBotWidgetProps> = ({
                 placeholder={t("salesBot.placeholder", {
                   default: "Posez votre question...",
                 })}
-                style={{
-                  color: "#020617", // noir (slate-900)
-                  backgroundColor: "#ffffff",
-                }}
-                className="min-h-[56px] flex-1 resize-none rounded-lg border border-gray-300 bg-white !text-slate-900 placeholder-gray-500 px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                className="min-h-[56px] flex-1 resize-none rounded-lg border border-gray-300 bg-white text-slate-900 placeholder-slate-500 px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
 
               <button

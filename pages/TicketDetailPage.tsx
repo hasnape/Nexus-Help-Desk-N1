@@ -872,18 +872,14 @@ const TicketDetailPage: React.FC = () => {
                   <h3 className="text-sm font-semibold text-slate-900">{t('ticket.sidebar.caseStage.title')}</h3>
                   <p className="text-xs text-slate-600">{t('ticket.sidebar.caseStage.description')}</p>
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <select
+                    <Select
                       value={caseStage}
                       onChange={(e) => handleStageChange(e.target.value as CaseStage)}
                       disabled={isSavingStage}
-                      className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm disabled:opacity-60"
-                    >
-                      {stageOptions.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
+                      options={stageOptions}
+                      className="sm:w-auto"
+                      placeholder=""
+                    />
                     {isSavingStage && <LoadingSpinner size="sm" />}
                   </div>
                 </section>
@@ -916,12 +912,12 @@ const TicketDetailPage: React.FC = () => {
                     </div>
                   )}
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                    <input
+                    <Input
                       type="text"
                       value={newTaskLabel}
                       onChange={(e) => setNewTaskLabel(e.target.value)}
                       placeholder={t('ticket.sidebar.checklist.addPlaceholder')}
-                      className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                      className="text-sm"
                       disabled={isSavingTasks}
                     />
                     <Button

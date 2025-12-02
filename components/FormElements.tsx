@@ -1,6 +1,10 @@
 
 import React from 'react';
+import clsx from 'clsx';
 import { useLanguage } from '../contexts/LanguageContext'; // For default placeholder if necessary
+
+export const baseFieldClasses =
+  'block w-full rounded-lg border border-gray-300 bg-white text-slate-900 placeholder-slate-500 px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:bg-gray-100 disabled:text-gray-400';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'danger' | 'outline';
@@ -56,21 +60,37 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   error?: string;
 }
 
-export const Input: React.FC<InputProps> = ({ label, id, className = '', error, ...props }) => {
-  const baseStyle = 'block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm';
-  const errorStyle = error ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : '';
-  return (
-    <div className="w-full">
-      {label && <label htmlFor={id || props.name} className="block text-sm font-medium text-slate-700 mb-1">{label}</label>}
+export const Input = React.forwardRef<HTMLInputElement, InputProps>(
+  ({ label, id, className, error, ...props }, ref) => {
+    const input = (
       <input
         id={id || props.name}
-        className={`${baseStyle} ${errorStyle} ${className}`}
+        ref={ref}
+        className={clsx(
+          baseFieldClasses,
+          error && 'border-red-500 focus:border-red-500 focus:ring-red-500',
+          className,
+        )}
         {...props}
       />
-      {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
-    </div>
-  );
-};
+    );
+
+    if (!label && !error) return input;
+
+    return (
+      <div className="w-full">
+        {label && (
+          <label htmlFor={id || props.name} className="mb-1 block text-sm font-medium text-slate-700">
+            {label}
+          </label>
+        )}
+        {input}
+        {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+      </div>
+    );
+  },
+);
+Input.displayName = 'Input';
 
 
 interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
@@ -78,21 +98,38 @@ interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement
   error?: string;
 }
 
-export const Textarea: React.FC<TextareaProps> = ({ label, id, className = '', error, ...props }) => {
-  const baseStyle = 'block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm';
-  const errorStyle = error ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : '';
-  return (
-    <div className="w-full">
-      {label && <label htmlFor={id || props.name} className="block text-sm font-medium text-slate-700 mb-1">{label}</label>}
+export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
+  ({ label, id, className, error, ...props }, ref) => {
+    const textarea = (
       <textarea
         id={id || props.name}
-        className={`${baseStyle} ${errorStyle} ${className}`}
+        ref={ref}
+        className={clsx(
+          baseFieldClasses,
+          'min-h-[80px]',
+          error && 'border-red-500 focus:border-red-500 focus:ring-red-500',
+          className,
+        )}
         {...props}
       />
-      {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
-    </div>
-  );
-};
+    );
+
+    if (!label && !error) return textarea;
+
+    return (
+      <div className="w-full">
+        {label && (
+          <label htmlFor={id || props.name} className="mb-1 block text-sm font-medium text-slate-700">
+            {label}
+          </label>
+        )}
+        {textarea}
+        {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+      </div>
+    );
+  },
+);
+Textarea.displayName = 'Textarea';
 
 interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   label?: string;
@@ -101,35 +138,46 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   placeholder?: string;
 }
 
-export const Select: React.FC<SelectProps> = ({ 
-  label, 
-  id, 
-  className = '', 
-  error, 
-  options, 
-  placeholder,
-  ...rest
-}) => {
-  const { t } = useLanguage(); // Only used here if a default placeholder is needed from translations
-  const baseStyle = 'block w-full ps-3 pe-10 py-2 border border-slate-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm'; // RTL padding
-  const errorStyle = error ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : '';
-  
-  const displayPlaceholder = placeholder === undefined ? t('formElements.select.placeholderDefault') : placeholder;
+export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
+  ({ label, id, className, error, options, placeholder, ...rest }, ref) => {
+    const { t } = useLanguage(); // Only used here if a default placeholder is needed from translations
 
-  return (
-    <div className="w-full">
-      {label && <label htmlFor={id || rest.name} className="block text-sm font-medium text-slate-700 mb-1">{label}</label>}
+    const displayPlaceholder = placeholder === undefined ? t('formElements.select.placeholderDefault') : placeholder;
+
+    const select = (
       <select
         id={id || rest.name}
-        className={`${baseStyle} ${errorStyle} ${className}`}
+        ref={ref}
+        className={clsx(
+          baseFieldClasses,
+          'pr-8',
+          error && 'border-red-500 focus:border-red-500 focus:ring-red-500',
+          className,
+        )}
         {...rest}
       >
         {displayPlaceholder && <option value="">{displayPlaceholder}</option>}
-        {options.map(option => (
-          <option key={option.value} value={option.value}>{option.label}</option>
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
         ))}
       </select>
-      {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
-    </div>
-  );
-};
+    );
+
+    if (!label && !error) return select;
+
+    return (
+      <div className="w-full">
+        {label && (
+          <label htmlFor={id || rest.name} className="mb-1 block text-sm font-medium text-slate-700">
+            {label}
+          </label>
+        )}
+        {select}
+        {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+      </div>
+    );
+  },
+);
+Select.displayName = 'Select';
