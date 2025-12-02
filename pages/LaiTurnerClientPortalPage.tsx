@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Input, Select, Textarea } from "../components/FormElements";
 import TicketCard from "../components/TicketCard";
-import Layout from "../components/Layout";
 import { useApp } from "../App";
 import { supabase } from "../services/supabaseClient";
 import { ChatMessage, Ticket, TicketPriority, TicketStatus } from "../types";
@@ -242,51 +241,46 @@ const LaiTurnerClientPortalPage: React.FC = () => {
   // 🔒 Garde : pas connecté
   if (!user) {
     return (
-      <Layout>
-        <div className="page-container section-stack">
-          <section className="surface-card p-6 lg:p-8 space-y-4 text-center">
-            <p className="section-eyebrow mx-auto">Lai & Turner Law</p>
-            <h1 className="section-title">Authentication required</h1>
-            <p className="section-subtitle max-w-2xl mx-auto">
-              To access this Lai & Turner client portal, please sign in from the Lai & Turner entry page using the Nexus login
-              and the company name "Lai & Turner".
-            </p>
-            <div className="flex justify-center">
-              <Button onClick={() => navigate("/lai-turner-law")}>Back to Lai & Turner</Button>
-            </div>
-          </section>
-        </div>
-      </Layout>
+      <div className="page-container section-stack">
+        <section className="surface-card p-6 lg:p-8 space-y-4 text-center">
+          <p className="section-eyebrow mx-auto">Lai & Turner Law</p>
+          <h1 className="section-title">Authentication required</h1>
+          <p className="section-subtitle max-w-2xl mx-auto">
+            To access this Lai & Turner client portal, please sign in from the Lai & Turner entry page using the Nexus login
+            and the company name "Lai & Turner".
+          </p>
+          <div className="flex justify-center">
+            <Button onClick={() => navigate("/lai-turner-law")}>Back to Lai & Turner</Button>
+          </div>
+        </section>
+      </div>
     );
   }
 
   // 🔒 Garde : pas un compte Lai & Turner
   if (!companyLoading && !isLaiTurner) {
     return (
-      <Layout>
-        <div className="page-container section-stack">
-          <section className="surface-card p-6 lg:p-8 space-y-4 text-center">
-            <p className="section-eyebrow mx-auto">Lai & Turner Law</p>
-            <h1 className="section-title">This client portal is reserved for Lai & Turner accounts.</h1>
-            <p className="section-subtitle max-w-2xl mx-auto">
-              Please log in through the Nexus login screen with the company name "Lai & Turner" to continue.
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-3">
-              <Button variant="secondary" onClick={() => navigate("/lai-turner-law")}>
-                Return to Lai & Turner
-              </Button>
-              <Button onClick={() => navigate("/login")}>Go to Nexus login</Button>
-            </div>
-          </section>
-        </div>
-      </Layout>
+      <div className="page-container section-stack">
+        <section className="surface-card p-6 lg:p-8 space-y-4 text-center">
+          <p className="section-eyebrow mx-auto">Lai & Turner Law</p>
+          <h1 className="section-title">This client portal is reserved for Lai & Turner accounts.</h1>
+          <p className="section-subtitle max-w-2xl mx-auto">
+            Please log in through the Nexus login screen with the company name "Lai & Turner" to continue.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <Button variant="secondary" onClick={() => navigate("/lai-turner-law")}>
+              Return to Lai & Turner
+            </Button>
+            <Button onClick={() => navigate("/login")}>Go to Nexus login</Button>
+          </div>
+        </section>
+      </div>
     );
   }
 
   // Vue principale client
   return (
-    <Layout>
-      <div className="page-container section-stack">
+    <div className="page-container section-stack">
         <section className="surface-card p-6 lg:p-8 space-y-4 text-center">
           <p className="section-eyebrow mx-auto">Lai & Turner Law</p>
           <h1 className="section-title">Lai & Turner – Client Portal</h1>
@@ -333,7 +327,7 @@ const LaiTurnerClientPortalPage: React.FC = () => {
                     onChange={(e) => setIntakeForm((prev) => ({ ...prev, fullName: e.target.value }))}
                     placeholder="Your name"
                     required
-                    className="border-slate-700 bg-slate-950/40 text-slate-50 placeholder:text-slate-500"
+                    className="bg-white text-slate-900 placeholder:text-slate-500 border border-slate-300"
                   />
                 </div>
                 <div className="space-y-2">
@@ -348,7 +342,7 @@ const LaiTurnerClientPortalPage: React.FC = () => {
                     onChange={(e) => setIntakeForm((prev) => ({ ...prev, email: e.target.value }))}
                     placeholder="you@example.com"
                     required
-                    className="border-slate-700 bg-slate-950/40 text-slate-50 placeholder:text-slate-500"
+                    className="bg-white text-slate-900 placeholder:text-slate-500 border border-slate-300"
                   />
                 </div>
                 <div className="space-y-2">
@@ -361,7 +355,7 @@ const LaiTurnerClientPortalPage: React.FC = () => {
                     value={intakeForm.phone}
                     onChange={(e) => setIntakeForm((prev) => ({ ...prev, phone: e.target.value }))}
                     placeholder="+1 (555) 555-1234"
-                    className="border-slate-700 bg-slate-950/40 text-slate-50 placeholder:text-slate-500"
+                    className="bg-white text-slate-900 placeholder:text-slate-500 border border-slate-300"
                   />
                 </div>
                 <div className="space-y-2">
@@ -377,7 +371,7 @@ const LaiTurnerClientPortalPage: React.FC = () => {
                       { value: "en", label: "English" },
                       { value: "fr", label: "Français" },
                     ]}
-                    className="border-slate-700 bg-slate-950/40 text-slate-50"
+                    className="bg-white text-slate-900 border border-slate-300"
                   />
                 </div>
               </div>
@@ -394,7 +388,7 @@ const LaiTurnerClientPortalPage: React.FC = () => {
                     options={Object.keys(practiceAreaCopy).map((area) => ({ value: area, label: area }))}
                     placeholder="Select a practice area"
                     required
-                    className="border-slate-700 bg-slate-950/40 text-slate-50"
+                    className="bg-white text-slate-900 border border-slate-300"
                   />
                 </div>
                 <div className="space-y-2">
@@ -412,7 +406,7 @@ const LaiTurnerClientPortalPage: React.FC = () => {
                       { value: "high", label: "High" },
                       { value: "emergency", label: "Emergency" },
                     ]}
-                    className="border-slate-700 bg-slate-950/40 text-slate-50"
+                    className="bg-white text-slate-900 border border-slate-300"
                   />
                 </div>
               </div>
@@ -428,7 +422,7 @@ const LaiTurnerClientPortalPage: React.FC = () => {
                   placeholder="Tell us the timeline, who is involved, and any deadlines."
                   rows={4}
                   required
-                  className="border-slate-700 bg-slate-950/40 text-slate-50 placeholder:text-slate-500"
+                  className="bg-white text-slate-900 placeholder:text-slate-500 border border-slate-300"
                 />
               </div>
               <div className="space-y-2">
@@ -443,7 +437,7 @@ const LaiTurnerClientPortalPage: React.FC = () => {
                   placeholder="Example: custody, settlement, visa approval, dismissal, etc."
                   rows={3}
                   required
-                  className="border-slate-700 bg-slate-950/40 text-slate-50 placeholder:text-slate-500"
+                  className="bg-white text-slate-900 placeholder:text-slate-500 border border-slate-300"
                 />
               </div>
               <div className="flex flex-wrap items-center gap-3">
@@ -570,8 +564,7 @@ const LaiTurnerClientPortalPage: React.FC = () => {
           </ul>
         </section>
       </div>
-    </Layout>
-  );
+    );
 };
 
 export default LaiTurnerClientPortalPage;

@@ -210,7 +210,7 @@ const ManagerTicketRow: React.FC<ManagerTicketRowProps> = ({ ticket, agents, all
                                 onChange={(e) => setSelectedAgent(e.target.value)}
                                 options={agentOptions}
                                 placeholder={t('managerDashboard.selectAgentPlaceholder')}
-                                className="!text-xs !py-1 !min-w-[100px] sm:!min-w-[120px]"
+                                className="bg-white text-slate-900 border border-slate-300 !text-xs !py-1 !min-w-[100px] sm:!min-w-[120px]"
                             />
                             <Button 
                                 variant="primary" 
@@ -292,7 +292,7 @@ const UserManagementRow: React.FC<UserManagementRowProps> = ({ userToManage, cur
                                 value={selectedRole}
                                 onChange={(e) => setSelectedRole(e.target.value as UserRole)}
                                 options={roleOptions}
-                                className="!text-xs !py-1 !min-w-[100px]"
+                                className="bg-white text-slate-900 border border-slate-300 !text-xs !py-1 !min-w-[100px]"
                             />
                             <Button
                                 variant="secondary"
@@ -683,8 +683,8 @@ const ManagerDashboardPage: React.FC = () => {
 
 
     return (
-        <div className="min-h-[calc(100vh-5rem)] bg-slate-50 py-8">
-            <div className="mx-auto max-w-6xl space-y-8 px-4">
+        <div className="page-container section-stack">
+            <div className="section-stack">
                     {showWelcomeModal && (
                         <div className={`fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 transition-opacity duration-300 ${isModalVisible ? 'opacity-100' : 'opacity-0'}`}>
                             <div className={`bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-lg w-full text-center transform transition-all duration-300 ${isModalVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}>
@@ -804,7 +804,7 @@ const ManagerDashboardPage: React.FC = () => {
                                                         <Input
                                                             value={newCompanyName}
                                                             onChange={e => setNewCompanyName(e.target.value)}
-                                                            className="flex-grow"
+                                                            className="flex-grow bg-white text-slate-900 placeholder:text-slate-500 border border-slate-300"
                                                             disabled={isUpdatingName}
                                                         />
                                                         <div className="flex gap-2">
@@ -887,11 +887,11 @@ const ManagerDashboardPage: React.FC = () => {
                                  </Button>
                              </div>
                              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
-                                 <Select label={t('managerDashboard.filters.statusLabel')} value={statusFilter} onChange={e => setStatusFilter(e.target.value)} options={statusOptionsForFilter} />
-                                 <Select label={t('managerDashboard.filters.userLabel')} value={userFilter} onChange={e => setUserFilter(e.target.value)} options={userOptionsForFilter} />
-                                 <Input label={t('managerDashboard.filters.dateStartLabel')} type="date" value={dateFilter.start} onChange={e => setDateFilter(p => ({...p, start: e.target.value}))} className="w-full"/>
-                                 <Input label={t('managerDashboard.filters.dateEndLabel')} type="date" value={dateFilter.end} onChange={e => setDateFilter(p => ({...p, end: e.target.value}))} className="w-full"/>
-                             </div>
+                                 <Select label={t('managerDashboard.filters.statusLabel')} value={statusFilter} onChange={e => setStatusFilter(e.target.value)} options={statusOptionsForFilter} className="bg-white text-slate-900 border border-slate-300" />
+                                 <Select label={t('managerDashboard.filters.userLabel')} value={userFilter} onChange={e => setUserFilter(e.target.value)} options={userOptionsForFilter} className="bg-white text-slate-900 border border-slate-300" />
+                                 <Input label={t('managerDashboard.filters.dateStartLabel')} type="date" value={dateFilter.start} onChange={e => setDateFilter(p => ({...p, start: e.target.value}))} className="w-full bg-white text-slate-900 placeholder:text-slate-500 border border-slate-300"/>
+                                 <Input label={t('managerDashboard.filters.dateEndLabel')} type="date" value={dateFilter.end} onChange={e => setDateFilter(p => ({...p, end: e.target.value}))} className="w-full bg-white text-slate-900 placeholder:text-slate-500 border border-slate-300"/>
+                            </div>
                         </section>
 
                         <section className="rounded-3xl border bg-white p-4 sm:p-6 shadow-sm">

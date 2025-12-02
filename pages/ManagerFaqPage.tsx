@@ -230,9 +230,9 @@ const ManagerFaqPage: React.FC = () => {
 
   if (!companyId) {
     return (
-      <div className="max-w-4xl mx-auto py-12 px-4">
-        <div className="bg-white shadow rounded-xl p-8 text-center">
-          <p className="text-lg text-slate-700">
+      <div className="page-container section-stack">
+        <div className="surface-card p-8 rounded-2xl text-center space-y-4">
+          <p className="section-title text-balance">
             {t("managerFaq.noCompany", { default: "Nous n'avons pas pu trouver votre entreprise." })}
           </p>
           <Link to="/manager/dashboard" className="inline-block mt-6">
@@ -244,27 +244,30 @@ const ManagerFaqPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 py-10">
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="flex flex-col gap-2 mb-8">
-          <p className="text-sm text-slate-500">
+    <div className="page-container section-stack">
+      <div className="section-stack">
+        <div className="surface-card-soft p-4 rounded-2xl">
+          <p className="text-sm text-slate-200 flex items-center gap-2">
             <Link to="/manager/dashboard" className="text-primary hover:underline">
               {t("managerFaq.backToDashboard", { default: "Retour au tableau de bord" })}
             </Link>
-            <span className="mx-2 text-slate-400">/</span>
-            <span className="font-medium text-slate-700">{t("managerFaq.title", { default: "Gestion FAQ entreprise" })}</span>
+            <span className="text-slate-500">/</span>
+            <span className="font-semibold text-slate-100">{t("managerFaq.title", { default: "Gestion FAQ entreprise" })}</span>
           </p>
-          <h1 className="text-3xl font-bold text-slate-900">{t("managerFaq.title", { default: "Gestion FAQ entreprise" })}</h1>
-          <p className="text-slate-600 max-w-3xl">
+        </div>
+        <header className="surface-card p-6 rounded-2xl space-y-3">
+          <p className="section-eyebrow">{t("managerFaq.title", { default: "Gestion FAQ entreprise" })}</p>
+          <h1 className="section-title">{t("managerFaq.title", { default: "Gestion FAQ entreprise" })}</h1>
+          <p className="section-subtitle max-w-3xl">
             {t("managerFaq.subtitle", {
               default:
                 "Centralisez vos questions-réponses internes, activez la recherche et synchronisez l'assistant Nexus en temps réel.",
             })}
           </p>
-        </div>
+        </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
-          <section className="bg-white shadow rounded-2xl p-6 lg:col-span-2" aria-labelledby="faq-form-title">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <section className="surface-card p-6 rounded-2xl lg:col-span-2" aria-labelledby="faq-form-title">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <p className="text-sm uppercase tracking-wide text-slate-400">
@@ -272,7 +275,7 @@ const ManagerFaqPage: React.FC = () => {
                     ? t("managerFaq.editingLabel", { default: "Modification" })
                     : t("managerFaq.creationLabel", { default: "Nouvelle entrée" })}
                 </p>
-                <h2 id="faq-form-title" className="text-2xl font-semibold text-slate-900">
+                <h2 id="faq-form-title" className="section-title text-2xl">
                   {editingId
                     ? t("managerFaq.editTitle", { default: "Mettre à jour la FAQ" })
                     : t("managerFaq.createTitle", { default: "Ajouter une question" })}
@@ -287,6 +290,7 @@ const ManagerFaqPage: React.FC = () => {
                     value={formState.question}
                     onChange={(e) => setFormState((prev) => ({ ...prev, question: e.target.value }))}
                     required
+                    className="bg-white text-slate-900 placeholder:text-slate-500 border border-slate-300"
                   />
                   <button
                     type="button"
@@ -312,6 +316,7 @@ const ManagerFaqPage: React.FC = () => {
                     rows={5}
                     onChange={(e) => setFormState((prev) => ({ ...prev, answer: e.target.value }))}
                     required
+                    className="bg-white text-slate-900 placeholder:text-slate-500 border border-slate-300"
                   />
                   <button
                     type="button"
@@ -329,8 +334,9 @@ const ManagerFaqPage: React.FC = () => {
                 placeholder={t("managerFaq.tagsPlaceholder", { default: "Onboarding, paiement, SLA" })}
                 value={formState.tags}
                 onChange={(e) => setFormState((prev) => ({ ...prev, tags: e.target.value }))}
+                className="bg-white text-slate-900 placeholder:text-slate-500 border border-slate-300"
               />
-              <label className="inline-flex items-center gap-3 text-slate-700 text-sm">
+              <label className="inline-flex items-center gap-3 text-slate-200 text-sm">
                 <input
                   type="checkbox"
                   checked={formState.isActive}
@@ -359,11 +365,11 @@ const ManagerFaqPage: React.FC = () => {
             </form>
           </section>
 
-          <section className="bg-white shadow rounded-2xl p-6" aria-labelledby="faq-search-title">
-            <h2 id="faq-search-title" className="text-xl font-semibold text-slate-900">
+          <section className="surface-card-soft rounded-2xl p-6" aria-labelledby="faq-search-title">
+            <h2 id="faq-search-title" className="section-title text-2xl">
               {t("managerFaq.searchTitle", { default: "Recherche & options" })}
             </h2>
-            <p className="text-sm text-slate-500 mt-1">
+            <p className="section-subtitle mt-1">
               {t("managerFaq.searchSubtitle", { default: "Filtrez vos entrées par mot-clé ou par tag." })}
             </p>
             <div className="mt-4 flex items-center gap-3">
@@ -372,6 +378,7 @@ const ManagerFaqPage: React.FC = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={t("managerFaq.searchPlaceholder", { default: "Rechercher une question..." })}
+                className="bg-white text-slate-900 placeholder:text-slate-500 border border-slate-300"
               />
               <button
                 type="button"
@@ -383,11 +390,11 @@ const ManagerFaqPage: React.FC = () => {
                 <MicrophoneIcon className={`h-5 w-5 ${dictationTarget === "search" && isListening ? "text-primary" : ""}`} />
               </button>
             </div>
-            <div className="mt-6 text-sm text-slate-600">
-              <p className="font-semibold">
+            <div className="mt-6 text-sm text-slate-200">
+              <p className="font-semibold text-slate-100">
                 {t("managerFaq.totalCount", { count: faqs.length, defaultValue: "{{count}} entrées" })}
               </p>
-              <p className="text-slate-500">
+              <p className="text-slate-300">
                 {t("managerFaq.filteredCount", {
                   count: filteredFaqs.length,
                   defaultValue: "{{count}} résultats après filtrage",
@@ -402,13 +409,13 @@ const ManagerFaqPage: React.FC = () => {
           </section>
         </div>
 
-        <section className="bg-white shadow rounded-2xl p-6" aria-labelledby="faq-list-title">
+        <section className="surface-card p-6 rounded-2xl" aria-labelledby="faq-list-title">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <div>
-              <h2 id="faq-list-title" className="text-2xl font-semibold text-slate-900">
+              <h2 id="faq-list-title" className="section-title text-2xl">
                 {t("managerFaq.listTitle", { default: "FAQ de l'entreprise" })}
               </h2>
-              <p className="text-sm text-slate-500">
+              <p className="section-subtitle text-sm">
                 {t("managerFaq.listSubtitle", { default: "Synchronisé automatiquement avec l'assistant Nexus." })}
               </p>
             </div>
