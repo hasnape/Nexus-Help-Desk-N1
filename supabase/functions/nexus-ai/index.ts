@@ -78,7 +78,24 @@ type TicketSummaryPayload = {
   };
 };
 
-type RequestBody = FollowUpPayload | SummarizePayload | TicketSummaryPayload;
+type IntakeFirstContactPayload = {
+  context?: string | null;
+  mode: "intake_first_contact";
+  full_name?: string;
+  email?: string;
+  phone?: string;
+  preferred_language?: string;
+  practice_area_raw?: string;
+  urgency_raw?: string;
+  story?: string;
+  objective?: string;
+};
+
+type RequestBody =
+  | FollowUpPayload
+  | SummarizePayload
+  | TicketSummaryPayload
+  | IntakeFirstContactPayload;
 
 /**
  * Construit le contexte FAQ d'une société (company_knowledge),
@@ -405,6 +422,46 @@ IMPORTANT: Respond ONLY in ${targetLanguage}.`;
 }
 
 // --------------------
+// 4) lai_turner_intake (intake_first_contact)
+// --------------------
+function normalizeString(value?: string | null): string | undefined {
+  if (!value) return undefined;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : undefined;
+}
+
+async function handleLaiTurnerIntake(body: IntakeFirstContactPayload) {
+  try {
+    const intakeData = {
+      full_name: normalizeString(body.full_name),
+      practice_area: normalizeString(body.practice_area_raw),
+      urgency: normalizeString(body.urgency_raw),
+      primary_goal: normalizeString(body.objective),
+      main_issue: normalizeString(body.story),
+      preferred_language: normalizeString(body.preferred_language),
+      contact: {
+        email: normalizeString(body.email),
+        phone: normalizeString(body.phone),
+      },
+    };
+
+    return {
+      ok: true,
+      intakeData,
+      message: "Lai & Turner intake captured.",
+    };
+  } catch (err) {
+    console.error("[nexus-ai] lai_turner_intake error:", err);
+    return {
+      ok: false,
+      intakeData: null,
+      userFacingError:
+        "L’AI intake Lai & Turner est momentanément indisponible. Merci de réessayer ou de contacter directement le cabinet.",
+    };
+  }
+}
+
+// --------------------
 // HTTP handler
 // --------------------
 serve(async (req: Request) => {
@@ -430,6 +487,14 @@ serve(async (req: Request) => {
   }
 
   try {
+    if (
+      body.mode === "intake_first_contact" &&
+      (body as IntakeFirstContactPayload).context === "lai_turner_intake"
+    ) {
+      const result = await handleLaiTurnerIntake(body as IntakeFirstContactPayload);
+      return json(result, 200, corsHeaders);
+    }
+
     if (body.mode === "summarizeAndCategorizeChat") {
       const result = await handleSummarizeAndCategorizeChat(body);
       return json(result, 200, corsHeaders);
