@@ -700,6 +700,7 @@ const SignUpPage: React.FC = () => {
                       autoFocus
                       required
                       disabled={isLoading}
+                      className="text-slate-900 placeholder:text-slate-500"
                     />
                     <Input
                       label={t("signup.fullNameLabel")}
@@ -712,6 +713,7 @@ const SignUpPage: React.FC = () => {
                       placeholder={t("signup.fullNamePlaceholder")}
                       required
                       disabled={isLoading}
+                      className="text-slate-900 placeholder:text-slate-500"
                     />
                     <Input
                       label={t("signup.passwordLabel")}
@@ -724,6 +726,7 @@ const SignUpPage: React.FC = () => {
                       placeholder={t("signup.passwordPlaceholder")}
                       required
                       disabled={isLoading}
+                      className="text-slate-900 placeholder:text-slate-500"
                     />
                     <p className="mt-1 text-xs text-slate-500 px-1">
                       {t("signup.passwordPolicyHint", {
@@ -742,6 +745,7 @@ const SignUpPage: React.FC = () => {
                       placeholder={t("signup.confirmPasswordPlaceholder")}
                       required
                       disabled={isLoading}
+                      className="text-slate-900 placeholder:text-slate-500"
                     />
                     <div className="surface-card-soft p-4 text-sm text-slate-200 space-y-3">
                       <p className="font-semibold text-white">{t("signup.roleSection.title")}</p>
@@ -769,6 +773,7 @@ const SignUpPage: React.FC = () => {
                             placeholder={t("activationKeyPlaceholder")}
                             required
                             disabled={isLoading}
+                            className="text-slate-900 placeholder:text-slate-500"
                           />
                           <div className="relative group">
                             <button
@@ -817,6 +822,7 @@ const SignUpPage: React.FC = () => {
                         }
                         required
                         disabled={isLoading}
+                        className="text-slate-900 placeholder:text-slate-500"
                       />
                       <p className="mt-1 text-xs text-slate-500 px-1">
                         {role === UserRole.MANAGER
