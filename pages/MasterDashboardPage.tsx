@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { useApp } from "../App";
 import { supabase } from "../services/supabaseClient";
+import { baseFieldClasses } from "../components/FormElements";
 
 type MasterCompanyRow = {
   company_id: string;
@@ -188,7 +189,7 @@ const MasterDashboardPage: React.FC = () => {
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
               placeholder="Filter companies by name"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200"
+              className={baseFieldClasses}
             />
           </div>
 
@@ -295,26 +296,26 @@ const MasterDashboardPage: React.FC = () => {
                 <h2 className="text-lg font-semibold mb-3">AI profile</h2>
                 <div className="space-y-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Default profile key
-                    </label>
-                    <input
-                      type="text"
-                      value={defaultProfileKey}
-                      onChange={(e) => setDefaultProfileKey(e.target.value)}
-                      className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200"
-                    />
-                  </div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Default profile key
+                  </label>
+                  <input
+                    type="text"
+                    value={defaultProfileKey}
+                    onChange={(e) => setDefaultProfileKey(e.target.value)}
+                    className={baseFieldClasses}
+                  />
+                </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Profile overrides (JSON)</label>
-                    <textarea
-                      value={profileOverridesText}
-                      onChange={(e) => setProfileOverridesText(e.target.value)}
-                      rows={12}
-                      className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm font-mono focus:border-indigo-500 focus:ring focus:ring-indigo-200"
-                    />
-                  </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Profile overrides (JSON)</label>
+                  <textarea
+                    value={profileOverridesText}
+                    onChange={(e) => setProfileOverridesText(e.target.value)}
+                    rows={12}
+                    className={`${baseFieldClasses} font-mono`}
+                  />
+                </div>
 
                   <div className="flex justify-end">
                     <button

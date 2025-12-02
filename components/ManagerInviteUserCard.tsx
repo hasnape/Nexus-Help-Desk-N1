@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '@/services/supabaseClient';
+import { baseFieldClasses } from './FormElements';
 
 type Lang = 'fr' | 'en' | 'ar';
 type Role = 'agent' | 'user';
@@ -105,7 +106,7 @@ export default function ManagerInviteUserCard({ companyId }: { companyId?: strin
         <div>
           <label className="block text-sm font-medium text-slate-700">Nom complet</label>
           <input
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+            className={`${baseFieldClasses} mt-1`}
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             placeholder="Jane Doe"
@@ -117,7 +118,7 @@ export default function ManagerInviteUserCard({ companyId }: { companyId?: strin
           <label className="block text-sm font-medium text-slate-700">Email</label>
           <input
             type="email"
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+            className={`${baseFieldClasses} mt-1`}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="jane@exemple.com"
@@ -129,7 +130,7 @@ export default function ManagerInviteUserCard({ companyId }: { companyId?: strin
           <div>
             <label className="block text-sm font-medium text-slate-700">Rôle</label>
             <select
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 bg-white"
+              className={`${baseFieldClasses} mt-1 pr-8`}
               value={role}
               onChange={(e) => setRole(e.target.value as Role)}
             >
@@ -141,7 +142,7 @@ export default function ManagerInviteUserCard({ companyId }: { companyId?: strin
           <div>
             <label className="block text-sm font-medium text-slate-700">Langue</label>
             <select
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 bg-white"
+              className={`${baseFieldClasses} mt-1 pr-8`}
               value={lang}
               onChange={(e) => setLang(e.target.value as Lang)}
             >
@@ -158,7 +159,7 @@ export default function ManagerInviteUserCard({ companyId }: { companyId?: strin
               <label className="block text-sm font-medium text-slate-700">Mot de passe</label>
               <input
                 type="password"
-                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+                className={`${baseFieldClasses} mt-1`}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Min. 8 caractères"
@@ -169,7 +170,7 @@ export default function ManagerInviteUserCard({ companyId }: { companyId?: strin
               <label className="block text-sm font-medium text-slate-700">Confirmer</label>
               <input
                 type="password"
-                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+                className={`${baseFieldClasses} mt-1`}
                 value={password2}
                 onChange={(e) => setPassword2(e.target.value)}
                 placeholder="Répéter le mot de passe"

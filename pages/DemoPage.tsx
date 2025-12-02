@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { baseFieldClasses } from "../components/FormElements";
 
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xqaqogdv";
 
@@ -48,7 +49,7 @@ const DemoPageContent: React.FC = () => {
               <input
                 id="demo-name"
                 name="name"
-                className="w-full rounded-xl border border-slate-700 bg-slate-900/60 px-3 py-2 text-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500"
+                className={baseFieldClasses}
                 required
               />
             </div>
@@ -60,7 +61,7 @@ const DemoPageContent: React.FC = () => {
                 id="demo-email"
                 type="email"
                 name="email"
-                className="w-full rounded-xl border border-slate-700 bg-slate-900/60 px-3 py-2 text-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500"
+                className={baseFieldClasses}
                 required
               />
             </div>
@@ -73,7 +74,7 @@ const DemoPageContent: React.FC = () => {
             <input
               id="demo-company"
               name="company"
-              className="w-full rounded-xl border border-slate-700 bg-slate-900/60 px-3 py-2 text-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500"
+              className={baseFieldClasses}
               required
             />
           </div>
@@ -85,7 +86,7 @@ const DemoPageContent: React.FC = () => {
               id="demo-message"
               name="message"
               rows={4}
-              className="w-full rounded-xl border border-slate-700 bg-slate-900/60 px-3 py-2 text-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500"
+              className={`${baseFieldClasses} min-h-[80px]`}
             />
           </div>
 
