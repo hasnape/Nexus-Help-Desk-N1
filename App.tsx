@@ -1180,15 +1180,11 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         deleteQuery = deleteQuery.eq("company_id", user.company_id);
       }
 
-      const { data, error } = await deleteQuery.select("id").maybeSingle();
+      const { error } = await deleteQuery;
       if (error) {
         console.error("Error deleting ticket:", error);
         alert(translateHook("managerDashboard.deleteTicketError.rpc", { message: error.message }));
         return;
-      }
-
-      if (!data) {
-        console.warn("Ticket delete returned no row; proceeding without representation.");
       }
 
       updateTicketsState((prev) => prev.filter((t) => t.id !== ticketId));
