@@ -237,11 +237,11 @@ const PlanLimits: React.FC<PlanLimitsProps> = ({ companyId }) => {
   }
 
   return (
-    <div className="p-4 border-2 border-dashed border-slate-300 rounded-lg mb-6">
-      <h2 className="text-xl font-semibold mb-2">Votre plan actuel</h2>
+    <div className="p-4 border-2 border-dashed border-slate-300 rounded-lg mb-6 text-slate-900">
+      <h2 className="text-xl font-semibold mb-2 text-slate-900">Votre plan actuel</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <p>
+        <p className="text-slate-900">
           Plan : <strong>{vm.planLabel}</strong>
           {vm.unlimited && (
             <span
@@ -254,7 +254,7 @@ const PlanLimits: React.FC<PlanLimitsProps> = ({ companyId }) => {
           )}
         </p>
 
-        <p>
+        <p className="text-slate-900">
           Agents :{" "}
           <strong>
             {vm.agentCount ?? "—"} {vm.agentLimit != null ? `/ ${vm.agentLimit}` : "/ —"}
@@ -262,13 +262,13 @@ const PlanLimits: React.FC<PlanLimitsProps> = ({ companyId }) => {
         </p>
 
         <div className="md:col-span-2">
-          <p className="mb-1">
+          <p className="mb-1 text-slate-900">
             Tickets ce mois :{" "}
             <strong>
               {usedLabel} / {limitNode}
             </strong>
           </p>
-          <p className="mb-1">{remainingText}</p>
+          <p className="mb-1 text-slate-800">{remainingText}</p>
 
           <div className="w-full h-2 rounded bg-slate-200 overflow-hidden">
             <div

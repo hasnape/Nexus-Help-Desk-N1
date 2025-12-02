@@ -119,6 +119,9 @@ const LaiTurnerClientPortalPage: React.FC = () => {
 
     setIsSubmittingIntake(true);
     try {
+      const intakeUnavailableMessage =
+        "L’AI intake Lai & Turner est momentanément indisponible. Merci de réessayer ou de contacter directement le cabinet.";
+
       const { data: aiJson, error: aiError } = await supabase.functions.invoke("nexus-ai", {
         body: {
           context: "lai_turner_intake",
@@ -135,10 +138,28 @@ const LaiTurnerClientPortalPage: React.FC = () => {
       });
 
       if (aiError) {
-        throw new Error(aiError.message || "Nexus AI intake unavailable. Please try again.");
+        console.error("Nexus AI intake error", aiError);
+        setCreationError(intakeUnavailableMessage);
+        return;
       }
 
-      const intakePayload: IntakePayload | null = (aiJson?.intakeData as IntakePayload) ?? null;
+      const aiResponse = (aiJson || {}) as {
+        ok?: boolean;
+        intakeData?: IntakePayload | null;
+        userFacingError?: string;
+      };
+
+      if (aiResponse.ok === false || aiResponse.userFacingError) {
+        setCreationError(aiResponse.userFacingError || intakeUnavailableMessage);
+        return;
+      }
+
+      if (aiResponse.ok !== true) {
+        setCreationError(intakeUnavailableMessage);
+        return;
+      }
+
+      const intakePayload: IntakePayload | null = (aiResponse?.intakeData as IntakePayload) ?? null;
       const normalizedPracticeArea =
         getPracticeAreaDisplay(intakePayload, intakeForm.practiceArea) || intakeForm.practiceArea || "Other";
       const normalizedUrgency = getUrgencyDisplay(intakePayload) || intakeForm.urgency;
@@ -232,7 +253,9 @@ const LaiTurnerClientPortalPage: React.FC = () => {
       }
     } catch (err: any) {
       console.error("Intake submission error", err);
-      setCreationError(err?.message || "Unexpected error while creating your Lai & Turner request.");
+      setCreationError(
+        "Une erreur est survenue lors de l’envoi de votre demande. Merci de réessayer ou de contacter directement le cabinet.",
+      );
     } finally {
       setIsSubmittingIntake(false);
     }
