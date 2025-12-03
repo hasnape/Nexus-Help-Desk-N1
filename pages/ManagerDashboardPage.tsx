@@ -667,7 +667,13 @@ const ManagerDashboardPage: React.FC = () => {
     const handleDeleteTicket = async (ticketId: string) => {
         const confirmation = window.confirm(t('managerDashboard.deleteTicketConfirm'));
         if (confirmation) {
-            await deleteTicket(ticketId);
+            try {
+                await deleteTicket(ticketId);
+            } catch (error: any) {
+                const message = error?.message || 'Unknown error';
+                console.error('[manager] Failed to delete ticket', error);
+                alert(t('managerDashboard.deleteTicketError.critical', { message }));
+            }
         }
     };
     
