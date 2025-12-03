@@ -664,10 +664,10 @@ const ManagerDashboardPage: React.FC = () => {
         return <Navigate to="/login" />;
     }
 
-    const handleDeleteTicket = (ticketId: string) => {
+    const handleDeleteTicket = async (ticketId: string) => {
         const confirmation = window.confirm(t('managerDashboard.deleteTicketConfirm'));
         if (confirmation) {
-            deleteTicket(ticketId);
+            await deleteTicket(ticketId);
         }
     };
     
