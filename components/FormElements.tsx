@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import { useLanguage } from '../contexts/LanguageContext'; // For default placeholder if necessary
 
 export const baseFieldClasses =
-  'block w-full rounded-lg border border-gray-300 bg-white text-slate-900 placeholder-slate-500 px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:bg-gray-100 disabled:text-gray-400';
+  'block w-full rounded-lg border border-slate-200 bg-white text-slate-900 placeholder-slate-400 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-100 disabled:text-gray-400';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'danger' | 'outline';
@@ -80,7 +80,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="w-full">
         {label && (
-          <label htmlFor={id || props.name} className="mb-1 block text-sm font-medium text-slate-700">
+          <label htmlFor={id || props.name} className="mb-1 block text-sm font-medium text-slate-900">
             {label}
           </label>
         )}
@@ -119,7 +119,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     return (
       <div className="w-full">
         {label && (
-          <label htmlFor={id || props.name} className="mb-1 block text-sm font-medium text-slate-700">
+          <label htmlFor={id || props.name} className="mb-1 block text-sm font-medium text-slate-900">
             {label}
           </label>
         )}
@@ -170,7 +170,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
     return (
       <div className="w-full">
         {label && (
-          <label htmlFor={id || rest.name} className="mb-1 block text-sm font-medium text-slate-700">
+          <label htmlFor={id || rest.name} className="mb-1 block text-sm font-medium text-slate-900">
             {label}
           </label>
         )}

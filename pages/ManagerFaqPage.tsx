@@ -267,10 +267,10 @@ const ManagerFaqPage: React.FC = () => {
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <section className="surface-card p-6 rounded-2xl lg:col-span-2" aria-labelledby="faq-form-title">
+          <section className="bg-white text-slate-900 p-6 rounded-2xl shadow-lg lg:col-span-2" aria-labelledby="faq-form-title">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <p className="text-sm uppercase tracking-wide text-slate-400">
+                <p className="text-sm uppercase tracking-wide text-slate-600">
                   {editingId
                     ? t("managerFaq.editingLabel", { default: "Modification" })
                     : t("managerFaq.creationLabel", { default: "Nouvelle entrée" })}
@@ -295,7 +295,7 @@ const ManagerFaqPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => toggleDictation("question")}
-                    className="ms-3 inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-600 hover:bg-slate-50"
+                  className="ms-3 inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-700 hover:bg-slate-50"
                     aria-label={t("managerFaq.voiceQuestion", { default: "Dicter la question" })}
                     disabled={!browserSupportsSpeechRecognition}
                   >
@@ -321,7 +321,7 @@ const ManagerFaqPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => toggleDictation("answer")}
-                    className="mt-7 inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-600 hover:bg-slate-50"
+                    className="mt-7 inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-700 hover:bg-slate-50"
                     aria-label={t("managerFaq.voiceAnswer", { default: "Dicter la réponse" })}
                     disabled={!browserSupportsSpeechRecognition}
                   >
@@ -336,7 +336,7 @@ const ManagerFaqPage: React.FC = () => {
                 onChange={(e) => setFormState((prev) => ({ ...prev, tags: e.target.value }))}
                 className="bg-white text-slate-900 placeholder:text-slate-500 border border-slate-300"
               />
-              <label className="inline-flex items-center gap-3 text-slate-200 text-sm">
+              <label className="inline-flex items-center gap-3 text-slate-900 text-sm">
                 <input
                   type="checkbox"
                   checked={formState.isActive}
@@ -365,7 +365,7 @@ const ManagerFaqPage: React.FC = () => {
             </form>
           </section>
 
-          <section className="surface-card-soft rounded-2xl p-6" aria-labelledby="faq-search-title">
+          <section className="bg-white text-slate-900 rounded-2xl p-6 shadow-lg" aria-labelledby="faq-search-title">
             <h2 id="faq-search-title" className="section-title text-2xl">
               {t("managerFaq.searchTitle", { default: "Recherche & options" })}
             </h2>
@@ -383,18 +383,18 @@ const ManagerFaqPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => toggleDictation("search")}
-                className="mt-6 inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-600 hover:bg-slate-50"
+                className="mt-6 inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-700 hover:bg-slate-50"
                 aria-label={t("managerFaq.voiceSearch", { default: "Recherche vocale" })}
                 disabled={!browserSupportsSpeechRecognition}
               >
                 <MicrophoneIcon className={`h-5 w-5 ${dictationTarget === "search" && isListening ? "text-primary" : ""}`} />
               </button>
             </div>
-            <div className="mt-6 text-sm text-slate-200">
-              <p className="font-semibold text-slate-100">
+            <div className="mt-6 text-sm text-slate-600">
+              <p className="font-semibold text-slate-900">
                 {t("managerFaq.totalCount", { count: faqs.length, defaultValue: "{{count}} entrées" })}
               </p>
-              <p className="text-slate-300">
+              <p className="text-slate-600">
                 {t("managerFaq.filteredCount", {
                   count: filteredFaqs.length,
                   defaultValue: "{{count}} résultats après filtrage",
@@ -409,13 +409,13 @@ const ManagerFaqPage: React.FC = () => {
           </section>
         </div>
 
-        <section className="surface-card p-6 rounded-2xl" aria-labelledby="faq-list-title">
+        <section className="bg-white text-slate-900 p-6 rounded-2xl shadow-lg" aria-labelledby="faq-list-title">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <div>
               <h2 id="faq-list-title" className="section-title text-2xl">
                 {t("managerFaq.listTitle", { default: "FAQ de l'entreprise" })}
               </h2>
-              <p className="section-subtitle text-sm">
+              <p className="section-subtitle text-sm text-slate-600">
                 {t("managerFaq.listSubtitle", { default: "Synchronisé automatiquement avec l'assistant Nexus." })}
               </p>
             </div>
@@ -434,7 +434,7 @@ const ManagerFaqPage: React.FC = () => {
           ) : (
             <ul className="space-y-4">
               {filteredFaqs.map((entry) => (
-                <li key={entry.id} className="border border-slate-200 rounded-xl p-5 bg-slate-50">
+                <li key={entry.id} className="border border-slate-200 rounded-xl p-5 bg-white shadow-sm">
                   <div className="flex flex-col gap-3">
                     <div className="flex items-center justify-between gap-3 flex-wrap">
                       <div>

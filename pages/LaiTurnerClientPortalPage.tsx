@@ -484,11 +484,11 @@ const LaiTurnerClientPortalPage: React.FC = () => {
           </div>
         </section>
 
-        <section className="surface-card p-5 lg:p-6 space-y-4">
+        <section className="bg-white text-slate-900 p-5 lg:p-6 space-y-4 rounded-2xl shadow-lg">
           <div className="flex flex-col gap-2 text-center">
-            <p className="text-xs font-semibold uppercase tracking-wide text-indigo-300">Practice areas</p>
-            <h3 className="text-xl font-bold text-white">Choose your path</h3>
-            <p className="text-sm text-slate-200">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Practice areas</p>
+            <h3 className="text-xl font-bold text-slate-900">Choose your path</h3>
+            <p className="text-sm text-slate-600">
               Select the practice area closest to your matter to pre-fill the intake below.
             </p>
           </div>
@@ -496,11 +496,11 @@ const LaiTurnerClientPortalPage: React.FC = () => {
             {Object.entries(practiceAreaCopy).map(([area, description]) => (
               <div
                 key={area}
-                className="surface-card-soft h-full flex flex-col justify-between p-4"
+                className="h-full flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
               >
                 <div className="space-y-2">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-indigo-300">{area}</p>
-                  <p className="text-sm text-slate-200">{description}</p>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">{area}</p>
+                  <p className="text-sm text-slate-700">{description}</p>
                 </div>
                 <Button
                   className="mt-4"
@@ -520,14 +520,14 @@ const LaiTurnerClientPortalPage: React.FC = () => {
           </div>
         </section>
 
-        <section className="surface-card p-6 space-y-4">
+        <section className="bg-white text-slate-900 p-6 space-y-4 rounded-2xl shadow-lg">
           <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-indigo-300">Your cases</p>
-              <h3 className="text-xl font-bold text-white">Track your cases</h3>
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Your cases</p>
+              <h3 className="text-xl font-bold text-slate-900">Track your cases</h3>
             </div>
             {companyLoading && (
-              <span className="text-xs font-semibold text-slate-400">Confirming Lai & Turner access…</span>
+              <span className="text-xs font-semibold text-slate-600">Confirming Lai & Turner access…</span>
             )}
           </div>
           {creationMessage && (
@@ -539,7 +539,7 @@ const LaiTurnerClientPortalPage: React.FC = () => {
             <div className="rounded-2xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-100">{creationError}</div>
           )}
           {userTickets.length === 0 ? (
-            <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-5 text-sm text-slate-200">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 text-sm text-slate-700 shadow-sm">
               No active tickets yet. Use the buttons above to start a request and your updates will appear here in real time.
             </div>
           ) : (
@@ -553,23 +553,23 @@ const LaiTurnerClientPortalPage: React.FC = () => {
                     const summary = buildClientSummary(intakePayload);
                     if (summary.length === 0) return null;
                     return (
-                      <div className="rounded-2xl border border-indigo-500/30 bg-indigo-500/10 p-4 text-sm text-slate-50 shadow-lg">
+                      <div className="rounded-2xl border border-indigo-100 bg-white p-4 text-sm text-slate-700 shadow-sm">
                         <div className="mb-2 flex items-center justify-between">
-                          <p className="text-xs font-semibold uppercase tracking-wide text-indigo-200">What we captured so far</p>
-                          <span className="text-[10px] font-semibold text-indigo-200">AI intake</span>
+                          <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">What we captured so far</p>
+                          <span className="text-[10px] font-semibold text-slate-600">AI intake</span>
                         </div>
-                        <dl className="space-y-1">
-                          {summary.map((item) => (
-                            <div key={item.label} className="flex gap-2 text-xs text-slate-200">
-                              <dt className="w-28 shrink-0 font-semibold text-slate-300">{item.label}</dt>
-                              <dd className="text-slate-50">{item.value}</dd>
-                            </div>
-                          ))}
-                        </dl>
-                        <p className="mt-2 text-[11px] text-slate-300">
-                          Your attorney will confirm these details and ask follow-up questions if needed.
-                        </p>
-                      </div>
+                          <dl className="space-y-1">
+                            {summary.map((item) => (
+                              <div key={item.label} className="flex gap-2 text-xs text-slate-700">
+                                <dt className="w-28 shrink-0 font-semibold text-slate-900">{item.label}</dt>
+                                <dd className="text-slate-700">{item.value}</dd>
+                              </div>
+                            ))}
+                          </dl>
+                          <p className="mt-2 text-[11px] text-slate-600">
+                            Your attorney will confirm these details and ask follow-up questions if needed.
+                          </p>
+                        </div>
                     );
                   })()}
                 </div>
@@ -578,9 +578,9 @@ const LaiTurnerClientPortalPage: React.FC = () => {
           )}
         </section>
 
-        <section className="surface-card-soft p-6 space-y-3">
-          <h3 className="text-xl font-bold text-white">What this portal does for you</h3>
-          <ul className="list-disc space-y-2 pl-5 text-slate-200">
+        <section className="bg-white text-slate-900 p-6 space-y-3 rounded-2xl shadow-lg">
+          <h3 className="text-xl font-bold text-slate-900">What this portal does for you</h3>
+          <ul className="list-disc space-y-2 pl-5 text-slate-700">
             <li>Plain-language updates (we speak English, not legalese).</li>
             <li>Document requests and reminders so you don’t miss deadlines.</li>
             <li>A clear timeline so you always know what happens next.</li>

@@ -140,13 +140,13 @@ const isDateInCurrentMonth = (date: Date, timeZone: string): boolean => {
 
 // --- SUB-COMPONENTS ---
 const StatCard: React.FC<{ title: string; value: string | number, icon: React.ReactNode }> = ({ title, value, icon }) => (
-  <div className="bg-surface p-4 rounded-lg shadow-md flex items-center">
+  <div className="bg-white text-slate-900 p-5 rounded-2xl shadow-lg flex items-center">
     <div className="bg-primary/10 text-primary p-3 rounded-full me-4">
       {icon}
     </div>
     <div>
-      <p className="text-sm text-slate-500">{title}</p>
-      <p className="text-2xl font-bold text-slate-800">{value}</p>
+      <p className="text-sm text-slate-600">{title}</p>
+      <p className="text-2xl font-bold text-slate-900">{value}</p>
     </div>
   </div>
 );
@@ -744,7 +744,7 @@ const ManagerDashboardPage: React.FC = () => {
                         {isLoading && <LoadingSpinner text={t('managerDashboard.loadingTickets')} />}
 
                         <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                            <div className={`rounded-2xl border p-5 shadow-sm bg-white ${quotaStyles.container}`} aria-live="polite">
+                            <div className={`rounded-2xl border border-slate-100 p-5 shadow-lg bg-white text-slate-900 ${quotaStyles.container}`} aria-live="polite">
                                 <div className="flex items-start justify-between gap-3">
                                     <div>
                                         <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">
@@ -752,7 +752,7 @@ const ManagerDashboardPage: React.FC = () => {
                                         </p>
                                         <p className="mt-2 text-3xl font-bold text-slate-900">{quotaValueLabel}</p>
                                         {quotaMessage && (
-                                            <p className={`mt-2 text-sm ${quotaStyles.message}`}>{quotaMessage}</p>
+                                            <p className={`mt-2 text-sm text-slate-600 ${quotaStyles.message}`}>{quotaMessage}</p>
                                         )}
                                     </div>
                                     {showUpgradeCta && (
@@ -763,13 +763,13 @@ const ManagerDashboardPage: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div className="rounded-2xl border border-indigo-100 bg-white p-5 shadow-sm">
-                                <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">{t('dashboard.manager.stats.totalTickets')}</p>
+                            <div className="rounded-2xl border border-slate-100 bg-white text-slate-900 p-5 shadow-lg">
+                                <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">{t('dashboard.manager.stats.totalTickets')}</p>
                                 <p className="mt-2 text-3xl font-bold text-slate-900">{stats.total}</p>
                                 <p className="text-xs text-slate-600">{t('dashboard.manager.stats.totalHelp')}</p>
                             </div>
-                            <div className="rounded-2xl border border-indigo-100 bg-white p-5 shadow-sm">
-                                <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">{t('dashboard.manager.stats.open')}</p>
+                            <div className="rounded-2xl border border-slate-100 bg-white text-slate-900 p-5 shadow-lg">
+                                <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">{t('dashboard.manager.stats.open')}</p>
                                 <p className="mt-2 text-3xl font-bold text-slate-900">{stats.open}</p>
                                 <p className="text-xs text-slate-600">{t('dashboard.manager.stats.openHelp')}</p>
                             </div>
@@ -782,7 +782,7 @@ const ManagerDashboardPage: React.FC = () => {
                         </section>
 
                         <div className="grid gap-4 lg:grid-cols-3">
-                            <section className="rounded-3xl border bg-white p-6 shadow-sm lg:col-span-2">
+                            <section className="rounded-3xl border border-slate-100 bg-white text-slate-900 p-6 shadow-lg lg:col-span-2">
                                 <div className="flex items-start justify-between gap-3 mb-6">
                                     <div>
                                         <h2 className="text-xl font-semibold text-slate-900">{t('dashboard.manager.company.cardTitle')}</h2>
@@ -848,12 +848,12 @@ const ManagerDashboardPage: React.FC = () => {
                                         </div>
                                     </div>
                                     <div className="space-y-3">
-                                        <div className="rounded-xl border bg-slate-50 p-4">
+                                        <div className="rounded-xl border border-slate-100 bg-white p-4 shadow-lg">
                                             <p className="text-sm font-semibold text-slate-700">{t('dashboard.manager.company.planLabel', { plan: quotaState.rawPlanLabel || t('dashboard.manager.company.planUnknown') })}</p>
                                             <p className="text-2xl font-bold text-slate-900 mt-1">{normalizedQuota.unlimited ? t('dashboard.manager.company.unlimited') : quotaState.limit ?? '--'}</p>
                                             <p className="text-xs text-slate-600">{t('dashboard.manager.company.limitHelper')}</p>
                                         </div>
-                                        <div className="rounded-xl border bg-white p-4">
+                                        <div className="rounded-xl border border-slate-100 bg-white p-4 shadow-lg">
                                             <div className="flex items-center justify-between">
                                                 <div>
                                                     <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">{t('dashboard.manager.company.supportTitle')}</p>
@@ -873,7 +873,7 @@ const ManagerDashboardPage: React.FC = () => {
                             </section>
 
                             {user?.role === UserRole.MANAGER && user?.company_id && (
-                                <section className="rounded-3xl border bg-white p-6 shadow-sm">
+                                <section className="rounded-3xl border border-slate-100 bg-white text-slate-900 p-6 shadow-lg">
                                     <h2 className="text-xl font-semibold text-slate-900 mb-2">{t('dashboard.manager.invite.title')}</h2>
                                     <p className="text-sm text-slate-600 mb-4">{t('dashboard.manager.invite.subtitle')}</p>
                                     <ManagerInviteUserCard companyId={user.company_id} />
@@ -881,7 +881,7 @@ const ManagerDashboardPage: React.FC = () => {
                             )}
                         </div>
 
-                        <section className="rounded-3xl border bg-white p-6 shadow-sm">
+                        <section className="rounded-3xl border border-slate-100 bg-white text-slate-900 p-6 shadow-lg">
                              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-4">
                                  <div>
                                     <h2 className="text-xl font-semibold text-slate-900">{t('dashboard.manager.filters.title')}</h2>
@@ -899,7 +899,7 @@ const ManagerDashboardPage: React.FC = () => {
                             </div>
                         </section>
 
-                        <section className="rounded-3xl border bg-white p-4 sm:p-6 shadow-sm">
+                        <section className="rounded-3xl border border-slate-100 bg-white text-slate-900 p-4 sm:p-6 shadow-lg">
                             <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-4">
                                 <div>
                                     <h2 className="text-xl font-semibold text-slate-900">{t('dashboard.manager.filtered.title')}</h2>
@@ -941,7 +941,7 @@ const ManagerDashboardPage: React.FC = () => {
                             )}
                         </section>
 
-                        <section className="rounded-3xl border bg-white p-6 shadow-sm">
+                        <section className="rounded-3xl border border-slate-100 bg-white text-slate-900 p-6 shadow-lg">
                             <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-4">
                                 <div>
                                     <h2 className="text-xl font-semibold text-slate-900">{t('dashboard.manager.users.title')}</h2>
