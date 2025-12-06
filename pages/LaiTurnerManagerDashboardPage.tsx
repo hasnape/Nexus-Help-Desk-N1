@@ -328,7 +328,7 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
   return (
       <div className="page-container section-stack">
         <div className="section-stack">
-          <section className="surface-card p-6 rounded-2xl space-y-3">
+          <section className="bg-white text-slate-900 p-6 rounded-2xl shadow-lg space-y-3">
             <p className="section-eyebrow">Lai & Turner Law</p>
             <h1 className="section-title">Lai & Turner – Manager Overview</h1>
             <p className="section-subtitle max-w-3xl">
@@ -336,25 +336,25 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
             </p>
           </section>
 
-          <section className="surface-card p-6 rounded-2xl space-y-3">
+          <section className="bg-white text-slate-900 p-6 rounded-2xl shadow-lg space-y-3">
             <div className="flex items-center justify-between">
               <div>
                 <p className="section-eyebrow">Recent structured intakes</p>
-                <h3 className="text-xl font-bold text-slate-50">Quick view</h3>
+                <h3 className="text-xl font-bold text-slate-900">Quick view</h3>
               </div>
-              <span className="text-xs font-semibold text-slate-500">Last 5 with intake payload</span>
+              <span className="text-xs font-semibold text-slate-600">Last 5 with intake payload</span>
             </div>
             {recentIntakes.length === 0 ? (
-              <div className="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-4 text-sm text-slate-200">
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-700 shadow-sm">
                 No structured intakes yet. As soon as AI captures details, they will surface here.
               </div>
             ) : (
-              <div className="divide-y divide-slate-800">
+              <div className="divide-y divide-slate-200">
                 {recentIntakes.map(({ ticket, practiceArea, urgency }) => (
                   <div key={ticket.id} className="flex flex-col gap-1 py-3 md:flex-row md:items-center md:justify-between">
                     <div>
-                      <p className="text-sm font-semibold text-slate-50">{ticket.title}</p>
-                      <p className="text-xs text-slate-300">
+                      <p className="text-sm font-semibold text-slate-900">{ticket.title}</p>
+                      <p className="text-xs text-slate-600">
                         {practiceArea} • Created {new Date(ticket.created_at).toLocaleDateString()}
                       </p>
                     </div>
@@ -369,47 +369,47 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
             )}
           </section>
 
-          <section className="grid gap-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm md:grid-cols-4">
-            <div className="rounded-2xl border border-indigo-100 bg-indigo-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Open matters</p>
+          <section className="grid gap-4 rounded-3xl border border-slate-100 bg-white text-slate-900 p-6 shadow-lg md:grid-cols-4">
+            <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-md">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Open matters</p>
               <p className="text-3xl font-bold text-slate-900">{openFights}</p>
               <p className="text-xs text-slate-600">Open or in-progress files for Lai & Turner.</p>
             </div>
-            <div className="rounded-2xl border border-indigo-100 bg-indigo-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">New in last 7 days</p>
+            <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-md">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">New in last 7 days</p>
               <p className="text-3xl font-bold text-slate-900">{ticketsLast7Days}</p>
               <p className="text-xs text-slate-600">Intake volume this week.</p>
             </div>
-            <div className="rounded-2xl border border-indigo-100 bg-indigo-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">New in last 30 days</p>
+            <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-md">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">New in last 30 days</p>
               <p className="text-3xl font-bold text-slate-900">{ticketsLast30Days}</p>
               <p className="text-xs text-slate-600">Rolling monthly intake across all practice areas.</p>
             </div>
-            <div className="rounded-2xl border border-indigo-100 bg-indigo-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Structured intakes (30d)</p>
+            <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-md">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Structured intakes (30d)</p>
               <p className="text-3xl font-bold text-slate-900">{intakeCount30}</p>
               <p className="text-xs text-slate-600">Tickets with AI intake payload in the last 30 days.</p>
             </div>
           </section>
 
-          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+          <section className="rounded-3xl border border-slate-100 bg-white text-slate-900 p-6 shadow-lg space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Practice areas</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Practice areas</p>
                 <h3 className="text-xl font-bold text-slate-900">Ticket distribution (last 30 days)</h3>
               </div>
               {companyLoading && (
-                <span className="text-xs font-semibold text-slate-500">Loading Lai & Turner metrics…</span>
+                <span className="text-xs font-semibold text-slate-600">Loading Lai & Turner metrics…</span>
               )}
             </div>
             <div className="grid gap-3 md:grid-cols-2">
               {Object.keys(practiceBreakdown30).length === 0 ? (
-                <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm text-slate-700 md:col-span-2">
+                <div className="rounded-2xl border border-slate-100 bg-white p-4 text-sm text-slate-700 shadow-sm md:col-span-2">
                   No tickets yet for Lai & Turner. Intake data will populate this view once cases start.
                 </div>
               ) : (
                 Object.entries(practiceBreakdown30).map(([area, count]) => (
-                  <div key={area} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                  <div key={area} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
                     <div>
                       <p className="text-sm font-semibold text-slate-900">{area}</p>
                       <p className="text-xs text-slate-600">Prepared like every case is going to trial.</p>
@@ -421,15 +421,15 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
             </div>
           </section>
 
-          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+          <section className="rounded-3xl border border-slate-100 bg-white text-slate-900 p-6 shadow-lg space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Dossiers Lai &amp; Turner</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Dossiers Lai &amp; Turner</p>
                 <h3 className="text-xl font-bold text-slate-900">Files overview</h3>
                 <p className="text-sm text-slate-700">Review stage, urgency and tasks before diving into the file.</p>
               </div>
               {(ticketActionLoading || appointmentsLoading) && (
-                <span className="text-xs font-semibold text-slate-500">Working…</span>
+                <span className="text-xs font-semibold text-slate-600">Working…</span>
               )}
             </div>
             {ticketActionMessage && (
@@ -443,7 +443,7 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
               </div>
             )}
             {recentTickets.length === 0 ? (
-              <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm text-slate-700">
+              <div className="rounded-2xl border border-slate-100 bg-white p-4 text-sm text-slate-700 shadow-sm">
                 No tickets yet. New intakes will appear here for quick actions.
               </div>
             ) : (
@@ -453,7 +453,7 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
                   const latestAppointment = (appointmentsByTicket[ticket.id] || [])[0];
                   const remainingLabel = openTasksCount > 0 ? `${openTasksCount} tâches à traiter` : 'Checklist à jour';
                   return (
-                    <div key={ticket.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4 shadow-sm">
+                    <div key={ticket.id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                       <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                         <div className="space-y-1">
                           <p className="text-sm font-semibold text-slate-900">{ticket.title}</p>
@@ -565,10 +565,10 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
           </section>
 
           {selectedPracticeArea && (
-            <section className="rounded-3xl border border-indigo-100 bg-white p-6 shadow-sm space-y-4">
+            <section className="rounded-3xl border border-slate-100 bg-white text-slate-900 p-6 shadow-lg space-y-4">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Practice area focus</p>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Practice area focus</p>
                   <h3 className="text-xl font-bold text-slate-900">{selectedPracticeArea} – recent tickets</h3>
                   <p className="text-sm text-slate-700">
                     Manager view of recent files in this practice area. Use it to review caseload, urgency, and intake quality.
@@ -579,7 +579,7 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
                 </Button>
               </div>
               {focusTickets.length === 0 ? (
-                <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm text-slate-700">
+                <div className="rounded-2xl border border-slate-100 bg-white p-4 text-sm text-slate-700 shadow-sm">
                   No tickets found for this practice area yet.
                 </div>
               ) : (
@@ -607,18 +607,18 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
             </section>
           )}
 
-          <section className="rounded-3xl border border-indigo-100 bg-indigo-50 p-6 shadow-sm space-y-4">
+          <section className="rounded-3xl border border-slate-100 bg-white text-slate-900 p-6 shadow-lg space-y-4">
             <h3 className="text-xl font-bold text-slate-900">Firm promise in action</h3>
             <div className="grid gap-4 md:grid-cols-3">
-              <div className="rounded-2xl border border-indigo-100 bg-white p-4 shadow-sm">
+              <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
                 <p className="text-sm font-semibold text-slate-900">Transparent pricing</p>
                 <p className="mt-2 text-sm text-slate-700">Flat-fee visibility per practice area and quota tracking without any payment links.</p>
               </div>
-              <div className="rounded-2xl border border-indigo-100 bg-white p-4 shadow-sm">
+              <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
                 <p className="text-sm font-semibold text-slate-900">Human communication</p>
                 <p className="mt-2 text-sm text-slate-700">Message templates stay in plain English so clients never feel like case numbers.</p>
               </div>
-              <div className="rounded-2xl border border-indigo-100 bg-white p-4 shadow-sm">
+              <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
                 <p className="text-sm font-semibold text-slate-900">Relentless advocacy</p>
                 <p className="mt-2 text-sm text-slate-700">Workflows assume every file goes to trial, keeping discovery, deadlines, and prep visible.</p>
               </div>
@@ -626,7 +626,7 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
           </section>
 
           <section className="grid gap-4 md:grid-cols-2">
-            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="rounded-3xl border border-slate-100 bg-white text-slate-900 p-6 shadow-lg">
               <h3 className="text-lg font-bold text-slate-900">Invite your team</h3>
               <p className="text-sm text-slate-700">Add agents or client accounts directly into the Lai & Turner workspace.</p>
               <div className="mt-4">
@@ -634,7 +634,7 @@ const LaiTurnerManagerDashboardPage: React.FC = () => {
               </div>
             </div>
             {user.company_id && (
-              <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="rounded-3xl border border-slate-100 bg-white text-slate-900 p-6 shadow-lg">
                 <h3 className="text-lg font-bold text-slate-900">Plan limits</h3>
                 <p className="text-sm text-slate-700">Monitor ticket and agent limits for this firm.</p>
                 <div className="mt-4">
