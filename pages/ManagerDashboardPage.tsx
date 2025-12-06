@@ -779,7 +779,6 @@ const ManagerDashboardPage: React.FC = () => {
                             <StatCard title={t('managerDashboard.stats.resolvedTickets')} value={stats.resolved} icon={<StatCardIcon icon="resolved"/>} />
                             <StatCard title={t('managerDashboard.stats.highPriority')} value={stats.highPriority} icon={<StatCardIcon icon="priority"/>} />
                             <StatCard title={t('managerDashboard.stats.unassigned')} value={stats.unassigned} icon={<StatCardIcon icon="unassigned"/>} />
-                            <StatCard title={t('dashboard.manager.stats.remaining', { used: rpcUsed ?? normalizedQuota.limit ?? 0, limit: normalizedQuota.limit ?? 0 })} value={normalizedQuota.limit !== null && rpcUsed !== null ? `${rpcUsed}/${normalizedQuota.limit}` : t('dashboard.manager.stats.noLimit')} icon={<StatCardIcon icon="total"/>} />
                         </section>
 
                         <div className="grid gap-4 lg:grid-cols-3">
