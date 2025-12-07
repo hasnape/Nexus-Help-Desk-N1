@@ -335,6 +335,15 @@ const LandingPage: React.FC = () => {
                 key={article.slug}
                 className="rounded-2xl border border-indigo-500/25 bg-slate-900/60 shadow-lg p-5 space-y-3 h-full flex flex-col"
               >
+                <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wide text-indigo-100">
+                  <span className="inline-flex items-center gap-2">
+                    <span className="inline-flex items-center rounded-full bg-indigo-500/20 text-indigo-100 px-3 py-1">
+                      {article.city}
+                    </span>
+                    <span className="text-slate-300">{article.date}</span>
+                  </span>
+                  <span className="text-slate-300">Blog Nexus</span>
+                </div>
                 <h3 className="text-lg font-semibold text-white">{article.title}</h3>
                 <p className="text-slate-300 text-sm leading-relaxed flex-1">{article.excerpt}</p>
                 <Link
