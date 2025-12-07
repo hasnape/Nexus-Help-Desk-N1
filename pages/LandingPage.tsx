@@ -40,7 +40,7 @@ const LandingPage: React.FC = () => {
     <>
       {/* Navbar and Footer are already handled by the global Layout wrapper */}
       <MarketingLayout>
-        <section className="space-y-8 text-center">
+        <section className="space-y-8 text-center -mt-8 sm:-mt-10 lg:-mt-12 pt-[3vh] sm:pt-[3vh] lg:pt-[2vh]">
           <header className="space-y-3 max-w-3xl mx-auto">
             <p className="section-eyebrow">
               {t("landing.hero.badge", {
