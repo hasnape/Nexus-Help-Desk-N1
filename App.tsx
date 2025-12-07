@@ -36,7 +36,7 @@ const LandingPage = lazy(() => import("./pages/LandingPage"));
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const SignUpPage = lazy(() => import("./pages/SignUpPage"));
 const PricingPage = lazy(() => import("./pages/PricingPage"));
-const ClientDashboardPage = lazy(() => import("./pages/ClientDashboardPage"));
+const ClientDashboardPage = lazy(() => import("./src/pages/ClientDashboardPage"));
 const NewTicketPage = lazy(() => import("./pages/NewTicketPage"));
 const TicketDetailPage = lazy(() => import("./pages/TicketDetailPage"));
 const AgentDashboardPage = lazy(() => import("./pages/AgentDashboardPage"));
