@@ -27,3 +27,35 @@
   }
 }
 
+
+/* === NEXUS – OVERRIDE ACCESSIBILITÉ COULEURS DE TEXTE === */
+
+:root {
+  --muted-foreground: 0 0% 100%;
+  --secondary-foreground: 0 0% 100%;
+  --popover-foreground: 0 0% 100%;
+}
+
+.text-slate-300,
+.text-slate-400,
+.text-slate-500,
+.text-slate-600,
+.text-slate-700,
+.text-gray-300,
+.text-gray-400,
+.text-gray-500,
+.text-gray-600,
+.text-zinc-300,
+.text-zinc-400,
+.text-zinc-500,
+.text-neutral-300,
+.text-neutral-400,
+.text-neutral-500,
+.text-muted-foreground {
+  color: #ffffff !important;
+}
+
+body {
+  color: #ffffff;
+}
+
