@@ -13,6 +13,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../services/supabaseClient';
 import TicketContextPanel, { TicketRole } from '../components/TicketContextPanel';
+import NexusAiHelpButton from '../components/NexusAiHelpButton';
 
 
 
@@ -55,7 +56,7 @@ const CalendarIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     </svg>
 );
 
-type CaseStage = 'INTAKE' | 'DOCUMENTS' | 'FILED' | 'HEARING' | 'NEGOTIATION' | 'CLOSED';
+type CaseStage = string;
 
 type CaseTask = {
   id: string;
@@ -209,8 +210,11 @@ const TicketDetailPage: React.FC = () => {
     const detailsSource = (ticket as any).details ?? ticket.metadata ?? {};
     const safeDetails = detailsSource && typeof detailsSource === 'object' ? detailsSource : {};
     setTicketDetails(safeDetails);
-    const stageValue = (safeDetails.case_stage as CaseStage) || 'INTAKE';
-    setCaseStage(stageValue);
+    const derivedStage =
+      (safeDetails.case_stage as CaseStage) ||
+      (ticket.status ? t(`ticketStatus.${ticket.status}`) : null) ||
+      'INTAKE';
+    setCaseStage(derivedStage);
     setTasks(Array.isArray(safeDetails.tasks) ? safeDetails.tasks : []);
     setInternalNotes(Array.isArray(safeDetails.internal_notes) ? safeDetails.internal_notes : []);
   }, [ticket]);
@@ -561,23 +565,9 @@ const TicketDetailPage: React.FC = () => {
       )
     : undefined;
 
-  const stageActions = isAgentOrManager ? (
-    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
-      <Select
-        value={caseStage}
-        onChange={(e) => handleStageChange(e.target.value as CaseStage)}
-        disabled={isSavingStage}
-        options={stageOptions}
-        className="sm:w-auto"
-        placeholder=""
-      />
-      {isSavingStage && <LoadingSpinner size="sm" />}
-    </div>
-  ) : null;
-
   return (
-    <div className="min-h-[calc(100vh-5rem)] bg-slate-50 py-6 lg:py-10">
-      <div className="mx-auto max-w-6xl px-4 space-y-4 lg:space-y-6">
+    <div className="min-h-[calc(100vh-5rem)] bg-slate-950 py-6 lg:py-10">
+      <div className="mx-auto max-w-6xl px-4 space-y-4 lg:space-y-6 text-slate-100">
           <section className="rounded-3xl border border-slate-200 bg-white p-4 lg:p-5 shadow-sm space-y-3">
             <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
               <div className="space-y-1">
@@ -661,10 +651,10 @@ const TicketDetailPage: React.FC = () => {
 
           <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr),minmax(280px,1fr)] items-start">
             <div className="space-y-4">
-              <section className="rounded-3xl border border-slate-200 bg-white p-4 lg:p-5 shadow-sm h-full">
-                <div className="flex items-center gap-2 border-b border-slate-200 pb-3">
+              <section className="rounded-3xl border border-slate-800 bg-slate-900/80 p-4 lg:p-5 shadow-sm h-full">
+                <div className="flex items-center gap-2 border-b border-slate-800 pb-3">
                   <button
-                    className={`rounded-full px-4 py-2 text-sm font-semibold ${activeTab === 'messages' ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-700'}`}
+                    className={`rounded-full px-4 py-2 text-sm font-semibold ${activeTab === 'messages' ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-200'}`}
                     onClick={() => setActiveTab('messages')}
                     type="button"
                   >
@@ -672,7 +662,7 @@ const TicketDetailPage: React.FC = () => {
                   </button>
                   {isAgentOrManager && (
                     <button
-                      className={`rounded-full px-4 py-2 text-sm font-semibold ${activeTab === 'internal' ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-700'}`}
+                      className={`rounded-full px-4 py-2 text-sm font-semibold ${activeTab === 'internal' ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-200'}`}
                       onClick={() => setActiveTab('internal')}
                       type="button"
                     >
@@ -850,9 +840,11 @@ const TicketDetailPage: React.FC = () => {
                 language: t(`language.${language}`),
                 city: (ticketDetails as any)?.city || null,
               }}
-              tasks={tasks.map((task) => ({ id: task.id, label: task.label, completed: task.done }))}
-              onToggleTask={handleToggleTask}
-              onAddTask={isSavingTasks ? undefined : handleAddTask}
+              caseStageLabel={caseStage}
+              onCaseStageChange={isAgentOrManager ? handleStageChange : undefined}
+              checklistItems={tasks.map((task) => ({ id: task.id, label: task.label, completed: task.done }))}
+              onToggleChecklistItem={handleToggleTask}
+              onAddChecklistItem={isSavingTasks ? undefined : handleAddTask}
               appointment={simplifiedAppointment}
               onProposeAppointment={isAgentOrManager ? () => {
                 setAppointmentError(null);
@@ -869,9 +861,13 @@ const TicketDetailPage: React.FC = () => {
                 content: note.body,
               }))}
               onAddInternalNote={isAgentOrManager ? handleAddInternalNote : undefined}
-              stageActions={stageActions}
             />
           </div>
+          <NexusAiHelpButton
+            role={ticketRoleForPanel}
+            ticket={ticket}
+            onInsertPrompt={(prompt) => setNewMessage((prev) => (prev ? `${prev}\n${prompt}` : prompt))}
+          />
       </div>
     </div>
   );
