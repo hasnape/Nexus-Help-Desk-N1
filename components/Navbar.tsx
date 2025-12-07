@@ -57,6 +57,7 @@ const Navbar: React.FC = () => {
 
   const mainLinks = [
     { to: "/landing", label: t("navbar.home", { default: "Accueil" }) },
+    { to: "/blog", label: t("navbar.blog", { default: "Blog" }) },
     {
       to: "/pricing",
       label: t("navbar.pricingpage", { default: "Tarifs" }),
