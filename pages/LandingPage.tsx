@@ -36,6 +36,24 @@ const LandingPage: React.FC = () => {
     }),
   ];
 
+  const blogHighlights = [
+    {
+      title: "Comment réduire 40 % des tickets N1 sans embaucher ?",
+      summary:
+        "Configurez l’IA Nexus pour absorber les demandes récurrentes et rendre vos agents N2 disponibles pour les sujets critiques.",
+    },
+    {
+      title: "Mettre en place un help desk FR / EN / AR en moins d’une semaine",
+      summary:
+        "Déployez Nexus en trois langues sans changer vos outils internes et offrez une expérience cohérente à chaque utilisateur.",
+    },
+    {
+      title: "N1 → N2 : préparer vos agents avec des tickets déjà résumés",
+      summary:
+        "Fournissez aux agents des tickets contextualisés, priorisés et enrichis automatiquement dès leur arrivée dans la file.",
+    },
+  ];
+
   return (
     <>
       {/* Navbar and Footer are already handled by the global Layout wrapper */}
@@ -312,6 +330,38 @@ const LandingPage: React.FC = () => {
                 })}
               </a>
             </p>
+          </div>
+        </section>
+
+        <section className="section-stack" aria-labelledby="blog-highlights">
+          <div className="surface-card space-y-3 max-w-3xl mx-auto text-center">
+            <p className="section-eyebrow" id="blog-highlights">
+              Derniers articles du blog
+            </p>
+            <h2 className="section-title text-2xl">Des cas concrets pour organiser votre support N1 → N2 avec Nexus.</h2>
+            <p className="section-subtitle">
+              Trois exemples d’actions rapides à mettre en place pour réduire le volume de tickets et fluidifier l’escalade vers vos agents.
+            </p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            {blogHighlights.map((article) => (
+              <article
+                key={article.title}
+                className="rounded-2xl border border-indigo-500/25 bg-slate-900/60 shadow-lg p-5 space-y-3 h-full flex flex-col"
+              >
+                <h3 className="text-lg font-semibold text-white">{article.title}</h3>
+                <p className="text-slate-300 text-sm leading-relaxed flex-1">{article.summary}</p>
+                <Link
+                  to="/blog"
+                  className="inline-flex items-center gap-2 text-sm font-semibold text-indigo-200 hover:text-white"
+                  aria-label={`Lire l’article ${article.title} sur le blog`}
+                >
+                  Lire sur le blog
+                  <span aria-hidden className="text-indigo-100">→</span>
+                </Link>
+              </article>
+            ))}
           </div>
         </section>
 
