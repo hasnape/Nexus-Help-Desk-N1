@@ -21,7 +21,7 @@ const Layout: React.FC<LayoutProps> = ({
   const { t } = useLanguage();
 
   return (
-    <div className={`min-h-screen flex flex-col bg-slate-950 text-slate-50 ${className}`}>
+    <div className={`min-h-screen flex flex-col bg-slate-950 text-slate-100 ${className}`}>
       {/* Lien d’accessibilité */}
       <a
         href="#main-content"

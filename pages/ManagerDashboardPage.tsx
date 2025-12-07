@@ -715,14 +715,14 @@ const ManagerDashboardPage: React.FC = () => {
                         </div>
                     )}
 
-                    <div className="flex flex-col gap-6">
+                        <div className="flex flex-col gap-6">
                         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                             <div className="space-y-2">
                                 <p className="text-xs font-semibold uppercase tracking-[0.16em] text-indigo-600">{t('dashboard.manager.badge')}</p>
-                                <h1 className="text-3xl font-bold text-slate-900">{t('dashboard.manager.title', { username: user.full_name })}</h1>
-                                <p className="text-base text-slate-600 max-w-2xl">{t('dashboard.manager.subtitle')}</p>
+                                <h1 className="ns-page-heading">{t('dashboard.manager.title', { username: user.full_name })}</h1>
+                                <p className="ns-page-subtitle mt-1 max-w-2xl">{t('dashboard.manager.subtitle')}</p>
                                 {company && (
-                                    <p className="text-sm text-slate-500">{t('dashboard.manager.company.label', { name: company.name, id: company.id })}</p>
+                                    <p className="ns-page-meta mt-1">{t('dashboard.manager.company.label', { name: company.name, id: company.id })}</p>
                                 )}
                             </div>
                             <div className="flex flex-wrap gap-3">
