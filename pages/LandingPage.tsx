@@ -346,14 +346,14 @@ const LandingPage: React.FC = () => {
                 </div>
                 <h3 className="text-lg font-semibold text-white">{article.title}</h3>
                 <p className="text-slate-300 text-sm leading-relaxed flex-1">{article.excerpt}</p>
-                <Link
-                  to="/blog"
+                <a
+                  href="#/blog"
                   className="inline-flex items-center gap-2 text-sm font-semibold text-indigo-200 hover:text-white"
                   aria-label={`Lire l’article ${article.title} sur le blog`}
                 >
                   Lire sur le blog
                   <span aria-hidden className="text-indigo-100">→</span>
-                </Link>
+                </a>
               </article>
             ))}
           </div>
