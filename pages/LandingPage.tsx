@@ -6,6 +6,7 @@ import { Button } from "../components/FormElements";
 import NexusSalesBotWidget from "../components/NexusSalesBotWidget";
 import InfographieNexus from "../InfographieNexus";
 import MarketingLayout from "../components/MarketingLayout";
+import { blogPosts } from "../content/blogPosts";
 
 const LandingPage: React.FC = () => {
   const { t } = useTranslation();
@@ -36,23 +37,7 @@ const LandingPage: React.FC = () => {
     }),
   ];
 
-  const blogHighlights = [
-    {
-      title: "Comment réduire 40 % des tickets N1 sans embaucher ?",
-      summary:
-        "Configurez l’IA Nexus pour absorber les demandes récurrentes et rendre vos agents N2 disponibles pour les sujets critiques.",
-    },
-    {
-      title: "Mettre en place un help desk FR / EN / AR en moins d’une semaine",
-      summary:
-        "Déployez Nexus en trois langues sans changer vos outils internes et offrez une expérience cohérente à chaque utilisateur.",
-    },
-    {
-      title: "N1 → N2 : préparer vos agents avec des tickets déjà résumés",
-      summary:
-        "Fournissez aux agents des tickets contextualisés, priorisés et enrichis automatiquement dès leur arrivée dans la file.",
-    },
-  ];
+  const blogHighlights = blogPosts.slice(0, 3);
 
   return (
     <>
@@ -347,11 +332,11 @@ const LandingPage: React.FC = () => {
           <div className="grid gap-4 md:grid-cols-3">
             {blogHighlights.map((article) => (
               <article
-                key={article.title}
+                key={article.slug}
                 className="rounded-2xl border border-indigo-500/25 bg-slate-900/60 shadow-lg p-5 space-y-3 h-full flex flex-col"
               >
                 <h3 className="text-lg font-semibold text-white">{article.title}</h3>
-                <p className="text-slate-300 text-sm leading-relaxed flex-1">{article.summary}</p>
+                <p className="text-slate-300 text-sm leading-relaxed flex-1">{article.excerpt}</p>
                 <Link
                   to="/blog"
                   className="inline-flex items-center gap-2 text-sm font-semibold text-indigo-200 hover:text-white"
