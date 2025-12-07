@@ -13,3 +13,17 @@
   }
 }
 
+@layer components {
+  .ns-page-heading {
+    @apply text-slate-50 text-2xl font-semibold;
+  }
+
+  .ns-page-subtitle {
+    @apply text-slate-200 text-sm;
+  }
+
+  .ns-page-meta {
+    @apply text-slate-300 text-xs;
+  }
+}
+
