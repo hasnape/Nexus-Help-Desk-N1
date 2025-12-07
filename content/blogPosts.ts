@@ -78,12 +78,12 @@ Sécurisé, multilingue et inspiré par les pratiques d’accessibilité (RGAA 4
 Prochaine étape : contacter l’équipe Nexus pour une démonstration et mesurer concrètement l’impact du Nexus AI sur la productivité des équipes de support.`,
   },
   {
-    slug: "revolution-support-client-it-nexus-ai",
-    title: "Nexus Support Hub : l’Intelligence Artificielle Nexus redéfinit l’efficacité du support client et IT",
+    slug: "revolution-support-client-it",
+    title: "Révolution dans le Support Client et IT : Nexus AI change la donne",
     city: "Lyon",
     date: "12 septembre 2025",
     excerpt:
-      "Avec Nexus AI, le Nexus Support Hub transforme le support L1 en moteur d’efficacité, tout en donnant aux managers un contrôle complet sur la connaissance et les performances.",
+      "Le Nexus Support Hub transforme le support L1 en centre de valeur, grâce à Nexus AI, une IA entraînée sur vos propres procédures et FAQ.",
     content: `📍 Lyon, 12 septembre 2025 – La gestion du support de Niveau 1 (L1) est devenue un point de friction pour de nombreuses organisations, les équipes étant noyées sous les requêtes répétitives (mots de passe, procédures simples). Face à cette inefficacité, le Nexus Support Hub propose une rupture technologique, transformant le support en un véritable centre de valeur et d’agilité.
 
 Le Nexus AI : Votre Solution Sur Mesure pour le Niveau 1

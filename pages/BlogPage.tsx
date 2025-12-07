@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import MarketingLayout from "../components/MarketingLayout";
-import { blogPosts, type BlogPost } from "../content/blogPosts";
+import { blogPosts } from "../content/blogPosts";
 
 const BlogPage: React.FC = () => {
   const [formData, setFormData] = useState<BlogPost>({
@@ -85,17 +85,15 @@ const BlogPage: React.FC = () => {
                 </span>
                 <span className="text-slate-400">Blog Nexus</span>
               </div>
+
               <h2 className="text-xl font-semibold text-white">{post.title}</h2>
+
               <p className="text-slate-300 leading-relaxed">{post.excerpt}</p>
+
               <div className="pt-2">
-                <a
-                  href="#"
-                  className="inline-flex items-center gap-2 rounded-lg bg-indigo-600/90 text-white px-4 py-2 text-sm font-semibold shadow-md opacity-80 cursor-not-allowed"
-                  aria-disabled
-                >
-                  Lire l’article (bientôt)
-                  <span aria-hidden className="text-slate-200">→</span>
-                </a>
+                <span className="inline-flex items-center gap-2 rounded-lg bg-slate-800/70 text-slate-200 px-4 py-2 text-sm font-semibold">
+                  Article complet disponible dans la prochaine version
+                </span>
               </div>
             </article>
           ))}
