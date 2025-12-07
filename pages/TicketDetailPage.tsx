@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next';
 import { supabase } from '../services/supabaseClient';
 import TicketContextPanel, { TicketRole } from '../components/TicketContextPanel';
 import NexusAiHelpButton from '../components/NexusAiHelpButton';
+import NexusAgentAssistWidget from '../components/NexusAgentAssistWidget';
 
 
 
@@ -164,6 +165,7 @@ const TicketDetailPage: React.FC = () => {
   const [internalNotes, setInternalNotes] = useState<InternalNoteEntry[]>([]);
   const [newInternalNote, setNewInternalNote] = useState('');
   const [activeTab, setActiveTab] = useState<'messages' | 'internal'>('messages');
+  const [isAgentAssistOpen, setIsAgentAssistOpen] = useState(false);
 
 
   const {
@@ -526,6 +528,10 @@ const TicketDetailPage: React.FC = () => {
   const ticketRoleForPanel: TicketRole = user.role === UserRole.MANAGER ? 'manager' : user.role === UserRole.AGENT ? 'agent' : 'user';
   const stageLabel = stageOptions.find((option) => option.value === caseStage)?.label ?? caseStage;
 
+  const handleOpenAgentAssist = () => {
+    setIsAgentAssistOpen(true);
+  };
+
   const appointmentFormContent = isAgentOrManager
     ? (
         <div className="space-y-2">
@@ -866,9 +872,15 @@ const TicketDetailPage: React.FC = () => {
           <NexusAiHelpButton
             role={ticketRoleForPanel}
             ticket={ticket}
-            onInsertPrompt={(prompt) =>
-              setNewMessage((prev) => (prev ? `${prev}\n\n${prompt}` : prompt))
-            }
+            onClick={handleOpenAgentAssist}
+          />
+          <NexusAgentAssistWidget
+            isOpen={isAgentAssistOpen}
+            onClose={() => setIsAgentAssistOpen(false)}
+            ticketId={ticket?.id}
+            ticketTitle={ticket?.title}
+            ticketSummary={(ticketDetails as any)?.summary || ticket?.description}
+            currentRole={ticketRoleForPanel}
           />
       </div>
     </div>
