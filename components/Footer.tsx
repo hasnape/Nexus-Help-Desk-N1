@@ -129,6 +129,11 @@ const Footer: React.FC = () => {
                 </Link>
               </li>
               <li>
+                <Link to="/blog" className="text-slate-300 hover:text-primary transition-colors">
+                  {t("footer.blog", { default: "Blog" })}
+                </Link>
+              </li>
+              <li>
                 <Link to="/pricing" className="text-slate-300 hover:text-primary transition-colors">
                   {t("footer.pricing", { default: "Tarifs" })}
                 </Link>
