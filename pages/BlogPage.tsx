@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-
 import MarketingLayout from "../components/MarketingLayout";
 import { blogPosts } from "../content/blogPosts";
 
@@ -15,8 +14,7 @@ const BlogPage: React.FC = () => {
           <p className="section-eyebrow">Insights & marketing</p>
           <h1 className="section-title">Blog Nexus Support Hub</h1>
           <p className="section-subtitle max-w-3xl mx-auto">
-            Articles pratiques sur l’IA, le support N1 → N2 et l’organisation
-            de votre help desk.
+            Actualités, cas d’usage et analyses autour du support assisté par IA et Nexus AI.
           </p>
         </header>
 
@@ -36,13 +34,17 @@ const BlogPage: React.FC = () => {
                 <span className="text-slate-400">Blog Nexus</span>
               </div>
 
-              <h2 className="text-xl font-semibold text-white">{post.title}</h2>
+              <h2 className="text-xl font-semibold text-white">
+                {post.title}
+              </h2>
 
-              <p className="text-slate-300 leading-relaxed">{post.excerpt}</p>
+              <p className="text-slate-300 leading-relaxed">
+                {post.excerpt}
+              </p>
 
               <div className="pt-2">
                 <span className="inline-flex items-center gap-2 rounded-lg bg-slate-800/70 text-slate-200 px-4 py-2 text-sm font-semibold">
-                  Article complet disponible dans la prochaine version
+                  Article complet disponible dans la documentation Nexus AI.
                 </span>
               </div>
             </article>
