@@ -12,6 +12,7 @@ import useTextToSpeech from '../hooks/useTextToSpeech';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../services/supabaseClient';
+import TicketContextPanel, { TicketRole } from '../components/TicketContextPanel';
 
 
 
@@ -158,7 +159,6 @@ const TicketDetailPage: React.FC = () => {
   const [caseStage, setCaseStage] = useState<CaseStage>('INTAKE');
   const [isSavingStage, setIsSavingStage] = useState(false);
   const [tasks, setTasks] = useState<CaseTask[]>([]);
-  const [newTaskLabel, setNewTaskLabel] = useState('');
   const [isSavingTasks, setIsSavingTasks] = useState(false);
   const [internalNotes, setInternalNotes] = useState<InternalNoteEntry[]>([]);
   const [newInternalNote, setNewInternalNote] = useState('');
@@ -322,12 +322,12 @@ const TicketDetailPage: React.FC = () => {
     setIsSavingStage(false);
   };
 
-  const handleAddTask = async () => {
-    if (!isAgentOrManager || !newTaskLabel.trim()) return;
+  const handleAddTask = async (label: string) => {
+    if (!isAgentOrManager || !label.trim()) return;
     setIsSavingTasks(true);
     const newTask: CaseTask = {
       id: crypto.randomUUID(),
-      label: newTaskLabel.trim(),
+      label: label.trim(),
       done: false,
       created_by: user.id,
       created_at: new Date().toISOString(),
@@ -337,7 +337,6 @@ const TicketDetailPage: React.FC = () => {
     const ok = await persistCaseDetails(nextDetails);
     if (ok) {
       setTasks(nextTasks);
-      setNewTaskLabel('');
     }
     setIsSavingTasks(false);
   };
@@ -356,13 +355,13 @@ const TicketDetailPage: React.FC = () => {
     setIsSavingTasks(false);
   };
 
-  const handleAddInternalNote = async () => {
-    if (!isAgentOrManager || !newInternalNote.trim()) return;
+  const handleAddInternalNote = async (content: string) => {
+    if (!isAgentOrManager || !content.trim()) return;
     const nextNote: InternalNoteEntry = {
       id: crypto.randomUUID(),
       author_id: user.id,
       author_name: user.full_name,
-      body: newInternalNote.trim(),
+      body: content.trim(),
       created_at: new Date().toISOString(),
     };
     const nextNotes = [...internalNotes, nextNote];
@@ -412,13 +411,13 @@ const TicketDetailPage: React.FC = () => {
     setIsDeletingAppointment(false);
   };
 
-  const handleProposeAppointment = async () => {
+  const handleProposeAppointment = async (dateTime: string, notes?: string) => {
     if (!ticket || !ticketId || (user.role !== UserRole.AGENT && user.role !== UserRole.MANAGER)) return;
-    if (!apptDateTime) return;
+    if (!dateTime) return;
     setAppointmentError(null);
     setAppointmentSuccess(null);
 
-    const startsAt = new Date(apptDateTime);
+    const startsAt = new Date(dateTime);
     if (Number.isNaN(startsAt.getTime())) {
       setAppointmentError('Please provide a valid date and time.');
       return;
@@ -433,7 +432,7 @@ const TicketDetailPage: React.FC = () => {
       status,
       starts_at: startsAt.toISOString(),
       ends_at: startsAt.toISOString(),
-      notes: apptNotes || null,
+      notes: notes || null,
     };
 
     const { data, error } = await supabase
@@ -503,34 +502,38 @@ const TicketDetailPage: React.FC = () => {
     { value: 'CLOSED', label: 'Dossier clôturé' },
   ];
 
-  const renderAppointmentSection = () => {
-    if (!isAgentOrManager && appointments.length === 0) return null;
+  const normalizeAppointmentStatus = (status?: string): 'pending' | 'confirmed' | 'cancelled' => {
+    if (!status) return 'pending';
+    if (status === 'confirmed') return 'confirmed';
+    if (status.startsWith('pending') || status === 'proposed') return 'pending';
+    return 'cancelled';
+  };
 
-    const isManager = user.role === UserRole.MANAGER;
+  const latestAppointment = appointments[0];
+  const simplifiedAppointment = latestAppointment
+    ? {
+        id: latestAppointment.id,
+        dateTimeLabel: new Date(latestAppointment.starts_at).toLocaleString(getBCP47Locale()),
+        city: latestAppointment.location_or_method || latestAppointment.notes || null,
+        status: normalizeAppointmentStatus(latestAppointment.status),
+      }
+    : undefined;
 
-    return (
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm space-y-3">
-        <div className="space-y-1">
-          <h3 className="text-sm font-semibold text-slate-900">{t('ticket.sidebar.appointments.title')}</h3>
-          <p className="text-xs text-slate-600">{t('ticket.sidebar.appointments.description')}</p>
-        </div>
+  const ticketRoleForPanel: TicketRole = user.role === UserRole.MANAGER ? 'manager' : user.role === UserRole.AGENT ? 'agent' : 'user';
+  const stageLabel = stageOptions.find((option) => option.value === caseStage)?.label ?? caseStage;
 
-        {appointmentError && (
-          <div className="rounded-md bg-red-100 px-3 py-2 text-xs text-red-700">{appointmentError}</div>
-        )}
-        {appointmentSuccess && (
-          <div className="rounded-md bg-emerald-100 px-3 py-2 text-xs text-emerald-700">{appointmentSuccess}</div>
-        )}
-
-        {isAgentOrManager && (
-          !showAppointmentForm ? (
-            <Button onClick={() => setShowAppointmentForm(true)} variant="secondary" size="sm">
-              <CalendarIcon className="me-2 h-4 w-4" />
-              {t('appointment.proposeButtonLabel')}
-            </Button>
-          ) : (
+  const appointmentFormContent = isAgentOrManager
+    ? (
+        <div className="space-y-2">
+          {appointmentError && (
+            <div className="rounded-md bg-red-100 px-3 py-2 text-xs text-red-700">{appointmentError}</div>
+          )}
+          {appointmentSuccess && (
+            <div className="rounded-md bg-emerald-100 px-3 py-2 text-xs text-emerald-700">{appointmentSuccess}</div>
+          )}
+          {showAppointmentForm && (
             <div className="space-y-3">
-              <h4 className="text-sm font-semibold text-slate-700">{t('appointment.form.title')}</h4>
+              <h4 className="text-sm font-semibold text-slate-200">{t('appointment.form.title')}</h4>
               <Input
                 type="datetime-local"
                 label={t('appointment.form.dateLabel')}
@@ -544,7 +547,7 @@ const TicketDetailPage: React.FC = () => {
                 onChange={(e) => setApptNotes(e.target.value)}
               />
               <div className="flex gap-2">
-                <Button onClick={handleProposeAppointment} variant="primary" size="sm" disabled={!apptDateTime}>
+                <Button onClick={() => handleProposeAppointment(apptDateTime, apptNotes)} variant="primary" size="sm" disabled={!apptDateTime}>
                   {t('appointment.form.submitButton')}
                 </Button>
                 <Button onClick={() => setShowAppointmentForm(false)} variant="outline" size="sm">
@@ -552,54 +555,25 @@ const TicketDetailPage: React.FC = () => {
                 </Button>
               </div>
             </div>
-          )
-        )}
-
-        <div className="space-y-2">
-          {appointmentsLoading ? (
-            <LoadingSpinner text={t('appointment.loading', { defaultValue: 'Chargement…' })} />
-          ) : appointments.length === 0 ? (
-            <p className="text-sm text-slate-600">{t('ticket.sidebar.appointments.empty')}</p>
-          ) : (
-            appointments.map((appt) => (
-              <div key={appt.id} className="rounded-md border border-slate-200 bg-white p-3 text-xs text-slate-700">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div>
-                    <p className="font-semibold text-slate-900">
-                      {new Date(appt.starts_at).toLocaleString(getBCP47Locale())} – {appt.status}
-                    </p>
-                    {appt.notes && <p className="text-slate-600">{appt.notes}</p>}
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {isManager && (
-                      <>
-                        <Button size="xs" variant="secondary" onClick={() => updateAppointmentStatus(appt.id, 'confirmed')}>
-                          {i18nT('appointment.actions.confirm', { defaultValue: 'Confirmer' }) || 'Confirmer'}
-                        </Button>
-                        <Button size="xs" variant="danger" onClick={() => updateAppointmentStatus(appt.id, 'cancelled')}>
-                          {i18nT('appointment.actions.cancel', { defaultValue: 'Annuler' }) || 'Annuler'}
-                        </Button>
-                      </>
-                    )}
-                    {user.role === UserRole.AGENT && appt.proposed_by === 'agent' && appt.status === 'proposed' && (
-                      <Button
-                        size="xs"
-                        variant="danger"
-                        onClick={() => handleDeleteAppointment(appt.id)}
-                        disabled={isDeletingAppointment}
-                      >
-                        {i18nT('appointment.delete_button')}
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))
           )}
+          {appointmentsLoading && <LoadingSpinner text={t('appointment.loading', { defaultValue: 'Chargement…' })} />}
         </div>
-      </section>
-    );
-  };
+      )
+    : undefined;
+
+  const stageActions = isAgentOrManager ? (
+    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+      <Select
+        value={caseStage}
+        onChange={(e) => handleStageChange(e.target.value as CaseStage)}
+        disabled={isSavingStage}
+        options={stageOptions}
+        className="sm:w-auto"
+        placeholder=""
+      />
+      {isSavingStage && <LoadingSpinner size="sm" />}
+    </div>
+  ) : null;
 
   return (
     <div className="min-h-[calc(100vh-5rem)] bg-slate-50 py-6 lg:py-10">
@@ -854,7 +828,7 @@ const TicketDetailPage: React.FC = () => {
                         <Button
                           variant="primary"
                           size="sm"
-                          onClick={handleAddInternalNote}
+                          onClick={() => handleAddInternalNote(newInternalNote)}
                           disabled={!newInternalNote.trim()}
                         >
                           {t('ticket.internalNotes.addButton')}
@@ -866,92 +840,37 @@ const TicketDetailPage: React.FC = () => {
               </section>
             </div>
 
-            <aside className="space-y-4">
-              {isAgentOrManager && (
-                <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm space-y-2">
-                  <h3 className="text-sm font-semibold text-slate-900">{t('ticket.sidebar.caseStage.title')}</h3>
-                  <p className="text-xs text-slate-600">{t('ticket.sidebar.caseStage.description')}</p>
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <Select
-                      value={caseStage}
-                      onChange={(e) => handleStageChange(e.target.value as CaseStage)}
-                      disabled={isSavingStage}
-                      options={stageOptions}
-                      className="sm:w-auto"
-                      placeholder=""
-                    />
-                    {isSavingStage && <LoadingSpinner size="sm" />}
-                  </div>
-                </section>
-              )}
-
-              {isAgentOrManager && (
-                <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm space-y-2">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="space-y-1">
-                      <h3 className="text-sm font-semibold text-slate-900">{t('ticket.sidebar.checklist.title')}</h3>
-                      <p className="text-xs text-slate-600">{t('ticket.sidebar.checklist.description')}</p>
-                    </div>
-                  </div>
-                  {tasks.length === 0 ? (
-                    <p className="text-sm text-slate-600">{t('ticket.sidebar.checklist.empty')}</p>
-                  ) : (
-                    <div className="space-y-2">
-                      {tasks.map((task) => (
-                        <label key={task.id} className="flex items-center gap-2 text-sm text-slate-800">
-                          <input
-                            type="checkbox"
-                            className="h-4 w-4 rounded border-slate-300"
-                            checked={task.done}
-                            onChange={() => handleToggleTask(task.id)}
-                            disabled={!isAgentOrManager || isSavingTasks}
-                          />
-                          <span className={task.done ? 'line-through text-slate-500' : ''}>{task.label}</span>
-                        </label>
-                      ))}
-                    </div>
-                  )}
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                    <Input
-                      type="text"
-                      value={newTaskLabel}
-                      onChange={(e) => setNewTaskLabel(e.target.value)}
-                      placeholder={t('ticket.sidebar.checklist.addPlaceholder')}
-                      className="text-sm"
-                      disabled={isSavingTasks}
-                    />
-                    <Button
-                      variant="primary"
-                      size="sm"
-                      onClick={handleAddTask}
-                      disabled={!newTaskLabel.trim() || isSavingTasks}
-                      isLoading={isSavingTasks}
-                    >
-                      {t('ticket.sidebar.checklist.addButton')}
-                    </Button>
-                  </div>
-                </section>
-              )}
-
-              {renderAppointmentSection()}
-
-              <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm space-y-2">
-                <h3 className="text-sm font-semibold text-slate-900">{t('ticket.sidebar.info.title')}</h3>
-                <p className="text-xs text-slate-600">{t('ticket.sidebar.info.description')}</p>
-                <div className="space-y-1 text-sm text-slate-800">
-                  <p>
-                    <span className="font-semibold">{t('ticket.sidebar.info.owner')} </span>
-                    {user.full_name}
-                  </p>
-                  <p>
-                    <span className="font-semibold">Email: </span>{user.email}
-                  </p>
-                  <p>
-                    <span className="font-semibold">{t('ticket.sidebar.info.language')} </span>{t(`language.${language}`)}
-                  </p>
-                </div>
-              </section>
-            </aside>
+            <TicketContextPanel
+              role={ticketRoleForPanel}
+              ticket={{
+                id: ticket.id,
+                status: stageLabel,
+                ownerName: user.full_name,
+                ownerEmail: user.email,
+                language: t(`language.${language}`),
+                city: (ticketDetails as any)?.city || null,
+              }}
+              tasks={tasks.map((task) => ({ id: task.id, label: task.label, completed: task.done }))}
+              onToggleTask={handleToggleTask}
+              onAddTask={isSavingTasks ? undefined : handleAddTask}
+              appointment={simplifiedAppointment}
+              onProposeAppointment={isAgentOrManager ? () => {
+                setAppointmentError(null);
+                setAppointmentSuccess(null);
+                setShowAppointmentForm(true);
+              } : undefined}
+              onConfirmAppointment={isAgentOrManager ? (id) => updateAppointmentStatus(id, 'confirmed') : undefined}
+              onCancelAppointment={isAgentOrManager ? (id) => updateAppointmentStatus(id, 'cancelled') : undefined}
+              appointmentForm={appointmentFormContent}
+              internalNotes={internalNotes.map((note) => ({
+                id: note.id,
+                authorName: note.author_name,
+                createdAtLabel: new Date(note.created_at).toLocaleString(getBCP47Locale()),
+                content: note.body,
+              }))}
+              onAddInternalNote={isAgentOrManager ? handleAddInternalNote : undefined}
+              stageActions={stageActions}
+            />
           </div>
       </div>
     </div>
