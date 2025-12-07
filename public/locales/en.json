@@ -347,21 +347,21 @@
   "landing.features.ai.title": "AI integrated into ticket flows",
   "landing.features.secure.desc": "FR / EN / AR support with data isolation per company and architecture built for multi-tenant organizations.",
   "landing.features.secure.title": "Multi-company & multilingual help desk",
-  "landing.features.subtitle": "Integrated AI, multi-tenant and multilingual with accessibility to boost support teams.",
+  "landing.features.subtitle": "Integrated AI, multilingual support, and accessibility to boost support teams.",
   "landing.features.title": "Three pillars for reliable L1 → L2 support",
   "landing.features.voice.desc": "Accessible UI (keyboard, screen readers, contrast) with voice input and text-to-speech built in.",
   "landing.features.voice.title": "Productivity & accessibility",
-  "landing.hero.title": "Multi-company AI help desk for L1 automation and L2 assistance",
-  "landing.hero.subtitle": "Nexus automates level 1 in French, English, and Arabic, and prepares level 2 with summaries, priorities, and knowledge base context. Multi-tenant on Supabase (PostgreSQL + RLS) with RGAA-inspired UI.",
+  "landing.hero.title": "Fewer repetitive tickets. More time for real issues.",
+  "landing.hero.subtitle": "Nexus Support Hub is an intelligent service desk that automates your Level 1 support with AI and prepares your Level 2 teams with tickets already summarized, categorized, prioritized, and enriched by your company FAQ inside a private space dedicated to your organization.",
   "landing.hero.primaryCta": "Try Nexus for free",
   "landing.hero.secondaryCta": "View the demo",
-  "landing.hero.badge": "Multi-tenant • FR / EN / AR • RGAA-inspired",
-  "landing.hero.assuranceTitle": "Secure multi-tenant",
-  "landing.hero.assuranceBody": "Supabase RLS isolation with dedicated roles for users, agents, managers, and platform admins.",
+  "landing.hero.badge": "AI L1→L2 • Private space per company • RGAA-inspired",
+  "landing.hero.assuranceTitle": "Secure dedicated space",
+  "landing.hero.assuranceBody": "Data isolated for each company with dedicated roles (user, agent, manager, platform admins).",
   "landing.hero.complianceTitle": "Practical accessibility",
   "landing.hero.complianceBody": "Keyboard navigation, contrast, and explicit labels inspired by RGAA 4.1.",
   "landing.hero.previewBadge": "Product preview",
-  "landing.hero.previewCaption": "Ticket lifecycle: AI answers L1, files structured tickets, and escalates to L2 with history.",
+  "landing.hero.previewCaption": "Each company gets its own Nexus space: your data is never shared with other customers.",
   "landing.benefits.badge": "Key benefits",
   "landing.benefits.title": "What Nexus automates and secures",
   "landing.benefits.subtitle": "Lower L1 volume, controlled escalation to L2, and native compliance for multi-tenant organizations.",
@@ -394,10 +394,10 @@
   "landing.finalCta.subtitle": "Spin up a secure space, invite your team, and let AI absorb L1 right away.",
   "landing.finalCta.button": "Start now",
   "landing.hero.ctaButton": "Free trial – beta version",
-  "landing.hero.subtitle": "Nexus Support Hub automates level 1 (L1) support and assists level 2 (L2) in French, English, and Arabic. Simple requests are handled by AI; complex tickets arrive summarized, categorized, and prioritized.\n\nSecure multi-tenant architecture, inspired by RGAA 4.1 and fully hosted on Supabase (RLS, PostgreSQL).",
-  "landing.hero.subtitlePrimary": "Nexus Support Hub automates level 1 (L1) support and assists level 2 (L2) in French, English, and Arabic.",
-  "landing.hero.subtitleSecondary": "Secure multi-tenant architecture inspired by RGAA 4.1, fully hosted on Supabase (RLS, PostgreSQL).",
-  "landing.hero.title": "Autonomous AI help desk for your L1 → L2 support",
+  "landing.hero.subtitle": "Nexus Support Hub is an intelligent service desk that automates your Level 1 support with AI and prepares your Level 2 teams with tickets already summarized, categorized, prioritized, and enriched by your company FAQ inside a private space dedicated to your organization.",
+  "landing.hero.subtitlePrimary": "Nexus Support Hub automates L1 with AI and delivers pre-qualified tickets to L2 teams.",
+  "landing.hero.subtitleSecondary": "A private space for your organization with secure access and practical accessibility.",
+  "landing.hero.title": "Fewer repetitive tickets. More time for real issues.",
   "landing.hero.betaBadge": "Private beta • Demo on request",
   "landing.hero.watchDemo": "Watch the demo",
   "landing.hero.infographieLink": "View the technical infographic",
@@ -1448,23 +1448,30 @@
     },
     "presentation": {
       "title": "Discover Nexus Support Hub",
-      "description": "Nexus Support Hub is an intelligent help desk that combines AI, ticket management, and a multi-company architecture. The goal: reduce support workload, structure requests, and offer accessible support for everyone.",
+      "description": "Nexus Support Hub is a help desk platform that blends AI, ticket management, and a knowledge base to relieve teams from Level 1 requests.",
+      "description2": "The AI assistant answers simple questions on its own using your company FAQ and procedures first. When a request is more complex, Nexus creates or updates a ticket, categorizes it, sets priority, and summarizes it before sending it to your agents.",
+      "description3": "Your organization gets a dedicated support space with its own users, rules, and knowledge base. Data stays isolated from other organizations and is protected by secure architecture (PostgreSQL + fine-grained server access control).",
+      "description4": "The interface is available in French, English, and Arabic and built with accessibility in mind (keyboard navigation, screen readers, reinforced contrast).",
       "forWho": {
         "title": "Who is Nexus for?",
-        "intro": "Nexus is designed for organizations that receive many recurring requests:",
+        "intro": "Nexus Support Hub is for teams flooded with recurring requests that want to stop answering the same L1 questions over and over.",
         "items": [
-          "SMBs / mid-market companies with IT or customer support teams,",
-          "Schools, training centers, administrations,",
-          "Organizations needing FR / EN / AR support without multiplying teams."
+          "SMBs / mid-market companies with IT or customer support",
+          "Schools, training centers, public administrations",
+          "Organizations operating in multiple languages (FR / EN / AR)"
         ]
       },
       "problems": {
-        "title": "Problems addressed today:",
+        "title": "What Nexus fixes in practice",
+        "intro": "Nexus was designed from real situations in IT and customer support teams:",
         "items": [
-          "Too many repetitive L1 tickets (access, passwords, simple procedures),",
-          "Agents overwhelmed by emails, little ticket structuring,",
-          "Need for an accessible tool (keyboard, screen readers, contrast) without building in-house."
-        ]
+          "Too many repetitive L1 tickets: access requests, password resets, simple procedures, FAQ questions.",
+          "Agents drowning in emails or forms with no clear ticket structure.",
+          "Time lost on qualification: every agent rereads the full history before acting.",
+          "Hard to keep a FAQ alive that users consult on their own.",
+          "Need for an accessible tool (keyboard, screen readers, contrast) following best practices without a heavy custom project."
+        ],
+        "conclusion": "With Nexus, AI consults your FAQ and internal content first, provides an immediate answer when possible, then creates a summarized, prioritized ticket when a human needs to step in."
       }
     },
     "impact": {
@@ -1488,17 +1495,17 @@
   },
   "infographie": {
     "header": {
-      "subtitle": "Autonomous AI help desk for your L1 → L2 support (Beta / Early Access)"
+      "subtitle": "Diagram of a ticket journey in Nexus Support Hub: from the AI answer at L1 to your agents handling it at L2."
     },
     "intro": {
       "title": "Nexus Support Hub at a glance",
-      "description": "Nexus automates level 1 (L1) support and assists level 2 (L2) in French, English, and Arabic. Simple requests are handled by AI; complex tickets arrive summarized, categorized, and prioritized. Secure multi-company architecture inspired by RGAA 4.1 and hosted on Supabase (RLS, PostgreSQL).",
+      "description": "The AI handles first contact, consults your FAQ and procedures, proposes an answer, or opens a ticket with a clear summary, category and priority, plus the history of exchanges and articles viewed. Your L2 team instantly gets the right context without wasting time qualifying the request.",
       "betaStatus": "🧪 Current status: Beta / Early Access – Production-ready MVP open to a few pilot companies.",
       "objective": "Goal: reduce support workload, structure requests, and deliver an accessible help desk without unverified numeric promises."
     },
     "features": {
       "title": "A complete solution for L1 → L2 support",
-      "subtitle": "Nexus Support Hub combines AI, ticketing, and multi-company architecture to give support teams a solid foundation, without inventing performance numbers.",
+      "subtitle": "From AI first response to qualified tickets for L2 agents, powered by your FAQ and internal procedures.",
       "chartTitle": "Key feature distribution (illustrative)",
       "chartDescription": "The platform balances request handling, AI, and analytics to deliver a complete solution. Values are indicative to show functional coverage.",
       "distributionLabel": "Feature distribution",
