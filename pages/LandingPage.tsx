@@ -50,13 +50,13 @@ const LandingPage: React.FC = () => {
             <h1 className="section-title">
               {t("landing.hero.title", {
                 defaultValue:
-                  "Help desk IA autonome pour votre support N1 → N2",
+                  "Moins de tickets répétitifs. Plus de temps pour les vrais problèmes.",
               })}
             </h1>
             <p className="section-subtitle">
               {t("landing.hero.subtitle", {
                 defaultValue:
-                  "Nexus Support Hub automatise le support de niveau 1 et assiste le niveau 2 en Français, Anglais et Arabe, avec une architecture multi-entreprise sécurisée.",
+                  "Nexus Support Hub est un centre d’assistance intelligent qui automatise votre support de Niveau 1 avec l’IA et prépare vos équipes de Niveau 2 avec des tickets déjà résumés, classés, priorisés et enrichis par votre propre FAQ d’entreprise, dans un espace privé dédié à votre organisation.",
               })}
             </p>
           </header>
@@ -106,7 +106,7 @@ const LandingPage: React.FC = () => {
           <p className="muted-copy max-w-3xl mx-auto">
             {t("landing.hero.previewCaption", {
               defaultValue:
-                "Conçu avec RGAA 4.1 en tête, hébergé sur Supabase (PostgreSQL + RLS) et prêt pour les équipes support N1→N2 multi-tenant.",
+                "Chaque entreprise dispose d’un espace Nexus séparé : vos données ne sont jamais partagées avec d’autres clients.",
             })}
           </p>
         </section>
@@ -122,12 +122,32 @@ const LandingPage: React.FC = () => {
                   "Un hub intelligent pour centraliser votre support",
               })}
             </h2>
-            <p className="muted-copy">
-              {t("landing.presentation.description", {
-                defaultValue:
-                  "Nexus Support Hub réunit tickets, IA, multi-entreprise, multi-langue et accessibilité dans une seule interface.",
-              })}
-            </p>
+            <div className="muted-copy space-y-3">
+              <p>
+                {t("landing.presentation.description", {
+                  defaultValue:
+                    "Nexus Support Hub est une plateforme de help desk qui combine IA, gestion de tickets et base de connaissance (FAQ) pour décharger vos équipes des demandes de Niveau 1.",
+                })}
+              </p>
+              <p>
+                {t("landing.presentation.description2", {
+                  defaultValue:
+                    "L’assistant IA répond aux questions simples en autonomie en s’appuyant d’abord sur la FAQ et les procédures de votre entreprise. Quand une demande devient plus complexe, Nexus crée ou met à jour un ticket, le catégorise, le priorise et le résume avant de l’envoyer à vos agents.",
+                })}
+              </p>
+              <p>
+                {t("landing.presentation.description3", {
+                  defaultValue:
+                    "Votre organisation dispose d’un espace d’assistance dédié, avec ses propres utilisateurs, ses propres règles et sa propre base de connaissance. Les données sont isolées des autres organisations et protégées par une architecture sécurisée (PostgreSQL + contrôle d’accès fin côté serveur).",
+                })}
+              </p>
+              <p>
+                {t("landing.presentation.description4", {
+                  defaultValue:
+                    "L’interface est disponible en Français, Anglais et Arabe et conçue avec une attention particulière portée à l’accessibilité (navigation clavier, lecteurs d’écran, contrastes renforcés).",
+                })}
+              </p>
+            </div>
 
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-slate-100 text-center">
@@ -135,23 +155,29 @@ const LandingPage: React.FC = () => {
                   defaultValue: "Pour qui ?",
                 })}
               </h3>
+              <p className="muted-copy text-center">
+                {t("landing.presentation.forWho.intro", {
+                  defaultValue:
+                    "Nexus Support Hub s’adresse aux équipes qui reçoivent beaucoup de demandes récurrentes et veulent arrêter de traiter les mêmes questions N1 encore et encore.",
+                })}
+              </p>
               <ul className="list-disc pl-5 text-sm text-slate-200 space-y-1 inline-block text-left mx-auto">
                 <li>
                   {t("landing.presentation.forWho.items.0", {
                     defaultValue:
-                      "ESN / MSP / infogérants qui gèrent plusieurs clients.",
+                      "PME / ETI avec support IT ou service client",
                   })}
                 </li>
                 <li>
                   {t("landing.presentation.forWho.items.1", {
                     defaultValue:
-                      "Équipes IT internes qui veulent automatiser le N1.",
+                      "Écoles, centres de formation, administrations",
                   })}
                 </li>
                 <li>
                   {t("landing.presentation.forWho.items.2", {
                     defaultValue:
-                      "Startups SaaS avec du support client multi-langue.",
+                      "Entreprises qui travaillent en plusieurs langues (FR / EN / AR)",
                   })}
                 </li>
               </ul>
@@ -160,29 +186,53 @@ const LandingPage: React.FC = () => {
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-slate-100 text-center">
                 {t("landing.presentation.problems.title", {
-                  defaultValue: "Les problèmes que Nexus adresse",
+                  defaultValue: "Ce que Nexus règle concrètement",
                 })}
               </h3>
+              <p className="muted-copy text-center">
+                {t("landing.presentation.problems.intro", {
+                  defaultValue:
+                    "Nexus a été pensé à partir de situations réelles rencontrées dans les services IT et support client :",
+                })}
+              </p>
               <ul className="list-disc pl-5 text-sm text-slate-200 space-y-1 inline-block text-left mx-auto">
                 <li>
                   {t("landing.presentation.problems.items.0", {
                     defaultValue:
-                      "Tickets N1 répétitifs qui consomment vos agents.",
+                      "Trop de tickets N1 répétitifs : demandes d’accès, réinitialisation de mot de passe, procédures simples, questions de FAQ.",
                   })}
                 </li>
                 <li>
                   {t("landing.presentation.problems.items.1", {
                     defaultValue:
-                      "Aucune vue consolidée sur la charge N1 / N2.",
+                      "Agents noyés dans les emails ou formulaires, sans structuration claire par tickets.",
                   })}
                 </li>
                 <li>
                   {t("landing.presentation.problems.items.2", {
                     defaultValue:
-                      "Processus d’onboarding support lents et non documentés.",
+                      "Perte de temps en qualification : chaque agent doit relire toute l’historique avant d’agir.",
+                  })}
+                </li>
+                <li>
+                  {t("landing.presentation.problems.items.3", {
+                    defaultValue:
+                      "Difficulté à faire vivre une FAQ que les utilisateurs consultent spontanément.",
+                  })}
+                </li>
+                <li>
+                  {t("landing.presentation.problems.items.4", {
+                    defaultValue:
+                      "Besoin d’un outil accessible (clavier, lecteurs d’écran, contrastes) conforme aux bonnes pratiques sans lancer un gros projet sur mesure.",
                   })}
                 </li>
               </ul>
+              <p className="muted-copy text-center">
+                {t("landing.presentation.problems.conclusion", {
+                  defaultValue:
+                    "Avec Nexus, l’IA interroge d’abord votre FAQ et vos contenus internes, propose une réponse immédiate quand c’est possible, puis crée un ticket déjà résumé et priorisé quand un humain doit intervenir.",
+                })}
+              </p>
             </div>
 
             <div className="lg:hidden rounded-2xl border border-slate-800/70 bg-slate-900/60 p-4 space-y-2">
@@ -275,7 +325,7 @@ const LandingPage: React.FC = () => {
             <p className="muted-copy">
               {t("infographie.subtitle", {
                 defaultValue:
-                  "Découvrez comment Nexus combine Supabase, RLS, multi-tenant, RGAA 4.1 et IA pour automatiser le support N1.",
+                  "Schéma illustratif du parcours d’un ticket dans Nexus Support Hub : de la réponse IA en N1 jusqu’au traitement par vos agents N2.",
               })}
             </p>
             <p className="text-sm text-slate-200">

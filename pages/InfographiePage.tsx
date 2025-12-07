@@ -12,7 +12,9 @@ const InfographiePage: React.FC = () => {
           <div className="text-center sm:text-left">
             <p className="section-eyebrow">Infographie</p>
             <h1 className="section-title">Nexus Support Hub</h1>
-            <p className="section-subtitle">Découvrez notre infographie en un coup d’œil.</p>
+            <p className="section-subtitle">
+              Schéma illustratif du parcours d’un ticket dans Nexus Support Hub : de la réponse IA en N1 jusqu’au traitement par vos agents N2.
+            </p>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <Link to="/landing">
