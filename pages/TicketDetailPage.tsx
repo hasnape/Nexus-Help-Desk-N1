@@ -866,7 +866,9 @@ const TicketDetailPage: React.FC = () => {
           <NexusAiHelpButton
             role={ticketRoleForPanel}
             ticket={ticket}
-            onInsertPrompt={(prompt) => setNewMessage((prev) => (prev ? `${prev}\n${prompt}` : prompt))}
+            onInsertPrompt={(prompt) =>
+              setNewMessage((prev) => (prev ? `${prev}\n\n${prompt}` : prompt))
+            }
           />
       </div>
     </div>
