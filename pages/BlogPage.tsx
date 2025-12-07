@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import MarketingLayout from "../components/MarketingLayout";
 import { blogPosts, type BlogPost } from "../content/blogPosts";
@@ -18,19 +18,16 @@ const BlogPage: React.FC = () => {
     document.title = "Blog – Nexus Support Hub";
   }, []);
 
-  const adminPreview = useMemo(
-    () =>
-      generatedSnippet ||
-      `{
-  slug: "nexus-ai-redefinit-le-support",
-  title: "Nexus Support Hub : l’Intelligence Artificielle Nexus redéfinit l’efficacité du support",
-  city: "Casablanca",
-  date: "5 avril 2025",
-  excerpt: "Avec Nexus AI...",
-  content: `Texte complet de l’article...`
-},`,
-    [generatedSnippet]
-  );
+  const defaultSnippet = `{
+  slug: "nouvel-article-nexus",
+  title: "Titre de l’article",
+  city: "Paris",
+  date: "1 janvier 2025",
+  excerpt: "Résumé court de l’article",
+  content: \`Texte complet de l’article...\`,
+},`;
+
+  const adminPreview = generatedSnippet || defaultSnippet;
 
   const handleChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -48,7 +45,7 @@ const BlogPage: React.FC = () => {
   city: "${city}",
   date: "${date}",
   excerpt: "${excerpt}",
-  content: `${escapedContent}`
+  content: \`${escapedContent}\`,
 },`;
     setGeneratedSnippet(snippet);
   };
@@ -152,7 +149,7 @@ const BlogPage: React.FC = () => {
                   value={formData.city}
                   onChange={handleChange}
                   className="w-full rounded-lg border border-slate-700 bg-slate-800 text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  placeholder="Casablanca"
+                  placeholder="Paris, Lyon, Alger…"
                 />
               </div>
               <div>
