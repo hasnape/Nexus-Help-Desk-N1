@@ -59,3 +59,46 @@ body {
   color: #ffffff;
 }
 
+
+/* === Text color normalization: no more grey text === */
+
+/* 1) Sur les fonds sombres : forcer les textes "gris" à s’afficher en blanc */
+.text-slate-400,
+.text-slate-500,
+.text-slate-600,
+.text-gray-400,
+.text-gray-500,
+.text-gray-600,
+.text-neutral-400,
+.text-neutral-500,
+.text-neutral-600 {
+  color: #ffffff !important;
+}
+
+/* 2) Sur les cartes à fond clair (blanc / très clair) : texte par défaut en noir */
+.bg-white,
+.bg-slate-50,
+.bg-neutral-50,
+.bg-zinc-50 {
+  color: #000000;
+}
+
+/* 3) Et si une classe "gris" est utilisée à l’intérieur d’une carte blanche,
+      on force aussi le texte en noir pour éviter le blanc sur blanc */
+.bg-white .text-slate-400,
+.bg-white .text-slate-500,
+.bg-white .text-slate-600,
+.bg-white .text-gray-400,
+.bg-white .text-gray-500,
+.bg-white .text-gray-600,
+.bg-white .text-neutral-400,
+.bg-white .text-neutral-500,
+.bg-white .text-neutral-600,
+.bg-slate-50 .text-slate-400,
+.bg-slate-50 .text-slate-500,
+.bg-slate-50 .text-slate-600,
+.bg-neutral-50 .text-neutral-400,
+.bg-neutral-50 .text-neutral-500,
+.bg-neutral-50 .text-neutral-600 {
+  color: #000000 !important;
+}
