@@ -43,7 +43,7 @@ const LandingPage: React.FC = () => {
     <>
       <MarketingLayout>
         {/* ============================================
-            HERO SECTION - Optimisé avec image redimensionnée
+            HERO SECTION - Avec boutons CTA
             ============================================ */}
         <section className="space-y-8 text-center -mt-8 sm:-mt-10 lg:-mt-12 pt-[3vh] sm:pt-[3vh] lg:pt-[2vh]">
           <header className="space-y-3 max-w-3xl mx-auto">
@@ -115,20 +115,22 @@ const LandingPage: React.FC = () => {
             })}
           </p>
 
-          {/* Hero Image - Responsive redimensionnement */}
-          <div className="hidden md:flex justify-center items-center mt-12">
-            <img
-              src="/assets/nexus/nexus_hero_v2.png"
-              alt="Interface Nexus Support Hub avec workflow d'escalade N1 IA vers N2 agents humains"
-              className="w-full max-w-2xl h-auto rounded-2xl shadow-2xl border border-slate-800/70 object-cover"
-              loading="lazy"
-              decoding="async"
-            />
+          {/* Hero Image - Redimensionnée comme YouTube (max-w-4xl, aspect-video) */}
+          <div className="hidden md:flex justify-center items-center mt-12 w-full">
+            <div className="w-full max-w-4xl aspect-video rounded-2xl overflow-hidden border border-slate-800/70 shadow-2xl bg-slate-900/60">
+              <img
+                src="https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/bf87eeae-b326-4bf4-a1f7-d414d772bb9b"
+                alt="Interface Nexus Support Hub avec workflow d'escalade N1 IA vers N2 agents humains"
+                className="w-full h-full object-cover"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
           </div>
         </section>
 
         {/* ============================================
-            PRESENTATION SECTION - Avec images optimisées
+            PRESENTATION SECTION - Réorganisée avec images
             ============================================ */}
         <section
           id="presentation"
@@ -168,6 +170,7 @@ const LandingPage: React.FC = () => {
               </p>
             </div>
 
+            {/* Pour qui ? */}
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-slate-100 text-center">
                 {t("landing.presentation.forWho.title", {
@@ -202,6 +205,7 @@ const LandingPage: React.FC = () => {
               </ul>
             </div>
 
+            {/* Ce que Nexus règle */}
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-slate-100 text-center">
                 {t("landing.presentation.problems.title", {
@@ -274,6 +278,7 @@ const LandingPage: React.FC = () => {
             </div>
           </div>
 
+          {/* Colonne droite - Vidéo et images */}
           <div className="surface-card-soft space-y-4">
             {/* Mobile video placeholder */}
             <div className="lg:hidden space-y-3">
@@ -314,8 +319,8 @@ const LandingPage: React.FC = () => {
               </a>
             </div>
 
-            {/* Desktop YouTube iframe */}
-            <div className="hidden lg:block aspect-video rounded-xl overflow-hidden border border-slate-600/60 bg-black">
+            {/* Desktop YouTube iframe - Taille YouTube standard */}
+            <div className="hidden lg:block w-full aspect-video rounded-xl overflow-hidden border border-slate-600/60 bg-black">
               <iframe
                 src="https://www.youtube.com/embed/OnfUuaRlukQ"
                 title="Démonstration vidéo de Nexus Support Hub"
@@ -327,12 +332,23 @@ const LandingPage: React.FC = () => {
               />
             </div>
 
-            {/* Dashboard Image - Responsive sizing */}
-            <div className="hidden md:block rounded-2xl overflow-hidden border border-slate-700/70 bg-slate-900/60">
+            {/* Dashboard Image - Responsive comme YouTube */}
+            <div className="hidden md:block w-full aspect-video rounded-xl overflow-hidden border border-slate-700/70 bg-slate-900/60">
               <img
-                src="/assets/nexus/nexus_discover_v2.png"
-                alt="Tableau de bord Nexus Support Hub: gestion des tickets avec priorités, langues multilingues FR/EN/AR, statuts N1/N2 et métriques"
-                className="w-full h-auto object-cover max-h-96"
+                src="https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/bf87eeae-b326-4bf4-a1f7-d414d772bb9b"
+                alt="Tableau de bord Nexus Support Hub: gestion des tickets avec priorités et métriques"
+                className="w-full h-full object-cover"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+
+            {/* Discover Nexus Image */}
+            <div className="hidden lg:block w-full aspect-video rounded-xl overflow-hidden border border-slate-700/70 bg-slate-900/60">
+              <img
+                src="https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/3ad3d90f-3645-4590-9368-37851acaadce"
+                alt="Découvrir Nexus Support Hub - Interface avancée"
+                className="w-full h-full object-cover"
                 loading="lazy"
                 decoding="async"
               />
@@ -372,15 +388,19 @@ const LandingPage: React.FC = () => {
           </div>
 
           <div className="grid gap-4 md:grid-cols-3">
-            {blogHighlights.map((article) => (
+            {blogHighlights.map((article, index) => (
               <article
                 key={article.slug}
-                className="rounded-2xl border border-indigo-500/25 bg-slate-900/60 shadow-lg p-5 space-y-3 h-full flex flex-col overflow-hidden hover:shadow-xl transition-shadow"
+                className="rounded-2xl border border-indigo-500/25 bg-slate-900/60 shadow-lg overflow-hidden h-full flex flex-col hover:shadow-xl transition-shadow"
               >
-                {/* Blog Image - Responsive */}
-                <div className="hidden sm:block -mx-5 -mt-5 mb-3 h-48 bg-gradient-to-br from-slate-800 to-slate-900 overflow-hidden flex items-center justify-center">
+                {/* Blog Image - Aspect ratio 16:9 comme YouTube */}
+                <div className="w-full aspect-video bg-gradient-to-br from-slate-800 to-slate-900 overflow-hidden flex items-center justify-center">
                   <img
-                    src="/assets/nexus/nexus_case_study_v2.png"
+                    src={[
+                      "https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/bf87eeae-b326-4bf4-a1f7-d414d772bb9b",
+                      "https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/3a2a91d9-3668-4e97-8da4-d0e18635ac27",
+                      "https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/41ae2fe7-4ecd-4be8-9dee-ca77984b347f",
+                    ][index]}
                     alt={`Illustration cas d'étude: ${article.title}`}
                     className="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity"
                     loading="lazy"
@@ -388,38 +408,41 @@ const LandingPage: React.FC = () => {
                   />
                 </div>
 
-                <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wide text-indigo-100">
-                  <span className="inline-flex items-center gap-2">
-                    <span className="inline-flex items-center rounded-full bg-indigo-500/20 text-indigo-100 px-3 py-1">
-                      {article.city}
+                {/* Article Content */}
+                <div className="p-5 space-y-3 flex-1 flex flex-col">
+                  <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wide text-indigo-100">
+                    <span className="inline-flex items-center gap-2">
+                      <span className="inline-flex items-center rounded-full bg-indigo-500/20 text-indigo-100 px-3 py-1">
+                        {article.city}
+                      </span>
+                      <span className="text-slate-300">{article.date}</span>
                     </span>
-                    <span className="text-slate-300">{article.date}</span>
-                  </span>
-                  <span className="text-slate-300">Blog Nexus</span>
+                    <span className="text-slate-300">Blog Nexus</span>
+                  </div>
+                  <h3 className="text-lg font-semibold text-white leading-tight">
+                    {article.title}
+                  </h3>
+                  <p className="text-slate-300 text-sm leading-relaxed flex-1">
+                    {article.excerpt}
+                  </p>
+                  <a
+                    href="#/blog"
+                    className="inline-flex items-center gap-2 text-sm font-semibold text-indigo-200 hover:text-white transition-colors"
+                    aria-label={`Lire l'article "${article.title}" sur le blog`}
+                  >
+                    Lire sur le blog
+                    <span aria-hidden className="text-indigo-100">
+                      →
+                    </span>
+                  </a>
                 </div>
-                <h3 className="text-lg font-semibold text-white leading-tight">
-                  {article.title}
-                </h3>
-                <p className="text-slate-300 text-sm leading-relaxed flex-1">
-                  {article.excerpt}
-                </p>
-                <a
-                  href="#/blog"
-                  className="inline-flex items-center gap-2 text-sm font-semibold text-indigo-200 hover:text-white transition-colors"
-                  aria-label={`Lire l'article "${article.title}" sur le blog`}
-                >
-                  Lire sur le blog
-                  <span aria-hidden className="text-indigo-100">
-                    →
-                  </span>
-                </a>
               </article>
             ))}
           </div>
         </section>
 
         {/* ============================================
-            INFOGRAPHIE SECTION - Avec image HD redimensionnée
+            INFOGRAPHIE SECTION - Avec image HD
             ============================================ */}
         <section id="infographie" className="section-stack">
           <div className="surface-card space-y-3 max-w-3xl mx-auto text-center">
@@ -431,7 +454,7 @@ const LandingPage: React.FC = () => {
             <p className="muted-copy">
               {t("infographie.subtitle", {
                 defaultValue:
-                  "Schéma illustratif du parcours d'un ticket dans  Nexus Support Hub : de la réponse IA en N1 jusqu'au traitement par vos agents N2.",
+                  "Schéma illustratif du parcours d'un ticket dans Nexus Support Hub : de la réponse IA en N1 jusqu'au traitement par vos agents N2.",
               })}
             </p>
             <p className="text-sm text-slate-200">
@@ -455,15 +478,17 @@ const LandingPage: React.FC = () => {
                 <InfographieNexus />
               </div>
 
-              {/* Desktop: HD Image - Properly sized */}
-              <div className="hidden lg:block">
-                <img
-                  src="/assets/nexus/nexus_schema_hd_v2.png"
-                  alt="Schéma complet du workflow Nexus Support Hub: soumission ticket → traitement IA N1 → escalade intelligente → traitement N2 agents humains → résolution et traçabilité avec support multilingue FR/EN/AR"
-                  className="w-full h-auto rounded-2xl border border-slate-700/70 shadow-lg object-cover max-h-[600px]"
-                  loading="lazy"
-                  decoding="async"
-                />
+              {/* Desktop: HD Image - Redimensionnée comme YouTube */}
+              <div className="hidden lg:block w-full rounded-2xl overflow-hidden border border-slate-700/70 shadow-lg bg-slate-900/60">
+                <div className="aspect-video bg-gradient-to-br from-slate-800 to-slate-900 overflow-hidden flex items-center justify-center">
+                  <img
+                    src="https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/bf87eeae-b326-4bf4-a1f7-d414d772bb9b"
+                    alt="Schéma complet du workflow Nexus Support Hub: soumission ticket → traitement IA N1 → escalade intelligente → traitement N2 agents humains → résolution et traçabilité"
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
               </div>
             </div>
           </div>
