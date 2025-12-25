@@ -1,3 +1,4 @@
+// components/RoleSelector.tsx
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { UserRole } from "../types";
@@ -11,21 +12,27 @@ interface RoleSelectorProps {
 const RoleSelector: React.FC<RoleSelectorProps> = ({ value, onChange, disabled }) => {
   const { t } = useTranslation();
 
-  const roles: { value: UserRole; labelKey: string; descriptionKey: string }[] = [
+  const roles: { value: UserRole; label: string; description: string }[] = [
     {
       value: UserRole.MANAGER,
-      labelKey: "roles.manager.label",
-      descriptionKey: "roles.manager.description",
+      label: t("roleHelp.manager.title", { defaultValue: "Manager" }),
+      description: t("roleHelp.manager.description", {
+        defaultValue: "Crée l’espace entreprise et gère les paramètres.",
+      }),
     },
     {
       value: UserRole.AGENT,
-      labelKey: "roles.agent.label",
-      descriptionKey: "roles.agent.description",
+      label: t("roleHelp.agent.title", { defaultValue: "Agent" }),
+      description: t("roleHelp.agent.description", {
+        defaultValue: "Traite les tickets et assiste les clients.",
+      }),
     },
     {
-      value: UserRole.END_USER,
-      labelKey: "roles.endUser.label",
-      descriptionKey: "roles.endUser.description",
+      value: UserRole.USER, // <--- même valeur que NewUserPage
+      label: t("roleHelp.user.title", { defaultValue: "Utilisateur" }),
+      description: t("roleHelp.user.description", {
+        defaultValue: "Crée des tickets et suit les réponses.",
+      }),
     },
   ];
 
@@ -56,18 +63,14 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ value, onChange, disabled }
               } ${disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
             >
               <div className="flex items-center justify-between">
-                <span className="font-semibold text-sm">
-                  {t(role.labelKey, { defaultValue: role.value })}
-                </span>
+                <span className="font-semibold text-sm">{role.label}</span>
                 {selected && (
                   <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary text-white">
                     ✓
                   </span>
                 )}
               </div>
-              <p className="mt-1 text-xs text-slate-300">
-                {t(role.descriptionKey, { defaultValue: "" })}
-              </p>
+              <p className="mt-1 text-xs text-slate-300">{role.description}</p>
             </button>
           );
         })}
