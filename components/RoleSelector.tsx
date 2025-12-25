@@ -1,7 +1,6 @@
-// src/components/
 import React from "react";
-import { UserRole } from "../types";
 import { useTranslation } from "react-i18next";
+import { UserRole } from "../types";
 
 interface RoleSelectorProps {
   value: UserRole | null;
@@ -13,9 +12,21 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ value, onChange, disabled }
   const { t } = useTranslation();
 
   const roles: { value: UserRole; labelKey: string; descriptionKey: string }[] = [
-    { value: UserRole.MANAGER, labelKey: "roles.manager.label", descriptionKey: "roles.manager.description" },
-    { value: UserRole.AGENT, labelKey: "roles.agent.label", descriptionKey: "roles.agent.description" },
-    { value: UserRole.END_USER, labelKey: "roles.endUser.label", descriptionKey: "roles.endUser.description" },
+    {
+      value: UserRole.MANAGER,
+      labelKey: "roles.manager.label",
+      descriptionKey: "roles.manager.description",
+    },
+    {
+      value: UserRole.AGENT,
+      labelKey: "roles.agent.label",
+      descriptionKey: "roles.agent.description",
+    },
+    {
+      value: UserRole.END_USER,
+      labelKey: "roles.endUser.label",
+      descriptionKey: "roles.endUser.description",
+    },
   ];
 
   return (
