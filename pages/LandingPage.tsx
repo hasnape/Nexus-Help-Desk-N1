@@ -42,91 +42,94 @@ const LandingPage: React.FC = () => {
   return (
     <>
       <MarketingLayout>
-        {/* HERO SECTION */}
-        <section className="grid gap-10 lg:grid-cols-2 items-center -mt-8 sm:-mt-10 lg:-mt-12 pt-[3vh] sm:pt-[3vh] lg:pt-[2vh]">
-          <div className="space-y-8 text-center lg:text-left">
-            <header className="space-y-3 max-w-3xl">
-              <p className="section-eyebrow">
-                {t("landing.hero.badge", {
-                  defaultValue: "Help desk IA autonome N1 → N2",
-                })}
-              </p>
-              <h1 className="section-title">
-                {t("landing.hero.title", {
-                  defaultValue:
-                    "Moins de tickets répétitifs. Plus de temps pour les vrais problèmes.",
-                })}
-              </h1>
-              <p className="section-subtitle">
-                {t("landing.hero.subtitle", {
-                  defaultValue:
-                    "Nexus Support Hub est un centre d'assistance intelligent qui automatise votre support de Niveau 1 avec l'IA et prépare vos équipes de Niveau 2 avec des tickets déjà résumés, classés, priorisés et enrichis par votre propre FAQ d'entreprise, dans un espace privé dédié à votre organisation.",
-                })}
-              </p>
-            </header>
-
-            <div
-              className="surface-card flex flex-col items-center gap-4 lg:flex-row lg:justify-start"
-              role="group"
-              aria-label={t("landing.hero.actionsAria", {
-                defaultValue: "Actions principales de la page d'accueil",
-              })}
-            >
-              <Link to="/signup" className="w-full lg:w-auto">
-                <Button size="lg" className="w-full lg:w-auto px-6 py-3">
-                  {primaryCta}
-                </Button>
-              </Link>
-              <a
-                href="https://youtu.be/OnfUuaRlukQ"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center rounded-xl border border-slate-500/60 px-5 py-2.5 text-sm font-semibold text-slate-50 bg-slate-900/60 hover:bg-slate-800/80 transition"
-                aria-label="Voir la démo vidéo Nexus sur YouTube"
-              >
-                <svg
-                  className="w-5 h-5 me-2"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-                </svg>
-                {t("landing.hero.watchDemo", {
-                  defaultValue: "Voir la démo vidéo",
-                })}
-              </a>
-              <Link to="/infographie" className="w-full lg:w-auto">
-                <Button
-                  variant="secondary"
-                  size="lg"
-                  className="w-full lg:w-auto px-6 py-3"
-                >
-                  {secondaryCta}
-                </Button>
-              </Link>
-            </div>
-
-            <p className="muted-copy max-w-3xl">
-              {t("landing.hero.previewCaption", {
-                defaultValue:
-                  "Chaque entreprise dispose d'un espace Nexus séparé : vos données ne sont jamais partagées avec d'autres clients.",
+        {/* ============================================
+            HERO SECTION - Optimisé avec image redimensionnée
+            ============================================ */}
+        <section className="space-y-8 text-center -mt-8 sm:-mt-10 lg:-mt-12 pt-[3vh] sm:pt-[3vh] lg:pt-[2vh]">
+          <header className="space-y-3 max-w-3xl mx-auto">
+            <p className="section-eyebrow">
+              {t("landing.hero.badge", {
+                defaultValue: "Help desk IA autonome N1 → N2",
               })}
             </p>
+            <h1 className="section-title">
+              {t("landing.hero.title", {
+                defaultValue:
+                  "Moins de tickets répétitifs. Plus de temps pour les vrais problèmes.",
+              })}
+            </h1>
+            <p className="section-subtitle">
+              {t("landing.hero.subtitle", {
+                defaultValue:
+                  "Nexus Support Hub est un centre d'assistance intelligent qui automatise votre support de Niveau 1 avec l'IA et prépare vos équipes de Niveau 2 avec des tickets déjà résumés, classés, priorisés et enrichis par votre propre FAQ d'entreprise, dans un espace privé dédié à votre organisation.",
+              })}
+            </p>
+          </header>
+
+          <div
+            className="surface-card flex flex-col items-center gap-4 sm:flex-row sm:justify-center"
+            role="group"
+            aria-label={t("landing.hero.actionsAria", {
+              defaultValue: "Actions principales de la page d'accueil",
+            })}
+          >
+            <Link to="/signup" className="w-full sm:w-auto">
+              <Button size="lg" className="w-full sm:w-auto px-6 py-3">
+                {primaryCta}
+              </Button>
+            </Link>
+            <a
+              href="https://youtu.be/OnfUuaRlukQ"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center rounded-xl border border-slate-500/60 px-5 py-2.5 text-sm font-semibold text-slate-50 bg-slate-900/60 hover:bg-slate-800/80 transition"
+              aria-label="Voir la démo vidéo Nexus sur YouTube"
+            >
+              <svg
+                className="w-5 h-5 me-2"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+              </svg>
+              {t("landing.hero.watchDemo", {
+                defaultValue: "Voir la démo vidéo",
+              })}
+            </a>
+            <Link to="/infographie" className="w-full sm:w-auto">
+              <Button
+                variant="secondary"
+                size="lg"
+                className="w-full sm:w-auto px-6 py-3"
+              >
+                {secondaryCta}
+              </Button>
+            </Link>
           </div>
 
-          <div className="hidden lg:flex justify-center items-center">
+          <p className="muted-copy max-w-3xl mx-auto">
+            {t("landing.hero.previewCaption", {
+              defaultValue:
+                "Chaque entreprise dispose d'un espace Nexus séparé : vos données ne sont jamais partagées avec d'autres clients.",
+            })}
+          </p>
+
+          {/* Hero Image - Responsive redimensionnement */}
+          <div className="hidden md:flex justify-center items-center mt-12">
             <img
               src="/assets/nexus/nexus_hero_v2.png"
               alt="Interface Nexus Support Hub avec workflow d'escalade N1 IA vers N2 agents humains"
-              className="max-w-[520px] w-full rounded-2xl shadow-xl border border-slate-800/70 object-cover"
+              className="w-full max-w-2xl h-auto rounded-2xl shadow-2xl border border-slate-800/70 object-cover"
               loading="lazy"
               decoding="async"
             />
           </div>
         </section>
 
-        {/* PRESENTATION SECTION */}
+        {/* ============================================
+            PRESENTATION SECTION - Avec images optimisées
+            ============================================ */}
         <section
           id="presentation"
           className="grid gap-8 lg:grid-cols-[minmax(0,1.3fr),minmax(0,1fr)] items-start"
@@ -271,7 +274,8 @@ const LandingPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="surface-card-soft space-y-6">
+          <div className="surface-card-soft space-y-4">
+            {/* Mobile video placeholder */}
             <div className="lg:hidden space-y-3">
               <a
                 href="https://youtu.be/OnfUuaRlukQ"
@@ -310,6 +314,7 @@ const LandingPage: React.FC = () => {
               </a>
             </div>
 
+            {/* Desktop YouTube iframe */}
             <div className="hidden lg:block aspect-video rounded-xl overflow-hidden border border-slate-600/60 bg-black">
               <iframe
                 src="https://www.youtube.com/embed/OnfUuaRlukQ"
@@ -322,11 +327,12 @@ const LandingPage: React.FC = () => {
               />
             </div>
 
-            <div className="hidden md:block rounded-2xl overflow-hidden border border-slate-700/70">
+            {/* Dashboard Image - Responsive sizing */}
+            <div className="hidden md:block rounded-2xl overflow-hidden border border-slate-700/70 bg-slate-900/60">
               <img
                 src="/assets/nexus/nexus_discover_v2.png"
                 alt="Tableau de bord Nexus Support Hub: gestion des tickets avec priorités, langues multilingues FR/EN/AR, statuts N1/N2 et métriques"
-                className="w-full h-auto object-cover"
+                className="w-full h-auto object-cover max-h-96"
                 loading="lazy"
                 decoding="async"
               />
@@ -348,7 +354,9 @@ const LandingPage: React.FC = () => {
           </div>
         </section>
 
-        {/* BLOG HIGHLIGHTS SECTION */}
+        {/* ============================================
+            BLOG HIGHLIGHTS SECTION - Avec images redimensionnées
+            ============================================ */}
         <section className="section-stack" aria-labelledby="blog-highlights">
           <div className="surface-card space-y-3 max-w-3xl mx-auto text-center">
             <p className="section-eyebrow" id="blog-highlights">
@@ -369,11 +377,12 @@ const LandingPage: React.FC = () => {
                 key={article.slug}
                 className="rounded-2xl border border-indigo-500/25 bg-slate-900/60 shadow-lg p-5 space-y-3 h-full flex flex-col overflow-hidden hover:shadow-xl transition-shadow"
               >
-                <div className="hidden sm:block -mx-5 -mt-5 mb-3 h-40 bg-gradient-to-br from-slate-800 to-slate-900 overflow-hidden flex items-center justify-center">
+                {/* Blog Image - Responsive */}
+                <div className="hidden sm:block -mx-5 -mt-5 mb-3 h-48 bg-gradient-to-br from-slate-800 to-slate-900 overflow-hidden flex items-center justify-center">
                   <img
                     src="/assets/nexus/nexus_case_study_v2.png"
                     alt={`Illustration cas d'étude: ${article.title}`}
-                    className="w-full h-full object-cover opacity-85 hover:opacity-100 transition-opacity"
+                    className="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity"
                     loading="lazy"
                     decoding="async"
                   />
@@ -409,7 +418,9 @@ const LandingPage: React.FC = () => {
           </div>
         </section>
 
-        {/* INFOGRAPHIE SECTION */}
+        {/* ============================================
+            INFOGRAPHIE SECTION - Avec image HD redimensionnée
+            ============================================ */}
         <section id="infographie" className="section-stack">
           <div className="surface-card space-y-3 max-w-3xl mx-auto text-center">
             <h2 className="section-title text-2xl text-center">
@@ -439,15 +450,17 @@ const LandingPage: React.FC = () => {
 
           <div className="surface-card-soft">
             <div className="w-full max-w-5xl mx-auto">
+              {/* Mobile/Tablet: SVG Component */}
               <div className="lg:hidden">
                 <InfographieNexus />
               </div>
 
+              {/* Desktop: HD Image - Properly sized */}
               <div className="hidden lg:block">
                 <img
                   src="/assets/nexus/nexus_schema_hd_v2.png"
                   alt="Schéma complet du workflow Nexus Support Hub: soumission ticket → traitement IA N1 → escalade intelligente → traitement N2 agents humains → résolution et traçabilité avec support multilingue FR/EN/AR"
-                  className="w-full h-auto rounded-2xl border border-slate-700/70 shadow-lg object-cover"
+                  className="w-full h-auto rounded-2xl border border-slate-700/70 shadow-lg object-cover max-h-[600px]"
                   loading="lazy"
                   decoding="async"
                 />
