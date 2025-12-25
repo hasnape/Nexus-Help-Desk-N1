@@ -431,7 +431,7 @@ const LandingPage: React.FC = () => {
             <p className="muted-copy">
               {t("infographie.subtitle", {
                 defaultValue:
-                  "Schéma illustratif du parcours d'un ticket dans Nexus Support Hub : de la réponse IA en N1 jusqu'au traitement par vos agents N2.",
+                  "Schéma illustratif du parcours d'un ticket dans  Nexus Support Hub : de la réponse IA en N1 jusqu'au traitement par vos agents N2.",
               })}
             </p>
             <p className="text-sm text-slate-200">
