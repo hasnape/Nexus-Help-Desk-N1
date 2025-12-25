@@ -21,7 +21,7 @@ const LandingPage: React.FC = () => {
 
   const secondaryCta = t("landing.hero.secondaryCta", {
     defaultValue: t("landing.hero.infographieLink", {
-      defaultValue: "Voir l'infographie technique",
+      defaultValue: "Voir l’infographie technique",
     }),
   });
 
@@ -41,10 +41,8 @@ const LandingPage: React.FC = () => {
 
   return (
     <>
+      {/* Navbar and Footer are already handled by the global Layout wrapper */}
       <MarketingLayout>
-        {/* ============================================
-            HERO SECTION - Avec boutons CTA
-            ============================================ */}
         <section className="space-y-8 text-center -mt-8 sm:-mt-10 lg:-mt-12 pt-[3vh] sm:pt-[3vh] lg:pt-[2vh]">
           <header className="space-y-3 max-w-3xl mx-auto">
             <p className="section-eyebrow">
@@ -61,7 +59,7 @@ const LandingPage: React.FC = () => {
             <p className="section-subtitle">
               {t("landing.hero.subtitle", {
                 defaultValue:
-                  "Nexus Support Hub est un centre d'assistance intelligent qui automatise votre support de Niveau 1 avec l'IA et prépare vos équipes de Niveau 2 avec des tickets déjà résumés, classés, priorisés et enrichis par votre propre FAQ d'entreprise, dans un espace privé dédié à votre organisation.",
+                  "Nexus Support Hub est un centre d’assistance intelligent qui automatise votre support de Niveau 1 avec l’IA et prépare vos équipes de Niveau 2 avec des tickets déjà résumés, classés, priorisés et enrichis par votre propre FAQ d’entreprise, dans un espace privé dédié à votre organisation.",
               })}
             </p>
           </header>
@@ -70,7 +68,7 @@ const LandingPage: React.FC = () => {
             className="surface-card flex flex-col items-center gap-4 sm:flex-row sm:justify-center"
             role="group"
             aria-label={t("landing.hero.actionsAria", {
-              defaultValue: "Actions principales de la page d'accueil",
+              defaultValue: "Actions principales de la page d’accueil",
             })}
           >
             <Link to="/signup" className="w-full sm:w-auto">
@@ -111,27 +109,11 @@ const LandingPage: React.FC = () => {
           <p className="muted-copy max-w-3xl mx-auto">
             {t("landing.hero.previewCaption", {
               defaultValue:
-                "Chaque entreprise dispose d'un espace Nexus séparé : vos données ne sont jamais partagées avec d'autres clients.",
+                "Chaque entreprise dispose d’un espace Nexus séparé : vos données ne sont jamais partagées avec d’autres clients.",
             })}
           </p>
-
-          {/* Hero Image - Redimensionnée comme YouTube (max-w-4xl, aspect-video) */}
-          <div className="hidden md:flex justify-center items-center mt-12 w-full">
-            <div className="w-full max-w-4xl aspect-video rounded-2xl overflow-hidden border border-slate-800/70 shadow-2xl bg-slate-900/60">
-              <img
-                src="https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/bf87eeae-b326-4bf4-a1f7-d414d772bb9b"
-                alt="Interface Nexus Support Hub avec workflow d'escalade N1 IA vers N2 agents humains"
-                className="w-full h-full object-cover"
-                loading="lazy"
-                decoding="async"
-              />
-            </div>
-          </div>
         </section>
 
-        {/* ============================================
-            PRESENTATION SECTION - Réorganisée avec images
-            ============================================ */}
         <section
           id="presentation"
           className="grid gap-8 lg:grid-cols-[minmax(0,1.3fr),minmax(0,1fr)] items-start"
@@ -153,24 +135,23 @@ const LandingPage: React.FC = () => {
               <p>
                 {t("landing.presentation.description2", {
                   defaultValue:
-                    "L'assistant IA répond aux questions simples en autonomie en s'appuyant d'abord sur la FAQ et les procédures de votre entreprise. Quand une demande devient plus complexe, Nexus crée ou met à jour un ticket, le catégorise, le priorise et le résume avant de l'envoyer à vos agents.",
+                    "L’assistant IA répond aux questions simples en autonomie en s’appuyant d’abord sur la FAQ et les procédures de votre entreprise. Quand une demande devient plus complexe, Nexus crée ou met à jour un ticket, le catégorise, le priorise et le résume avant de l’envoyer à vos agents.",
                 })}
               </p>
               <p>
                 {t("landing.presentation.description3", {
                   defaultValue:
-                    "Votre organisation dispose d'un espace d'assistance dédié, avec ses propres utilisateurs, ses propres règles et sa propre base de connaissance. Les données sont isolées des autres organisations et protégées par une architecture sécurisée (PostgreSQL + contrôle d'accès fin côté serveur).",
+                    "Votre organisation dispose d’un espace d’assistance dédié, avec ses propres utilisateurs, ses propres règles et sa propre base de connaissance. Les données sont isolées des autres organisations et protégées par une architecture sécurisée (PostgreSQL + contrôle d’accès fin côté serveur).",
                 })}
               </p>
               <p>
                 {t("landing.presentation.description4", {
                   defaultValue:
-                    "L'interface est disponible en Français, Anglais et Arabe et conçue avec une attention particulière portée à l'accessibilité (navigation clavier, lecteurs d'écran, contrastes renforcés).",
+                    "L’interface est disponible en Français, Anglais et Arabe et conçue avec une attention particulière portée à l’accessibilité (navigation clavier, lecteurs d’écran, contrastes renforcés).",
                 })}
               </p>
             </div>
 
-            {/* Pour qui ? */}
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-slate-100 text-center">
                 {t("landing.presentation.forWho.title", {
@@ -180,7 +161,7 @@ const LandingPage: React.FC = () => {
               <p className="muted-copy text-center">
                 {t("landing.presentation.forWho.intro", {
                   defaultValue:
-                    "Nexus Support Hub s'adresse aux équipes qui reçoivent beaucoup de demandes récurrentes et veulent arrêter de traiter les mêmes questions N1 encore et encore.",
+                    "Nexus Support Hub s’adresse aux équipes qui reçoivent beaucoup de demandes récurrentes et veulent arrêter de traiter les mêmes questions N1 encore et encore.",
                 })}
               </p>
               <ul className="list-disc pl-5 text-sm text-slate-200 space-y-1 inline-block text-left mx-auto">
@@ -205,7 +186,6 @@ const LandingPage: React.FC = () => {
               </ul>
             </div>
 
-            {/* Ce que Nexus règle */}
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-slate-100 text-center">
                 {t("landing.presentation.problems.title", {
@@ -222,7 +202,7 @@ const LandingPage: React.FC = () => {
                 <li>
                   {t("landing.presentation.problems.items.0", {
                     defaultValue:
-                      "Trop de tickets N1 répétitifs : demandes d'accès, réinitialisation de mot de passe, procédures simples, questions de FAQ.",
+                      "Trop de tickets N1 répétitifs : demandes d’accès, réinitialisation de mot de passe, procédures simples, questions de FAQ.",
                   })}
                 </li>
                 <li>
@@ -234,7 +214,7 @@ const LandingPage: React.FC = () => {
                 <li>
                   {t("landing.presentation.problems.items.2", {
                     defaultValue:
-                      "Perte de temps en qualification : chaque agent doit relire toute l'historique avant d'agir.",
+                      "Perte de temps en qualification : chaque agent doit relire toute l’historique avant d’agir.",
                   })}
                 </li>
                 <li>
@@ -246,14 +226,14 @@ const LandingPage: React.FC = () => {
                 <li>
                   {t("landing.presentation.problems.items.4", {
                     defaultValue:
-                      "Besoin d'un outil accessible (clavier, lecteurs d'écran, contrastes) conforme aux bonnes pratiques sans lancer un gros projet sur mesure.",
+                      "Besoin d’un outil accessible (clavier, lecteurs d’écran, contrastes) conforme aux bonnes pratiques sans lancer un gros projet sur mesure.",
                   })}
                 </li>
               </ul>
               <p className="muted-copy text-center">
                 {t("landing.presentation.problems.conclusion", {
                   defaultValue:
-                    "Avec Nexus, l'IA interroge d'abord votre FAQ et vos contenus internes, propose une réponse immédiate quand c'est possible, puis crée un ticket déjà résumé et priorisé quand un humain doit intervenir.",
+                    "Avec Nexus, l’IA interroge d’abord votre FAQ et vos contenus internes, propose une réponse immédiate quand c’est possible, puis crée un ticket déjà résumé et priorisé quand un humain doit intervenir.",
                 })}
               </p>
             </div>
@@ -267,10 +247,7 @@ const LandingPage: React.FC = () => {
               <ul className="space-y-2 text-sm text-slate-200">
                 {presentationHighlights.map((item, index) => (
                   <li key={index} className="flex items-start gap-2">
-                    <span
-                      className="mt-1 h-2 w-2 rounded-full bg-sky-400"
-                      aria-hidden="true"
-                    />
+                    <span className="mt-1 h-2 w-2 rounded-full bg-sky-400" aria-hidden="true" />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -278,9 +255,7 @@ const LandingPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Colonne droite - Vidéo et images */}
           <div className="surface-card-soft space-y-4">
-            {/* Mobile video placeholder */}
             <div className="lg:hidden space-y-3">
               <a
                 href="https://youtu.be/OnfUuaRlukQ"
@@ -290,10 +265,7 @@ const LandingPage: React.FC = () => {
                 aria-label="Voir la démo vidéo Nexus sur YouTube"
               >
                 <div className="relative aspect-video overflow-hidden rounded-xl border border-slate-700/70 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800">
-                  <div
-                    className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(56,189,248,0.18),transparent_45%),radial-gradient(circle_at_70%_20%,rgba(99,102,241,0.22),transparent_40%)]"
-                    aria-hidden="true"
-                  />
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(56,189,248,0.18),transparent_45%),radial-gradient(circle_at_70%_20%,rgba(99,102,241,0.22),transparent_40%)]" aria-hidden="true" />
                   <div className="absolute inset-0 flex items-center justify-center">
                     <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white ring-1 ring-white/20 backdrop-blur group-hover:bg-white/20">
                       <svg
@@ -313,14 +285,13 @@ const LandingPage: React.FC = () => {
                 <span className="sr-only" id={`${videoDescriptionId}-mobile`}>
                   {t("landing.video.description", {
                     defaultValue:
-                      "Démonstration vidéo montrant l'interface Nexus Support Hub et la gestion automatisée des tickets.",
+                      "Démonstration vidéo montrant l’interface Nexus Support Hub et la gestion automatisée des tickets.",
                   })}
                 </span>
               </a>
             </div>
 
-            {/* Desktop YouTube iframe - Taille YouTube standard */}
-            <div className="hidden lg:block w-full aspect-video rounded-xl overflow-hidden border border-slate-600/60 bg-black">
+            <div className="hidden lg:block aspect-video rounded-xl overflow-hidden border border-slate-600/60 bg-black">
               <iframe
                 src="https://www.youtube.com/embed/OnfUuaRlukQ"
                 title="Démonstration vidéo de Nexus Support Hub"
@@ -328,29 +299,6 @@ const LandingPage: React.FC = () => {
                 allowFullScreen
                 className="w-full h-full"
                 aria-describedby={videoDescriptionId}
-                loading="lazy"
-              />
-            </div>
-
-            {/* Dashboard Image - Responsive comme YouTube */}
-            <div className="hidden md:block w-full aspect-video rounded-xl overflow-hidden border border-slate-700/70 bg-slate-900/60">
-              <img
-                src="https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/bf87eeae-b326-4bf4-a1f7-d414d772bb9b"
-                alt="Tableau de bord Nexus Support Hub: gestion des tickets avec priorités et métriques"
-                className="w-full h-full object-cover"
-                loading="lazy"
-                decoding="async"
-              />
-            </div>
-
-            {/* Discover Nexus Image */}
-            <div className="hidden lg:block w-full aspect-video rounded-xl overflow-hidden border border-slate-700/70 bg-slate-900/60">
-              <img
-                src="https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/3ad3d90f-3645-4590-9368-37851acaadce"
-                alt="Découvrir Nexus Support Hub - Interface avancée"
-                className="w-full h-full object-cover"
-                loading="lazy"
-                decoding="async"
               />
             </div>
 
@@ -370,80 +318,47 @@ const LandingPage: React.FC = () => {
           </div>
         </section>
 
-        {/* ============================================
-            BLOG HIGHLIGHTS SECTION - Avec images redimensionnées
-            ============================================ */}
         <section className="section-stack" aria-labelledby="blog-highlights">
           <div className="surface-card space-y-3 max-w-3xl mx-auto text-center">
             <p className="section-eyebrow" id="blog-highlights">
               Derniers articles du blog
             </p>
-            <h2 className="section-title text-2xl">
-              Des cas concrets pour organiser votre support N1 → N2 avec Nexus.
-            </h2>
+            <h2 className="section-title text-2xl">Des cas concrets pour organiser votre support N1 → N2 avec Nexus.</h2>
             <p className="section-subtitle">
-              Trois exemples d'actions rapides à mettre en place pour réduire le
-              volume de tickets et fluidifier l'escalade vers vos agents.
+              Trois exemples d’actions rapides à mettre en place pour réduire le volume de tickets et fluidifier l’escalade vers vos agents.
             </p>
           </div>
 
           <div className="grid gap-4 md:grid-cols-3">
-            {blogHighlights.map((article, index) => (
+            {blogHighlights.map((article) => (
               <article
                 key={article.slug}
-                className="rounded-2xl border border-indigo-500/25 bg-slate-900/60 shadow-lg overflow-hidden h-full flex flex-col hover:shadow-xl transition-shadow"
+                className="rounded-2xl border border-indigo-500/25 bg-slate-900/60 shadow-lg p-5 space-y-3 h-full flex flex-col"
               >
-                {/* Blog Image - Aspect ratio 16:9 comme YouTube */}
-                <div className="w-full aspect-video bg-gradient-to-br from-slate-800 to-slate-900 overflow-hidden flex items-center justify-center">
-                  <img
-                    src={[
-                      "https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/bf87eeae-b326-4bf4-a1f7-d414d772bb9b",
-                      "https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/3a2a91d9-3668-4e97-8da4-d0e18635ac27",
-                      "https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/41ae2fe7-4ecd-4be8-9dee-ca77984b347f",
-                    ][index]}
-                    alt={`Illustration cas d'étude: ${article.title}`}
-                    className="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </div>
-
-                {/* Article Content */}
-                <div className="p-5 space-y-3 flex-1 flex flex-col">
-                  <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wide text-indigo-100">
-                    <span className="inline-flex items-center gap-2">
-                      <span className="inline-flex items-center rounded-full bg-indigo-500/20 text-indigo-100 px-3 py-1">
-                        {article.city}
-                      </span>
-                      <span className="text-slate-300">{article.date}</span>
+                <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wide text-indigo-100">
+                  <span className="inline-flex items-center gap-2">
+                    <span className="inline-flex items-center rounded-full bg-indigo-500/20 text-indigo-100 px-3 py-1">
+                      {article.city}
                     </span>
-                    <span className="text-slate-300">Blog Nexus</span>
-                  </div>
-                  <h3 className="text-lg font-semibold text-white leading-tight">
-                    {article.title}
-                  </h3>
-                  <p className="text-slate-300 text-sm leading-relaxed flex-1">
-                    {article.excerpt}
-                  </p>
-                  <a
-                    href="#/blog"
-                    className="inline-flex items-center gap-2 text-sm font-semibold text-indigo-200 hover:text-white transition-colors"
-                    aria-label={`Lire l'article "${article.title}" sur le blog`}
-                  >
-                    Lire sur le blog
-                    <span aria-hidden className="text-indigo-100">
-                      →
-                    </span>
-                  </a>
+                    <span className="text-slate-300">{article.date}</span>
+                  </span>
+                  <span className="text-slate-300">Blog Nexus</span>
                 </div>
+                <h3 className="text-lg font-semibold text-white">{article.title}</h3>
+                <p className="text-slate-300 text-sm leading-relaxed flex-1">{article.excerpt}</p>
+                <a
+                  href="#/blog"
+                  className="inline-flex items-center gap-2 text-sm font-semibold text-indigo-200 hover:text-white"
+                  aria-label={`Lire l’article ${article.title} sur le blog`}
+                >
+                  Lire sur le blog
+                  <span aria-hidden className="text-indigo-100">→</span>
+                </a>
               </article>
             ))}
           </div>
         </section>
 
-        {/* ============================================
-            INFOGRAPHIE SECTION - Avec image HD
-            ============================================ */}
         <section id="infographie" className="section-stack">
           <div className="surface-card space-y-3 max-w-3xl mx-auto text-center">
             <h2 className="section-title text-2xl text-center">
@@ -454,42 +369,26 @@ const LandingPage: React.FC = () => {
             <p className="muted-copy">
               {t("infographie.subtitle", {
                 defaultValue:
-                  "Schéma illustratif du parcours d'un ticket dans Nexus Support Hub : de la réponse IA en N1 jusqu'au traitement par vos agents N2.",
+                  "Schéma illustratif du parcours d’un ticket dans Nexus Support Hub : de la réponse IA en N1 jusqu’au traitement par vos agents N2.",
               })}
             </p>
             <p className="text-sm text-slate-200">
               {t("landing.hero.previewCaption", {
                 defaultValue:
-                  "L'IA traite le N1 et accompagne le N2, avec une escalade maîtrisée et une traçabilité complète.",
+                  "L’IA traite le N1 et accompagne le N2, avec une escalade maîtrisée et une traçabilité complète.",
               })}
             </p>
             <Link to="/accessibilite" className="pill-link inline-flex w-max">
               {t("landing.rgaa.statementLinkFull", {
                 defaultValue:
-                  "Lire la déclaration d'accessibilité complète (RGAA 4.1)",
+                  "Lire la déclaration d’accessibilité complète (RGAA 4.1)",
               })}
             </Link>
           </div>
 
           <div className="surface-card-soft">
             <div className="w-full max-w-5xl mx-auto">
-              {/* Mobile/Tablet: SVG Component */}
-              <div className="lg:hidden">
-                <InfographieNexus />
-              </div>
-
-              {/* Desktop: HD Image - Redimensionnée comme YouTube */}
-              <div className="hidden lg:block w-full rounded-2xl overflow-hidden border border-slate-700/70 shadow-lg bg-slate-900/60">
-                <div className="aspect-video bg-gradient-to-br from-slate-800 to-slate-900 overflow-hidden flex items-center justify-center">
-                  <img
-                    src="https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/bf87eeae-b326-4bf4-a1f7-d414d772bb9b"
-                    alt="Schéma complet du workflow Nexus Support Hub: soumission ticket → traitement IA N1 → escalade intelligente → traitement N2 agents humains → résolution et traçabilité"
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </div>
-              </div>
+              <InfographieNexus />
             </div>
           </div>
         </section>
