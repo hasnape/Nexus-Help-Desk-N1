@@ -1,6 +1,5 @@
-// src/pages/SignUpPage.tsx
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 import { useApp } from "../App";
@@ -8,9 +7,333 @@ import { Button, Input, Select } from "../components/FormElements";
 import type { Locale } from "../contexts/LanguageContext";
 import { UserRole } from "../types";
 import { getPricingPlans, type PricingPlan, type PricingPlanKey } from "@/utils/pricing";
-import RoleSelector from "../components/RoleSelector"; // <--- nouveau
+import RoleSelector from "../components/RoleSelector";
 
-// ... (garde paypalLinks, passwordPolicyRegex, FreemiumModal, ProModal, StandardModal, PlanCard identiques)
+const paypalLinks = {
+  standard: "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-0E515487AE797135CNBTRYKA",
+  pro: "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-7HP75881LB3608938NBTBGUA",
+};
+
+const passwordPolicyRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{8,}$/;
+
+const FreemiumModal = ({
+  showFreemiumModal,
+  setShowFreemiumModal,
+  handleFreemiumPurchase,
+  plan,
+  t,
+}: {
+  showFreemiumModal: boolean;
+  setShowFreemiumModal: (show: boolean) => void;
+  handleFreemiumPurchase: () => void;
+  plan: PricingPlan;
+  t: (key: string, options?: { [key: string]: any }) => string;
+}) => {
+  if (!showFreemiumModal) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="surface-card rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">
+              {t("signupPlans.Freemium.modal.title", {
+                defaultValue: "Offre Freemium - Détails",
+              })}
+            </h2>
+            <button onClick={() => setShowFreemiumModal(false)} className="text-gray-500 hover:text-gray-700">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <div className="space-y-6">
+            <div className="text-center">
+              <div className="text-4xl font-bold text-primary">{plan.price}</div>
+              {plan.yearly ? <p className="text-gray-600 text-sm">{plan.yearly}</p> : null}
+            </div>
+
+            <ul className="space-y-2 text-left">
+              {plan.features.map((feature) => (
+                <li key={`${plan.name}-${feature}`} className="flex items-start">
+                  <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  <span className="text-sm text-gray-700">{feature}</span>
+                </li>
+              ))}
+            </ul>
+
+            <div className="flex gap-4">
+              <Button onClick={() => setShowFreemiumModal(false)} className="flex-1 bg-gray-500 hover:bg-gray-600">
+                {t("cta.cancel", {
+                  defaultValue: t("signupPlans.Freemium.modal.buttons.cancel", { defaultValue: "Annuler" }),
+                })}
+              </Button>
+              <Button onClick={handleFreemiumPurchase} className="flex-1 bg-primary hover:bg-primary-dark">
+                {t("signupPlans.Freemium.modal.buttons.subscribe", { defaultValue: plan.cta })}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ProModal = ({
+  showProModal,
+  setShowProModal,
+  handleProPurchase,
+  plan,
+  t,
+}: {
+  showProModal: boolean;
+  setShowProModal: (show: boolean) => void;
+  handleProPurchase: () => void;
+  plan: PricingPlan;
+  t: (key: string, options?: { [key: string]: any }) => string;
+}) => {
+  if (!showProModal) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="surface-card rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">
+              {t("signupPlans.pro.modal.title", { defaultValue: "Offre Pro - Détails" })}
+            </h2>
+            <button onClick={() => setShowProModal(false)} className="text-gray-500 hover:text-gray-700">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <div className="space-y-6">
+            <div className="text-center">
+              <div className="text-4xl font-bold text-primary">{plan.price}</div>
+              {plan.yearly ? <p className="text-gray-600 text-sm">{plan.yearly}</p> : null}
+            </div>
+
+            <ul className="space-y-2 text-left">
+              {plan.features.map((feature) => (
+                <li key={`${plan.name}-${feature}`} className="flex items-start">
+                  <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  <span className="text-sm text-gray-700">{feature}</span>
+                </li>
+              ))}
+            </ul>
+
+            <div className="flex gap-4">
+              <Button onClick={() => setShowProModal(false)} className="flex-1 bg-gray-500 hover:bg-gray-600">
+                {t("cta.cancel", {
+                  defaultValue: t("signupPlans.pro.modal.buttons.cancel", { defaultValue: "Annuler" }),
+                })}
+              </Button>
+              <a
+                href={paypalLinks.pro}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleProPurchase}
+                className="flex-1 inline-flex items-center justify-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+              >
+                {t("signupPlans.pro.modal.buttons.subscribe", { defaultValue: plan.cta })}
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const StandardModal = ({
+  showStandardModal,
+  setShowStandardModal,
+  handleStandardPurchase,
+  plan,
+  t,
+}: {
+  showStandardModal: boolean;
+  setShowStandardModal: (show: boolean) => void;
+  handleStandardPurchase: () => void;
+  plan: PricingPlan;
+  t: (key: string, options?: { [key: string]: any }) => string;
+}) => {
+  if (!showStandardModal) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="surface-card rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">
+              {t("signupPlans.standard.modal.title", { defaultValue: "Offre Standard - Détails" })}
+            </h2>
+            <button onClick={() => setShowStandardModal(false)} className="text-gray-500 hover:text-gray-700">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <div className="space-y-6">
+            <div className="text-center">
+              <div className="text-4xl font-bold text-primary">{plan.price}</div>
+              {plan.yearly ? <p className="text-gray-600 text-sm">{plan.yearly}</p> : null}
+            </div>
+
+            <ul className="space-y-2 text-left">
+              {plan.features.map((feature) => (
+                <li key={`${plan.name}-${feature}`} className="flex items-start">
+                  <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  <span className="text-sm text-gray-700">{feature}</span>
+                </li>
+              ))}
+            </ul>
+
+            <div className="flex gap-4">
+              <Button onClick={() => setShowStandardModal(false)} className="flex-1 bg-gray-500 hover:bg-gray-600">
+                {t("cta.cancel", {
+                  defaultValue: t("signupPlans.standard.modal.buttons.cancel", { defaultValue: "Annuler" }),
+                })}
+              </Button>
+              <a
+                href={paypalLinks.standard}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleStandardPurchase}
+                className="flex-1 inline-flex items-center justify-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+              >
+                {t("signupPlans.standard.modal.buttons.subscribe", { defaultValue: plan.cta })}
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const PlanCard: React.FC<{
+  planKey: PricingPlanKey;
+  plan: PricingPlan;
+  isSelected: boolean;
+  onSelect: (plan: PricingPlanKey) => void;
+  t: (key: string, options?: { [key: string]: any }) => string;
+  badgeText?: string;
+}> = ({ planKey, plan, isSelected, onSelect, t, badgeText }) => {
+  const isSelectable = planKey !== "pro";
+  const buttonKey = isSelectable ? `pricing.select_${planKey}` : "pricing.view_pro_details";
+  const buttonLabel = t(buttonKey, {
+    defaultValue: t(`signupPlans.${planKey}.select`, {
+      defaultValue: t("signupPlans.selectDefault", { defaultValue: "Sélectionner" }),
+    }),
+  });
+  const planTitle = t(`pricing.${planKey}`, { defaultValue: plan.name });
+
+  const handleSelectClick = () => {
+    onSelect(planKey);
+  };
+
+  return (
+    <div
+      className={`relative p-6 surface-card-soft transition-all duration-200 ${
+        isSelected ? "border-indigo-400/60 shadow-indigo-900/40" : "border-slate-800"
+      }`}
+      role="group"
+      aria-label={planTitle}
+    >
+      {isSelected ? (
+        <span className="absolute -top-3 right-4 inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white shadow-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+            <path
+              fillRule="evenodd"
+              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+              clipRule="evenodd"
+            />
+          </svg>
+        </span>
+      ) : null}
+
+      {badgeText ? (
+        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+          <span className="bg-primary text-white px-3 py-1 rounded-full text-sm font-medium">{badgeText}</span>
+        </div>
+      ) : null}
+
+      <div className="text-center mb-6">
+        <h3 className="text-xl font-bold text-white mb-2">{plan.name}</h3>
+        <div className="mb-2">
+          <span className="text-3xl font-bold text-primary">{plan.price}</span>
+        </div>
+        {plan.yearly ? <p className="text-slate-300 text-sm">{plan.yearly}</p> : null}
+      </div>
+
+      <ul className="space-y-3 mb-6">
+        {plan.features.map((feature) => (
+          <li key={`${plan.name}-${feature}`} className="flex items-start">
+            <svg className="w-5 h-5 text-primary me-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fillRule="evenodd"
+                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                clipRule="evenodd"
+              />
+            </svg>
+            <span className="text-slate-200 text-sm">{feature}</span>
+          </li>
+        ))}
+      </ul>
+
+      <div className="mt-6 flex flex-col gap-3">
+        <button
+          type="button"
+          onClick={handleSelectClick}
+          className={`inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold text-white transition ${
+            isSelected ? "bg-primary hover:bg-indigo-400" : "bg-slate-800 hover:bg-slate-700"
+          }`}
+          data-plan={planKey}
+          aria-pressed={isSelected}
+        >
+          <span>{buttonLabel}</span>
+          {isSelectable ? (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              className={`w-5 h-5 transition-opacity ${isSelected ? "opacity-100" : "opacity-0"}`}
+            >
+              <path
+                fillRule="evenodd"
+                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                clipRule="evenodd"
+              />
+            </svg>
+          ) : null}
+        </button>
+      </div>
+    </div>
+  );
+};
 
 const SignUpPage: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -19,21 +342,16 @@ const SignUpPage: React.FC = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [selectedLanguage, setSelectedLanguage] = useState<Locale>(() => (i18n.language as Locale) || "en");
-
-  // rôle désormais sélectionnable
   const [role, setRole] = useState<UserRole | null>(null);
-
   const [secretCode, setSecretCode] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-
   const [showProModal, setShowProModal] = useState(false);
   const [showFreemiumModal, setShowFreemiumModal] = useState(false);
   const [showStandardModal, setShowStandardModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<PricingPlanKey | null>(null);
-
   const { signUp, user } = useApp();
   const pricingPlans = getPricingPlans(t);
   const popularBadge = t("pricing.badges.popular", { defaultValue: "Popular" });
@@ -66,7 +384,6 @@ const SignUpPage: React.FC = () => {
     };
   }, [i18n]);
 
-  // scroll vers les offres uniquement si MANAGER
   useEffect(() => {
     if (role === UserRole.MANAGER && offersRef.current) {
       offersRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -80,7 +397,7 @@ const SignUpPage: React.FC = () => {
       setError(
         t("signup.error.roleRequired", {
           defaultValue: "Veuillez sélectionner un rôle pour continuer.",
-        })
+        }),
       );
       return;
     }
@@ -98,21 +415,15 @@ const SignUpPage: React.FC = () => {
         t("signup.error.passwordNotSecure", {
           defaultValue:
             "Votre mot de passe doit contenir au moins 8 caractères, dont une majuscule, une minuscule, un chiffre et un caractère spécial.",
-        })
+        }),
       );
       return;
     }
 
-    // plan applicable uniquement pour les MANAGER
     const effectivePlan: PricingPlanKey | undefined =
       role === UserRole.MANAGER && selectedPlan ? selectedPlan : undefined;
 
-    if (
-      role === UserRole.MANAGER &&
-      effectivePlan &&
-      effectivePlan !== "freemium" &&
-      !secretCode.trim()
-    ) {
+    if (role === UserRole.MANAGER && effectivePlan && effectivePlan !== "freemium" && !secretCode.trim()) {
       setError(t("signup.error.secretCodeRequiredManager"));
       return;
     }
@@ -121,7 +432,7 @@ const SignUpPage: React.FC = () => {
       setError(
         t("signup.error.planSelectionRequired", {
           defaultValue: "Veuillez sélectionner une offre pour votre entreprise.",
-        })
+        }),
       );
       return;
     }
@@ -164,8 +475,6 @@ const SignUpPage: React.FC = () => {
   const handlePlanSelect = (plan: PricingPlanKey) => {
     if (plan === "pro") {
       setShowProModal(true);
-      setShowStandardModal(false);
-      setShowFreemiumModal(false);
       return;
     }
 
@@ -180,29 +489,20 @@ const SignUpPage: React.FC = () => {
       setShowFreemiumModal(true);
       setShowProModal(false);
       setShowStandardModal(false);
-    } else {
-      setShowProModal(false);
-      setShowStandardModal(false);
-      setShowFreemiumModal(false);
     }
   };
 
   const handleProPurchase = () => {
     setSelectedPlan("pro");
     setShowProModal(false);
-    alert("✅ Abonnement Pro : code envoyé par email !");
   };
 
   const handleFreemiumPurchase = () => {
     setShowFreemiumModal(false);
-    alert(
-      "✅ Offre Freemium activée : votre compte sera créé sur nos serveurs et un email de bienvenue vous guidera pour la suite."
-    );
   };
 
   const handleStandardPurchase = () => {
     setShowStandardModal(false);
-    alert("✅ Abonnement Standard : code envoyé par email !");
   };
 
   return (
@@ -239,14 +539,39 @@ const SignUpPage: React.FC = () => {
 
       <div className="page-container section-stack">
         <div className="surface-card shadow-2xl overflow-hidden p-6 lg:p-8 space-y-8">
-          {/* header & messages d’erreur/succès identiques à ta version */}
-          {/* ... garde tout ce bloc tel quel ... */}
+          <div className="text-center mb-8 space-y-3">
+            <img
+              src="https://yt3.ggpht.com/vbfaZncvDLBv7B4Xo9mFggNozPaGAaGMkwciDaL-UtdLClEQmWB5blCibQacHzdrI1RL_5C9_g=s108-c-k-c0x00ffffff-no-rj"
+              alt="Nexus Support Hub Logo"
+              className="w-16 h-16 mx-auto rounded-full object-cover"
+              loading="lazy"
+              width={64}
+              height={64}
+            />
+            <h1 className="section-title">{t("signup.title")}</h1>
+            <p className="section-subtitle max-w-3xl mx-auto">{t("signup.subtitle")}</p>
+          </div>
 
-          {/* Offres uniquement si MANAGER sélectionné */}
-          {role === UserRole.MANAGER && !success && (
-            <div className="mb-8" ref={offersRef}>
-              {/* bloc des PlanCard identique */}
-              {/* ... */}
+          {error && (
+            <p className="mb-4 text-center rounded-md border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-100">
+              {error}
+            </p>
+          )}
+
+          {success && (
+            <div className="mb-4 text-center rounded-md border border-emerald-500/40 bg-emerald-500/10 p-3 text-sm text-emerald-100">
+              <div className="flex items-center justify-center mb-2 gap-2">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <span className="font-semibold">Inscription réussie !</span>
+              </div>
+              <p className="text-sm text-emerald-50">{success}</p>
+              <p className="text-xs mt-2 text-emerald-200">Redirection vers la connexion...</p>
             </div>
           )}
 
@@ -290,36 +615,61 @@ const SignUpPage: React.FC = () => {
                   className="text-slate-900 placeholder:text-slate-500"
                 />
 
-                {/* hint mot de passe identique */}
-                {/* ... */}
+                <p className="mt-1 text-xs text-slate-500 px-1">
+                  {t("signup.passwordPolicyHint", {
+                    defaultValue:
+                      "Votre mot de passe doit contenir au moins 8 caractères, dont une majuscule, une minuscule, un chiffre et un caractère spécial.",
+                  })}
+                </p>
 
                 <Input
                   label={t("signup.confirmPasswordLabel")}
                   id="confirmPassword"
                   type="password"
                   value={confirmPassword}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setConfirmPassword(e.target.value)
-                  }
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setConfirmPassword(e.target.value)}
                   placeholder={t("signup.confirmPasswordPlaceholder")}
                   required
                   disabled={isLoading}
                   className="text-slate-900 placeholder:text-slate-500"
                 />
 
-                {/* nouveau sélecteur de rôle */}
                 <RoleSelector value={role} onChange={setRole} disabled={isLoading} />
 
-                {/* champ code d’activation seulement si MANAGER + plan payant */}
-                {role === UserRole.MANAGER && selectedPlan !== "freemium" && selectedPlan && (
-                  // bloc secretCode identique à ta version, réutilisé
-                  // ...
+                {role === UserRole.MANAGER && selectedPlan && selectedPlan !== "freemium" && (
                   <div>
-                    {/* garde ici ton bloc Input + tooltip + texte d’aide */}
+                    <div className="flex items-center gap-2">
+                      <Input
+                        label={t("activationKeyLabel")}
+                        id="activationKey"
+                        type="text"
+                        value={secretCode}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSecretCode(e.target.value)}
+                        placeholder={t("activationKeyPlaceholder")}
+                        required
+                        disabled={isLoading}
+                        className="text-slate-900 placeholder:text-slate-500"
+                      />
+                      <div className="relative group">
+                        <button
+                          type="button"
+                          className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold"
+                          tabIndex={0}
+                        >
+                          ?
+                        </button>
+                        <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-64 p-3 surface-card-soft text-xs text-slate-200 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition pointer-events-none group-hover:pointer-events-auto z-20">
+                          {t("activationKey.help", {
+                            defaultValue:
+                              "Pour obtenir le code d’activation, contactez le support Nexus ou consultez votre email de bienvenue après l’achat du plan.",
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                    <p className="mt-1 text-xs px-1 text-slate-500">{t("activationKeyInfo")}</p>
                   </div>
                 )}
 
-                {/* companyName : label différent selon rôle */}
                 <div>
                   <Input
                     label={
@@ -340,16 +690,185 @@ const SignUpPage: React.FC = () => {
                     disabled={isLoading}
                     className="text-slate-900 placeholder:text-slate-500"
                   />
-                  {/* texte d’aide identique à ta version */}
+                  <p className="mt-1 text-xs text-slate-500 px-1">
+                    {role === UserRole.MANAGER
+                      ? t("signup.companyNameHelp.manager", {
+                          defaultValue: "This name must be unique. Your team will use it to sign up and log in.",
+                        })
+                      : t("signup.companyNameHelp.employee", {
+                          defaultValue: "Enter the exact company name provided by your manager.",
+                        })}
+                  </p>
                 </div>
 
-                {/* Select langue + bouton submit identiques */}
-                {/* ... */}
+                <Select
+                  label={t("signup.languageLabel")}
+                  id="language"
+                  value={selectedLanguage}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                    const nextLocale = e.target.value as Locale;
+                    setSelectedLanguage(nextLocale);
+                    void i18n.changeLanguage(nextLocale);
+                  }}
+                  options={languageOptions.map((opt) => ({
+                    ...opt,
+                    label: t(`language.${opt.value}`, {
+                      defaultValue: opt.label,
+                    }),
+                  }))}
+                  required
+                  disabled={isLoading}
+                />
+
+                <Button
+                  type="submit"
+                  className="w-full !mt-8"
+                  size="lg"
+                  isLoading={isLoading}
+                  disabled={isLoading}
+                >
+                  {t("signup.signUpButton")}
+                </Button>
               </form>
             </div>
           )}
 
-          {/* section roleHelp en bas : tu peux la garder telle quelle */}
+          {role === UserRole.MANAGER && !success && (
+            <div className="mb-8" ref={offersRef}>
+              <div className="text-center mb-6">
+                <h2 className="text-2xl font-bold text-textPrimary mb-2">
+                  {t("signupPlans.title", {
+                    defaultValue: "Choisissez votre plan",
+                  })}
+                </h2>
+                <p className="text-textSecondary">
+                  {t("signupPlans.subtitle", {
+                    defaultValue:
+                      "Sélectionnez le plan qui correspond le mieux aux besoins de votre équipe.",
+                  })}
+                </p>
+              </div>
+              <div className="grid md:grid-cols-3 gap-6 mb-8">
+                <PlanCard
+                  planKey="freemium"
+                  plan={pricingPlans.freemium}
+                  isSelected={selectedPlan === "freemium"}
+                  onSelect={handlePlanSelect}
+                  t={t}
+                />
+                <PlanCard
+                  planKey="standard"
+                  plan={pricingPlans.standard}
+                  isSelected={selectedPlan === "standard"}
+                  onSelect={handlePlanSelect}
+                  t={t}
+                  badgeText={popularBadge}
+                />
+                <PlanCard
+                  planKey="pro"
+                  plan={pricingPlans.pro}
+                  isSelected={selectedPlan === "pro"}
+                  onSelect={handlePlanSelect}
+                  t={t}
+                />
+              </div>
+
+              {selectedPlan === "freemium" && (
+                <div className="mb-8 rounded-lg border border-green-300 bg-green-50 p-5 text-left">
+                  <h3 className="text-lg font-semibold text-green-900">
+                    {t("signupPlans.freemium.autoSelected.title", {
+                      defaultValue: "Freemium sélectionné automatiquement",
+                    })}
+                  </h3>
+                  <p className="mt-2 text-sm text-green-800">
+                    {t("signupPlans.freemium.autoSelected.description", {
+                      defaultValue:
+                        "Cette inscription active immédiatement votre espace Freemium hébergé sur le cloud Nexus.",
+                    })}
+                  </p>
+                  <p className="mt-2 text-xs text-green-700">
+                    {t("signupPlans.freemium.autoSelected.storageNotice", {
+                      defaultValue:
+                        "Accédez à vos utilisateurs et tickets depuis n'importe quel appareil connecté.",
+                    })}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          <section className="mt-10 surface-card-soft p-4 md:p-6 text-left">
+            <h2 className="text-xl font-semibold text-white">{t("roleHelp.title")}</h2>
+            <p className="mt-1 text-sm text-slate-200">{t("roleHelp.subtitle")}</p>
+
+            <div className="grid gap-6 md:grid-cols-3 mt-4">
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <h3 className="text-lg font-semibold text-white">{t("roleHelp.manager.title")}</h3>
+                  <p className="text-sm text-slate-200">{t("roleHelp.manager.description")}</p>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="text-sm font-semibold text-white">{t("roleHelp.manager.signupTitle")}</h4>
+                  <ul className="list-disc space-y-1 text-sm text-slate-200 pl-5">
+                    <li>{t("roleHelp.manager.signupStep1")}</li>
+                    <li>{t("roleHelp.manager.signupStep2")}</li>
+                    <li>{t("roleHelp.manager.signupStep3")}</li>
+                    <li>{t("roleHelp.manager.signupStep4")}</li>
+                  </ul>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="text-sm font-semibold text-white">{t("roleHelp.manager.loginTitle")}</h4>
+                  <ul className="list-disc space-y-1 text-sm text-slate-200 pl-5">
+                    <li>{t("roleHelp.manager.loginStep1")}</li>
+                    <li>{t("roleHelp.manager.loginStep2")}</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <h3 className="text-lg font-semibold text-white">{t("roleHelp.agent.title")}</h3>
+                  <p className="text-sm text-slate-200">{t("roleHelp.agent.description")}</p>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="text-sm font-semibold text-white">{t("roleHelp.agent.signupTitle")}</h4>
+                  <ul className="list-disc space-y-1 text-sm text-slate-200 pl-5">
+                    <li>{t("roleHelp.agent.signupStep1")}</li>
+                    <li>{t("roleHelp.agent.signupStep2")}</li>
+                    <li>{t("roleHelp.agent.signupStep3")}</li>
+                  </ul>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="text-sm font-semibold text-white">{t("roleHelp.agent.loginTitle")}</h4>
+                  <ul className="list-disc space-y-1 text-sm text-slate-200 pl-5">
+                    <li>{t("roleHelp.agent.loginStep1")}</li>
+                    <li>{t("roleHelp.agent.loginStep2")}</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <h3 className="text-lg font-semibold text-white">{t("roleHelp.user.title")}</h3>
+                  <p className="text-sm text-slate-200">{t("roleHelp.user.description")}</p>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="text-sm font-semibold text-white">{t("roleHelp.user.signupTitle")}</h4>
+                  <ul className="list-disc space-y-1 text-sm text-slate-200 pl-5">
+                    <li>{t("roleHelp.user.signupStep1")}</li>
+                    <li>{t("roleHelp.user.signupStep2")}</li>
+                  </ul>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="text-sm font-semibold text-white">{t("roleHelp.user.loginTitle")}</h4>
+                  <ul className="list-disc space-y-1 text-sm text-slate-200 pl-5">
+                    <li>{t("roleHelp.user.loginStep1")}</li>
+                    <li>{t("roleHelp.user.loginStep2")}</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </section>
         </div>
       </div>
     </>
