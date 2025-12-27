@@ -1,8 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useApp } from "../../App";
-import { TicketStatus } from "../../types";
-import TicketCard from "../../components/TicketCard";
+import { Ticket, TicketStatus } from "../../types";
 import { Button } from "../../components/FormElements";
 import { useLanguage } from "../../contexts/LanguageContext";
 import FloatingActionButton from "../../components/FloatingActionButton";
@@ -23,6 +22,72 @@ const MagnifyingGlassIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => 
     />
   </svg>
 );
+
+// ✅ FONCTION: Récupérer le résumé assigné du ticket
+const getAssignedSummary = (ticket: Ticket): string | null => {
+  const metadataSummary = (ticket as any)?.metadata?.assigned_summary;
+  if (metadataSummary) return metadataSummary;
+
+  const systemMessage = ticket.chat_history?.find(
+    (m) => m.sender === 'system_summary'
+  );
+
+  return systemMessage?.text || null;
+};
+
+interface ClientTicketRowProps {
+  ticket: Ticket;
+}
+
+const ClientTicketRow: React.FC<ClientTicketRowProps> = ({ ticket }) => {
+  const { t, getBCP47Locale } = useLanguage();
+
+  // ✅ STATE: Gestion de l'affichage du résumé
+  const [isSummaryOpen, setIsSummaryOpen] = useState(false);
+  const summary = getAssignedSummary(ticket);
+
+  return (
+    <tr className="border-b border-slate-200 hover:bg-slate-50">
+      <td className="p-2 sm:p-3 text-slate-700">
+        <Link
+          to={`/ticket/${ticket.id}`}
+          className="text-primary hover:underline font-medium block"
+        >
+          {ticket.title}
+        </Link>
+
+        {/* ✅ AFFICHAGE: Résumé assigné avec bouton toggle */}
+        {summary && (
+          <div className="mt-2">
+            <button
+              type="button"
+              onClick={() => setIsSummaryOpen(v => !v)}
+              className="text-xs text-indigo-600 hover:underline"
+            >
+              {isSummaryOpen ? 'Masquer le résumé' : 'Voir le résumé'}
+            </button>
+
+            {isSummaryOpen && (
+              <div className="mt-2 p-3 text-xs bg-indigo-50 border border-indigo-200 rounded-lg text-indigo-900 whitespace-pre-wrap">
+                {summary}
+              </div>
+            )}
+          </div>
+        )}
+      </td>
+      <td className="p-3 text-sm text-slate-600">{ticket.workstation_id || t("agentDashboard.notApplicableShort")}</td>
+      <td className="p-3 text-sm text-slate-500">{new Date(ticket.created_at).toLocaleDateString(getBCP47Locale())}</td>
+      <td className="p-3 text-sm text-slate-500">{t(`ticketStatus.${ticket.status}`)}</td>
+      <td className="p-3 text-sm">
+        <Link to={`/ticket/${ticket.id}`}>
+          <Button variant="outline" size="sm" className="!text-xs !py-1 !px-2">
+            {t("agentDashboard.viewTicketButton")}
+          </Button>
+        </Link>
+      </td>
+    </tr>
+  );
+};
 
 const ClientDashboardPage: React.FC = () => {
   const { tickets, user } = useApp();
@@ -73,7 +138,7 @@ const ClientDashboardPage: React.FC = () => {
 
   return (
     <div className="min-h-[calc(100vh-5rem)] bg-slate-50 py-8">
-      <div className="mx-auto max-w-5xl space-y-8 px-4">
+      <div className="mx-auto max-w-6xl space-y-8 px-4">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="space-y-2">
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-indigo-600">{t("dashboard.user.badge")}</p>
@@ -141,10 +206,33 @@ const ClientDashboardPage: React.FC = () => {
                 <p className="text-sm text-slate-500">{t("dashboard.noTicketsSubtitle")}</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {sortedTickets.slice(0, 8).map((ticket) => (
-                  <TicketCard key={ticket.id} ticket={ticket} />
-                ))}
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-slate-200">
+                  <thead className="bg-slate-50">
+                    <tr>
+                      <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                        {t("agentDashboard.tableHeader.title")}
+                      </th>
+                      <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                        {t("agentDashboard.tableHeader.workstation")}
+                      </th>
+                      <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                        {t("agentDashboard.tableHeader.created")}
+                      </th>
+                      <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                        {t("agentDashboard.tableHeader.status")}
+                      </th>
+                      <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                        {t("agentDashboard.tableHeader.action")}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-slate-200">
+                    {sortedTickets.map((ticket) => (
+                      <ClientTicketRow key={ticket.id} ticket={ticket} />
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
           </section>
@@ -182,4 +270,3 @@ const ClientDashboardPage: React.FC = () => {
 };
 
 export default ClientDashboardPage;
-
