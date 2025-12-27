@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Ticket, TicketStatus, TicketPriority } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -23,39 +22,103 @@ const priorityColors: Record<TicketPriority, string> = {
   [TICKET_PRIORITY_KEYS.HIGH]: 'text-red-600',
 };
 
+// ✅ Récupération du résumé assigné
+const getAssignedSummary = (ticket: Ticket): string | null => {
+  const metadataSummary = (ticket.metadata as any)?.assigned_summary;
+  if (metadataSummary) return metadataSummary;
+
+  const summaryMessage = ticket.chat_history?.find(
+    (msg) => msg.sender === 'system_summary'
+  );
+
+  return summaryMessage?.text || null;
+};
+
 const TicketCard: React.FC<TicketCardProps> = ({ ticket }) => {
   const { t, getBCP47Locale } = useLanguage();
   const { getAllUsers } = useApp();
 
   const creator = getAllUsers().find(u => u.id === ticket.user_id);
-  const creatorName = creator ? creator.full_name : t('agentDashboard.notApplicableShort', { default: 'N/A'});
+  const creatorName = creator
+    ? creator.full_name
+    : t('agentDashboard.notApplicableShort', { default: 'N/A' });
+
+  const summary = getAssignedSummary(ticket);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <Link to={`/ticket/${ticket.id}`} className="block hover:shadow-xl transition-shadow duration-200">
+    <div className="block hover:shadow-xl transition-shadow duration-200">
       <div className="bg-surface shadow-lg rounded-lg p-6 h-full flex flex-col justify-between">
         <div>
-          <div className="flex justify-between items-start mb-2">
-            <h3 className="text-xl font-semibold text-primary truncate" title={ticket.title}>{ticket.title}</h3>
-            <span
-              className={`px-2 py-1 text-xs font-semibold rounded-full ${statusColors[ticket.status]}`}
-            >
-              {t(`ticketStatus.${ticket.status}`)}
-            </span>
-          </div>
-          <p className="text-sm text-textSecondary mb-1">{t('ticketCard.categoryLabel', { category: t(ticket.category) })}</p>
+          {/* 🔗 Titre cliquable */}
+          <Link to={`/ticket/${ticket.id}`}>
+            <div className="flex justify-between items-start mb-2">
+              <h3
+                className="text-xl font-semibold text-primary truncate"
+                title={ticket.title}
+              >
+                {ticket.title}
+              </h3>
+              <span
+                className={`px-2 py-1 text-xs font-semibold rounded-full ${statusColors[ticket.status]}`}
+              >
+                {t(`ticketStatus.${ticket.status}`)}
+              </span>
+            </div>
+          </Link>
+
+          <p className="text-sm text-textSecondary mb-1">
+            {t('ticketCard.categoryLabel', { category: t(ticket.category) })}
+          </p>
+
           <p className={`text-sm font-medium ${priorityColors[ticket.priority]} mb-3`}>
-            {t('ticketCard.priorityLabel', { priority: t(`ticketPriority.${ticket.priority}`) })}
+            {t('ticketCard.priorityLabel', {
+              priority: t(`ticketPriority.${ticket.priority}`),
+            })}
           </p>
+
+          {/* 📝 Dernier message / description */}
           <p className="text-sm text-textSecondary line-clamp-2 mb-3">
-            {ticket.chat_history.length > 0 ? ticket.chat_history[ticket.chat_history.length-1].text : ticket.description}
+            {ticket.chat_history.length > 0
+              ? ticket.chat_history[ticket.chat_history.length - 1].text
+              : ticket.description}
           </p>
+
+          {/* 🔽 Bouton Développer */}
+          {summary && (
+            <button
+              type="button"
+              onClick={() => setIsExpanded((prev) => !prev)}
+              className="text-xs text-indigo-600 hover:underline mb-2"
+            >
+              {isExpanded ? 'Masquer le résumé' : 'Développer le résumé'}
+            </button>
+          )}
+
+          {/* 📋 Résumé complet */}
+          {summary && isExpanded && (
+            <div className="mt-2 p-3 rounded-lg bg-indigo-50 border border-indigo-200">
+              <p className="text-xs font-semibold text-indigo-900 mb-1">
+                📋 Résumé du ticket
+              </p>
+              <p className="text-xs text-indigo-800 whitespace-pre-line">
+                {summary}
+              </p>
+            </div>
+          )}
         </div>
-        <div className="text-xs text-slate-500 mt-auto pt-2 border-t border-slate-200">
+
+        {/* ℹ️ Footer */}
+        <div className="text-xs text-slate-500 mt-4 pt-2 border-t border-slate-200">
           <p>{t('ticketCard.createdByLabel', { user: creatorName })}</p>
-          <p>{t('ticketCard.lastUpdatedLabel', { date: new Date(ticket.updated_at).toLocaleString(getBCP47Locale()) })}</p>
+          <p>
+            {t('ticketCard.lastUpdatedLabel', {
+              date: new Date(ticket.updated_at).toLocaleString(getBCP47Locale()),
+            })}
+          </p>
         </div>
       </div>
-    </Link>
+    </div>
   );
 };
 
