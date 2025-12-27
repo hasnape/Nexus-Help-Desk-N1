@@ -46,6 +46,17 @@ const PencilIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   </svg>
 );
 
+// ✅ FONCTION: Récupérer le résumé assigné du ticket
+const getAssignedSummary = (ticket: Ticket): string | null => {
+  const metadataSummary = (ticket as any)?.metadata?.assigned_summary;
+  if (metadataSummary) return metadataSummary;
+
+  const systemMessage = ticket.chat_history?.find(
+    (m) => m.sender === 'system_summary'
+  );
+
+  return systemMessage?.text || null;
+};
 
 const StatCardIcon: React.FC<{ icon: 'total' | 'open' | 'resolved' | 'priority' | 'unassigned' }> = ({ icon }) => {
     const icons = {
@@ -178,6 +189,9 @@ interface ManagerTicketRowProps {
 const ManagerTicketRow: React.FC<ManagerTicketRowProps> = ({ ticket, agents, allUsers, onAssignTicket, onDeleteTicket }) => {
     const { t } = useLanguage();
     const [selectedAgent, setSelectedAgent] = useState<string>(ticket.assigned_agent_id || '');
+    // ✅ STATE: Gestion de l'affichage du résumé
+    const [isSummaryOpen, setIsSummaryOpen] = useState(false);
+    const summary = getAssignedSummary(ticket);
 
     const clientUser = allUsers.find(u => u.id === ticket.user_id);
     const clientName = clientUser ? clientUser.full_name : t('managerDashboard.notApplicableShort');
@@ -193,10 +207,29 @@ const ManagerTicketRow: React.FC<ManagerTicketRowProps> = ({ ticket, agents, all
     
     return (
         <tr className="border-b border-slate-200 hover:bg-slate-50 text-sm">
-            <td className="p-2 sm:p-3 text-slate-700 truncate max-w-[100px] sm:max-w-xs" title={ticket.title}>
-                <Link to={`/ticket/${ticket.id}`} className="text-primary hover:underline font-medium">
+            <td className="p-2 sm:p-3 text-slate-700">
+                <Link to={`/ticket/${ticket.id}`} className="text-primary hover:underline font-medium block">
                     {ticket.title}
                 </Link>
+
+                {/* ✅ AFFICHAGE: Résumé assigné avec bouton toggle */}
+                {summary && (
+                  <div className="mt-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsSummaryOpen(v => !v)}
+                      className="text-xs text-indigo-600 hover:underline"
+                    >
+                      {isSummaryOpen ? 'Masquer le résumé' : 'Voir le résumé'}
+                    </button>
+
+                    {isSummaryOpen && (
+                      <div className="mt-2 p-3 text-xs bg-indigo-50 border border-indigo-200 rounded-lg text-indigo-900 whitespace-pre-wrap">
+                        {summary}
+                      </div>
+                    )}
+                  </div>
+                )}
             </td>
             <td className="p-2 sm:p-3 text-slate-600">{clientName}</td>
             <td className="p-2 sm:p-3 text-slate-500">{t(`ticketStatus.${ticket.status}`)}</td>
