@@ -1195,28 +1195,37 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
-  const assignTicket = async (ticketId: string, agentId: string | null): Promise<void> => {
+   const assignTicket = async (ticketId: string, agentId: string | null): Promise<void> => {
     const ticketToUpdate = tickets.find((t) => t.id === ticketId);
     if (!ticketToUpdate || user?.role !== "manager") return;
+    
+    // ✅ NOUVEAU: Variable pour conserver le résumé
     let summaryMessage: ChatMessage | null = null;
+    let summaryText: string | null = null;
+    
     if (agentId && (!ticketToUpdate.assigned_agent_id || ticketToUpdate.assigned_agent_id !== agentId)) {
       setIsLoadingAi(true);
       try {
-        const summaryText = await getTicketSummary(ticketToUpdate, language);
+        // ✅ MODIFIÉ: Capture du résumé dans la variable externe
+        summaryText = await getTicketSummary(ticketToUpdate, language);
         summaryMessage = { id: crypto.randomUUID(), sender: "system_summary", text: summaryText, timestamp: new Date() };
       } catch (error) {
         console.error("Error generating ticket summary:", error);
+        // ✅ MODIFIÉ: Stockage du message d'erreur dans summaryText
+        summaryText = translateHook("appContext.error.summaryGenerationFailed");
         summaryMessage = {
           id: crypto.randomUUID(),
           sender: "system_summary",
-          text: translateHook("appContext.error.summaryGenerationFailed"),
+          text: summaryText,
           timestamp: new Date(),
         };
       } finally {
         setIsLoadingAi(false);
       }
     }
+    
     const updatedChatHistory = summaryMessage ? [...ticketToUpdate.chat_history, summaryMessage] : ticketToUpdate.chat_history;
+    
     if (shouldShortCircuitNetwork("supabase.tickets.update")) {
       const updatedAtDate = new Date();
       updateTicketsState((prev) =>
@@ -1233,20 +1242,35 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       );
       return;
     }
+    
     const storageMode = await ensureChatStorageMode();
+    // ✅ NOUVEAU: Récupération de la colonne de détails (metadata ou details)
+    const detailsColumn = await ensureTicketDetailsColumn();
+    
     const updatePayload: Record<string, any> = {
       assigned_agent_id: agentId || null,
       updated_at: new Date().toISOString(),
     };
+    
     if (storageMode === "embedded") {
       updatePayload.chat_history = updatedChatHistory;
     }
+    
+    // ✅ NOUVEAU: Stockage du résumé dans les métadonnées
+    if (detailsColumn && summaryText) {
+      updatePayload[detailsColumn] = {
+        ...((ticketToUpdate as any)[detailsColumn] || {}),
+        assigned_summary: summaryText,
+      };
+    }
+    
     const { data, error } = await supabase
       .from("tickets")
       .update(updatePayload)
       .eq("id", ticketId)
       .select()
       .single();
+    
     if (error) {
       console.error("Error assigning ticket:", error);
     } else {
