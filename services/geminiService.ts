@@ -59,6 +59,51 @@ const getLanguageName = (locale: Locale): string => {
   }
 };
 
+// ---------------------------------------------------------------------------
+// 🆕 FONCTION DE NORMALISATION: Priority française → enum anglais
+// ---------------------------------------------------------------------------
+/**
+ * Normalise une valeur de priorité (peut être en français ou anglais)
+ * vers l'enum TicketPriority anglais
+ * @param priorityName - La valeur retournée par Gemini/Backend
+ * @returns La valeur enum correspondante (Low|Medium|High)
+ */
+const normalizePriority = (priorityName: string | undefined): TicketPriority => {
+  if (!priorityName) {
+    return TicketPriority.MEDIUM; // Défaut sûr
+  }
+
+  const lower = priorityName.toLowerCase().trim();
+
+  // --- Mappages FRANÇAIS → Enum ---
+  if (lower === "élevée" || lower === "élevé" || lower === "haute" || lower === "très élevée") {
+    return TicketPriority.HIGH;
+  }
+  if (lower === "moyenne" || lower === "moyen") {
+    return TicketPriority.MEDIUM;
+  }
+  if (lower === "basse" || lower === "bas") {
+    return TicketPriority.LOW;
+  }
+
+  // --- Mappages ANGLAIS (cas où backend retournerait déjà en anglais) ---
+  if (lower === "high") {
+    return TicketPriority.HIGH;
+  }
+  if (lower === "medium") {
+    return TicketPriority.MEDIUM;
+  }
+  if (lower === "low") {
+    return TicketPriority.LOW;
+  }
+
+  // --- Fallback en cas de valeur inconnue ---
+  console.warn(
+    `[normalizePriority] Unrecognized priority value: "${priorityName}". Defaulting to Medium.`
+  );
+  return TicketPriority.MEDIUM;
+};
+
 // ---------------------
 // Appel générique backend
 // ---------------------
@@ -143,13 +188,8 @@ export async function summarizeAndCategorizeChat(
         TICKET_CATEGORY_KEYS[0];
     }
 
-    let normalizedPriority = data.priority as TicketPriority;
-    if (!Object.values(TicketPriority).includes(normalizedPriority)) {
-      console.warn(
-        `[summarizeAndCategorizeChat] Invalid priority from AI: ${data.priority}. Defaulting to Medium.`
-      );
-      normalizedPriority = TicketPriority.MEDIUM;
-    }
+    // ✅ MODIFIÉ: Utiliser normalizePriority() au lieu de simplement assigner
+    const normalizedPriority = normalizePriority(data.priority as string);
 
     return {
       title: data.title,
@@ -168,7 +208,7 @@ export async function summarizeAndCategorizeChat(
 }
 
 // ---------------------------------------------------------------------------
-// 2) Réponse d’aide (N1 / N2) AVEC FAQ company_knowledge (personnalisation)
+// 2) Réponse d'aide (N1 / N2) AVEC FAQ company_knowledge (personnalisation)
 //    -> mode "followUp" côté supabase/functions/nexus-ai
 // ---------------------------------------------------------------------------
 export async function getFollowUpHelpResponse(
@@ -179,7 +219,7 @@ export async function getFollowUpHelpResponse(
   language: Locale,
   additionalSystemContext?: string,
   opts?: {
-    companyId?: string; // 👈 pour charger les FAQ de l’entreprise côté backend
+    companyId?: string; // 👈 pour charger les FAQ de l'entreprise côté backend
     companyName?: string | null;
     ticketId?: string;
     useLaiTurnerPrompt?: boolean;
@@ -250,7 +290,7 @@ You can try again shortly or provide more details, and a human agent will follow
 }
 
 // ---------------------------------------------------------------------------
-// 3) Résumé d’un ticket pour un agent (vue synthèse)
+// 3) Résumé d'un ticket pour un agent (vue synthèse)
 //    -> mode "ticketSummary" côté supabase/functions/nexus-ai
 // ---------------------------------------------------------------------------
 export async function getTicketSummary(
