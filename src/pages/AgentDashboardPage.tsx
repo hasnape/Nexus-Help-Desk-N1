@@ -14,11 +14,16 @@ const PlusIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   </svg>
 );
 
-// ✅ FONCTION: Récupérer le résumé assigné du ticket
+// ✅ FONCTION MODIFIÉE: Récupérer le résumé du ticket
 const getAssignedSummary = (ticket: Ticket): string | null => {
+  // 🆕 Chercher d'abord dans ticket.summary (nouveau système)
+  if (ticket.summary) return ticket.summary;
+  
+  // Sinon, chercher dans metadata (ancien système)
   const metadataSummary = (ticket as any)?.metadata?.assigned_summary;
   if (metadataSummary) return metadataSummary;
 
+  // Sinon, chercher dans chat_history (ancien système)
   const systemMessage = ticket.chat_history?.find(
     (m) => m.sender === 'system_summary'
   );
@@ -51,6 +56,7 @@ const AgentTicketRow: React.FC<AgentTicketRowProps> = ({ ticket, onTakeCharge, i
 
   return (
     <tr className="border-b border-slate-200 hover:bg-slate-50">
+      {/* Colonne: Titre */}
       <td className="p-2 sm:p-3 text-slate-700">
         <Link
           to={`/ticket/${ticket.id}`}
@@ -58,27 +64,35 @@ const AgentTicketRow: React.FC<AgentTicketRowProps> = ({ ticket, onTakeCharge, i
         >
           {ticket.title}
         </Link>
+      </td>
 
-        {/* ✅ AFFICHAGE: Résumé assigné avec bouton toggle */}
-        {summary && (
-          <div className="mt-2">
+      {/* Colonne: Client */}
+      <td className="p-3 text-sm text-slate-600">{clientName}</td>
+
+      {/* 🆕 COLONNE: RÉSUMÉ */}
+      <td className="p-2 sm:p-3 text-slate-700 max-w-xs">
+        {summary ? (
+          <div>
             <button
               type="button"
               onClick={() => setIsSummaryOpen(v => !v)}
-              className="text-xs text-indigo-600 hover:underline"
+              className="text-xs text-indigo-600 hover:underline font-medium whitespace-nowrap"
             >
-              {isSummaryOpen ? 'Masquer le résumé' : 'Voir le résumé'}
+              {isSummaryOpen ? '↑ Masquer' : '↓ Voir résumé'}
             </button>
 
             {isSummaryOpen && (
-              <div className="mt-2 p-3 text-xs bg-indigo-50 border border-indigo-200 rounded-lg text-indigo-900 whitespace-pre-wrap">
+              <div className="mt-2 p-3 text-xs bg-indigo-50 border border-indigo-200 rounded-lg text-indigo-900 whitespace-pre-wrap max-h-40 overflow-y-auto">
                 {summary}
               </div>
             )}
           </div>
+        ) : (
+          <span className="text-xs text-slate-400 italic">-</span>
         )}
       </td>
-      <td className="p-3 text-sm text-slate-600">{clientName}</td>
+
+      {/* Colonnes: Workstation, Date, Status, Action */}
       <td className="p-3 text-sm text-slate-600">{ticket.workstation_id || t("agentDashboard.notApplicableShort")}</td>
       <td className="p-3 text-sm text-slate-500">{new Date(ticket.created_at).toLocaleDateString(getBCP47Locale())}</td>
       <td className="p-3 text-sm text-slate-500">{t(`ticketStatus.${ticket.status}`)}</td>
@@ -211,6 +225,7 @@ const AgentDashboardPage: React.FC = () => {
             </div>
           </section>
 
+          {/* MY TICKETS SECTION */}
           <section className="rounded-3xl border bg-white p-6 shadow-sm">
             <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-4">
               <div>
@@ -230,6 +245,10 @@ const AgentDashboardPage: React.FC = () => {
                       </th>
                       <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
                         {t("agentDashboard.tableHeader.client")}
+                      </th>
+                      {/* 🆕 NOUVELLE COLONNE: RÉSUMÉ */}
+                      <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                        {t("agentDashboard.tableHeader.summary", { default: "Résumé" })}
                       </th>
                       <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
                         {t("agentDashboard.tableHeader.workstation")}
@@ -255,6 +274,7 @@ const AgentDashboardPage: React.FC = () => {
             )}
           </section>
 
+          {/* UNASSIGNED TICKETS SECTION */}
           <section className="rounded-3xl border bg-white p-6 shadow-sm">
             <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-4">
               <div>
@@ -274,6 +294,10 @@ const AgentDashboardPage: React.FC = () => {
                       </th>
                       <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
                         {t("agentDashboard.tableHeader.client")}
+                      </th>
+                      {/* 🆕 NOUVELLE COLONNE: RÉSUMÉ */}
+                      <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                        {t("agentDashboard.tableHeader.summary", { default: "Résumé" })}
                       </th>
                       <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
                         {t("agentDashboard.tableHeader.workstation")}
