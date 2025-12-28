@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useApp } from '../App';
 import ChatMessageComponent from '../components/ChatMessage';
-import { Button, Textarea, Select, Input } from '../components/FormElements';
+import { Button, Textarea, Select, Input } from '../components/FormElements'; // Added Input
 import { TicketStatus, ChatMessage as ChatMessageType, TicketPriority, UserRole, AppointmentDetails } from '../types';
 import { TICKET_STATUS_KEYS, TICKET_PRIORITY_KEYS } from '../constants';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -14,6 +14,8 @@ import { supabase } from '../services/supabaseClient';
 import TicketContextPanel, { TicketRole } from '../components/TicketContextPanel';
 import NexusAiHelpButton from '../components/NexusAiHelpButton';
 import NexusAgentAssistWidget from '../components/NexusAgentAssistWidget';
+
+
 
 const MicrophoneIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" {...props}>
@@ -73,6 +75,7 @@ type InternalNoteEntry = {
   created_at: string;
 };
 
+
 const TicketDetailPage: React.FC = () => {
   const { ticketId } = useParams<{ ticketId: string }>();
   const navigate = useNavigate();
@@ -122,7 +125,6 @@ const TicketDetailPage: React.FC = () => {
   const undoTimerRef = useRef<number | null>(null);
   const undoBtnRef = useRef<HTMLButtonElement | null>(null);
   const deleteBtnRef = useRef<HTMLButtonElement | null>(null);
-
   useEffect(() => {
     if (!feedback) return;
     const focusTimeout = window.setTimeout(() => {
@@ -144,6 +146,7 @@ const TicketDetailPage: React.FC = () => {
     };
   }, []);
 
+  // Appointment proposal state for agents/managers
   const [apptDateTime, setApptDateTime] = useState('');
   const [apptNotes, setApptNotes] = useState('');
   const [showAppointmentForm, setShowAppointmentForm] = useState(false);
@@ -162,6 +165,7 @@ const TicketDetailPage: React.FC = () => {
   const [newInternalNote, setNewInternalNote] = useState('');
   const [activeTab, setActiveTab] = useState<'messages' | 'internal'>('messages');
   const [isAgentAssistOpen, setIsAgentAssistOpen] = useState(false);
+
 
   const {
     isListening: isListeningChatInput,
@@ -214,7 +218,7 @@ const TicketDetailPage: React.FC = () => {
     setCaseStage(derivedStage);
     setTasks(Array.isArray(safeDetails.tasks) ? safeDetails.tasks : []);
     setInternalNotes(Array.isArray(safeDetails.internal_notes) ? safeDetails.internal_notes : []);
-  }, [ticket, t]);
+  }, [ticket]);
 
   const loadAppointments = useCallback(async () => {
     if (!ticket) return;
@@ -241,6 +245,7 @@ const TicketDetailPage: React.FC = () => {
     loadAppointments();
   }, [loadAppointments]);
 
+
   const persistCaseDetails = useCallback(
     async (nextDetails: Record<string, any>) => {
       if (!ticket) return false;
@@ -260,6 +265,7 @@ const TicketDetailPage: React.FC = () => {
     },
     [ticket]
   );
+
 
   const handleSpeakMessage = (text: string, messageId: string, isAiMsg: boolean) => {
     if (isListeningChatInput) stopChatListening();
@@ -863,7 +869,7 @@ const TicketDetailPage: React.FC = () => {
             />
           </div>
 
-          {/* 📋 SECTION RÉSUMÉ DE LA CONVERSATION - INTÉGRÉE */}
+          {/* ✨ 📋 SECTION RÉSUMÉ DE LA CONVERSATION - VRAIMENT INTÉGRÉE ✨ */}
           {ticket?.summary && (
             <section className="rounded-3xl border border-slate-800 bg-slate-900/80 p-4 lg:p-5 shadow-sm">
               <div className="flex items-center gap-3 mb-4">
