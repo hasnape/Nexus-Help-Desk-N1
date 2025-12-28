@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useApp } from '../App';
 import ChatMessageComponent from '../components/ChatMessage';
-import { Button, Textarea, Select, Input } from '../components/FormElements'; // Added Input
+import { Button, Textarea, Select, Input } from '../components/FormElements';
 import { TicketStatus, ChatMessage as ChatMessageType, TicketPriority, UserRole, AppointmentDetails } from '../types';
 import { TICKET_STATUS_KEYS, TICKET_PRIORITY_KEYS } from '../constants';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -16,12 +15,10 @@ import TicketContextPanel, { TicketRole } from '../components/TicketContextPanel
 import NexusAiHelpButton from '../components/NexusAiHelpButton';
 import NexusAgentAssistWidget from '../components/NexusAgentAssistWidget';
 
-
-
 const MicrophoneIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" {...props}>
     <path d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4z" />
-    <path fillRule="evenodd" d="M5.5 8.5A.5.5 0 016 8h1v1.167a5.006 5.006 0 004 0V8h1a.5.5 0 01.5.5v.167A5.003 5.003 0 0013 12.5V14.5h.5a.5.5 0 010 1h-7a.5.5 0 010-1H7v-2a5.003 5.003 0 00.5-3.833V8.5z" clipRule="evenodd" />
+    <path fillRule="evenodd" d="M5.5 8.5A.5.5 0 016 8h1v1.167a5.006 5.006 0 004 0V8h1a.5.5 0 01.5.5v.167A5.003 5.003 0 0113 12.5V14.5h.5a.5.5 0 010 1h-7a.5.5 0 010-1H7v-2a5.003 5.003 0 00.5-3.833V8.5z" clipRule="evenodd" />
   </svg>
 );
 
@@ -76,7 +73,6 @@ type InternalNoteEntry = {
   created_at: string;
 };
 
-
 const TicketDetailPage: React.FC = () => {
   const { ticketId } = useParams<{ ticketId: string }>();
   const navigate = useNavigate();
@@ -126,6 +122,7 @@ const TicketDetailPage: React.FC = () => {
   const undoTimerRef = useRef<number | null>(null);
   const undoBtnRef = useRef<HTMLButtonElement | null>(null);
   const deleteBtnRef = useRef<HTMLButtonElement | null>(null);
+
   useEffect(() => {
     if (!feedback) return;
     const focusTimeout = window.setTimeout(() => {
@@ -147,7 +144,6 @@ const TicketDetailPage: React.FC = () => {
     };
   }, []);
 
-  // Appointment proposal state for agents/managers
   const [apptDateTime, setApptDateTime] = useState('');
   const [apptNotes, setApptNotes] = useState('');
   const [showAppointmentForm, setShowAppointmentForm] = useState(false);
@@ -166,7 +162,6 @@ const TicketDetailPage: React.FC = () => {
   const [newInternalNote, setNewInternalNote] = useState('');
   const [activeTab, setActiveTab] = useState<'messages' | 'internal'>('messages');
   const [isAgentAssistOpen, setIsAgentAssistOpen] = useState(false);
-
 
   const {
     isListening: isListeningChatInput,
@@ -219,7 +214,7 @@ const TicketDetailPage: React.FC = () => {
     setCaseStage(derivedStage);
     setTasks(Array.isArray(safeDetails.tasks) ? safeDetails.tasks : []);
     setInternalNotes(Array.isArray(safeDetails.internal_notes) ? safeDetails.internal_notes : []);
-  }, [ticket]);
+  }, [ticket, t]);
 
   const loadAppointments = useCallback(async () => {
     if (!ticket) return;
@@ -246,7 +241,6 @@ const TicketDetailPage: React.FC = () => {
     loadAppointments();
   }, [loadAppointments]);
 
-
   const persistCaseDetails = useCallback(
     async (nextDetails: Record<string, any>) => {
       if (!ticket) return false;
@@ -266,7 +260,6 @@ const TicketDetailPage: React.FC = () => {
     },
     [ticket]
   );
-
 
   const handleSpeakMessage = (text: string, messageId: string, isAiMsg: boolean) => {
     if (isListeningChatInput) stopChatListening();
@@ -869,6 +862,29 @@ const TicketDetailPage: React.FC = () => {
               onAddInternalNote={isAgentOrManager ? handleAddInternalNote : undefined}
             />
           </div>
+
+          {/* 📋 SECTION RÉSUMÉ DE LA CONVERSATION - INTÉGRÉE */}
+          {ticket?.summary && (
+            <section className="rounded-3xl border border-slate-800 bg-slate-900/80 p-4 lg:p-5 shadow-sm">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-2xl">📋</span>
+                <h2 className="text-xl font-bold text-slate-100">
+                  {t('ticket.summary.label', { default: 'Résumé de la Conversation' })}
+                </h2>
+              </div>
+              
+              <div className="bg-slate-800 p-4 rounded-lg border border-slate-700">
+                <p className="text-slate-200 leading-relaxed whitespace-pre-wrap text-sm lg:text-base">
+                  {ticket.summary}
+                </p>
+              </div>
+              
+              <div className="mt-4 text-xs text-slate-400">
+                ℹ️ {t('ticket.summary.generatedByAi', { default: 'Ce résumé a été généré automatiquement par IA à partir de la conversation du ticket.' })}
+              </div>
+            </section>
+          )}
+
           <NexusAiHelpButton
             role={ticketRoleForPanel}
             ticket={ticket}
