@@ -22,14 +22,11 @@ const priorityColors: Record<TicketPriority, string> = {
   [TICKET_PRIORITY_KEYS.HIGH]: "text-red-600",
 };
 
-// ✅ FONCTION CORRIGÉE: Récupérer le résumé du ticket
 const getAssignedSummary = (ticket: Ticket): string | null => {
-  // 1️⃣ NOUVEAU CHAMP tickets.summary (priorité #1)
   if (ticket.summary && typeof ticket.summary === "string" && ticket.summary.trim()) {
     return ticket.summary;
   }
 
-  // 2️⃣ metadata.assignedsummary
   const metadataSummary = (ticket as any)?.metadata?.assignedsummary;
   if (
     metadataSummary &&
@@ -39,7 +36,6 @@ const getAssignedSummary = (ticket: Ticket): string | null => {
     return metadataSummary;
   }
 
-  // 3️⃣ details.assignedsummary
   const detailsSummary = (ticket as any)?.details?.assignedsummary;
   if (
     detailsSummary &&
@@ -49,7 +45,6 @@ const getAssignedSummary = (ticket: Ticket): string | null => {
     return detailsSummary;
   }
 
-  // 4️⃣ chat_history.system_summary (fallback final)
   if (ticket.chat_history && Array.isArray(ticket.chat_history)) {
     const systemMessage = ticket.chat_history.find(
       (msg) => msg.sender === "system_summary"
@@ -78,7 +73,6 @@ const TicketCard: React.FC<TicketCardProps> = ({ ticket }) => {
     <div className="block hover:shadow-xl transition-shadow duration-200">
       <div className="bg-surface shadow-lg rounded-lg p-6 h-full flex flex-col justify-between">
         <div>
-          {/* 🔗 Titre cliquable */}
           <Link to={`/ticket/${ticket.id}`}>
             <div className="flex justify-between items-start mb-2">
               <h3
@@ -111,14 +105,12 @@ const TicketCard: React.FC<TicketCardProps> = ({ ticket }) => {
             })}
           </p>
 
-          {/* 📝 Dernier message / description */}
           <p className="text-sm text-textSecondary line-clamp-2 mb-3">
             {ticket.chat_history.length > 0
               ? ticket.chat_history[ticket.chat_history.length - 1].text
               : ticket.description}
           </p>
 
-          {/* 🔽 Bouton Développer */}
           {summary && (
             <button
               type="button"
@@ -129,11 +121,10 @@ const TicketCard: React.FC<TicketCardProps> = ({ ticket }) => {
             </button>
           )}
 
-          {/* 📋 Résumé complet */}
           {summary && isExpanded && (
             <div className="mt-2 p-3 rounded-lg bg-indigo-50 border border-indigo-200">
               <p className="text-xs font-semibold text-indigo-900 mb-1">
-                📋 Résumé du ticket
+                Résumé du ticket
               </p>
               <p className="text-xs text-indigo-800 whitespace-pre-line">
                 {summary}
@@ -142,7 +133,6 @@ const TicketCard: React.FC<TicketCardProps> = ({ ticket }) => {
           )}
         </div>
 
-        {/* ℹ️ Footer */}
         <div className="text-xs text-slate-500 mt-4 pt-2 border-t border-slate-200">
           <p>{t("ticketCard.createdByLabel", { user: creatorName })}</p>
           <p>
