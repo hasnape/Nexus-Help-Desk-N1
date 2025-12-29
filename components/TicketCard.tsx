@@ -22,9 +22,7 @@ const priorityColors: Record<TicketPriority, string> = {
   [TICKET_PRIORITY_KEYS.HIGH]: 'text-red-600',
 };
 
-// ✅ Récupération du résumé assigné (même logique que sur AgentDashboardPage)
 const getAssignedSummary = (ticket: Ticket): string | null => {
-  // 1. metadata.assignedsummary
   const metadataSummary = (ticket as any)?.metadata?.assignedsummary;
   if (
     metadataSummary &&
@@ -34,7 +32,6 @@ const getAssignedSummary = (ticket: Ticket): string | null => {
     return metadataSummary;
   }
 
-  // 2. details.assignedsummary (fallback)
   const detailsSummary = (ticket as any)?.details?.assignedsummary;
   if (
     detailsSummary &&
@@ -44,7 +41,6 @@ const getAssignedSummary = (ticket: Ticket): string | null => {
     return detailsSummary;
   }
 
-  // 3. chat_history: message "system_summary"
   if (ticket.chat_history && Array.isArray(ticket.chat_history)) {
     const systemMessage = ticket.chat_history.find(
       (msg) => msg.sender === 'system_summary'
