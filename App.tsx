@@ -687,22 +687,23 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
               ensureCurrentAppointmentColumn(),
               ensureTicketDetailsColumn(),
             ]);
-          const baseTicketColumns = [
-            "id",
-            "user_id",
-            "title",
-            "description",
-            "category",
-            "priority",
-            "status",
-            "assigned_ai_level",
-            "assigned_agent_id",
-            "workstation_id",
-            "company_id",
-            "company_name",
-            "created_at",
-            "updated_at",
-          ];
+       const baseTicketColumns = [
+  "id",
+  "user_id",
+  "title",
+  "description",
+  "category",
+  "priority",
+  "status",
+  "assigned_ai_level",
+  "assigned_agent_id",
+  "workstation_id",
+  "company_id",
+  "company_name",
+  "created_at",
+  "updated_at",
+  "summary",
+];
           const resolvedTicketDetailsColumn = resolvedDetailsColumn || ticketDetailsColumnRef.current;
           if (resolvedTicketDetailsColumn) {
             baseTicketColumns.push(resolvedTicketDetailsColumn);
