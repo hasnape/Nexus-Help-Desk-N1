@@ -22,23 +22,46 @@ const priorityColors: Record<TicketPriority, string> = {
   [TICKET_PRIORITY_KEYS.HIGH]: 'text-red-600',
 };
 
-// ✅ Récupération du résumé assigné
+// ✅ Récupération du résumé assigné (même logique que sur AgentDashboardPage)
 const getAssignedSummary = (ticket: Ticket): string | null => {
-  const metadataSummary = (ticket.metadata as any)?.assigned_summary;
-  if (metadataSummary) return metadataSummary;
+  // 1. metadata.assignedsummary
+  const metadataSummary = (ticket as any)?.metadata?.assignedsummary;
+  if (
+    metadataSummary &&
+    typeof metadataSummary === 'string' &&
+    metadataSummary.trim()
+  ) {
+    return metadataSummary;
+  }
 
-  const summaryMessage = ticket.chat_history?.find(
-    (msg) => msg.sender === 'system_summary'
-  );
+  // 2. details.assignedsummary (fallback)
+  const detailsSummary = (ticket as any)?.details?.assignedsummary;
+  if (
+    detailsSummary &&
+    typeof detailsSummary === 'string' &&
+    detailsSummary.trim()
+  ) {
+    return detailsSummary;
+  }
 
-  return summaryMessage?.text || null;
+  // 3. chat_history: message "system_summary"
+  if (ticket.chat_history && Array.isArray(ticket.chat_history)) {
+    const systemMessage = ticket.chat_history.find(
+      (msg) => msg.sender === 'system_summary'
+    );
+    if (systemMessage && systemMessage.text) {
+      return systemMessage.text;
+    }
+  }
+
+  return null;
 };
 
 const TicketCard: React.FC<TicketCardProps> = ({ ticket }) => {
   const { t, getBCP47Locale } = useLanguage();
   const { getAllUsers } = useApp();
 
-  const creator = getAllUsers().find(u => u.id === ticket.user_id);
+  const creator = getAllUsers().find((u) => u.id === ticket.user_id);
   const creatorName = creator
     ? creator.full_name
     : t('agentDashboard.notApplicableShort', { default: 'N/A' });
@@ -71,7 +94,9 @@ const TicketCard: React.FC<TicketCardProps> = ({ ticket }) => {
             {t('ticketCard.categoryLabel', { category: t(ticket.category) })}
           </p>
 
-          <p className={`text-sm font-medium ${priorityColors[ticket.priority]} mb-3`}>
+          <p
+            className={`text-sm font-medium ${priorityColors[ticket.priority]} mb-3`}
+          >
             {t('ticketCard.priorityLabel', {
               priority: t(`ticketPriority.${ticket.priority}`),
             })}
