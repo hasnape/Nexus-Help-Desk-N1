@@ -182,6 +182,7 @@ const reviveTicketDates = (data: any, chatHistoryOverride?: ChatMessage[]): Tick
     ...data,
     created_at: new Date(data.created_at),
     updated_at: new Date(data.updated_at),
+    summary: data.summary || null,
     chat_history: chatHistoryOverride
       ? chatHistoryOverride
       : data.chat_history
