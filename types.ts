@@ -1,8 +1,6 @@
-
-
 export enum TicketStatus {
   OPEN = 'Open',
-  IN_PROGRESS = 'InProgress', // Changed to avoid space for easier key construction
+  IN_PROGRESS = 'InProgress',
   RESOLVED = 'Resolved',
   CLOSED = 'Closed',
 }
@@ -23,10 +21,10 @@ export type GlobalRole = "super_admin" | "support" | "none" | null;
 
 export interface ChatMessage {
   id: string;
-  sender: 'user' | 'ai' | 'agent' | 'system_summary'; // Added 'system_summary'
+  sender: 'user' | 'ai' | 'agent' | 'system_summary';
   text: string;
   timestamp: Date;
-  agentId?: string; // UUID of the agent if sender is 'agent'
+  agentId?: string;
   ai_profile_key?: string | null;
   intake_payload?: unknown;
 }
@@ -35,9 +33,9 @@ export interface InternalNote {
   id?: string;
   ticket_id?: string;
   agent_id?: string | null;
-  agentId?: string | null; // legacy camelCase field
+  agentId?: string | null;
   note_text: string;
-  text?: string; // legacy field name retained for compatibility
+  text?: string;
   timestamp?: Date;
   created_at?: string | null;
   company_id?: string | null;
@@ -137,18 +135,19 @@ export const normalizeInternalNotes = (raw: any): InternalNote[] => {
 
 export interface AppointmentDetails {
   proposedBy: 'agent' | 'user';
-  proposedDate: string; // YYYY-MM-DD
-  proposedTime: string; // HH:MM
-  locationOrMethod: string; // e.g., "On-site at your desk", "Remote session", "Equipment pickup at IT office"
+  proposedDate: string;
+  proposedTime: string;
+  locationOrMethod: string;
   status: 'pending_user_approval' | 'pending_agent_approval' | 'confirmed' | 'cancelled_by_user' | 'cancelled_by_agent' | 'rescheduled_by_user' | 'rescheduled_by_agent';
   notes?: string;
-  history?: AppointmentDetails[]; // Optional: To track negotiation history if needed directly on object
-  id: string; // Unique ID for each appointment proposal/instance
+  history?: AppointmentDetails[];
+  id: string;
 }
 
+// ✅ SUMMARY AJOUTÉ ICI!
 export interface Ticket {
-  id: string; // uuid
-  user_id: string; // uuid, Foreign Key to users.id
+  id: string;
+  user_id: string;
   title: string;
   description: string;
   category: string;
@@ -162,24 +161,24 @@ export interface Ticket {
   updated_at: Date;
   chat_history: ChatMessage[];
   assigned_ai_level: 1 | 2;
-  assigned_agent_id?: string; // UUID of the agent assigned to this ticket
-  workstation_id?: string;   // "Poste" or Workstation ID
-  internal_notes: InternalNote[]; // Notes visible only to agents/managers
-  current_appointment?: AppointmentDetails; // For appointment scheduling
+  assigned_agent_id?: string;
+  workstation_id?: string;
+  internal_notes: InternalNote[];
+  current_appointment?: AppointmentDetails;
+  summary?: string;                    // ✅ RÉSUMÉ IA
+  summary_updated_at?: string | null;  // ✅ TIMESTAMP RÉSUMÉ
 }
 
 export interface User {
-  id: string; // uuid
+  id: string;
   auth_uid?: string | null;
   email: string;
   full_name: string;
   role: UserRole;
   language_preference: Locale;
-  company_id?: string | null; // Stores the company name (text)
+  company_id?: string | null;
   company_name?: string | null;
   global_role?: GlobalRole | null;
 }
 
-// Ensure Locale is defined or imported if it's from LanguageContext
-// For simplicity, assuming Locale is 'en' | 'fr' | 'ar' as typically defined in LanguageContext
 export type Locale = 'en' | 'fr' | 'ar';
