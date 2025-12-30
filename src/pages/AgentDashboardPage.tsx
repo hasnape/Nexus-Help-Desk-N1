@@ -16,32 +16,19 @@ const PlusIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 
 // ✅ FONCTION CORRIGÉE: Récupérer le résumé du ticket
 const getAssignedSummary = (ticket: Ticket): string | null => {
-  // 1️⃣ NOUVEAU CHAMP tickets.summary (priorité #1)
-  if (ticket.summary && typeof ticket.summary === "string" && ticket.summary.trim()) {
-    return ticket.summary;
-  }
-
-  // 2️⃣ metadata.assignedsummary
+  // 1. Chercher dans metadata.assignedsummary
   const metadataSummary = (ticket as any)?.metadata?.assignedsummary;
-  if (
-    metadataSummary &&
-    typeof metadataSummary === "string" &&
-    metadataSummary.trim()
-  ) {
+  if (metadataSummary && typeof metadataSummary === "string" && metadataSummary.trim()) {
     return metadataSummary;
   }
 
-  // 3️⃣ details.assignedsummary
+  // 2. Chercher dans details.assignedsummary (fallback)
   const detailsSummary = (ticket as any)?.details?.assignedsummary;
-  if (
-    detailsSummary &&
-    typeof detailsSummary === "string" &&
-    detailsSummary.trim()
-  ) {
+  if (detailsSummary && typeof detailsSummary === "string" && detailsSummary.trim()) {
     return detailsSummary;
   }
 
-  // 4️⃣ chat_history.system_summary (fallback final)
+  // 3. Chercher dans chat_history (message system_summary)
   if (ticket.chat_history && Array.isArray(ticket.chat_history)) {
     const systemMessage = ticket.chat_history.find(
       (m) => m.sender === "system_summary"
@@ -65,11 +52,7 @@ interface AgentTicketRowProps {
   isUnassigned?: boolean;
 }
 
-const AgentTicketRow: React.FC<AgentTicketRowProps> = ({
-  ticket,
-  onTakeCharge,
-  isUnassigned,
-}) => {
+const AgentTicketRow: React.FC<AgentTicketRowProps> = ({ ticket, onTakeCharge, isUnassigned }) => {
   const { t, getBCP47Locale } = useLanguage();
   const { getAllUsers } = useApp();
 
@@ -89,9 +72,7 @@ const AgentTicketRow: React.FC<AgentTicketRowProps> = ({
   const summary = getAssignedSummary(ticket);
 
   const clientUser = getAllUsers().find((u) => u.id === ticket.user_id);
-  const clientName = clientUser
-    ? clientUser.full_name
-    : t("agentDashboard.notApplicableShort");
+  const clientName = clientUser ? clientUser.full_name : t("agentDashboard.notApplicableShort");
 
   const handleAssignToSelf = () => {
     if (onTakeCharge) {
@@ -144,9 +125,7 @@ const AgentTicketRow: React.FC<AgentTicketRowProps> = ({
       <td className="p-3 text-sm text-slate-500">
         {new Date(ticket.created_at).toLocaleDateString(getBCP47Locale())}
       </td>
-      <td className="p-3 text-sm text-slate-500">
-        {t(`ticketStatus.${ticket.status}`)}
-      </td>
+      <td className="p-3 text-sm text-slate-500">{t(`ticketStatus.${ticket.status}`)}</td>
       <td className="p-3 text-sm">
         {isUnassigned && onTakeCharge ? (
           <Button
@@ -297,9 +276,7 @@ const AgentDashboardPage: React.FC = () => {
             <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">
               {t("dashboard.agent.stats.open")}
             </p>
-            <p className="mt-2 text-3xl font-bold text-slate-900">
-              {openCount}
-            </p>
+            <p className="mt-2 text-3xl font-bold text-slate-900">{openCount}</p>
             <p className="text-xs text-slate-600">
               {t("dashboard.agent.stats.openHelp")}
             </p>
