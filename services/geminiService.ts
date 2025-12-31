@@ -7,7 +7,7 @@ import { Locale } from "../contexts/LanguageContext";
 import { TICKET_CATEGORY_KEYS } from "../constants";
 
 // Endpoint du proxy Vercel → Supabase Edge Function
-// Tu peux le surcharger avec VITE_NEXUS_AI_ENDPOINT si besoin.
+// Tu peux le surcharger avec VITE_NEXUS_AI_ENDPOINT si besoin dans ton .env
 const NEXUS_AI_ENDPOINT =
   import.meta.env.VITE_NEXUS_AI_ENDPOINT || "/api/edge-proxy/nexus-ai";
 
@@ -82,7 +82,7 @@ const normalizePriority = (priorityName: string | undefined): TicketPriority => 
   if (lower === "moyenne" || lower === "moyen") {
     return TicketPriority.MEDIUM;
   }
-  if (lower === "basse" || lower === "bas") {
+  if (lower === "basse" || lower === "bas" || lower === "faible") {
     return TicketPriority.LOW;
   }
 
@@ -149,6 +149,7 @@ export async function summarizeAndCategorizeChat(
   description: string;
   category: string;
   priority: TicketPriority;
+  summary: string; // ✅ AJOUTÉ: Le résumé explicite pour la DB
 }> {
   const targetLanguage = getLanguageName(language);
   const backendHistory = buildBackendChatHistory(chatHistory);
@@ -188,7 +189,7 @@ export async function summarizeAndCategorizeChat(
         TICKET_CATEGORY_KEYS[0];
     }
 
-    // ✅ MODIFIÉ: Utiliser normalizePriority() au lieu de simplement assigner
+    // Utiliser normalizePriority() pour convertir la string en Enum
     const normalizedPriority = normalizePriority(data.priority as string);
 
     return {
@@ -196,6 +197,9 @@ export async function summarizeAndCategorizeChat(
       description: data.description,
       category: normalizedCategory,
       priority: normalizedPriority,
+      // ✅ C'est ici la clé : La "description" générée par l'IA lors du chat initial
+      // est en réalité le résumé de la conversation. On le retourne en tant que 'summary'.
+      summary: data.description, 
     };
   } catch (error: any) {
     console.error("Error summarizing and categorizing chat (backend):", error);
