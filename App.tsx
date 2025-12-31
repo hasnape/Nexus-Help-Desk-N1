@@ -25,7 +25,7 @@ import { supabase } from "./services/supabaseClient";
 import { ensureUserProfile } from "./services/authService";
 import { guardedLogin, GuardedLoginError } from "./services/guardedLogin";
 import type { GuardedLoginErrorKey } from "./services/guardedLogin";
-import { DEFAULT_AI_LEVEL, DEFAULT_USER_ROLE, TICKET_STATUS_KEYS } from "./constants";
+import { DEFAULT_AI_LEVEL, TICKET_STATUS_KEYS } from "./constants";
 import { LanguageProvider, useLanguage } from "./contexts/LanguageContext";
 import LoadingSpinner from "./components/LoadingSpinner";
 import CookieConsentBanner from "./components/CookieConsentBanner";
@@ -315,7 +315,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const { language, setLanguage: setAppLanguage, t: translateHook } = useLanguage();
 
-  const shouldShortCircuitNetwork = useCallback((operation?: string) => false, []);
+  const shouldShortCircuitNetwork = useCallback((_operation?: string) => false, []);
 
   const updateTicketsState = useCallback(
     (updater: (prevTickets: Ticket[]) => Ticket[], _forceLocalOnly?: boolean) => {
@@ -1417,6 +1417,10 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const getTicketById = useCallback((ticketId: string) => tickets.find((t) => t.id === ticketId), [tickets]);
+
+  const getAgents = useCallback(() => allUsers.filter((u) => u.role === UserRole.AGENT), [allUsers]);
+
+  const getAllUsers = useCallback(() => allUsers, [allUsers]);
 
   const updateCompanyName = async (newName: string): Promise<boolean> => {
     if (!user || user.role !== UserRole.MANAGER || !user.company_id) return false;
