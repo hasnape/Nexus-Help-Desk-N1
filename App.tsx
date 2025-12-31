@@ -907,27 +907,27 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     [translateHook]
   );
 
-  const login = useCallback(
-    (email: string, password: string, companyName: string): Promise<string | true> =>
-      guardedLogin(email, password, companyName)
-        .then(({ session, profile }) => {
-          setUser(profile);
-          return loadUserData(session)
-            .then(() => true)
-            .catch((loadError) => {
-              console.error("Unexpected error while loading user data after login:", loadError);
-              return translateGuardError("login.error.profileFetchFailed");
-            });
-        })
-        .catch((authError: unknown) => {
-          if (authError instanceof GuardedLoginError) {
-            return translateGuardError(authError.translationKey);
-          }
-          console.error("Unexpected login error:", authError);
-          return translateGuardError("login.error.invalidCompanyCredentials");
-        }),
-    [loadUserData, translateGuardError]
-  );
+ const login = useCallback(
+  (email: string, password: string, companyName: string): Promise<string | true> =>
+    guardedLogin(email, password, companyName)
+      .then(({ session, profile }) => {
+        setUser(profile);
+        return loadUserData(session)
+          .then(() => true as const) // On précise que c'est la valeur littérale true
+          .catch((loadError) => {
+            console.error("Unexpected error while loading user data after login:", loadError);
+            return translateGuardError("login.error.profileFetchFailed");
+          });
+      })
+      .catch((authError: unknown): string => { // On précise que ce catch retourne une string
+        if (authError instanceof GuardedLoginError) {
+          return translateGuardError(authError.translationKey);
+        }
+        console.error("Unexpected login error:", authError);
+        return translateGuardError("login.error.invalidCompanyCredentials");
+      }),
+  [loadUserData, translateGuardError]
+);
 
   const signUp = async (
     email: string,
