@@ -7,6 +7,7 @@ import { TICKET_CATEGORY_KEYS, TICKET_PRIORITY_KEYS } from '../constants';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useLanguage } from '../contexts/LanguageContext';
 import { summarizeAndCategorizeChat } from '../services/geminiService';
+import { supabase } from '../services/supabaseClient';
 
 const NewTicketPage: React.FC = () => {
   const { addTicket, user } = useApp();
@@ -113,60 +114,63 @@ const NewTicketPage: React.FC = () => {
     navigate(dashboardPath, { replace: true });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+ const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !validateForm()) return;
 
     setIsLoading(true);
 
-    const ticketData = {
-      title,
-      description,
-      category,
-      priority,
-      status: TicketStatus.OPEN,
-      workstation_id: workstationId.trim() || undefined,
-      summary: aiSummary?.trim() || null,
-      summary_updated_at: new Date().toISOString()
-    };
+    try {
+      // 1. Récupérer le profil complet de l'utilisateur depuis la table 'users'
+      // Indispensable pour obtenir le company_id réel lié à l'auth_uid
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('company_id, company_name')
+        .eq('auth_uid', user.id)
+        .single();
 
-    const newTicket = await addTicket(ticketData, chatHistoryRef.current);
-
-    setIsLoading(false);
-
-    if (newTicket) {
-      let dashboardPath = '/dashboard';
-
-      if (user.role === UserRole.AGENT) {
-        dashboardPath = '/agent/dashboard';
-      } else if (user.role === UserRole.MANAGER) {
-        dashboardPath = '/manager/dashboard';
+      if (userError || !userData) {
+        throw new Error("Impossible de valider votre organisation (Multi-tenant check failed).");
       }
 
-      navigate(dashboardPath, { replace: true });
-    } else {
+      // 2. Préparation des données du ticket avec les champs de sécurité
+      const ticketData = {
+        title: title.trim(),
+        description: description.trim(),
+        category,
+        priority,
+        status: TicketStatus.OPEN,
+        workstation_id: workstationId.trim() || undefined,
+        summary: aiSummary?.trim() || undefined,
+        summary_updated_at: new Date().toISOString(),
+        
+        // CHAMPS CRITIQUES POUR LE RLS PROFESSIONNEL :
+        user_id: user.id, // ID de l'utilisateur authentifié
+        company_id: userData.company_id, // ID de la compagnie
+        company_name: userData.company_name // Nom de la compagnie
+      };
+
+      // 3. Appel de votre fonction globale addTicket
+      const newTicket = await addTicket(ticketData, chatHistoryRef.current);
+
+      if (newTicket) {
+        // Redirection basée sur le rôle
+        const dashboardPath = user.role === UserRole.AGENT ? '/agent/dashboard' : 
+                            user.role === UserRole.MANAGER ? '/manager/dashboard' : '/dashboard';
+        navigate(dashboardPath, { replace: true });
+      } else {
+        throw new Error(t('newTicket.error.failedToCreate'));
+      }
+    } catch (err: any) {
+      console.error('Submit Error:', err);
       setErrors(prev => ({
         ...prev,
-        form: t('newTicket.error.failedToCreate')
+        form: err.message || "Une erreur est survenue lors de la création du ticket."
       }));
+    } finally {
+      setIsLoading(false);
     }
   };
-
-  if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh]">
-        <LoadingSpinner
-          size="lg"
-          text={t('newTicket.loadingMessageSummary', {
-            default: 'Analyzing conversation and preparing your ticket...'
-          })}
-        />
-        <p className="mt-4 text-slate-600">
-          {t('newTicket.loadingSubMessage')}
-        </p>
-      </div>
-    );
-  }
 
   const priorityOptions = Object.values(TICKET_PRIORITY_KEYS).map(prioKey => ({
     value: prioKey,
