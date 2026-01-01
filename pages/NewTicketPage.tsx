@@ -113,23 +113,65 @@ const NewTicketPage: React.FC = () => {
     navigate(dashboardPath, { replace: true });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+ const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !validateForm()) return;
 
     setIsLoading(true);
 
-    const ticketData = {
-      title,
-      description,
-      category,
-      priority,
-      status: TicketStatus.OPEN,
-      workstation_id: workstationId.trim() || undefined,
-      summary: aiSummary?.trim() || undefined,
-      summary_updated_at: new Date().toISOString()
-    };
+    try {
+      // 1. Récupération des infos de l'utilisateur (pour avoir le company_id)
+      // On utilise le service supabase directement ou via votre AppContext
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('company_id, company_name')
+        .eq('auth_uid', user.id)
+        .single();
 
+      if (userError || !userData) {
+        throw new Error("Impossible de récupérer les informations de votre entreprise.");
+      }
+
+      // 2. Préparation des données avec le périmètre de sécurité (company_id)
+      const ticketData = {
+        title,
+        description,
+        category,
+        priority,
+        status: TicketStatus.OPEN,
+        workstation_id: workstationId.trim() || undefined,
+        summary: aiSummary?.trim() || undefined,
+        summary_updated_at: new Date().toISOString(),
+        // AJOUTS CRITIQUES POUR LE RLS :
+        company_id: userData.company_id,
+        company_name: userData.company_name,
+        user_id: user.id
+      };
+
+      // 3. Appel de la fonction addTicket existante
+      const newTicket = await addTicket(ticketData, chatHistoryRef.current);
+
+      if (newTicket) {
+        let dashboardPath = '/dashboard';
+        if (user.role === UserRole.AGENT) {
+          dashboardPath = '/agent/dashboard';
+        } else if (user.role === UserRole.MANAGER) {
+          dashboardPath = '/manager/dashboard';
+        }
+        navigate(dashboardPath, { replace: true });
+      } else {
+        throw new Error(t('newTicket.error.failedToCreate'));
+      }
+    } catch (err: any) {
+      console.error("Erreur création ticket:", err);
+      setErrors(prev => ({
+        ...prev,
+        form: err.message || t('newTicket.error.failedToCreate')
+      }));
+    } finally {
+      setIsLoading(false);
+    }
+  };
     const newTicket = await addTicket(ticketData, chatHistoryRef.current);
 
     setIsLoading(false);
