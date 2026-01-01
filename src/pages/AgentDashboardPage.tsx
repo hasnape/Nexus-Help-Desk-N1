@@ -14,21 +14,20 @@ const PlusIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   </svg>
 );
 
-// ✅ FONCTION CORRIGÉE: Récupérer le résumé du ticket
+// ✅ FONCTION MISE À JOUR : Priorité à la colonne 'summary' de Supabase
 const getAssignedSummary = (ticket: Ticket): string | null => {
-  // 1. Chercher dans metadata.assignedsummary
+  // 1. PRIORITÉ : Nouvelle colonne 'summary' (Directement depuis la table tickets)
+  if (ticket.summary && typeof ticket.summary === "string" && ticket.summary.trim()) {
+    return ticket.summary;
+  }
+
+  // 2. FALLBACK 1 : metadata.assignedsummary (Ancien système)
   const metadataSummary = (ticket as any)?.metadata?.assignedsummary;
   if (metadataSummary && typeof metadataSummary === "string" && metadataSummary.trim()) {
     return metadataSummary;
   }
 
-  // 2. Chercher dans details.assignedsummary (fallback)
-  const detailsSummary = (ticket as any)?.details?.assignedsummary;
-  if (detailsSummary && typeof detailsSummary === "string" && detailsSummary.trim()) {
-    return detailsSummary;
-  }
-
-  // 3. Chercher dans chat_history (message system_summary)
+  // 3. FALLBACK 2 : chat_history (Message système)
   if (ticket.chat_history && Array.isArray(ticket.chat_history)) {
     const systemMessage = ticket.chat_history.find(
       (m) => m.sender === "system_summary"
@@ -56,7 +55,6 @@ const AgentTicketRow: React.FC<AgentTicketRowProps> = ({ ticket, onTakeCharge, i
   const { t, getBCP47Locale } = useLanguage();
   const { getAllUsers } = useApp();
 
-  // ✅ Validation du ticket
   if (!isValidTicket(ticket)) {
     return (
       <tr>
@@ -67,7 +65,6 @@ const AgentTicketRow: React.FC<AgentTicketRowProps> = ({ ticket, onTakeCharge, i
     );
   }
 
-  // ✅ STATE: Gestion de l'affichage du résumé
   const [isSummaryOpen, setIsSummaryOpen] = useState(false);
   const summary = getAssignedSummary(ticket);
 
@@ -95,26 +92,26 @@ const AgentTicketRow: React.FC<AgentTicketRowProps> = ({ ticket, onTakeCharge, i
       {/* Colonne: Client */}
       <td className="p-3 text-sm text-slate-600">{clientName}</td>
 
-      {/* ✅ COLONNE: RÉSUMÉ */}
+      {/* ✅ COLONNE: RÉSUMÉ IA */}
       <td className="p-2 sm:p-3 text-slate-700 max-w-xs">
         {summary ? (
           <div>
             <button
               type="button"
               onClick={() => setIsSummaryOpen((v) => !v)}
-              className="text-xs text-indigo-600 hover:underline font-medium whitespace-nowrap"
+              className="flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-800 font-semibold whitespace-nowrap transition-colors"
             >
-              {isSummaryOpen ? "↑ Masquer" : "↓ Voir résumé"}
+              <span>{isSummaryOpen ? "↑ Masquer" : "✨ Voir résumé IA"}</span>
             </button>
 
             {isSummaryOpen && (
-              <div className="mt-2 p-3 text-xs bg-indigo-50 border border-indigo-200 rounded-lg text-indigo-900 whitespace-pre-wrap max-h-40 overflow-y-auto">
+              <div className="mt-2 p-3 text-[11px] leading-relaxed bg-indigo-50 border border-indigo-100 rounded-lg text-indigo-950 shadow-sm whitespace-pre-wrap max-h-40 overflow-y-auto">
                 {summary}
               </div>
             )}
           </div>
         ) : (
-          <span className="text-xs text-slate-400 italic">-</span>
+          <span className="text-xs text-slate-400 italic">Aucun résumé</span>
         )}
       </td>
 
@@ -126,19 +123,19 @@ const AgentTicketRow: React.FC<AgentTicketRowProps> = ({ ticket, onTakeCharge, i
         {new Date(ticket.created_at).toLocaleDateString(getBCP47Locale())}
       </td>
       <td className="p-3 text-sm text-slate-500">{t(`ticketStatus.${ticket.status}`)}</td>
-      <td className="p-3 text-sm">
+      <td className="p-3 text-sm text-right">
         {isUnassigned && onTakeCharge ? (
           <Button
             variant="primary"
             size="sm"
             onClick={handleAssignToSelf}
-            className="!text-xs !py-1 !px-2"
+            className="!text-[10px] !py-1 !px-2 uppercase font-bold tracking-wider"
           >
             {t("agentDashboard.takeChargeButton")}
           </Button>
         ) : (
           <Link to={`/ticket/${ticket.id}`}>
-            <Button variant="outline" size="sm" className="!text-xs !py-1 !px-2">
+            <Button variant="outline" size="sm" className="!text-[10px] !py-1 !px-2 uppercase">
               {t("agentDashboard.viewTicketButton")}
             </Button>
           </Link>
@@ -332,7 +329,6 @@ const AgentDashboardPage: React.FC = () => {
                     <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
                       {t("agentDashboard.tableHeader.client")}
                     </th>
-                    {/* ✅ NOUVELLE COLONNE: RÉSUMÉ */}
                     <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
                       {t("agentDashboard.tableHeader.summary", {
                         default: "Résumé",
@@ -389,7 +385,6 @@ const AgentDashboardPage: React.FC = () => {
                     <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
                       {t("agentDashboard.tableHeader.client")}
                     </th>
-                    {/* ✅ NOUVELLE COLONNE: RÉSUMÉ */}
                     <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
                       {t("agentDashboard.tableHeader.summary", {
                         default: "Résumé",

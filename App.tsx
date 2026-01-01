@@ -1,4 +1,4 @@
- import React, {
+import React, {
   createContext,
   useState,
   useContext,
@@ -117,13 +117,13 @@ interface AppContextType {
       ticket_id: string;
       proposed_by: "agent" | "user";
       status:
-        | "pending_user_approval"
-        | "pending_agent_approval"
-        | "confirmed"
-        | "cancelled_by_user"
-        | "cancelled_by_agent"
-        | "rescheduled_by_user"
-        | "rescheduled_by_agent";
+      | "pending_user_approval"
+      | "pending_agent_approval"
+      | "confirmed"
+      | "cancelled_by_user"
+      | "cancelled_by_agent"
+      | "rescheduled_by_user"
+      | "rescheduled_by_agent";
       proposed_date: string;
       proposed_time: string;
       location_or_method: string;
@@ -168,8 +168,8 @@ const reviveTicketDates = (data: any, chatHistoryOverride?: ChatMessage[]): Tick
       note.timestamp instanceof Date
         ? note.timestamp
         : note.created_at
-        ? new Date(note.created_at)
-        : undefined;
+          ? new Date(note.created_at)
+          : undefined;
 
     return {
       ...note,
@@ -182,15 +182,15 @@ const reviveTicketDates = (data: any, chatHistoryOverride?: ChatMessage[]): Tick
     ...data,
     created_at: new Date(data.created_at),
     updated_at: new Date(data.updated_at),
-    summary: data.summary || null,
-    chat_history: chatHistoryOverride
-      ? chatHistoryOverride
-      : data.chat_history
-      ? data.chat_history.map((c: any) => ({
-          ...c,
-          timestamp: new Date(c.timestamp),
-        }))
-      : [],
+    
+    // ✅ Alignement avec votre interface Ticket
+    summary: data.summary || undefined, 
+    summary_updated_at: data.summary_updated_at || null,
+    
+    chat_history: chatHistoryOverride || (data.chat_history || []).map((c: any) => ({
+      ...c,
+      timestamp: new Date(c.timestamp),
+    })),
     internal_notes: notesWithDates,
     current_appointment: data.current_appointment || undefined,
   };
@@ -231,8 +231,8 @@ const isOfflineNetworkError = (error: any): boolean => {
     typeof error === "string"
       ? error
       : typeof error?.message === "string"
-      ? error.message
-      : "";
+        ? error.message
+        : "";
 
   const lower = message.toLowerCase();
   return (
@@ -688,23 +688,24 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
               ensureCurrentAppointmentColumn(),
               ensureTicketDetailsColumn(),
             ]);
-       const baseTicketColumns = [
-  "id",
-  "user_id",
-  "title",
-  "description",
-  "category",
-  "priority",
-  "status",
-  "assigned_ai_level",
-  "assigned_agent_id",
-  "workstation_id",
-  "company_id",
-  "company_name",
-  "created_at",
-  "updated_at",
-  "summary",
-];
+          const baseTicketColumns = [
+            "id",
+            "user_id",
+            "title",
+            "description",
+            "category",
+            "priority",
+            "status",
+            "assigned_ai_level",
+            "assigned_agent_id",
+            "workstation_id",
+            "company_id",
+            "company_name",
+            "created_at",
+            "updated_at",
+            "summary",
+            "summary_updated_at"
+          ];
           const resolvedTicketDetailsColumn = resolvedDetailsColumn || ticketDetailsColumnRef.current;
           if (resolvedTicketDetailsColumn) {
             baseTicketColumns.push(resolvedTicketDetailsColumn);
@@ -907,27 +908,27 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     [translateHook]
   );
 
- const login = useCallback(
-  (email: string, password: string, companyName: string): Promise<string | true> =>
-    guardedLogin(email, password, companyName)
-      .then(({ session, profile }) => {
-        setUser(profile);
-        return loadUserData(session)
-          .then(() => true as const) // On précise que c'est la valeur littérale true
-          .catch((loadError) => {
-            console.error("Unexpected error while loading user data after login:", loadError);
-            return translateGuardError("login.error.profileFetchFailed");
-          });
-      })
-      .catch((authError: unknown): string => { // On précise que ce catch retourne une string
-        if (authError instanceof GuardedLoginError) {
-          return translateGuardError(authError.translationKey);
-        }
-        console.error("Unexpected login error:", authError);
-        return translateGuardError("login.error.invalidCompanyCredentials");
-      }),
-  [loadUserData, translateGuardError]
-);
+  const login = useCallback(
+    (email: string, password: string, companyName: string): Promise<string | true> =>
+      guardedLogin(email, password, companyName)
+        .then(({ session, profile }) => {
+          setUser(profile);
+          return loadUserData(session)
+            .then(() => true as const) // On précise que c'est la valeur littérale true
+            .catch((loadError) => {
+              console.error("Unexpected error while loading user data after login:", loadError);
+              return translateGuardError("login.error.profileFetchFailed");
+            });
+        })
+        .catch((authError: unknown): string => { // On précise que ce catch retourne une string
+          if (authError instanceof GuardedLoginError) {
+            return translateGuardError(authError.translationKey);
+          }
+          console.error("Unexpected login error:", authError);
+          return translateGuardError("login.error.invalidCompanyCredentials");
+        }),
+    [loadUserData, translateGuardError]
+  );
 
   const signUp = async (
     email: string,
@@ -1015,7 +1016,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     return true;
   };
 
- // --- GESTION DES UTILISATEURS ---
+  // --- GESTION DES UTILISATEURS ---
   const deleteUserById = async (userId: string): Promise<void> => {
     if (user?.role !== UserRole.MANAGER) return;
     if (shouldShortCircuitNetwork("supabase.rpc.delete_user_by_manager")) {
@@ -1088,7 +1089,15 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         ensureTicketDetailsColumn(),
       ]);
 
-      const { metadata, details, ...restTicketData } = ticketData as any;
+      // ✅ VERSION UNIFIÉE - Gestion complète du summary + restTicketData
+      const { metadata, details, summary: rawSummary, ...restTicketData } = ticketData as any;
+
+      // 1. Extraction robuste du résumé (multi-sources)
+      const summaryValue = rawSummary
+        || (ticketData as any).aiSummary
+        || (ticketData as any).summary
+        || null;
+
       const newTicketDataBase: Record<string, any> = {
         ...restTicketData,
         user_id: creatorUserId,
@@ -1098,11 +1107,13 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         company_name: user.company_name,
         created_at: now.toISOString(),
         updated_at: now.toISOString(),
-        // ✅ CORRECTIF : Sauvegarde du résumé lors de la création
-        summary: ticketData.summary || null,
-        summary_updated_at: ticketData.summary ? now.toISOString() : null
+
+        // ✅ SUMMARY ROBUSTE - Priorité : rawSummary > aiSummary > legacy summary
+        summary: summaryValue,
+        summary_updated_at: summaryValue ? now.toISOString() : null
       };
 
+      // 2. Gestion conditionnelle des colonnes spéciales (inchangée)
       if (detailsColumn) {
         newTicketDataBase[detailsColumn] = metadata ?? details ?? null;
       }
@@ -1137,11 +1148,11 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
 
       const createdTicket = reviveTicketDates(data, storageMode === "embedded" ? undefined : normalizedChatHistory);
-      
+
       if (storageMode === "messages_table" && normalizedChatHistory.length > 0) {
         await persistTicketMessages(createdTicket.id, normalizedChatHistory);
       }
-      
+
       updateTicketsState((prevTickets) => [...prevTickets, createdTicket]);
       return createdTicket;
     } catch (error) {
@@ -1187,10 +1198,10 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
   const assignTicket = async (ticketId: string, agentId: string | null): Promise<void> => {
     const ticketToUpdate = tickets.find((t) => t.id === ticketId);
     if (!ticketToUpdate || user?.role !== "manager") return;
-    
+
     let summaryMessage: ChatMessage | null = null;
     let summaryText: string | null = null;
-    
+
     if (agentId && (!ticketToUpdate.assigned_agent_id || ticketToUpdate.assigned_agent_id !== agentId)) {
       setIsLoadingAi(true);
       try {
@@ -1204,9 +1215,9 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         setIsLoadingAi(false);
       }
     }
-    
+
     const updatedChatHistory = summaryMessage ? [...ticketToUpdate.chat_history, summaryMessage] : ticketToUpdate.chat_history;
-    
+
     if (shouldShortCircuitNetwork("supabase.tickets.update")) {
       const updatedAtDate = new Date();
       updateTicketsState((prev) =>
@@ -1218,10 +1229,10 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       );
       return;
     }
-    
+
     const storageMode = await ensureChatStorageMode();
     const detailsColumn = await ensureTicketDetailsColumn();
-    
+
     const updatePayload: Record<string, any> = {
       assigned_agent_id: agentId || null,
       updated_at: new Date().toISOString(),
@@ -1229,18 +1240,18 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       summary: summaryText || ticketToUpdate.summary,
       summary_updated_at: summaryText ? new Date().toISOString() : ticketToUpdate.summary_updated_at
     };
-    
+
     if (storageMode === "embedded") updatePayload.chat_history = updatedChatHistory;
-    
+
     if (detailsColumn && summaryText) {
       updatePayload[detailsColumn] = {
         ...((ticketToUpdate as any)[detailsColumn] || {}),
         assigned_summary: summaryText,
       };
     }
-    
+
     const { data, error } = await supabase.from("tickets").update(updatePayload).eq("id", ticketId).select().single();
-    
+
     if (error) {
       console.error("Error assigning ticket:", error);
     } else {
@@ -1285,11 +1296,11 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     };
     const updated_chat_history = [...ticket.chat_history, agentMessage];
     const newStatus = (ticket.status === TICKET_STATUS_KEYS.OPEN || ticket.status === TICKET_STATUS_KEYS.RESOLVED)
-        ? TICKET_STATUS_KEYS.IN_PROGRESS : ticket.status;
+      ? TICKET_STATUS_KEYS.IN_PROGRESS : ticket.status;
 
     if (shouldShortCircuitNetwork("supabase.tickets.update")) {
       updateTicketsState((prev) =>
-          prev.map((t) => (t.id === ticketId ? { ...t, chat_history: updated_chat_history, status: newStatus, updated_at: new Date() } : t)), true
+        prev.map((t) => (t.id === ticketId ? { ...t, chat_history: updated_chat_history, status: newStatus, updated_at: new Date() } : t)), true
       );
       return;
     }
@@ -1314,7 +1325,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     const timestamp = new Date();
     const userMessage: ChatMessage = { id: crypto.randomUUID(), sender: "user", text: userMessageText, timestamp };
     const newStatus = (ticket.status === TICKET_STATUS_KEYS.RESOLVED || ticket.status === TICKET_STATUS_KEYS.CLOSED)
-        ? TICKET_STATUS_KEYS.IN_PROGRESS : ticket.status;
+      ? TICKET_STATUS_KEYS.IN_PROGRESS : ticket.status;
     const tempUpdatedChatHistory = [...ticket.chat_history, userMessage];
 
     updateTicketsState((prev) =>
@@ -1424,7 +1435,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const updateCompanyName = async (newName: string): Promise<boolean> => {
     if (!user || user.role !== UserRole.MANAGER || !user.company_id) return false;
-   
+
     const { data: companyRow, error: findError } = await supabase
       .from("companies")
       .select("id,name")

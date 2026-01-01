@@ -126,7 +126,7 @@ const NewTicketPage: React.FC = () => {
       priority,
       status: TicketStatus.OPEN,
       workstation_id: workstationId.trim() || undefined,
-      summary: aiSummary?.trim() || null,
+      summary: aiSummary?.trim() || undefined,
       summary_updated_at: new Date().toISOString()
     };
 
