@@ -55,18 +55,22 @@ const AgentTicketRow: React.FC<AgentTicketRowProps> = ({ ticket, onTakeCharge, i
   const { t, getBCP47Locale } = useLanguage();
   const { getAllUsers } = useApp();
 
+  // État pour gérer l'ouverture du résumé pliable
+  const [isSummaryOpen, setIsSummaryOpen] = useState(false);
+
   if (!isValidTicket(ticket)) {
     return (
       <tr>
         <td colSpan={7} className="p-3 text-center text-slate-500">
-          Ticket invalide
+          {t('agentDashboard.invalidTicket', { default: 'Ticket invalide' })}
         </td>
       </tr>
     );
   }
 
-  const [isSummaryOpen, setIsSummaryOpen] = useState(false);
-  const summary = getAssignedSummary(ticket);
+  // On récupère le résumé (soit via une fonction utilitaire, soit directement sur le ticket)
+  // Si vous utilisez le champ standard, c'est ticket.summary
+  const summary = ticket.summary || getAssignedSummary(ticket);
 
   const clientUser = getAllUsers().find((u) => u.id === ticket.user_id);
   const clientName = clientUser ? clientUser.full_name : t("agentDashboard.notApplicableShort");
@@ -78,64 +82,79 @@ const AgentTicketRow: React.FC<AgentTicketRowProps> = ({ ticket, onTakeCharge, i
   };
 
   return (
-    <tr className="border-b border-slate-200 hover:bg-slate-50">
+    <tr className="border-b border-slate-200 hover:bg-slate-50 transition-colors">
       {/* Colonne: Titre */}
       <td className="p-2 sm:p-3 text-slate-700">
         <Link
           to={`/ticket/${ticket.id}`}
-          className="text-primary hover:underline font-medium block"
+          className="text-primary hover:underline font-bold block"
         >
           {ticket.title}
         </Link>
       </td>
 
       {/* Colonne: Client */}
-      <td className="p-3 text-sm text-slate-600">{clientName}</td>
+      <td className="p-3 text-sm text-slate-600 font-medium">{clientName}</td>
 
-      {/* ✅ COLONNE: RÉSUMÉ IA */}
+      {/* ✅ COLONNE: RÉSUMÉ IA AMÉLIORÉE */}
       <td className="p-2 sm:p-3 text-slate-700 max-w-xs">
         {summary ? (
-          <div>
+          <div className="relative">
             <button
               type="button"
               onClick={() => setIsSummaryOpen((v) => !v)}
-              className="flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-800 font-semibold whitespace-nowrap transition-colors"
+              className="flex items-center gap-1 text-[11px] text-indigo-600 hover:text-indigo-800 font-bold whitespace-nowrap transition-all bg-indigo-50 px-2 py-1 rounded border border-indigo-100"
             >
               <span>{isSummaryOpen ? "↑ Masquer" : "✨ Voir résumé IA"}</span>
             </button>
 
             {isSummaryOpen && (
-              <div className="mt-2 p-3 text-[11px] leading-relaxed bg-indigo-50 border border-indigo-100 rounded-lg text-indigo-950 shadow-sm whitespace-pre-wrap max-h-40 overflow-y-auto">
+              <div className="absolute z-10 mt-2 p-3 text-[11px] leading-relaxed bg-white border border-indigo-200 rounded-lg text-slate-700 shadow-xl whitespace-pre-wrap max-h-60 overflow-y-auto w-64 sm:w-80">
+                <div className="font-bold text-indigo-600 mb-1 border-b border-indigo-50 pb-1 uppercase text-[9px] tracking-widest">Résumé IA Nexus</div>
                 {summary}
               </div>
             )}
           </div>
         ) : (
-          <span className="text-xs text-slate-400 italic">Aucun résumé</span>
+          <span className="text-xs text-slate-400 italic font-light">{t('agentDashboard.noSummary', { default: 'Aucun résumé' })}</span>
         )}
       </td>
 
-      {/* Colonnes: Workstation, Date, Status, Action */}
-      <td className="p-3 text-sm text-slate-600">
+      {/* Colonne: Workstation */}
+      <td className="p-3 text-sm text-slate-600 font-mono">
         {ticket.workstation_id || t("agentDashboard.notApplicableShort")}
       </td>
-      <td className="p-3 text-sm text-slate-500">
-        {new Date(ticket.created_at).toLocaleDateString(getBCP47Locale())}
+
+      {/* Colonne: Date */}
+      <td className="p-3 text-xs text-slate-500">
+        {new Date(ticket.created_at).toLocaleDateString(getBCP47Locale(), {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        })}
       </td>
-      <td className="p-3 text-sm text-slate-500">{t(`ticketStatus.${ticket.status}`)}</td>
+
+      {/* Colonne: Statut */}
+      <td className="p-3">
+        <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-semibold uppercase">
+            {t(`ticketStatus.${ticket.status}`)}
+        </span>
+      </td>
+
+      {/* Colonne: Action */}
       <td className="p-3 text-sm text-right">
         {isUnassigned && onTakeCharge ? (
           <Button
             variant="primary"
             size="sm"
             onClick={handleAssignToSelf}
-            className="!text-[10px] !py-1 !px-2 uppercase font-bold tracking-wider"
+            className="!text-[10px] !py-1 !px-3 uppercase font-black tracking-tighter"
           >
             {t("agentDashboard.takeChargeButton")}
           </Button>
         ) : (
           <Link to={`/ticket/${ticket.id}`}>
-            <Button variant="outline" size="sm" className="!text-[10px] !py-1 !px-2 uppercase">
+            <Button variant="outline" size="sm" className="!text-[10px] !py-1 !px-3 uppercase font-medium">
               {t("agentDashboard.viewTicketButton")}
             </Button>
           </Link>

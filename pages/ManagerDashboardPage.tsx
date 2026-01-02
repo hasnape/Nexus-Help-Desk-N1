@@ -178,6 +178,9 @@ interface ManagerTicketRowProps {
 const ManagerTicketRow: React.FC<ManagerTicketRowProps> = ({ ticket, agents, allUsers, onAssignTicket, onDeleteTicket }) => {
     const { t } = useLanguage();
     const [selectedAgent, setSelectedAgent] = useState<string>(ticket.assigned_agent_id || '');
+    
+    // --- NOUVEL ÉTAT POUR LE RÉSUMÉ ---
+    const [isExpanded, setIsExpanded] = useState(false);
 
     const clientUser = allUsers.find(u => u.id === ticket.user_id);
     const clientName = clientUser ? clientUser.full_name : t('managerDashboard.notApplicableShort');
@@ -199,11 +202,19 @@ const ManagerTicketRow: React.FC<ManagerTicketRowProps> = ({ ticket, agents, all
                     {ticket.title}
                 </Link>
 
-                {/* Affichage du résumé généré par l'IA */}
+                {/* Affichage du résumé généré par l'IA avec option "Voir plus" */}
                 {ticket.summary && (
-                    <p className="text-xs text-slate-500 line-clamp-2 italic leading-tight border-l-2 border-indigo-100 pl-2 mt-1">
-                        {ticket.summary}
-                    </p>
+                    <div className="mt-1">
+                        <p className={`text-xs text-slate-500 italic leading-tight border-l-2 border-indigo-100 pl-2 transition-all duration-200 ${!isExpanded ? 'line-clamp-2' : ''}`}>
+                            {ticket.summary}
+                        </p>
+                        <button 
+                            onClick={() => setIsExpanded(!isExpanded)}
+                            className="text-[10px] text-indigo-600 hover:text-indigo-800 font-semibold mt-1 ml-2 underline focus:outline-none"
+                        >
+                            {isExpanded ? "↑ Voir moins" : "↓ Voir résumé complet"}
+                        </button>
+                    </div>
                 )}
             </td>
             <td className="p-2 sm:p-3 text-slate-600">{clientName}</td>
@@ -249,6 +260,7 @@ const ManagerTicketRow: React.FC<ManagerTicketRowProps> = ({ ticket, agents, all
         </tr>
     );
 };
+
 
 interface UserManagementRowProps {
     userToManage: User;

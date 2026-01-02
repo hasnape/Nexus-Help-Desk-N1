@@ -26,24 +26,20 @@ const priorityColors: Record<TicketPriority, string> = {
 };
 
 const getAssignedSummary = (ticket: Ticket): string | null => {
-  // ✅ PRIORITÉ 1: tickets.summary (DB colonne)
   if (ticket.summary && typeof ticket.summary === "string" && ticket.summary.trim()) {
     return ticket.summary;
   }
 
-  // ✅ PRIORITÉ 2: metadata.assignedsummary (ancien)
   const metadataSummary = (ticket as any)?.metadata?.assignedsummary;
   if (metadataSummary && typeof metadataSummary === "string" && metadataSummary.trim()) {
     return metadataSummary;
   }
 
-  // ✅ PRIORITÉ 3: details.assignedsummary (ancien)
   const detailsSummary = (ticket as any)?.details?.assignedsummary;
   if (detailsSummary && typeof detailsSummary === "string" && detailsSummary.trim()) {
     return detailsSummary;
   }
 
-  // ✅ PRIORITÉ 4: chat_history system_summary (ancien)
   if (ticket.chat_history && Array.isArray(ticket.chat_history)) {
     const systemMessage = ticket.chat_history.find(
       (msg) => msg.sender === "system_summary"
@@ -57,9 +53,25 @@ const getAssignedSummary = (ticket: Ticket): string | null => {
 };
 
 const LoadingSpinner = () => (
-  <svg className="animate-spin h-4 w-4 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+  <svg
+    className="animate-spin h-4 w-4 text-primary"
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+  >
+    <circle
+      className="opacity-25"
+      cx="12"
+      cy="12"
+      r="10"
+      stroke="currentColor"
+      strokeWidth="4"
+    />
+    <path
+      className="opacity-75"
+      fill="currentColor"
+      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+    />
   </svg>
 );
 
@@ -78,7 +90,9 @@ const TicketCard: React.FC<TicketCardProps> = ({
   const { getAllUsers } = useApp();
 
   const creator = getAllUsers().find((u) => u.id === ticket.user_id);
-  const creatorName = creator ? creator.full_name : t("agentDashboard.notApplicableShort", { default: "N/A" });
+  const creatorName = creator
+    ? creator.full_name
+    : t("agentDashboard.notApplicableShort", { default: "N/A" });
 
   const summary = getAssignedSummary(ticket);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -89,7 +103,7 @@ const TicketCard: React.FC<TicketCardProps> = ({
     if (!generateSummary || isGenerating) return;
     try {
       await generateSummary(ticket.id);
-    } catch (err: any) {
+    } catch (err) {
       console.error("Summary error:", err);
       alert("❌ Erreur génération résumé IA");
     }
@@ -101,10 +115,15 @@ const TicketCard: React.FC<TicketCardProps> = ({
         <div>
           <Link to={`/ticket/${ticket.id}`}>
             <div className="flex justify-between items-start mb-2">
-              <h3 className="text-xl font-semibold text-primary truncate" title={ticket.title}>
+              <h3
+                className="text-xl font-semibold text-primary truncate"
+                title={ticket.title}
+              >
                 {ticket.title}
               </h3>
-              <span className={`px-2 py-1 text-xs font-semibold rounded-full ${statusColors[ticket.status]}`}>
+              <span
+                className={`px-2 py-1 text-xs font-semibold rounded-full ${statusColors[ticket.status]}`}
+              >
                 {t(`ticketStatus.${ticket.status}`)}
               </span>
             </div>
@@ -126,46 +145,56 @@ const TicketCard: React.FC<TicketCardProps> = ({
               : ticket.description}
           </p>
 
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center space-x-2 flex-1">
-              {summary ? (
+          {/* ================== RÉSUMÉ IA ================== */}
+          <div className="mt-4 pt-4 border-t border-slate-100">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-1.5 font-black text-indigo-600 uppercase tracking-widest text-[10px]">
+                <SparklesIcon />
+                <span>Résumé IA Nexus</span>
+              </div>
+
+              {generateSummary && (
                 <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsExpanded((prev) => !prev);
-                  }}
-                  className="text-xs text-indigo-600 hover:underline flex items-center space-x-1"
+                  onClick={handleGenerateSummary}
                   disabled={isGenerating}
+                  className="text-[10px] font-bold text-indigo-400 hover:text-indigo-600 transition-colors uppercase"
                 >
-                  <span>{isExpanded ? "Masquer le résumé" : "Développer le résumé"}</span>
-                  <span className="text-xs">▼</span>
+                  {isGenerating ? <LoadingSpinner /> : "Régénérer"}
                 </button>
-              ) : (
-                <span className="text-xs text-slate-500">Pas encore de résumé IA</span>
               )}
             </div>
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleGenerateSummary}
-              className="h-8 w-8 p-1 ml-2 hover:bg-primary hover:text-primary-foreground border border-slate-200"
-              title={isGenerating ? "Génération en cours..." : "Générer résumé IA"}
-              disabled={!generateSummary || isGenerating}
-            >
-              {isGenerating ? <LoadingSpinner /> : <SparklesIcon />}
-            </Button>
-          </div>
+            {summary ? (
+              <div className="rounded-xl p-3 bg-indigo-50/50 border border-indigo-100/50 transition-all">
+                <p
+                  className={`text-xs leading-relaxed text-slate-700 whitespace-pre-line ${
+                    !isExpanded ? "line-clamp-3" : ""
+                  }`}
+                >
+                  {summary}
+                </p>
 
-          {summary && isExpanded && (
-            <div className="mt-2 p-3 rounded-lg bg-indigo-50 border border-indigo-200">
-              <p className="text-xs font-semibold text-indigo-900 mb-1">Résumé IA du ticket</p>
-              <p className="text-xs text-indigo-800 whitespace-pre-line leading-relaxed max-h-24 overflow-y-auto">
-                {summary}
-              </p>
-            </div>
-          )}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setIsExpanded(!isExpanded);
+                  }}
+                  className="mt-2 text-[10px] font-black text-indigo-600 hover:text-indigo-800 uppercase flex items-center gap-1"
+                >
+                  {isExpanded ? "↑ Réduire" : "↓ Lire le résumé complet"}
+                </button>
+              </div>
+            ) : (
+              <div className="py-2 px-3 border border-dashed border-slate-200 rounded-xl text-center">
+                <p className="text-[10px] text-slate-400 italic">
+                  Analyse en attente...
+                </p>
+              </div>
+            )}
+          </div>
+          {/* ================== FIN RÉSUMÉ IA ================== */}
         </div>
 
         <div className="text-xs text-slate-500 mt-4 pt-2 border-t border-slate-200">

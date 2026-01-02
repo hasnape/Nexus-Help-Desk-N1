@@ -8,6 +8,7 @@ import { useLanguage } from "../../contexts/LanguageContext";
 import FloatingActionButton from "../../components/FloatingActionButton";
 import { supabase } from "../../services/supabaseClient";
 
+// --- ICONS ---
 const PlusIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" {...props}>
     <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
@@ -30,6 +31,7 @@ const ClientDashboardPage: React.FC = () => {
   const [companyName, setCompanyName] = useState<string | null>(null);
   const [companyLoading, setCompanyLoading] = useState(false);
 
+  // Charger le nom de la société de l'utilisateur
   useEffect(() => {
     let cancelled = false;
     if (!user?.company_id) {
@@ -60,6 +62,7 @@ const ClientDashboardPage: React.FC = () => {
     };
   }, [user?.company_id]);
 
+  // Filtrer et trier les tickets (uniquement ceux de l'utilisateur connecté)
   const sortedTickets = useMemo(() => {
     if (!user) return [];
     return tickets
@@ -67,114 +70,133 @@ const ClientDashboardPage: React.FC = () => {
       .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
   }, [tickets, user]);
 
+  // Statistiques
   const totalTickets = sortedTickets.length;
-  const openTickets = sortedTickets.filter((ticket) => ticket.status === TicketStatus.OPEN || ticket.status === TicketStatus.IN_PROGRESS).length;
-  const resolvedTickets = sortedTickets.filter((ticket) => ticket.status === TicketStatus.RESOLVED).length;
+  const openTickets = sortedTickets.filter(
+    (ticket) => ticket.status === TicketStatus.OPEN || ticket.status === TicketStatus.IN_PROGRESS
+  ).length;
+  const resolvedTickets = sortedTickets.filter(
+    (ticket) => ticket.status === TicketStatus.RESOLVED
+  ).length;
 
   return (
     <div className="min-h-[calc(100vh-5rem)] bg-slate-50 py-8">
       <div className="mx-auto max-w-5xl space-y-8 px-4">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-indigo-600">{t("dashboard.user.badge")}</p>
-              <h1 className="text-3xl font-bold text-slate-900">{t("dashboard.user.title", { username: user?.full_name || "User" })}</h1>
-              <p className="text-base text-slate-600">{t("dashboard.user.subtitle")}</p>
-              {user?.company_id && (
-                <p className="text-sm text-slate-500">
-                  {companyLoading
-                    ? t("dashboard.company.loading", { default: "Chargement…" })
-                    : companyName ?? t("dashboard.company.unknown", { default: "Société" })}
-                </p>
-              )}
-            </div>
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-              <Link to="/help">
-                <Button variant="primary" size="md" className="w-full sm:w-auto shadow-md">
-                  <PlusIcon className="w-5 h-5 me-2" />
-                  {t("dashboard.createNewTicketButton")}
-                </Button>
-              </Link>
-              <Link
-                to="/help"
-                state={{
-                  initialMessage: t("helpChat.prefilled.materialInvestigation", {
-                    default: "I'd like to start an investigation on a piece of equipment.",
-                  }),
-                }}
-              >
-                <Button variant="secondary" size="md" className="w-full sm:w-auto">
-                  <MagnifyingGlassIcon className="w-5 h-5 me-2" />
-                  {t("dashboard.requestMaterialInvestigationButton")}
-                </Button>
-              </Link>
-            </div>
-          </div>
-
-          <section className="grid gap-4 md:grid-cols-3">
-            <div className="rounded-2xl border border-indigo-100 bg-white p-5 shadow-sm">
-              <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">{t("dashboard.user.stats.total")}</p>
-              <p className="mt-2 text-3xl font-bold text-slate-900">{totalTickets}</p>
-              <p className="text-xs text-slate-600">{t("dashboard.user.stats.totalHelp")}</p>
-            </div>
-            <div className="rounded-2xl border border-indigo-100 bg-white p-5 shadow-sm">
-              <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">{t("dashboard.user.stats.open")}</p>
-              <p className="mt-2 text-3xl font-bold text-slate-900">{openTickets}</p>
-              <p className="text-xs text-slate-600">{t("dashboard.user.stats.openHelp")}</p>
-            </div>
-            <div className="rounded-2xl border border-indigo-100 bg-white p-5 shadow-sm">
-              <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">{t("dashboard.user.stats.resolved")}</p>
-              <p className="mt-2 text-3xl font-bold text-slate-900">{resolvedTickets}</p>
-              <p className="text-xs text-slate-600">{t("dashboard.user.stats.resolvedHelp")}</p>
-            </div>
-          </section>
-
-          <section className="rounded-3xl border bg-white p-6 shadow-sm">
-            <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-4">
-              <div>
-                <h2 className="text-xl font-semibold text-slate-900">{t("dashboard.user.recent.title")}</h2>
-                <p className="text-sm text-slate-600">{t("dashboard.user.recent.subtitle")}</p>
-              </div>
-            </div>
-            {sortedTickets.length === 0 ? (
-              <div className="text-center py-8 space-y-2">
-                <p className="text-lg text-slate-700">{t("dashboard.noTicketsTitle")}</p>
-                <p className="text-sm text-slate-500">{t("dashboard.noTicketsSubtitle")}</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {sortedTickets.slice(0, 8).map((ticket) => (
-                  <TicketCard key={ticket.id} ticket={ticket} />
-                ))}
-              </div>
+        
+        {/* EN-TÊTE ET ACTIONS PRINCIPALES */}
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="space-y-2">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-indigo-600">
+              {t("dashboard.user.badge")}
+            </p>
+            <h1 className="text-3xl font-bold text-slate-900">
+              {t("dashboard.user.title", { username: user?.full_name || "User" })}
+            </h1>
+            <p className="text-base text-slate-600">{t("dashboard.user.subtitle")}</p>
+            {user?.company_id && (
+              <p className="text-sm text-slate-500 flex items-center gap-2">
+                <span className="inline-block w-2 h-2 rounded-full bg-indigo-400"></span>
+                {companyLoading
+                  ? t("dashboard.company.loading", { default: "Chargement…" })
+                  : companyName ?? t("dashboard.company.unknown", { default: "Société" })}
+              </p>
             )}
-          </section>
+          </div>
+          
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+            <Link to="/help">
+              <Button variant="primary" size="md" className="w-full sm:w-auto shadow-md">
+                <PlusIcon className="w-5 h-5 me-2" />
+                {t("dashboard.createNewTicketButton")}
+              </Button>
+            </Link>
+            <Link
+              to="/help"
+              state={{
+                initialMessage: t("helpChat.prefilled.materialInvestigation", {
+                  default: "Je souhaite lancer une investigation sur un matériel.",
+                }),
+              }}
+            >
+              <Button variant="secondary" size="md" className="w-full sm:w-auto">
+                <MagnifyingGlassIcon className="w-5 h-5 me-2" />
+                {t("dashboard.requestMaterialInvestigationButton")}
+              </Button>
+            </Link>
+          </div>
+        </div>
 
-          <section className="rounded-3xl border bg-white p-6 shadow-sm">
-            <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-              <div>
-                <h2 className="text-xl font-semibold text-slate-900">{t("dashboard.user.cta.title")}</h2>
-                <p className="text-sm text-slate-600">{t("dashboard.user.cta.subtitle")}</p>
-              </div>
-              <Link to="/help">
-                <Button variant="primary" size="md">
-                  <PlusIcon className="w-5 h-5 me-2" />
-                  {t("dashboard.user.cta.button")}
-                </Button>
-              </Link>
-            </div>
-            <div className="mt-4 grid gap-3 sm:grid-cols-3">
-              <Link to="/help" className="rounded-xl border bg-indigo-50 px-4 py-3 text-sm font-medium text-indigo-800 hover:border-indigo-200">
-                {t("dashboard.user.cta.tips")}
-              </Link>
-              <Link to="/help" className="rounded-xl border bg-white px-4 py-3 text-sm font-medium text-slate-800 hover:border-slate-200">
-                {t("dashboard.user.cta.knowledge")}
-              </Link>
-              <Link to="/manager/faq" className="rounded-xl border bg-white px-4 py-3 text-sm font-medium text-slate-800 hover:border-slate-200">
-                {t("dashboard.user.cta.faq")}
-              </Link>
-            </div>
+        {/* SECTION STATISTIQUES */}
+        <section className="grid gap-4 md:grid-cols-3">
+          <div className="rounded-2xl border border-indigo-100 bg-white p-5 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">{t("dashboard.user.stats.total")}</p>
+            <p className="mt-2 text-3xl font-bold text-slate-900">{totalTickets}</p>
+            <p className="text-xs text-slate-600">{t("dashboard.user.stats.totalHelp")}</p>
+          </div>
+          <div className="rounded-2xl border border-indigo-100 bg-white p-5 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">{t("dashboard.user.stats.open")}</p>
+            <p className="mt-2 text-3xl font-bold text-slate-900">{openTickets}</p>
+            <p className="text-xs text-slate-600">{t("dashboard.user.stats.openHelp")}</p>
+          </div>
+          <div className="rounded-2xl border border-indigo-100 bg-white p-5 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">{t("dashboard.user.stats.resolved")}</p>
+            <p className="mt-2 text-3xl font-bold text-slate-900">{resolvedTickets}</p>
+            <p className="text-xs text-slate-600">{t("dashboard.user.stats.resolvedHelp")}</p>
+          </div>
         </section>
 
+        {/* SECTION TICKETS RÉCENTS (Inclut les TicketCards avec résumés IA) */}
+        <section className="rounded-3xl border bg-white p-6 shadow-sm">
+          <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-6">
+            <div>
+              <h2 className="text-xl font-semibold text-slate-900">{t("dashboard.user.recent.title")}</h2>
+              <p className="text-sm text-slate-600">{t("dashboard.user.recent.subtitle")}</p>
+            </div>
+          </div>
+          
+          {sortedTickets.length === 0 ? (
+            <div className="text-center py-12 border-2 border-dashed border-slate-100 rounded-2xl">
+              <p className="text-lg font-medium text-slate-700">{t("dashboard.noTicketsTitle")}</p>
+              <p className="text-sm text-slate-500 mt-1">{t("dashboard.noTicketsSubtitle")}</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Le composant TicketCard gère l'affichage du titre, statut et résumé IA */}
+              {sortedTickets.slice(0, 8).map((ticket) => (
+                <TicketCard key={ticket.id} ticket={ticket} />
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* SECTION APPEL À L'ACTION (CTA) ET FAQ */}
+        <section className="rounded-3xl border bg-white p-6 shadow-sm">
+          <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h2 className="text-xl font-semibold text-slate-900">{t("dashboard.user.cta.title")}</h2>
+              <p className="text-sm text-slate-600">{t("dashboard.user.cta.subtitle")}</p>
+            </div>
+            <Link to="/help">
+              <Button variant="primary" size="md">
+                <PlusIcon className="w-5 h-5 me-2" />
+                {t("dashboard.user.cta.button")}
+              </Button>
+            </Link>
+          </div>
+          <div className="mt-6 grid gap-3 sm:grid-cols-3">
+            <Link to="/help" className="rounded-xl border bg-indigo-50 px-4 py-3 text-sm font-medium text-indigo-800 hover:bg-indigo-100 transition-colors">
+              {t("dashboard.user.cta.tips")}
+            </Link>
+            <Link to="/help" className="rounded-xl border bg-white px-4 py-3 text-sm font-medium text-slate-800 hover:border-slate-200 transition-all">
+              {t("dashboard.user.cta.knowledge")}
+            </Link>
+            <Link to="/manager/faq" className="rounded-xl border bg-white px-4 py-3 text-sm font-medium text-slate-800 hover:border-slate-200 transition-all">
+              {t("dashboard.user.cta.faq")}
+            </Link>
+          </div>
+        </section>
+
+        {/* BOUTON FLOTTANT MOBILE */}
         <FloatingActionButton to="/help" title={t("dashboard.createNewTicketButton")} />
       </div>
     </div>
@@ -182,4 +204,3 @@ const ClientDashboardPage: React.FC = () => {
 };
 
 export default ClientDashboardPage;
-
