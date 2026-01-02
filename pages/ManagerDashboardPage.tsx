@@ -672,323 +672,334 @@ const ManagerDashboardPage: React.FC = () => {
         return <Navigate to="/login" />;
     }
 
-    const handleDeleteTicket = async (ticketId: string) => {
-        const confirmation = window.confirm(t('managerDashboard.deleteTicketConfirm'));
-        if (confirmation) {
-            try {
-                await deleteTicket(ticketId);
-            } catch (error: any) {
-                const message = error?.message || 'Unknown error';
-                console.error('[manager] Failed to delete ticket', error);
-                alert(t('managerDashboard.deleteTicketError.critical', { message }));
-            }
+    // --- AJOUTEZ CETTE FONCTION ICI ---
+    const handleSafeAssign = async (ticketId: string, agentId: string | null) => {
+        try {
+            // On appelle directement l'assignation du hook useApp
+            await assignTicket(ticketId, agentId);
+        } catch (error: any) {
+            console.error("[manager] Erreur d'assignation:", error);
+            // Si l'erreur est une 500 liée à l'IA, l'assignation a peut-être quand même fonctionné
         }
     };
 
-    const handleResetFilters = () => {
-        setStatusFilter('All');
-        setUserFilter('All');
-        setDateFilter({ start: '', end: '' });
-    };
+        const handleDeleteTicket = async (ticketId: string) => {
+            const confirmation = window.confirm(t('managerDashboard.deleteTicketConfirm'));
+            if (confirmation) {
+                try {
+                    await deleteTicket(ticketId);
+                } catch (error: any) {
+                    const message = error?.message || 'Unknown error';
+                    console.error('[manager] Failed to delete ticket', error);
+                    alert(t('managerDashboard.deleteTicketError.critical', { message }));
+                }
+            }
+        };
 
-    const statusOptionsForFilter = [{ value: 'All', label: t('managerDashboard.filters.all', { default: "All" }) }, ...Object.values(TicketStatus).map(s => ({ value: s, label: t(`ticketStatus.${s}`) }))];
-    const userOptionsForFilter = [{ value: 'All', label: t('managerDashboard.filters.all', { default: "All" }) }, ...allUsers.map(u => ({ value: u.id, label: u.full_name }))];
-    const filtersAreActive = statusFilter !== 'All' || userFilter !== 'All' || dateFilter.start !== '' || dateFilter.end !== '';
+        const handleResetFilters = () => {
+            setStatusFilter('All');
+            setUserFilter('All');
+            setDateFilter({ start: '', end: '' });
+        };
+
+        const statusOptionsForFilter = [{ value: 'All', label: t('managerDashboard.filters.all', { default: "All" }) }, ...Object.values(TicketStatus).map(s => ({ value: s, label: t(`ticketStatus.${s}`) }))];
+        const userOptionsForFilter = [{ value: 'All', label: t('managerDashboard.filters.all', { default: "All" }) }, ...allUsers.map(u => ({ value: u.id, label: u.full_name }))];
+        const filtersAreActive = statusFilter !== 'All' || userFilter !== 'All' || dateFilter.start !== '' || dateFilter.end !== '';
 
 
-    return (
-        <div className="page-container section-stack">
-            <div className="section-stack">
-                {showWelcomeModal && (
-                    <div className={`fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 transition-opacity duration-300 ${isModalVisible ? 'opacity-100' : 'opacity-0'}`}>
-                        <div className={`bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-lg w-full text-center transform transition-all duration-300 ${isModalVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}>
-                            <PartyPopperIcon className="w-16 h-16 mx-auto text-accent mb-4" />
-                            <h2 className="text-2xl font-bold text-slate-800 mb-2">{t('dashboard.manager.welcome.title')}</h2>
-                            <p className="text-slate-600 mb-4">{t('dashboard.manager.welcome.congratulations', { username: user.full_name })}</p>
-                            <p className="text-slate-600 mb-6">{t('dashboard.manager.welcome.body')}</p>
+        return (
+            <div className="page-container section-stack">
+                <div className="section-stack">
+                    {showWelcomeModal && (
+                        <div className={`fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 transition-opacity duration-300 ${isModalVisible ? 'opacity-100' : 'opacity-0'}`}>
+                            <div className={`bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-lg w-full text-center transform transition-all duration-300 ${isModalVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}>
+                                <PartyPopperIcon className="w-16 h-16 mx-auto text-accent mb-4" />
+                                <h2 className="text-2xl font-bold text-slate-800 mb-2">{t('dashboard.manager.welcome.title')}</h2>
+                                <p className="text-slate-600 mb-4">{t('dashboard.manager.welcome.congratulations', { username: user.full_name })}</p>
+                                <p className="text-slate-600 mb-6">{t('dashboard.manager.welcome.body')}</p>
 
-                            <div className="bg-slate-50 p-4 rounded-xl mb-6 text-start border border-slate-100">
-                                <label className="text-sm font-semibold text-slate-700 block mb-1">{t('dashboard.manager.company.nameLabel')}</label>
-                                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                                    <p className="text-lg font-mono bg-white text-slate-800 p-2 rounded border border-slate-200 select-all flex-grow text-center sm:text-start">
-                                        {newlyCreatedCompanyName}
-                                    </p>
+                                <div className="bg-slate-50 p-4 rounded-xl mb-6 text-start border border-slate-100">
+                                    <label className="text-sm font-semibold text-slate-700 block mb-1">{t('dashboard.manager.company.nameLabel')}</label>
+                                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                                        <p className="text-lg font-mono bg-white text-slate-800 p-2 rounded border border-slate-200 select-all flex-grow text-center sm:text-start">
+                                            {newlyCreatedCompanyName}
+                                        </p>
+                                    </div>
                                 </div>
+
+                                <Button variant="primary" size="lg" onClick={handleCloseWelcomeModal}>
+                                    {t('dashboard.manager.welcome.close')}
+                                </Button>
                             </div>
-
-                            <Button variant="primary" size="lg" onClick={handleCloseWelcomeModal}>
-                                {t('dashboard.manager.welcome.close')}
-                            </Button>
                         </div>
-                    </div>
-                )}
+                    )}
 
-                <div className="flex flex-col gap-6">
-                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                        <div className="space-y-2">
-                            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-indigo-600">{t('dashboard.manager.badge')}</p>
-                            <h1 className="ns-page-heading">{t('dashboard.manager.title', { username: user.full_name })}</h1>
-                            <p className="ns-page-subtitle mt-1 max-w-2xl">{t('dashboard.manager.subtitle')}</p>
-                            {company && (
-                                <p className="ns-page-meta mt-1">{t('dashboard.manager.company.label', { name: company.name, id: company.id })}</p>
-                            )}
-                        </div>
-                        <div className="flex flex-wrap gap-3">
-                            <Link to="/help">
-                                <Button variant="primary" size="md" className="shadow-md">
-                                    <PlusIcon className="w-5 h-5 me-2" />
-                                    {t('managerDashboard.createNewTicketButton')}
-                                </Button>
-                            </Link>
-                            <Link to="/manager/faq">
-                                <Button variant="outline" size="md" className="bg-white">
-                                    <ClipboardDocumentIcon className="w-5 h-5 me-2" />
-                                    {t('managerDashboard.manageFaqButton')}
-                                </Button>
-                            </Link>
-                        </div>
-                    </div>
-
-                    {isLoading && <LoadingSpinner text={t('managerDashboard.loadingTickets')} />}
-
-                    <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                        <div className={`rounded-2xl border border-slate-100 p-5 shadow-lg bg-white text-slate-900 ${quotaStyles.container}`} aria-live="polite">
-                            <div className="flex items-start justify-between gap-3">
-                                <div>
-                                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">
-                                        {t('dashboard.quota.title')}
-                                    </p>
-                                    <p className="mt-2 text-3xl font-bold text-slate-900">{quotaValueLabel}</p>
-                                    {quotaMessage && (
-                                        <p className={`mt-2 text-sm text-slate-600 ${quotaStyles.message}`}>{quotaMessage}</p>
-                                    )}
-                                </div>
-                                {showUpgradeCta && (
-                                    <Link to="/pricing" className="flex-shrink-0">
-                                        <Button variant="primary" size="sm">{t('dashboard.quota.upgrade_cta')}</Button>
-                                    </Link>
+                    <div className="flex flex-col gap-6">
+                        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                            <div className="space-y-2">
+                                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-indigo-600">{t('dashboard.manager.badge')}</p>
+                                <h1 className="ns-page-heading">{t('dashboard.manager.title', { username: user.full_name })}</h1>
+                                <p className="ns-page-subtitle mt-1 max-w-2xl">{t('dashboard.manager.subtitle')}</p>
+                                {company && (
+                                    <p className="ns-page-meta mt-1">{t('dashboard.manager.company.label', { name: company.name, id: company.id })}</p>
                                 )}
                             </div>
-                        </div>
-
-                        <div className="rounded-2xl border border-slate-100 bg-white text-slate-900 p-5 shadow-lg">
-                            <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">{t('dashboard.manager.stats.totalTickets')}</p>
-                            <p className="mt-2 text-3xl font-bold text-slate-900">{stats.total}</p>
-                            <p className="text-xs text-slate-600">{t('dashboard.manager.stats.totalHelp')}</p>
-                        </div>
-                        <div className="rounded-2xl border border-slate-100 bg-white text-slate-900 p-5 shadow-lg">
-                            <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">{t('dashboard.manager.stats.open')}</p>
-                            <p className="mt-2 text-3xl font-bold text-slate-900">{stats.open}</p>
-                            <p className="text-xs text-slate-600">{t('dashboard.manager.stats.openHelp')}</p>
-                        </div>
-                    </section>
-
-                    <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                        <StatCard title={t('managerDashboard.stats.resolvedTickets')} value={stats.resolved} icon={<StatCardIcon icon="resolved" />} />
-                        <StatCard title={t('managerDashboard.stats.highPriority')} value={stats.highPriority} icon={<StatCardIcon icon="priority" />} />
-                        <StatCard title={t('managerDashboard.stats.unassigned')} value={stats.unassigned} icon={<StatCardIcon icon="unassigned" />} />
-                    </section>
-
-                    <div className="grid gap-4 lg:grid-cols-3">
-                        <section className="rounded-3xl border border-slate-100 bg-white text-slate-900 p-6 shadow-lg lg:col-span-2">
-                            <div className="flex items-start justify-between gap-3 mb-6">
-                                <div>
-                                    <h2 className="text-xl font-semibold text-slate-900">{t('dashboard.manager.company.cardTitle')}</h2>
-                                    <p className="text-sm text-slate-600">{t('dashboard.manager.company.cardSubtitle')}</p>
-                                </div>
-                                {company && !isEditingName && (
-                                    <Button variant="outline" size="sm" onClick={() => setIsEditingName(true)} className="bg-slate-50">
-                                        <PencilIcon className="w-4 h-4 me-2" />
-                                        {t('managerDashboard.companyInfo.editButton', { default: "Edit Name" })}
+                            <div className="flex flex-wrap gap-3">
+                                <Link to="/help">
+                                    <Button variant="primary" size="md" className="shadow-md">
+                                        <PlusIcon className="w-5 h-5 me-2" />
+                                        {t('managerDashboard.createNewTicketButton')}
                                     </Button>
-                                )}
+                                </Link>
+                                <Link to="/manager/faq">
+                                    <Button variant="outline" size="md" className="bg-white">
+                                        <ClipboardDocumentIcon className="w-5 h-5 me-2" />
+                                        {t('managerDashboard.manageFaqButton')}
+                                    </Button>
+                                </Link>
                             </div>
-                            <div className="grid gap-4 md:grid-cols-2">
-                                <div className="space-y-3">
-                                    {company && (
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-semibold text-slate-700 block">{t('dashboard.manager.company.nameLabel')}</label>
-                                            {!isEditingName ? (
-                                                <div className="flex items-center gap-3">
-                                                    <p className="text-base text-slate-900 font-semibold flex-grow">{company.name}</p>
-                                                </div>
-                                            ) : (
-                                                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                                                    <Input
-                                                        value={newCompanyName}
-                                                        onChange={e => setNewCompanyName(e.target.value)}
-                                                        className="flex-grow bg-white text-slate-900 placeholder:text-slate-500 border border-slate-300"
-                                                        disabled={isUpdatingName}
-                                                    />
-                                                    <div className="flex gap-2">
-                                                        <Button variant="primary" size="sm" onClick={handleSaveCompanyName} isLoading={isUpdatingName} disabled={isUpdatingName}>
-                                                            {t('managerDashboard.companyInfo.saveButton', { default: "Save" })}
-                                                        </Button>
-                                                        <Button variant="secondary" size="sm" onClick={() => setIsEditingName(false)} disabled={isUpdatingName}>
-                                                            {t('managerDashboard.companyInfo.cancelButton', { default: "Cancel" })}
-                                                        </Button>
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
+                        </div>
 
-                                    <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-4 space-y-3">
-                                        <p className="text-sm text-slate-600">{t('dashboard.manager.company.onboardingHint')}</p>
-                                        <div className="flex items-center gap-3">
-                                            <p className="text-base font-mono bg-white text-slate-800 p-2 rounded border border-slate-200 select-all flex-grow text-center">
-                                                {company?.name || '...'}
-                                            </p>
-                                            <Button
-                                                variant="outline"
-                                                size="md"
-                                                onClick={handleCopyName}
-                                                className={`!py-2 ${isCopied ? '!border-green-500 !text-green-600 hover:!bg-green-50' : ''}`}
-                                                title={t('managerDashboard.companyInfo.copyNameButton')}
-                                            >
-                                                {isCopied ? (
-                                                    <CheckIcon className="w-5 h-5" />
-                                                ) : (
-                                                    <ClipboardDocumentIcon className="w-5 h-5" />
-                                                )}
-                                            </Button>
-                                        </div>
+                        {isLoading && <LoadingSpinner text={t('managerDashboard.loadingTickets')} />}
+
+                        <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                            <div className={`rounded-2xl border border-slate-100 p-5 shadow-lg bg-white text-slate-900 ${quotaStyles.container}`} aria-live="polite">
+                                <div className="flex items-start justify-between gap-3">
+                                    <div>
+                                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">
+                                            {t('dashboard.quota.title')}
+                                        </p>
+                                        <p className="mt-2 text-3xl font-bold text-slate-900">{quotaValueLabel}</p>
+                                        {quotaMessage && (
+                                            <p className={`mt-2 text-sm text-slate-600 ${quotaStyles.message}`}>{quotaMessage}</p>
+                                        )}
                                     </div>
+                                    {showUpgradeCta && (
+                                        <Link to="/pricing" className="flex-shrink-0">
+                                            <Button variant="primary" size="sm">{t('dashboard.quota.upgrade_cta')}</Button>
+                                        </Link>
+                                    )}
                                 </div>
-                                <div className="space-y-3">
-                                    <div className="rounded-xl border border-slate-100 bg-white p-4 shadow-lg">
-                                        <p className="text-sm font-semibold text-slate-700">{t('dashboard.manager.company.planLabel', { plan: quotaState.rawPlanLabel || t('dashboard.manager.company.planUnknown') })}</p>
-                                        <p className="text-2xl font-bold text-slate-900 mt-1">{normalizedQuota.unlimited ? t('dashboard.manager.company.unlimited') : quotaState.limit ?? '--'}</p>
-                                        <p className="text-xs text-slate-600">{t('dashboard.manager.company.limitHelper')}</p>
-                                    </div>
-                                    <div className="rounded-xl border border-slate-100 bg-white p-4 shadow-lg">
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">{t('dashboard.manager.company.supportTitle')}</p>
-                                                <p className="text-sm text-slate-600">{t('dashboard.manager.company.supportSubtitle')}</p>
-                                            </div>
-                                            <Link to="/help" className="flex-shrink-0">
-                                                <Button variant="primary" size="sm">{t('dashboard.manager.company.supportCta')}</Button>
-                                            </Link>
-                                        </div>
-                                        <div className="mt-3 flex flex-wrap gap-2">
-                                            <Link to="/help" className="text-sm text-indigo-600 hover:underline">{t('dashboard.manager.company.helpLink')}</Link>
-                                            <Link to="/manager/faq" className="text-sm text-indigo-600 hover:underline">{t('dashboard.manager.company.faqLink')}</Link>
-                                        </div>
-                                    </div>
-                                </div>
+                            </div>
+
+                            <div className="rounded-2xl border border-slate-100 bg-white text-slate-900 p-5 shadow-lg">
+                                <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">{t('dashboard.manager.stats.totalTickets')}</p>
+                                <p className="mt-2 text-3xl font-bold text-slate-900">{stats.total}</p>
+                                <p className="text-xs text-slate-600">{t('dashboard.manager.stats.totalHelp')}</p>
+                            </div>
+                            <div className="rounded-2xl border border-slate-100 bg-white text-slate-900 p-5 shadow-lg">
+                                <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">{t('dashboard.manager.stats.open')}</p>
+                                <p className="mt-2 text-3xl font-bold text-slate-900">{stats.open}</p>
+                                <p className="text-xs text-slate-600">{t('dashboard.manager.stats.openHelp')}</p>
                             </div>
                         </section>
 
-                        {user?.role === UserRole.MANAGER && user?.company_id && (
-                            <section className="rounded-3xl border border-slate-100 bg-white text-slate-900 p-6 shadow-lg">
-                                <h2 className="text-xl font-semibold text-slate-900 mb-2">{t('dashboard.manager.invite.title')}</h2>
-                                <p className="text-sm text-slate-600 mb-4">{t('dashboard.manager.invite.subtitle')}</p>
-                                <ManagerInviteUserCard companyId={user.company_id} />
+                        <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                            <StatCard title={t('managerDashboard.stats.resolvedTickets')} value={stats.resolved} icon={<StatCardIcon icon="resolved" />} />
+                            <StatCard title={t('managerDashboard.stats.highPriority')} value={stats.highPriority} icon={<StatCardIcon icon="priority" />} />
+                            <StatCard title={t('managerDashboard.stats.unassigned')} value={stats.unassigned} icon={<StatCardIcon icon="unassigned" />} />
+                        </section>
+
+                        <div className="grid gap-4 lg:grid-cols-3">
+                            <section className="rounded-3xl border border-slate-100 bg-white text-slate-900 p-6 shadow-lg lg:col-span-2">
+                                <div className="flex items-start justify-between gap-3 mb-6">
+                                    <div>
+                                        <h2 className="text-xl font-semibold text-slate-900">{t('dashboard.manager.company.cardTitle')}</h2>
+                                        <p className="text-sm text-slate-600">{t('dashboard.manager.company.cardSubtitle')}</p>
+                                    </div>
+                                    {company && !isEditingName && (
+                                        <Button variant="outline" size="sm" onClick={() => setIsEditingName(true)} className="bg-slate-50">
+                                            <PencilIcon className="w-4 h-4 me-2" />
+                                            {t('managerDashboard.companyInfo.editButton', { default: "Edit Name" })}
+                                        </Button>
+                                    )}
+                                </div>
+                                <div className="grid gap-4 md:grid-cols-2">
+                                    <div className="space-y-3">
+                                        {company && (
+                                            <div className="space-y-2">
+                                                <label className="text-sm font-semibold text-slate-700 block">{t('dashboard.manager.company.nameLabel')}</label>
+                                                {!isEditingName ? (
+                                                    <div className="flex items-center gap-3">
+                                                        <p className="text-base text-slate-900 font-semibold flex-grow">{company.name}</p>
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                                                        <Input
+                                                            value={newCompanyName}
+                                                            onChange={e => setNewCompanyName(e.target.value)}
+                                                            className="flex-grow bg-white text-slate-900 placeholder:text-slate-500 border border-slate-300"
+                                                            disabled={isUpdatingName}
+                                                        />
+                                                        <div className="flex gap-2">
+                                                            <Button variant="primary" size="sm" onClick={handleSaveCompanyName} isLoading={isUpdatingName} disabled={isUpdatingName}>
+                                                                {t('managerDashboard.companyInfo.saveButton', { default: "Save" })}
+                                                            </Button>
+                                                            <Button variant="secondary" size="sm" onClick={() => setIsEditingName(false)} disabled={isUpdatingName}>
+                                                                {t('managerDashboard.companyInfo.cancelButton', { default: "Cancel" })}
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-4 space-y-3">
+                                            <p className="text-sm text-slate-600">{t('dashboard.manager.company.onboardingHint')}</p>
+                                            <div className="flex items-center gap-3">
+                                                <p className="text-base font-mono bg-white text-slate-800 p-2 rounded border border-slate-200 select-all flex-grow text-center">
+                                                    {company?.name || '...'}
+                                                </p>
+                                                <Button
+                                                    variant="outline"
+                                                    size="md"
+                                                    onClick={handleCopyName}
+                                                    className={`!py-2 ${isCopied ? '!border-green-500 !text-green-600 hover:!bg-green-50' : ''}`}
+                                                    title={t('managerDashboard.companyInfo.copyNameButton')}
+                                                >
+                                                    {isCopied ? (
+                                                        <CheckIcon className="w-5 h-5" />
+                                                    ) : (
+                                                        <ClipboardDocumentIcon className="w-5 h-5" />
+                                                    )}
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-3">
+                                        <div className="rounded-xl border border-slate-100 bg-white p-4 shadow-lg">
+                                            <p className="text-sm font-semibold text-slate-700">{t('dashboard.manager.company.planLabel', { plan: quotaState.rawPlanLabel || t('dashboard.manager.company.planUnknown') })}</p>
+                                            <p className="text-2xl font-bold text-slate-900 mt-1">{normalizedQuota.unlimited ? t('dashboard.manager.company.unlimited') : quotaState.limit ?? '--'}</p>
+                                            <p className="text-xs text-slate-600">{t('dashboard.manager.company.limitHelper')}</p>
+                                        </div>
+                                        <div className="rounded-xl border border-slate-100 bg-white p-4 shadow-lg">
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">{t('dashboard.manager.company.supportTitle')}</p>
+                                                    <p className="text-sm text-slate-600">{t('dashboard.manager.company.supportSubtitle')}</p>
+                                                </div>
+                                                <Link to="/help" className="flex-shrink-0">
+                                                    <Button variant="primary" size="sm">{t('dashboard.manager.company.supportCta')}</Button>
+                                                </Link>
+                                            </div>
+                                            <div className="mt-3 flex flex-wrap gap-2">
+                                                <Link to="/help" className="text-sm text-indigo-600 hover:underline">{t('dashboard.manager.company.helpLink')}</Link>
+                                                <Link to="/manager/faq" className="text-sm text-indigo-600 hover:underline">{t('dashboard.manager.company.faqLink')}</Link>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </section>
-                        )}
-                    </div>
 
-                    <section className="rounded-3xl border border-slate-100 bg-white text-slate-900 p-6 shadow-lg">
-                        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-4">
-                            <div>
-                                <h2 className="text-xl font-semibold text-slate-900">{t('dashboard.manager.filters.title')}</h2>
-                                <p className="text-sm text-slate-600">{t('dashboard.manager.filters.subtitle')}</p>
-                            </div>
-                            <Button
-                                variant="outline"
-                                onClick={handleResetFilters}
-                                className="text-indigo-600 hover:bg-indigo-50 border-none shadow-none"
-                            >
-                                {t('managerDashboard.filters.resetButton')}
-                            </Button>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
-                            <Select label={t('managerDashboard.filters.statusLabel')} value={statusFilter} onChange={e => setStatusFilter(e.target.value)} options={statusOptionsForFilter} className="bg-white text-slate-900 border border-slate-300" />
-                            <Select label={t('managerDashboard.filters.userLabel')} value={userFilter} onChange={e => setUserFilter(e.target.value)} options={userOptionsForFilter} className="bg-white text-slate-900 border border-slate-300" />
-                            <Input label={t('managerDashboard.filters.dateStartLabel')} type="date" value={dateFilter.start} onChange={e => setDateFilter(p => ({ ...p, start: e.target.value }))} className="w-full bg-white text-slate-900 placeholder:text-slate-500 border border-slate-300" />
-                            <Input label={t('managerDashboard.filters.dateEndLabel')} type="date" value={dateFilter.end} onChange={e => setDateFilter(p => ({ ...p, end: e.target.value }))} className="w-full bg-white text-slate-900 placeholder:text-slate-500 border border-slate-300" />
-                        </div>
-                    </section>
-
-                    <section className="rounded-3xl border border-slate-100 bg-white text-slate-900 p-4 sm:p-6 shadow-lg">
-                        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-4">
-                            <div>
-                                <h2 className="text-xl font-semibold text-slate-900">{t('dashboard.manager.filtered.title')}</h2>
-                                <p className="text-sm text-slate-600">{t('dashboard.manager.filtered.subtitle')}</p>
-                            </div>
-                            {filtersAreActive && (
-                                <span className="text-xs px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100">{t('dashboard.manager.filtered.active')}</span>
+                            {user?.role === UserRole.MANAGER && user?.company_id && (
+                                <section className="rounded-3xl border border-slate-100 bg-white text-slate-900 p-6 shadow-lg">
+                                    <h2 className="text-xl font-semibold text-slate-900 mb-2">{t('dashboard.manager.invite.title')}</h2>
+                                    <p className="text-sm text-slate-600 mb-4">{t('dashboard.manager.invite.subtitle')}</p>
+                                    <ManagerInviteUserCard companyId={user.company_id} />
+                                </section>
                             )}
                         </div>
-                        {filteredTickets.length === 0 ? (
-                            <p className="text-slate-500 text-center py-8">{filtersAreActive ? t('managerDashboard.noTicketsFiltered') : t('managerDashboard.noTicketsSystem')}</p>
-                        ) : (
+
+                        <section className="rounded-3xl border border-slate-100 bg-white text-slate-900 p-6 shadow-lg">
+                            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-4">
+                                <div>
+                                    <h2 className="text-xl font-semibold text-slate-900">{t('dashboard.manager.filters.title')}</h2>
+                                    <p className="text-sm text-slate-600">{t('dashboard.manager.filters.subtitle')}</p>
+                                </div>
+                                <Button
+                                    variant="outline"
+                                    onClick={handleResetFilters}
+                                    className="text-indigo-600 hover:bg-indigo-50 border-none shadow-none"
+                                >
+                                    {t('managerDashboard.filters.resetButton')}
+                                </Button>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+                                <Select label={t('managerDashboard.filters.statusLabel')} value={statusFilter} onChange={e => setStatusFilter(e.target.value)} options={statusOptionsForFilter} className="bg-white text-slate-900 border border-slate-300" />
+                                <Select label={t('managerDashboard.filters.userLabel')} value={userFilter} onChange={e => setUserFilter(e.target.value)} options={userOptionsForFilter} className="bg-white text-slate-900 border border-slate-300" />
+                                <Input label={t('managerDashboard.filters.dateStartLabel')} type="date" value={dateFilter.start} onChange={e => setDateFilter(p => ({ ...p, start: e.target.value }))} className="w-full bg-white text-slate-900 placeholder:text-slate-500 border border-slate-300" />
+                                <Input label={t('managerDashboard.filters.dateEndLabel')} type="date" value={dateFilter.end} onChange={e => setDateFilter(p => ({ ...p, end: e.target.value }))} className="w-full bg-white text-slate-900 placeholder:text-slate-500 border border-slate-300" />
+                            </div>
+                        </section>
+
+                        <section className="rounded-3xl border border-slate-100 bg-white text-slate-900 p-4 sm:p-6 shadow-lg">
+                            <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-4">
+                                <div>
+                                    <h2 className="text-xl font-semibold text-slate-900">{t('dashboard.manager.filtered.title')}</h2>
+                                    <p className="text-sm text-slate-600">{t('dashboard.manager.filtered.subtitle')}</p>
+                                </div>
+                                {filtersAreActive && (
+                                    <span className="text-xs px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100">{t('dashboard.manager.filtered.active')}</span>
+                                )}
+                            </div>
+                            {filteredTickets.length === 0 ? (
+                                <p className="text-slate-500 text-center py-8">{filtersAreActive ? t('managerDashboard.noTicketsFiltered') : t('managerDashboard.noTicketsSystem')}</p>
+                            ) : (
+                                <div className="overflow-x-auto">
+                                    <table className="min-w-full divide-y divide-slate-200">
+                                        <thead className="bg-slate-50">
+                                            <tr>
+                                                <th className="p-2 sm:p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('managerDashboard.tableHeader.title')}</th>
+                                                <th className="p-2 sm:p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('managerDashboard.tableHeader.client')}</th>
+                                                <th className="p-2 sm:p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('managerDashboard.tableHeader.status')}</th>
+                                                <th className="p-2 sm:p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('managerDashboard.tableHeader.priority')}</th>
+                                                <th className="p-2 sm:p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('managerDashboard.tableHeader.assignedAgent')}</th>
+                                                <th className="p-2 sm:p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('managerDashboard.tableHeader.actions')}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="bg-white divide-y divide-slate-200 text-sm">
+                                            {filteredTickets.map(ticket => (
+                                                <ManagerTicketRow
+                                                    key={ticket.id}
+                                                    ticket={ticket}
+                                                    agents={allAgents}
+                                                    allUsers={allUsers}
+                                                    onAssignTicket={handleSafeAssign}
+                                                    onDeleteTicket={handleDeleteTicket}
+                                                />
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+                        </section>
+
+                        <section className="rounded-3xl border border-slate-100 bg-white text-slate-900 p-6 shadow-lg">
+                            <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-4">
+                                <div>
+                                    <h2 className="text-xl font-semibold text-slate-900">{t('dashboard.manager.users.title')}</h2>
+                                    <p className="text-sm text-slate-600">{t('dashboard.manager.users.subtitle')}</p>
+                                </div>
+                            </div>
                             <div className="overflow-x-auto">
                                 <table className="min-w-full divide-y divide-slate-200">
                                     <thead className="bg-slate-50">
                                         <tr>
-                                            <th className="p-2 sm:p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('managerDashboard.tableHeader.title')}</th>
-                                            <th className="p-2 sm:p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('managerDashboard.tableHeader.client')}</th>
-                                            <th className="p-2 sm:p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('managerDashboard.tableHeader.status')}</th>
-                                            <th className="p-2 sm:p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('managerDashboard.tableHeader.priority')}</th>
-                                            <th className="p-2 sm:p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('managerDashboard.tableHeader.assignedAgent')}</th>
-                                            <th className="p-2 sm:p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('managerDashboard.tableHeader.actions')}</th>
+                                            <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('managerDashboard.userTableHeader.username')}</th>
+                                            <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('managerDashboard.userTableHeader.language')}</th>
+                                            <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('managerDashboard.userTableHeader.roleActions')}</th>
+                                            <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('managerDashboard.tableHeader.actions')}</th>
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white divide-y divide-slate-200 text-sm">
-                                        {filteredTickets.map(ticket => (
-                                            <ManagerTicketRow
-                                                key={ticket.id}
-                                                ticket={ticket}
-                                                agents={allAgents}
-                                                allUsers={allUsers}
-                                                onAssignTicket={assignTicket}
-                                                onDeleteTicket={handleDeleteTicket}
+                                        {allUsers.map((userToManage) => (
+                                            <UserManagementRow
+                                                key={userToManage.id}
+                                                userToManage={userToManage}
+                                                currentUser={user}
+                                                onUpdateRole={updateUserRole}
+                                                onDeleteUser={deleteUserById}
                                             />
                                         ))}
                                     </tbody>
                                 </table>
                             </div>
-                        )}
-                    </section>
-
-                    <section className="rounded-3xl border border-slate-100 bg-white text-slate-900 p-6 shadow-lg">
-                        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-4">
-                            <div>
-                                <h2 className="text-xl font-semibold text-slate-900">{t('dashboard.manager.users.title')}</h2>
-                                <p className="text-sm text-slate-600">{t('dashboard.manager.users.subtitle')}</p>
-                            </div>
-                        </div>
-                        <div className="overflow-x-auto">
-                            <table className="min-w-full divide-y divide-slate-200">
-                                <thead className="bg-slate-50">
-                                    <tr>
-                                        <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('managerDashboard.userTableHeader.username')}</th>
-                                        <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('managerDashboard.userTableHeader.language')}</th>
-                                        <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('managerDashboard.userTableHeader.roleActions')}</th>
-                                        <th className="p-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('managerDashboard.tableHeader.actions')}</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="bg-white divide-y divide-slate-200 text-sm">
-                                    {allUsers.map((userToManage) => (
-                                        <UserManagementRow
-                                            key={userToManage.id}
-                                            userToManage={userToManage}
-                                            currentUser={user}
-                                            onUpdateRole={updateUserRole}
-                                            onDeleteUser={deleteUserById}
-                                        />
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </section>
+                        </section>
+                    </div>
+                    <FloatingActionButton to="/help" title={t('managerDashboard.createNewTicketButton')} />
                 </div>
-                <FloatingActionButton to="/help" title={t('managerDashboard.createNewTicketButton')} />
             </div>
-        </div>
-    );
-};
+        );
+    };
 
-export default ManagerDashboardPage;
+    export default ManagerDashboardPage;
