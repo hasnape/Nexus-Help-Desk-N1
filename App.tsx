@@ -70,6 +70,7 @@ const LaiTurnerClientPortalPage = lazy(() => import("./pages/LaiTurnerClientPort
 const LaiTurnerAgentInboxPage = lazy(() => import("./pages/LaiTurnerAgentInboxPage"));
 const LaiTurnerManagerDashboardPage = lazy(() => import("./pages/LaiTurnerManagerDashboardPage"));
 const MasterDashboardPage = lazy(() => import("./pages/MasterDashboardPage"));
+const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
 
 
 interface AppContextType {
@@ -807,15 +808,13 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     ]
   );
 
-  useEffect(() => {
+ useEffect(() => {
     let isMounted = true;
 
     supabase.auth
       .getSession()
       .then(async ({ data: { session }, error }) => {
-        if (!isMounted) {
-          return;
-        }
+        if (!isMounted) return;
         if (error) {
           console.error("Error fetching session:", error);
           loadUserData(null);
@@ -827,9 +826,7 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
         loadUserData(session);
       })
       .catch((error) => {
-        if (!isMounted || isAbortError(error)) {
-          return;
-        }
+        if (!isMounted || isAbortError(error)) return;
         console.error("Unexpected session fetch error:", error);
         loadUserData(null);
       });
@@ -837,12 +834,18 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      if (!isMounted) {
-        return;
+      if (!isMounted) return;
+
+      // ✅ AJOUT : Détecter le clic sur le mail de récupération
+      if (event === "PASSWORD_RECOVERY") {
+        window.location.hash = "/reset-password";
+        return; 
       }
+
       if (session) {
         ensureUserProfile().catch(console.warn);
       }
+      
       if (event === "TOKEN_REFRESHED" && !session) {
         loadUserData(null);
       } else if (session?.user?.id !== user?.auth_uid) {
@@ -854,7 +857,8 @@ const AppProviderContent: React.FC<{ children: ReactNode }> = ({ children }) => 
       isMounted = false;
       subscription.unsubscribe();
     };
-  }, [loadUserData, user?.id]);
+    // Changé user?.id par user?.auth_uid pour plus de cohérence avec loadUserData
+  }, [loadUserData, user?.auth_uid]);
 
   useEffect(() => {
     if (user?.language_preference && user.language_preference !== language) {
@@ -1651,6 +1655,8 @@ const MainAppContent: React.FC = () => {
         <Route path="/lai-turner-law/client-portal" element={<LaiTurnerClientPortalPage />} />
         <Route path="/lai-turner-law/agent" element={<LaiTurnerAgentInboxPage />} />
         <Route path="/lai-turner-law/manager" element={<LaiTurnerManagerDashboardPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+
 
         {/* PricingPage */}
         <Route path="/pricing" element={<PricingPage />} />

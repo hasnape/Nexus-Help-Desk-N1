@@ -509,7 +509,7 @@ const ManagerDashboardPage: React.FC = () => {
     useEffect(() => {
         if (newlyCreatedCompanyName) {
             setShowWelcomeModal(true);
-            setTimeout(() => setIsModalVisible(true), 50); // For entry animation
+            setTimeout(() => setIsModalVisible(true), 60); // For entry animation
         }
     }, [newlyCreatedCompanyName]);
 
@@ -518,7 +518,7 @@ const ManagerDashboardPage: React.FC = () => {
         setTimeout(() => {
             setShowWelcomeModal(false);
             setNewlyCreatedCompanyName(null);
-        }, 300); // Wait for animation to finish
+        }, 350); // Wait for animation to finish
     };
 
     const allAgents = getAgents();
@@ -528,7 +528,7 @@ const ManagerDashboardPage: React.FC = () => {
         if (company?.name) {
             navigator.clipboard.writeText(company.name);
             setIsCopied(true);
-            setTimeout(() => setIsCopied(false), 2500);
+            setTimeout(() => setIsCopied(false), 3500);
         }
     };
 

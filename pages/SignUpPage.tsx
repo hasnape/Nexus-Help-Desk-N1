@@ -468,7 +468,7 @@ const SignUpPage: React.FC = () => {
 
       setTimeout(() => {
         navigate("/login");
-      }, 3000);
+      }, 3500);
     }
   };
 

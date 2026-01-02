@@ -130,7 +130,7 @@ const TicketDetailPage: React.FC = () => {
     const focusTimeout = window.setTimeout(() => {
       feedbackRef.current?.focus();
     }, 0);
-    const dismissTimeout = window.setTimeout(() => setFeedback(null), 3000);
+    const dismissTimeout = window.setTimeout(() => setFeedback(null), 3500);
     return () => {
       window.clearTimeout(focusTimeout);
       window.clearTimeout(dismissTimeout);
@@ -200,7 +200,7 @@ const TicketDetailPage: React.FC = () => {
             if (!getTicketById(ticketId)) {
                 navigate('/dashboard', { replace: true });
             }
-        }, 1500);
+        }, 1600);
 
         return () => clearTimeout(redirectTimer);
     }
@@ -277,7 +277,7 @@ const TicketDetailPage: React.FC = () => {
       setTimeout(() => {
         speak(text, () => setSpeakingMessageId(null));
         setSpeakingMessageId(messageId);
-      }, 50);
+      }, 60);
     }
   };
 
@@ -391,7 +391,7 @@ const TicketDetailPage: React.FC = () => {
             speak(messageToSpeak!.text, () => setSpeakingMessageId(null));
             setSpeakingMessageId(messageToSpeak!.id);
             setLastSpokenAiMessage(messageToSpeak);
-        }, 50);
+        }, 60);
     }
   };
 
