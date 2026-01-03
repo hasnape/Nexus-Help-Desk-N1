@@ -56,6 +56,22 @@ jobs:
           
           echo "All required files are present."
 
+      - name: Run typecheck (optional)
+        run: |
+          if [ -f package.json ]; then
+            echo "package.json found, checking for typecheck script..."
+            if grep -q '"typecheck"' package.json; then
+              echo "Running typecheck..."
+              npm install
+              npm run typecheck
+            else
+              echo "No typecheck script found in package.json, skipping."
+            fi
+          else
+            echo "No package.json found, skipping typecheck."
+          fi
+        continue-on-error: true
+
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
@@ -63,9 +79,10 @@ jobs:
           commit-message: "fix(db+app): migrate internal_notes -> jsonb, add idempotent RLS policies; normalize chat/messages and edge fn safety"
           branch: chore/db-align-rls
           base: master
+          draft: true
           title: "fix(db): migrate internal_notes -> jsonb & tighten RLS; normalize chat/messages and edge function safety"
           body: |
-            - Adds a safe, non-destructive migration file to migrate `tickets.internal_notes` into structured JSON arrays and idempotent RLS policy creation. The user executed the migration on staging and will run the final ALTER TABLE DROP/RENAME after the code is deployed.
+            - Adds a safe, non-destructive migration file to migrate `tickets.internal_notes` into structured JSON arrays and idempotent RLS policy creation. The user will run the migration on staging and will run the final ALTER TABLE DROP/RENAME after the code is deployed.
             - Adds app helpers to normalize usage of `chat_messages.message_text` and to parse `internal_notes` robustly.
             - Adds safer Edge Function snippets for atomic activation code consumption and Gemini history limiting + key check.
             - Adds an automation script and a workflow to create the branch/PR locally if needed.
