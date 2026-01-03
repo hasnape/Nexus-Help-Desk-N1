@@ -26,8 +26,8 @@ export default async function handler(req: Request): Promise<Response> {
     return jsonError("Missing function name in URL.", 400);
   }
 
-  // Validate function name: only allow alphanumeric, dash, underscore
-  if (!/^[a-zA-Z0-9_-]+$/.test(fn)) {
+  // Validate function name: only allow alphanumeric, dash, underscore, max length 64
+  if (!/^[a-zA-Z0-9_-]{1,64}$/.test(fn)) {
     console.error(`Invalid function name attempted: ${fn}`);
     return jsonError("Invalid function name format.", 400);
   }
