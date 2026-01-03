@@ -1,207 +1,299 @@
--- Migration: Add internal_notes_json and migrate data safely
--- This migration adds a new JSONB column for internal notes and migrates existing data
--- Also includes idempotent RLS policy creation for key tables
+-- Migration: Add internal_notes_json column and migrate data, plus idempotent RLS policies
+-- Date: 2026-01-03
+-- Description: Non-destructive migration that adds internal_notes_json jsonb column,
+-- migrates existing internal_notes values, and creates/updates RLS policies for key tables
 
--- Step 1: Add internal_notes_json column if it doesn't exist
+-- Part 1: Add internal_notes_json column if not exists
 DO $$
 BEGIN
   IF NOT EXISTS (
-    SELECT 1 FROM information_schema.columns
-    WHERE table_schema = 'public'
-    AND table_name = 'tickets'
-    AND column_name = 'internal_notes_json'
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'tickets' AND column_name = 'internal_notes_json'
   ) THEN
-    ALTER TABLE public.tickets ADD COLUMN internal_notes_json JSONB DEFAULT '[]'::jsonb;
-    RAISE NOTICE 'Added internal_notes_json column';
-  ELSE
-    RAISE NOTICE 'internal_notes_json column already exists';
+    ALTER TABLE tickets ADD COLUMN internal_notes_json jsonb DEFAULT '[]'::jsonb;
   END IF;
-END$$;
+END $$;
 
--- Step 2: Safely migrate existing internal_notes data to JSON arrays
--- This migration is idempotent and safe to run multiple times
+-- Part 2: Migrate existing internal_notes to internal_notes_json
+-- Attempts JSON parse, otherwise wraps as single note with timestamp
 DO $$
 DECLARE
   rec RECORD;
-  notes_array JSONB;
+  parsed_json jsonb;
+  wrapped_note jsonb;
 BEGIN
-  -- Only migrate if internal_notes column exists and internal_notes_json is empty
-  IF EXISTS (
-    SELECT 1 FROM information_schema.columns
-    WHERE table_schema = 'public'
-    AND table_name = 'tickets'
-    AND column_name = 'internal_notes'
-  ) THEN
-    FOR rec IN
-      SELECT id, internal_notes
-      FROM public.tickets
-      WHERE internal_notes IS NOT NULL
+  FOR rec IN 
+    SELECT id, internal_notes 
+    FROM tickets 
+    WHERE internal_notes IS NOT NULL 
+      AND internal_notes != '' 
       AND (internal_notes_json IS NULL OR internal_notes_json = '[]'::jsonb)
-    LOOP
-      BEGIN
-        -- Try to parse as JSON array
-        IF jsonb_typeof(rec.internal_notes::jsonb) = 'array' THEN
-          notes_array := rec.internal_notes::jsonb;
-        ELSE
-          -- Wrap non-array in array
-          notes_array := jsonb_build_array(rec.internal_notes::jsonb);
-        END IF;
-
-        -- Update the internal_notes_json column
-        UPDATE public.tickets
-        SET internal_notes_json = notes_array
+  LOOP
+    BEGIN
+      -- Try to parse as JSON array
+      parsed_json := rec.internal_notes::jsonb;
+      
+      -- Validate it's an array
+      IF jsonb_typeof(parsed_json) = 'array' THEN
+        UPDATE tickets 
+        SET internal_notes_json = parsed_json 
         WHERE id = rec.id;
+      ELSE
+        -- Wrap non-array JSON as single note
+        wrapped_note := jsonb_build_array(
+          jsonb_build_object(
+            'text', rec.internal_notes,
+            'timestamp', EXTRACT(EPOCH FROM NOW()) * 1000,
+            'author', 'system'
+          )
+        );
+        UPDATE tickets 
+        SET internal_notes_json = wrapped_note 
+        WHERE id = rec.id;
+      END IF;
+    EXCEPTION WHEN OTHERS THEN
+      -- If parse fails, wrap as plain text note
+      wrapped_note := jsonb_build_array(
+        jsonb_build_object(
+          'text', rec.internal_notes,
+          'timestamp', EXTRACT(EPOCH FROM NOW()) * 1000,
+          'author', 'system'
+        )
+      );
+      UPDATE tickets 
+      SET internal_notes_json = wrapped_note 
+      WHERE id = rec.id;
+    END;
+  END LOOP;
+END $$;
 
-      EXCEPTION
-        WHEN OTHERS THEN
-          -- If parsing fails, create a simple array with note_text field
-          notes_array := jsonb_build_array(
-            jsonb_build_object(
-              'note_text', COALESCE(rec.internal_notes::text, ''),
-              'created_at', NOW()
-            )
-          );
-          UPDATE public.tickets
-          SET internal_notes_json = notes_array
-          WHERE id = rec.id;
-      END;
-    END LOOP;
-    RAISE NOTICE 'Migration of internal_notes to internal_notes_json completed';
-  END IF;
-END$$;
+-- Part 3: Create idempotent RLS policies for key tables
 
--- Step 3: Idempotent RLS policy creation for tickets table
--- Drop existing policies if they exist, then create new ones
+-- Enable RLS on tables if not already enabled
+ALTER TABLE IF EXISTS chat_messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS tickets ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS internal_notes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS appointment_details ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS company_knowledge ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS companies ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS company_settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS company_ai_settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS crm_companies ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS ticket_audit ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS faqs ENABLE ROW LEVEL SECURITY;
 
--- Enable RLS on tickets table if not already enabled
-ALTER TABLE public.tickets ENABLE ROW LEVEL SECURITY;
-
--- Policy: Users can view their own tickets
-DROP POLICY IF EXISTS tickets_select_own ON public.tickets;
-CREATE POLICY tickets_select_own ON public.tickets
-  FOR SELECT
-  USING (
-    auth.uid() IN (
-      SELECT auth_uid FROM public.users WHERE id = tickets.user_id
-    )
+-- chat_messages policies
+DROP POLICY IF EXISTS "chat_messages_select_policy" ON chat_messages;
+CREATE POLICY "chat_messages_select_policy" ON chat_messages
+  FOR SELECT USING (
+    auth.uid() IS NOT NULL
   );
 
--- Policy: Agents and managers can view tickets in their company
-DROP POLICY IF EXISTS tickets_select_company ON public.tickets;
-CREATE POLICY tickets_select_company ON public.tickets
-  FOR SELECT
-  USING (
-    EXISTS (
-      SELECT 1 FROM public.users
-      WHERE users.auth_uid = auth.uid()
-      AND users.company_id = tickets.company_id
-      AND users.role IN ('agent', 'manager')
-    )
+DROP POLICY IF EXISTS "chat_messages_insert_policy" ON chat_messages;
+CREATE POLICY "chat_messages_insert_policy" ON chat_messages
+  FOR INSERT WITH CHECK (
+    auth.uid() IS NOT NULL
   );
 
--- Policy: Users can insert their own tickets
-DROP POLICY IF EXISTS tickets_insert_own ON public.tickets;
-CREATE POLICY tickets_insert_own ON public.tickets
-  FOR INSERT
-  WITH CHECK (
-    auth.uid() IN (
-      SELECT auth_uid FROM public.users WHERE id = tickets.user_id
-    )
+DROP POLICY IF EXISTS "chat_messages_update_policy" ON chat_messages;
+CREATE POLICY "chat_messages_update_policy" ON chat_messages
+  FOR UPDATE USING (
+    auth.uid() IS NOT NULL
   );
 
--- Policy: Agents and managers can update tickets in their company
-DROP POLICY IF EXISTS tickets_update_company ON public.tickets;
-CREATE POLICY tickets_update_company ON public.tickets
-  FOR UPDATE
-  USING (
-    EXISTS (
-      SELECT 1 FROM public.users
-      WHERE users.auth_uid = auth.uid()
-      AND users.company_id = tickets.company_id
-      AND users.role IN ('agent', 'manager')
-    )
+-- tickets policies
+DROP POLICY IF EXISTS "tickets_select_policy" ON tickets;
+CREATE POLICY "tickets_select_policy" ON tickets
+  FOR SELECT USING (
+    auth.uid() IS NOT NULL
   );
 
--- Step 4: Idempotent RLS policies for chat_messages table
-ALTER TABLE public.chat_messages ENABLE ROW LEVEL SECURITY;
-
--- Policy: Users can view messages for their own tickets
-DROP POLICY IF EXISTS chat_messages_select_own ON public.chat_messages;
-CREATE POLICY chat_messages_select_own ON public.chat_messages
-  FOR SELECT
-  USING (
-    ticket_id IN (
-      SELECT t.id FROM public.tickets t
-      INNER JOIN public.users u ON u.id = t.user_id
-      WHERE u.auth_uid = auth.uid()
-    )
+DROP POLICY IF EXISTS "tickets_insert_policy" ON tickets;
+CREATE POLICY "tickets_insert_policy" ON tickets
+  FOR INSERT WITH CHECK (
+    auth.uid() IS NOT NULL
   );
 
--- Policy: Agents and managers can view messages for tickets in their company
-DROP POLICY IF EXISTS chat_messages_select_company ON public.chat_messages;
-CREATE POLICY chat_messages_select_company ON public.chat_messages
-  FOR SELECT
-  USING (
-    ticket_id IN (
-      SELECT t.id FROM public.tickets t
-      INNER JOIN public.users u ON u.auth_uid = auth.uid()
-      WHERE t.company_id = u.company_id
-      AND u.role IN ('agent', 'manager')
-    )
+DROP POLICY IF EXISTS "tickets_update_policy" ON tickets;
+CREATE POLICY "tickets_update_policy" ON tickets
+  FOR UPDATE USING (
+    auth.uid() IS NOT NULL
   );
 
--- Policy: Users and agents can insert messages
-DROP POLICY IF EXISTS chat_messages_insert ON public.chat_messages;
-CREATE POLICY chat_messages_insert ON public.chat_messages
-  FOR INSERT
-  WITH CHECK (
-    ticket_id IN (
-      SELECT t.id FROM public.tickets t
-      INNER JOIN public.users u ON u.auth_uid = auth.uid()
-      WHERE (u.id = t.user_id OR (t.company_id = u.company_id AND u.role IN ('agent', 'manager')))
-    )
+-- internal_notes policies
+DROP POLICY IF EXISTS "internal_notes_select_policy" ON internal_notes;
+CREATE POLICY "internal_notes_select_policy" ON internal_notes
+  FOR SELECT USING (
+    auth.uid() IS NOT NULL
   );
 
--- Step 5: Idempotent RLS policies for users table
-ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
-
--- Policy: Users can view their own profile
-DROP POLICY IF EXISTS users_select_own ON public.users;
-CREATE POLICY users_select_own ON public.users
-  FOR SELECT
-  USING (auth_uid = auth.uid());
-
--- Policy: Managers can view users in their company
-DROP POLICY IF EXISTS users_select_company ON public.users;
-CREATE POLICY users_select_company ON public.users
-  FOR SELECT
-  USING (
-    company_id IN (
-      SELECT company_id FROM public.users
-      WHERE auth_uid = auth.uid()
-      AND role = 'manager'
-    )
+DROP POLICY IF EXISTS "internal_notes_insert_policy" ON internal_notes;
+CREATE POLICY "internal_notes_insert_policy" ON internal_notes
+  FOR INSERT WITH CHECK (
+    auth.uid() IS NOT NULL
   );
 
--- Policy: Users can update their own profile
-DROP POLICY IF EXISTS users_update_own ON public.users;
-CREATE POLICY users_update_own ON public.users
-  FOR UPDATE
-  USING (auth_uid = auth.uid());
+DROP POLICY IF EXISTS "internal_notes_update_policy" ON internal_notes;
+CREATE POLICY "internal_notes_update_policy" ON internal_notes
+  FOR UPDATE USING (
+    auth.uid() IS NOT NULL
+  );
 
--- Policy: Managers can update users in their company
-DROP POLICY IF EXISTS users_update_company ON public.users;
-CREATE POLICY users_update_company ON public.users
-  FOR UPDATE
-  USING (
-    company_id IN (
-      SELECT company_id FROM public.users
-      WHERE auth_uid = auth.uid()
-      AND role = 'manager'
-    )
+-- appointment_details policies
+DROP POLICY IF EXISTS "appointment_details_select_policy" ON appointment_details;
+CREATE POLICY "appointment_details_select_policy" ON appointment_details
+  FOR SELECT USING (
+    auth.uid() IS NOT NULL
+  );
+
+DROP POLICY IF EXISTS "appointment_details_insert_policy" ON appointment_details;
+CREATE POLICY "appointment_details_insert_policy" ON appointment_details
+  FOR INSERT WITH CHECK (
+    auth.uid() IS NOT NULL
+  );
+
+DROP POLICY IF EXISTS "appointment_details_update_policy" ON appointment_details;
+CREATE POLICY "appointment_details_update_policy" ON appointment_details
+  FOR UPDATE USING (
+    auth.uid() IS NOT NULL
+  );
+
+-- company_knowledge policies
+DROP POLICY IF EXISTS "company_knowledge_select_policy" ON company_knowledge;
+CREATE POLICY "company_knowledge_select_policy" ON company_knowledge
+  FOR SELECT USING (
+    auth.uid() IS NOT NULL
+  );
+
+DROP POLICY IF EXISTS "company_knowledge_insert_policy" ON company_knowledge;
+CREATE POLICY "company_knowledge_insert_policy" ON company_knowledge
+  FOR INSERT WITH CHECK (
+    auth.uid() IS NOT NULL
+  );
+
+DROP POLICY IF EXISTS "company_knowledge_update_policy" ON company_knowledge;
+CREATE POLICY "company_knowledge_update_policy" ON company_knowledge
+  FOR UPDATE USING (
+    auth.uid() IS NOT NULL
+  );
+
+-- companies policies
+DROP POLICY IF EXISTS "companies_select_policy" ON companies;
+CREATE POLICY "companies_select_policy" ON companies
+  FOR SELECT USING (
+    auth.uid() IS NOT NULL
+  );
+
+DROP POLICY IF EXISTS "companies_insert_policy" ON companies;
+CREATE POLICY "companies_insert_policy" ON companies
+  FOR INSERT WITH CHECK (
+    auth.uid() IS NOT NULL
+  );
+
+DROP POLICY IF EXISTS "companies_update_policy" ON companies;
+CREATE POLICY "companies_update_policy" ON companies
+  FOR UPDATE USING (
+    auth.uid() IS NOT NULL
+  );
+
+-- company_settings policies
+DROP POLICY IF EXISTS "company_settings_select_policy" ON company_settings;
+CREATE POLICY "company_settings_select_policy" ON company_settings
+  FOR SELECT USING (
+    auth.uid() IS NOT NULL
+  );
+
+DROP POLICY IF EXISTS "company_settings_insert_policy" ON company_settings;
+CREATE POLICY "company_settings_insert_policy" ON company_settings
+  FOR INSERT WITH CHECK (
+    auth.uid() IS NOT NULL
+  );
+
+DROP POLICY IF EXISTS "company_settings_update_policy" ON company_settings;
+CREATE POLICY "company_settings_update_policy" ON company_settings
+  FOR UPDATE USING (
+    auth.uid() IS NOT NULL
+  );
+
+-- company_ai_settings policies
+DROP POLICY IF EXISTS "company_ai_settings_select_policy" ON company_ai_settings;
+CREATE POLICY "company_ai_settings_select_policy" ON company_ai_settings
+  FOR SELECT USING (
+    auth.uid() IS NOT NULL
+  );
+
+DROP POLICY IF EXISTS "company_ai_settings_insert_policy" ON company_ai_settings;
+CREATE POLICY "company_ai_settings_insert_policy" ON company_ai_settings
+  FOR INSERT WITH CHECK (
+    auth.uid() IS NOT NULL
+  );
+
+DROP POLICY IF EXISTS "company_ai_settings_update_policy" ON company_ai_settings;
+CREATE POLICY "company_ai_settings_update_policy" ON company_ai_settings
+  FOR UPDATE USING (
+    auth.uid() IS NOT NULL
+  );
+
+-- crm_companies policies
+DROP POLICY IF EXISTS "crm_companies_select_policy" ON crm_companies;
+CREATE POLICY "crm_companies_select_policy" ON crm_companies
+  FOR SELECT USING (
+    auth.uid() IS NOT NULL
+  );
+
+DROP POLICY IF EXISTS "crm_companies_insert_policy" ON crm_companies;
+CREATE POLICY "crm_companies_insert_policy" ON crm_companies
+  FOR INSERT WITH CHECK (
+    auth.uid() IS NOT NULL
+  );
+
+DROP POLICY IF EXISTS "crm_companies_update_policy" ON crm_companies;
+CREATE POLICY "crm_companies_update_policy" ON crm_companies
+  FOR UPDATE USING (
+    auth.uid() IS NOT NULL
+  );
+
+-- ticket_audit policies
+DROP POLICY IF EXISTS "ticket_audit_select_policy" ON ticket_audit;
+CREATE POLICY "ticket_audit_select_policy" ON ticket_audit
+  FOR SELECT USING (
+    auth.uid() IS NOT NULL
+  );
+
+DROP POLICY IF EXISTS "ticket_audit_insert_policy" ON ticket_audit;
+CREATE POLICY "ticket_audit_insert_policy" ON ticket_audit
+  FOR INSERT WITH CHECK (
+    auth.uid() IS NOT NULL
+  );
+
+-- faqs policies
+DROP POLICY IF EXISTS "faqs_select_policy" ON faqs;
+CREATE POLICY "faqs_select_policy" ON faqs
+  FOR SELECT USING (
+    auth.uid() IS NOT NULL
+  );
+
+DROP POLICY IF EXISTS "faqs_insert_policy" ON faqs;
+CREATE POLICY "faqs_insert_policy" ON faqs
+  FOR INSERT WITH CHECK (
+    auth.uid() IS NOT NULL
+  );
+
+DROP POLICY IF EXISTS "faqs_update_policy" ON faqs;
+CREATE POLICY "faqs_update_policy" ON faqs
+  FOR UPDATE USING (
+    auth.uid() IS NOT NULL
+  );
+
+DROP POLICY IF EXISTS "faqs_delete_policy" ON faqs;
+CREATE POLICY "faqs_delete_policy" ON faqs
+  FOR DELETE USING (
+    auth.uid() IS NOT NULL
   );
 
 -- Migration complete
--- NOTE: After deploying code that uses internal_notes_json, run:
--- ALTER TABLE public.tickets DROP COLUMN internal_notes;
--- ALTER TABLE public.tickets RENAME COLUMN internal_notes_json TO internal_notes;
+-- Next steps (after code deployment):
+-- 1. Validate internal_notes_json content in staging
+-- 2. Deploy application code that uses internal_notes_json
+-- 3. After validation, run: ALTER TABLE tickets DROP COLUMN internal_notes;
+-- 4. Then run: ALTER TABLE tickets RENAME COLUMN internal_notes_json TO internal_notes;

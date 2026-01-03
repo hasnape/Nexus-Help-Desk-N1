@@ -1,135 +1,175 @@
 /**
- * Helper functions for normalizing chat messages and internal_notes handling
- * to support the migration from internal_notes to internal_notes_json (JSONB)
- * and ensure consistent usage of chat_messages.message_text field
+ * App helpers to normalize chat messages and internal notes usage
+ * 
+ * These functions prioritize `message_text` column and normalize
+ * internal_notes into consistent array format
  */
 
-import type { ChatMessage, InternalNote } from '../../types';
+import { SupabaseClient } from '@supabase/supabase-js';
+
+export interface ChatMessage {
+  id?: string;
+  ticket_id: string;
+  message_text: string;
+  sender_type: 'user' | 'agent' | 'system';
+  sender_id?: string;
+  created_at?: string;
+  metadata?: any;
+}
+
+export interface InternalNote {
+  text: string;
+  timestamp: number;
+  author: string;
+}
 
 /**
- * Maps a database row from chat_messages table to ChatMessage interface
- * Prioritizes message_text field over legacy text field
+ * Map a ticket message row to a normalized ChatMessage
+ * Prioritizes message_text column
  */
 export function mapTicketMessageRowToChatMessage(row: any): ChatMessage {
   return {
-    id: row.id || crypto.randomUUID(),
-    sender: row.sender || 'user',
-    // Prioritize message_text (new field) over text (legacy)
-    text: row.message_text || row.text || '',
-    timestamp: row.created_at ? new Date(row.created_at) : new Date(),
-    agentId: row.agent_id || row.agentId,
+    id: row.id,
+    ticket_id: row.ticket_id,
+    message_text: row.message_text || row.message || '',
+    sender_type: row.sender_type || 'user',
+    sender_id: row.sender_id,
+    created_at: row.created_at,
+    metadata: row.metadata,
   };
 }
 
 /**
- * Prepares chat messages for insertion into chat_messages table
- * Ensures message_text field is populated
+ * Persist ticket messages to chat_messages table
+ * Uses message_text column for inserts
  */
-export function persistTicketMessages(messages: ChatMessage[], ticketId: string): any[] {
-  return messages.map((msg) => ({
-    ticket_id: ticketId,
-    sender: msg.sender,
-    // Store in message_text field (not legacy text field)
-    message_text: msg.text,
-    agent_id: msg.agentId || null,
-    created_at: msg.timestamp || new Date(),
+export async function persistTicketMessages(
+  supabase: SupabaseClient,
+  messages: ChatMessage[]
+): Promise<{ data: any[] | null; error: any }> {
+  if (!messages || messages.length === 0) {
+    return { data: [], error: null };
+  }
+
+  const rows = messages.map((msg) => ({
+    ticket_id: msg.ticket_id,
+    message_text: msg.message_text,
+    sender_type: msg.sender_type,
+    sender_id: msg.sender_id,
+    metadata: msg.metadata,
   }));
+
+  const { data, error } = await supabase
+    .from('chat_messages')
+    .insert(rows)
+    .select();
+
+  return { data, error };
 }
 
 /**
- * Revives and normalizes internal_notes from database
- * Handles both old text format and new JSONB array format
- * Ensures consistent parsing to array of InternalNote objects
+ * Revive date fields from ticket data
+ * Ensures proper date parsing for ticket timestamps
  */
 export function reviveTicketDates(ticket: any): any {
-  const result = { ...ticket };
+  if (!ticket) return ticket;
 
-  // Normalize created_at
-  if (ticket.created_at) {
-    result.created_at = new Date(ticket.created_at);
+  const revived = { ...ticket };
+
+  // Convert string dates back to Date objects if needed
+  if (revived.created_at && typeof revived.created_at === 'string') {
+    revived.created_at = new Date(revived.created_at);
+  }
+  if (revived.updated_at && typeof revived.updated_at === 'string') {
+    revived.updated_at = new Date(revived.updated_at);
+  }
+  if (revived.closed_at && typeof revived.closed_at === 'string') {
+    revived.closed_at = new Date(revived.closed_at);
   }
 
-  // Normalize updated_at
-  if (ticket.updated_at) {
-    result.updated_at = new Date(ticket.updated_at);
-  }
-
-  // Normalize internal_notes - handle both old and new formats
-  result.internal_notes = normalizeInternalNotes(
-    ticket.internal_notes_json || ticket.internal_notes
-  );
-
-  return result;
+  return revived;
 }
 
 /**
- * Normalizes internal_notes into consistent array of InternalNote objects
- * Handles multiple input formats:
- * - JSONB array from internal_notes_json column
- * - Legacy text/JSON from internal_notes column
- * - Already parsed arrays
+ * Normalize internal_notes into array of note objects
+ * Accepts: array, JSON string, or plain text
+ * Returns: InternalNote[]
  */
-function normalizeInternalNotes(raw: any): InternalNote[] {
-  if (!raw) return [];
-
-  let candidate: any[] = [];
-
-  // If already an array, use it
-  if (Array.isArray(raw)) {
-    candidate = raw;
+export function normalizeInternalNotes(notes: any): InternalNote[] {
+  if (!notes) {
+    return [];
   }
-  // If it's a string, try to parse it
-  else if (typeof raw === 'string') {
+
+  // Use consistent timestamp for all notes created in this operation
+  const now = Date.now();
+
+  // Already an array of note objects
+  if (Array.isArray(notes)) {
+    return notes.map((note) => {
+      if (typeof note === 'object' && note.text) {
+        return {
+          text: note.text,
+          timestamp: note.timestamp || now,
+          author: note.author || 'unknown',
+        };
+      }
+      // Array of strings
+      return {
+        text: String(note),
+        timestamp: now,
+        author: 'system',
+      };
+    });
+  }
+
+  // Try parsing as JSON string
+  if (typeof notes === 'string') {
     try {
-      const parsed = JSON.parse(raw);
+      const parsed = JSON.parse(notes);
       if (Array.isArray(parsed)) {
-        candidate = parsed;
-      } else {
-        // If parsed to object but not array, wrap it
-        candidate = [parsed];
+        return normalizeInternalNotes(parsed);
+      }
+      // Single JSON object parsed
+      if (typeof parsed === 'object') {
+        return [
+          {
+            text: parsed.text || JSON.stringify(parsed),
+            timestamp: parsed.timestamp || now,
+            author: parsed.author || 'system',
+          },
+        ];
       }
     } catch {
-      // If parsing fails, treat as plain text note
-      if (raw.trim()) {
-        candidate = [{ note_text: raw, created_at: new Date() }];
-      }
-    }
-  }
-  // If it's an object (but not array), wrap it
-  else if (typeof raw === 'object') {
-    candidate = [raw];
-  }
-
-  // Map to InternalNote objects with consistent structure
-  return candidate.map((note) => {
-    if (typeof note === 'string') {
-      return {
-        note_text: note,
-        created_at: new Date(),
-      } as InternalNote;
+      // Not valid JSON, treat as plain text
     }
 
-    return {
-      id: note.id,
-      ticket_id: note.ticket_id,
-      agent_id: note.agent_id || note.agentId,
-      agentId: note.agent_id || note.agentId,
-      note_text: note.note_text || note.noteText || '',
-      created_at: note.created_at ? new Date(note.created_at) : new Date(),
-    } as InternalNote;
-  });
-}
+    // Plain text string
+    return [
+      {
+        text: notes,
+        timestamp: now,
+        author: 'system',
+      },
+    ];
+  }
 
-/**
- * Serializes internal notes for storage in JSONB column
- * Ensures consistent format for database storage
- */
-export function serializeInternalNotes(notes: InternalNote[]): any[] {
-  return notes.map((note) => ({
-    id: note.id,
-    ticket_id: note.ticket_id,
-    agent_id: note.agent_id || note.agentId,
-    note_text: note.note_text,
-    created_at: note.created_at?.toISOString() || new Date().toISOString(),
-  }));
+  // Object (non-array)
+  if (typeof notes === 'object') {
+    return [
+      {
+        text: (notes as any).text || JSON.stringify(notes),
+        timestamp: (notes as any).timestamp || now,
+        author: (notes as any).author || 'system',
+      },
+    ];
+  }
+
+  // Fallback: convert to string
+  return [
+    {
+      text: String(notes),
+      timestamp: now,
+      author: 'system',
+    },
+  ];
 }

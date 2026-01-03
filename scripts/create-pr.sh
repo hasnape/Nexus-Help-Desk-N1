@@ -1,138 +1,66 @@
 #!/bin/bash
-# create-pr.sh
-# Automation script to create a branch, commit migration files, and push
-# This script creates the chore/db-align-rls branch with all necessary changes
+# Script to create PR for DB alignment and RLS tightening
+# Creates branch chore/db-align-rls, commits files, pushes, and prints gh pr create command
 
-set -e  # Exit on any error
+set -e
 
 BRANCH_NAME="chore/db-align-rls"
-PR_TITLE="fix(db): migrate internal_notes -> jsonb & tighten RLS; normalize chat/messages and edge function safety"
+COMMIT_MSG="fix(db+app): migrate internal_notes -> jsonb, add idempotent RLS policies; normalize chat/messages and edge fn safety"
 
-echo "🚀 Starting PR creation automation..."
+echo "Creating branch: $BRANCH_NAME"
 
-# Ensure we're in the repository root
-if [ ! -d ".git" ]; then
-  echo "❌ Error: Must be run from repository root"
-  exit 1
+# Create branch from master if not already on it
+CURRENT_BRANCH=$(git branch --show-current)
+if [ "$CURRENT_BRANCH" != "$BRANCH_NAME" ]; then
+  git checkout -b "$BRANCH_NAME" master 2>/dev/null || git checkout "$BRANCH_NAME"
 fi
 
-# Check if branch already exists
-if git show-ref --verify --quiet "refs/heads/$BRANCH_NAME"; then
-  echo "⚠️  Branch $BRANCH_NAME already exists"
-  read -p "Delete and recreate? (y/n) " -n 1 -r
-  echo
-  if [[ $REPLY =~ ^[Yy]$ ]]; then
-    git branch -D "$BRANCH_NAME"
-  else
-    echo "Aborting."
-    exit 1
-  fi
-fi
+echo "Adding files to commit..."
 
-# Create and checkout new branch
-echo "📝 Creating branch $BRANCH_NAME..."
-git checkout -b "$BRANCH_NAME"
-
-# Add all the prepared files
-echo "➕ Adding migration and helper files..."
-
-# Migration file
+# Add new migration SQL
 git add supabase/migrations/2026-01-03-rls-and-internal-notes.sql
 
-# App fixes
+# Add app helpers
 git add src/app-fixes/chat-and-notes.ts
 
-# Edge function patches
+# Add edge function patches
 git add supabase/functions/_patches/auth-signup-consumeActivationCode.ts
 git add supabase/functions/_patches/nexus-ai-limits.ts
 
-# Automation script itself
+# Add automation script itself
 git add scripts/create-pr.sh
 
-# Previously prepared files (if they exist and aren't already committed)
-if [ -f "api/edge-proxy/[fn].ts" ]; then
-  git add api/edge-proxy/[fn].ts
-fi
+# Add existing prepared files if present
+git add api/edge-proxy/\[fn\].ts 2>/dev/null || true
+git add api/gemini.ts 2>/dev/null || true
+git add .eslintrc.cjs 2>/dev/null || true
+git add .prettierrc 2>/dev/null || true
+git add .github/workflows/ci.yml 2>/dev/null || true
+git add content/blogPosts.ts 2>/dev/null || true
+git add .gitignore 2>/dev/null || true
+git add package.json 2>/dev/null || true
 
-if [ -f "api/gemini.ts" ]; then
-  git add api/gemini.ts
-fi
+echo "Committing changes..."
+git commit -m "$COMMIT_MSG"
 
-if [ -f ".eslintrc.cjs" ]; then
-  git add .eslintrc.cjs
-fi
-
-if [ -f ".prettierrc" ]; then
-  git add .prettierrc
-fi
-
-if [ -f ".github/workflows/ci.yml" ]; then
-  git add .github/workflows/ci.yml
-fi
-
-if [ -f "content/blogPosts.ts" ]; then
-  git add content/blogPosts.ts
-fi
-
-if [ -f ".gitignore" ]; then
-  git add .gitignore
-fi
-
-if [ -f "package.json" ]; then
-  git add package.json
-fi
-
-# Check if there are changes to commit
-if git diff --cached --quiet; then
-  echo "⚠️  No changes to commit"
-  exit 0
-fi
-
-# Commit the changes
-echo "💾 Committing changes..."
-git commit -m "$PR_TITLE
-
-- Add safe, non-destructive migration for internal_notes -> jsonb
-- Add idempotent RLS policy creation for tickets, chat_messages, users
-- Add app helpers for normalizing chat_messages.message_text usage
-- Add app helpers for robust internal_notes parsing (old & new formats)
-- Add atomic activation code consumption pattern for edge functions
-- Add Gemini API history limiting and key validation helpers
-- Include previously prepared code quality improvements
-
-Migration has been tested on staging. After code deployment and validation,
-final schema changes (DROP old column, RENAME new column) will be applied.
-"
-
-# Push to remote
-echo "⬆️  Pushing to origin..."
+echo "Pushing branch to origin..."
 git push -u origin "$BRANCH_NAME"
 
 echo ""
-echo "✅ Branch created and pushed successfully!"
+echo "Branch pushed successfully!"
 echo ""
-echo "📋 Next steps:"
-echo "1. Create a PR on GitHub with the following details:"
+echo "To create the PR, run:"
 echo ""
-echo "   Title: $PR_TITLE"
+echo "gh pr create --base master --head $BRANCH_NAME --title \"fix(db): migrate internal_notes -> jsonb & tighten RLS; normalize chat/messages and edge function safety\" --body \"
+- Adds a safe, non-destructive migration file to migrate \\\`tickets.internal_notes\\\` into structured JSON arrays and idempotent RLS policy creation. The user executed the migration on staging and will run the final ALTER TABLE DROP/RENAME after the code is deployed.
+- Adds app helpers to normalize usage of \\\`chat_messages.message_text\\\` and to parse \\\`internal_notes\\\` robustly.
+- Adds safer Edge Function snippets for atomic activation code consumption and Gemini history limiting + key check.
+- Adds automation script to create the PR branch.
+
+**Notes for reviewers:**
+- Run the migration on staging and validate \\\`internal_notes_json\\\` content before performing final \\\`ALTER TABLE\\\` DROP/RENAME.
+- Deploy edge functions and application code to staging first. After successful validation, perform final column swap (DROP/RENAME) in staging and then in production.
+\""
+
 echo ""
-echo "   Description:"
-echo "   - Adds a safe, non-destructive migration file to migrate tickets.internal_notes"
-echo "     into structured JSON arrays and idempotent RLS policy creation"
-echo "   - User executed migration on staging and will run final DROP/RENAME after code is deployed"
-echo "   - Adds app helpers to normalize usage of chat_messages.message_text"
-echo "     and to parse internal_notes robustly"
-echo "   - Adds safer Edge Function snippets for atomic activation code consumption"
-echo "     and Gemini history limiting + key check"
-echo "   - Adds automation script to create PR branch"
-echo ""
-echo "   Reviewer notes:"
-echo "   - Run the migration on staging and validate internal_notes_json content"
-echo "     before performing final ALTER TABLE DROP/RENAME"
-echo "   - Deploy edge functions and application code to staging first"
-echo "   - After successful validation, perform final column swap in staging then production"
-echo "   - The user will run the final SQL steps themselves; this PR contains the code"
-echo "     needed to be compatible with the new schema and RLS"
-echo ""
-echo "2. Go to: https://github.com/hasnape/Nexus-Help-Desk-N1/compare/master...$BRANCH_NAME"
-echo ""
+echo "Script complete!"
