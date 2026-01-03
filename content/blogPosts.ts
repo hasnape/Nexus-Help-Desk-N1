@@ -5,6 +5,8 @@ export type BlogPost = {
   slug?: string;
   content?: string;
   date?: string;
+  city?: string;
+  excerpt?: string;
 };
 
 export const blogPosts: BlogPost[] = [];
