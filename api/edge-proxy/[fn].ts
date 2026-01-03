@@ -5,6 +5,9 @@ export const config = {
   runtime: "edge",
 };
 
+// Function name validation: alphanumeric, dash, underscore, max 64 characters
+const VALID_FUNCTION_NAME_PATTERN = /^[a-zA-Z0-9_-]{1,64}$/;
+
 function jsonError(message: string, status = 500): Response {
   return new Response(JSON.stringify({ error: message }), {
     status,
@@ -27,7 +30,7 @@ export default async function handler(req: Request): Promise<Response> {
   }
 
   // Validate function name: only allow alphanumeric, dash, underscore, max length 64
-  if (!/^[a-zA-Z0-9_-]{1,64}$/.test(fn)) {
+  if (!VALID_FUNCTION_NAME_PATTERN.test(fn)) {
     console.error(`Invalid function name attempted: ${fn}`);
     return jsonError("Invalid function name format.", 400);
   }
