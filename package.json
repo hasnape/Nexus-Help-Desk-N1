@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
     "merge-locales": "node scripts/merge-locales.mjs",
     "i18n:check": "node scripts/locales-csv-report.mjs"
   },
