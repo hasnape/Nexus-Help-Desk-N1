@@ -49,7 +49,7 @@ const NewTicketPage: React.FC = () => {
         setDescription(summary.description);
         setCategory(summary.category);
         setPriority(summary.priority);
-        setAiSummary(summary.description); // ✅ résumé IA persistant
+        setAiSummary(summary.description); 
 
       } catch (e: any) {
         if (!isMounted) return;
@@ -114,26 +114,31 @@ const NewTicketPage: React.FC = () => {
     navigate(dashboardPath, { replace: true });
   };
 
- const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !validateForm()) return;
 
     setIsLoading(true);
 
     try {
-      // 1. Récupérer le profil complet de l'utilisateur depuis la table 'users'
-      // Indispensable pour obtenir le company_id réel lié à l'auth_uid
+      // 1. RÉCUPÉRATION DU PROFIL (CORRECTION ERREUR 406)
+      // On utilise .select('*') et .maybeSingle() pour plus de stabilité
       const { data: userData, error: userError } = await supabase
         .from('users')
-        .select('company_id, company_name')
+        .select('*') 
         .eq('auth_uid', user.id)
-        .single();
+        .maybeSingle();
 
-      if (userError || !userData) {
-        throw new Error("Impossible de valider votre organisation (Multi-tenant check failed).");
+      if (userError) {
+        console.error('Supabase Error:', userError);
+        throw new Error(`Erreur de connexion: ${userError.message}`);
       }
 
-      // 2. Préparation des données du ticket avec les champs de sécurité
+      if (!userData || !userData.company_id) {
+        throw new Error("Impossible de valider votre organisation. Vérifiez que votre profil utilisateur est bien configuré.");
+      }
+
+      // 2. Préparation des données du ticket
       const ticketData = {
         title: title.trim(),
         description: description.trim(),
@@ -143,18 +148,15 @@ const NewTicketPage: React.FC = () => {
         workstation_id: workstationId.trim() || undefined,
         summary: aiSummary?.trim() || undefined,
         summary_updated_at: new Date().toISOString(),
-        
-        // CHAMPS CRITIQUES POUR LE RLS PROFESSIONNEL :
-        user_id: user.id, // ID de l'utilisateur authentifié
-        company_id: userData.company_id, // ID de la compagnie
-        company_name: userData.company_name // Nom de la compagnie
+        user_id: user.id, 
+        company_id: userData.company_id, 
+        company_name: userData.company_name
       };
 
-      // 3. Appel de votre fonction globale addTicket
+      // 3. Ajout via le contexte App
       const newTicket = await addTicket(ticketData, chatHistoryRef.current);
 
       if (newTicket) {
-        // Redirection basée sur le rôle
         const dashboardPath = user.role === UserRole.AGENT ? '/agent/dashboard' : 
                             user.role === UserRole.MANAGER ? '/manager/dashboard' : '/dashboard';
         navigate(dashboardPath, { replace: true });
@@ -182,6 +184,9 @@ const NewTicketPage: React.FC = () => {
     label: t(catKey)
   }));
 
+  // Style pour l'écriture noire
+  const inputStyle = { backgroundColor: 'white', color: 'black' };
+
   return (
     <div className="max-w-2xl mx-auto bg-surface p-6 sm:p-8 rounded-xl shadow-xl">
       <div className="mb-6 pb-4 border-b border-slate-200">
@@ -201,78 +206,87 @@ const NewTicketPage: React.FC = () => {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <Input
-          label={t('newTicket.form.ticketTitleLabel')}
-          id="title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder={t('newTicket.form.ticketTitlePlaceholder')}
-          error={errors.title}
-          maxLength={100}
-          required
-        />
-
-        <Textarea
-          label={t('newTicket.form.detailedDescriptionLabel')}
-          id="description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder={t('newTicket.form.detailedDescriptionPlaceholder')}
-          rows={8}
-          error={errors.description}
-          minLength={10}
-          required
-        />
-
-        <Input
-          label={t('newTicket.form.workstationIdLabel', {
-            default: 'Workstation ID / Poste (Optional)'
-          })}
-          id="workstationId"
-          value={workstationId}
-          onChange={(e) => setWorkstationId(e.target.value)}
-          placeholder={t('newTicket.form.workstationIdPlaceholder', {
-            default: 'e.g., COMP-123, Asset Tag'
-          })}
-          error={errors.workstationId}
-          maxLength={50}
-        />
-
-        <Select
-          label={t('newTicket.form.categoryLabel')}
-          id="category"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          options={categoryOptions}
-          error={errors.category}
-          required
-        />
-
-        <Select
-          label={t('newTicket.form.priorityLabel')}
-          id="priority"
-          value={priority}
-          onChange={(e) => setPriority(e.target.value as TicketPriority)}
-          options={priorityOptions}
-          error={errors.priority}
-          required
-          placeholder={t('formElements.select.placeholderDefault')}
-        />
-
-        <div className="flex justify-end pt-4 space-x-3 rtl:space-x-reverse">
-          <Button type="button" variant="outline" onClick={handleReturnToDashboard}>
-            {t('newTicket.form.returnToDashboardButton', {
-              default: 'Return to Dashboard'
-            })}
-          </Button>
-          <Button type="submit" variant="primary" isLoading={isLoading}>
-            {isLoading
-              ? t('newTicket.form.submitButtonLoading')
-              : t('newTicket.form.submitButtonFinal')}
-          </Button>
+      {isLoading && !aiSummary ? (
+        <div className="flex justify-center py-10">
+          <LoadingSpinner size="lg" />
         </div>
-      </form>
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <Input
+            label={t('newTicket.form.ticketTitleLabel')}
+            id="title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder={t('newTicket.form.ticketTitlePlaceholder')}
+            error={errors.title}
+            maxLength={100}
+            required
+            style={inputStyle} 
+          />
+
+          <Textarea
+            label={t('newTicket.form.detailedDescriptionLabel')}
+            id="description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder={t('newTicket.form.detailedDescriptionPlaceholder')}
+            rows={8}
+            error={errors.description}
+            minLength={10}
+            required
+            style={inputStyle} 
+          />
+
+          <Input
+            label={t('newTicket.form.workstationIdLabel', {
+              default: 'Workstation ID / Poste (Optional)'
+            })}
+            id="workstationId"
+            value={workstationId}
+            onChange={(e) => setWorkstationId(e.target.value)}
+            placeholder={t('newTicket.form.workstationIdPlaceholder', {
+              default: 'e.g., COMP-123, Asset Tag'
+            })}
+            error={errors.workstationId}
+            maxLength={50}
+            style={inputStyle} 
+          />
+
+          <Select
+            label={t('newTicket.form.categoryLabel')}
+            id="category"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            options={categoryOptions}
+            error={errors.category}
+            required
+          />
+
+          <Select
+            label={t('newTicket.form.priorityLabel')}
+            id="priority"
+            value={priority}
+            onChange={(e) => setPriority(e.target.value as TicketPriority)}
+            options={priorityOptions}
+            error={errors.priority}
+            required
+            placeholder={t('formElements.select.placeholderDefault')}
+          />
+
+          <div className="flex justify-end pt-4 space-x-3 rtl:space-x-reverse">
+            <Button type="button" variant="outline" onClick={handleReturnToDashboard}>
+              {t('newTicket.form.returnToDashboardButton', {
+                default: 'Return to Dashboard'
+              })}
+            </Button>
+            <Button type="submit" variant="primary" isLoading={isLoading}>
+              {isLoading
+                ? t('newTicket.form.submitButtonLoading')
+                : t('newTicket.form.submitButtonFinal')}
+            </Button>
+          </div>
+        </form>
+      )}
     </div>
   );
 };
