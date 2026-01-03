@@ -516,9 +516,13 @@ serve(async (req: Request) => {
       corsHeaders,
     );
   } catch (err: any) {
-    console.error("[nexus-ai] internal error:", err);
+    console.error("[nexus-ai] internal error:", (body as any)?.mode, err);
     return json(
-      { error: "Internal AI error" },
+      {
+        error: "internal_ai_error",
+        mode: (body as any)?.mode ?? null,
+        message: err instanceof Error ? err.message : String(err),
+      },
       500,
       corsHeaders,
     );
