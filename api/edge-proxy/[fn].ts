@@ -1,6 +1,6 @@
 // api/edge-proxy/[fn].ts
-// Proxy générique Vercel → Supabase Edge Functions
-// Ex : /api/edge-proxy/nexus-ai → https://...functions.supabase.co/functions/v1/nexus-ai
+// Hardened proxy: Vercel → Supabase Edge Functions
+// Validates function names, enforces proper URL format, forwards safe headers only
 
 export const config = {
   runtime: "edge", // Edge Runtime
@@ -15,57 +15,127 @@ function jsonError(message: string, status = 500): Response {
   });
 }
 
+// Validate function name: only letters, numbers, dash, underscore
+function isValidFunctionName(fn: string): boolean {
+  return /^[a-zA-Z0-9_-]+$/.test(fn);
+}
+
+// Validate that the URL is a proper Supabase functions URL
+function isValidSupabaseUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return parsed.hostname.endsWith(".functions.supabase.co");
+  } catch {
+    return false;
+  }
+}
+
+// Check if function is in allowlist (if configured)
+function isFunctionAllowed(fn: string): boolean {
+  const allowlist = process.env.SUPABASE_ALLOWED_FUNCTIONS;
+  if (!allowlist) return true; // No allowlist = all allowed
+  
+  const allowed = allowlist.split(",").map(f => f.trim());
+  return allowed.includes(fn);
+}
+
+// Forward only safe headers
+function buildSafeHeaders(req: Request): Headers {
+  const safeHeaders = new Headers();
+  
+  // Safe headers to forward
+  const allowedHeaders = [
+    "content-type",
+    "accept",
+    "accept-language",
+    "user-agent",
+  ];
+  
+  for (const header of allowedHeaders) {
+    const value = req.headers.get(header);
+    if (value) {
+      safeHeaders.set(header, value);
+    }
+  }
+  
+  // Always inject server-side Supabase key
+  const anonKey =
+    process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+  
+  if (anonKey) {
+    safeHeaders.set("apikey", anonKey);
+    safeHeaders.set("authorization", `Bearer ${anonKey}`);
+  }
+  
+  return safeHeaders;
+}
+
 export default async function handler(req: Request): Promise<Response> {
   const url = new URL(req.url);
 
-  // Récupère le nom de la function :
-  // /api/edge-proxy/nexus-ai → "nexus-ai"
-  const segments = url.pathname.split("/");
-  const fn = segments[segments.length - 1] || segments[segments.length - 2];
+  // Extract function name from URL path
+  const segments = url.pathname.split("/").filter(s => s);
+  const fn = segments[segments.length - 1];
 
   if (!fn) {
     return jsonError("Missing function name in URL.", 400);
   }
 
-  // Base des Edge Functions Supabase
-  // Exemple attendu :
-  // https://iqvshiebmusybtzbijrg.functions.supabase.co/functions/v1
-  const baseFromEnv = process.env.SUPABASE_FUNCTIONS_URL;
+  // Validate function name
+  if (!isValidFunctionName(fn)) {
+    console.error("Invalid function name attempted:", fn);
+    return jsonError("Invalid function name. Only letters, numbers, dash and underscore allowed.", 400);
+  }
 
+  // Check allowlist
+  if (!isFunctionAllowed(fn)) {
+    console.error("Function not in allowlist:", fn);
+    return jsonError("Function not allowed.", 403);
+  }
+
+  // Validate SUPABASE_FUNCTIONS_URL exists
+  const baseFromEnv = process.env.SUPABASE_FUNCTIONS_URL;
   if (!baseFromEnv) {
+    console.error("SUPABASE_FUNCTIONS_URL not configured");
     return jsonError(
-      "SUPABASE_FUNCTIONS_URL is not configured in Vercel environment.",
+      "Server configuration error: SUPABASE_FUNCTIONS_URL missing.",
       500
     );
   }
 
-  const functionsBase = baseFromEnv.replace(/\/$/, ""); // enlève "/" final si présent
+  // Validate URL format and hostname
+  if (!isValidSupabaseUrl(baseFromEnv)) {
+    console.error("Invalid SUPABASE_FUNCTIONS_URL:", baseFromEnv);
+    return jsonError(
+      "Server configuration error: Invalid SUPABASE_FUNCTIONS_URL format.",
+      500
+    );
+  }
+
+  const functionsBase = baseFromEnv.replace(/\/$/, "");
   const targetUrl = `${functionsBase}/${fn}`;
 
-  // On propage les headers + Origin
-  const incomingOrigin = req.headers.get("origin") || undefined;
-  const forwardHeaders = new Headers(req.headers);
-
+  // Build safe headers
+  const forwardHeaders = buildSafeHeaders(req);
+  
+  // Handle origin for CORS
+  const incomingOrigin = req.headers.get("origin");
   if (incomingOrigin) {
     forwardHeaders.set("origin", incomingOrigin);
-  } else {
-    forwardHeaders.delete("origin");
   }
 
-  // Ajout de la clé anon côté serveur (non visible dans le front)
-  const anonKey =
-    process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
-
-  if (anonKey) {
-    forwardHeaders.set("apikey", anonKey);
-    if (!forwardHeaders.has("authorization")) {
-      forwardHeaders.set("authorization", `Bearer ${anonKey}`);
+  // Read body as arrayBuffer for non-GET/HEAD methods
+  const method = req.method.toUpperCase();
+  let body: ArrayBuffer | null = null;
+  
+  if (method !== "GET" && method !== "HEAD") {
+    try {
+      body = await req.arrayBuffer();
+    } catch (err: any) {
+      console.error("Failed to read request body:", err);
+      return jsonError("Failed to read request body.", 400);
     }
   }
-
-  const method = req.method.toUpperCase();
-  const body =
-    method === "GET" || method === "HEAD" ? undefined : req.body ?? null;
 
   try {
     const supabaseResponse = await fetch(targetUrl, {
@@ -76,9 +146,8 @@ export default async function handler(req: Request): Promise<Response> {
 
     const respHeaders = new Headers(supabaseResponse.headers);
 
-    // Si la fonction a déjà mis les bons headers CORS, on les garde.
-    // Sinon, on met au moins Origin + Vary pour être propre.
-    if (!respHeaders.has("Access-Control-Allow-Origin") && incomingOrigin) {
+    // Set CORS headers if origin is present
+    if (incomingOrigin) {
       respHeaders.set("Access-Control-Allow-Origin", incomingOrigin);
       respHeaders.set("Vary", "Origin");
     }
@@ -88,9 +157,9 @@ export default async function handler(req: Request): Promise<Response> {
       headers: respHeaders,
     });
   } catch (err: any) {
-    console.error("Edge proxy error for fn:", fn, err);
+    console.error("Edge proxy error for function:", fn, "Error:", err.message || err);
     return jsonError(
-      `Edge proxy error while calling Supabase function "${fn}".`,
+      `Failed to call Supabase function "${fn}". Please try again later.`,
       502
     );
   }
