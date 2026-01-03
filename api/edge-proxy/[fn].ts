@@ -117,13 +117,20 @@ export default async function handler(req: Request): Promise<Response> {
     }
   }
 
-  // Forward request to Supabase Edge Function
+  // Forward request to Supabase Edge Function with timeout and error handling
   try {
+    // Set timeout for Supabase function call (30 seconds)
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
+
     const supabaseResponse = await fetch(targetUrl, {
       method,
       headers: forwardHeaders,
       body: body || undefined,
+      signal: controller.signal,
     });
+
+    clearTimeout(timeoutId);
 
     const respHeaders = new Headers(supabaseResponse.headers);
 
@@ -143,12 +150,50 @@ export default async function handler(req: Request): Promise<Response> {
       );
     }
 
+    // Handle specific HTTP error statuses with better messages
+    if (!supabaseResponse.ok) {
+      const status = supabaseResponse.status;
+      if (status === 429) {
+        console.error(`Rate limit exceeded for function ${fn}`);
+        return jsonError(
+          "Rate limit exceeded. Please try again later.",
+          429
+        );
+      } else if (status === 401 || status === 403) {
+        console.error(`Authentication/authorization error for function ${fn}`);
+        return jsonError(
+          "Authentication failed. Please check your credentials.",
+          status
+        );
+      }
+    }
+
     return new Response(supabaseResponse.body, {
       status: supabaseResponse.status,
       headers: respHeaders,
     });
-  } catch (err) {
+  } catch (err: any) {
+    // Handle timeout errors
+    if (err.name === "AbortError") {
+      console.error(`Timeout calling Supabase function ${fn}`);
+      return jsonError(
+        `Request timeout while calling function "${fn}". Please try again.`,
+        504
+      );
+    }
+
+    // Handle network errors
     console.error("Edge proxy error for function:", fn, err);
+    const errorMessage = err.message || "Unknown error";
+    
+    // Check for specific error types
+    if (errorMessage.includes("ENOTFOUND") || errorMessage.includes("ECONNREFUSED")) {
+      return jsonError(
+        `Cannot reach Supabase function "${fn}". Service may be unavailable.`,
+        503
+      );
+    }
+
     return jsonError(
       `Edge proxy error while calling Supabase function "${fn}".`,
       502
