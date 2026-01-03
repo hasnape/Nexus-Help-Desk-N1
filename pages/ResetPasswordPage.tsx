@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "../services/supabaseClient"; 
 import { useNavigate } from "react-router-dom";
-import { Button } from "../components/FormElements"; // On garde le Button personnalisé
+import { Button } from "../components/FormElements"; 
 import { useLanguage } from "../contexts/LanguageContext";
 
 const ResetPasswordPage: React.FC = () => {
@@ -13,43 +13,61 @@ const ResetPasswordPage: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
 
+  // État de validation en temps réel pour l'interface
+  const requirements = {
+    length: password.length >= 8,
+    case: /[A-Z]/.test(password) && /[a-z]/.test(password),
+    numberAndSymbol: /[0-9]/.test(password) && /[!@#$%^&*(),.?":{}|<>]/.test(password),
+  };
+
   useEffect(() => {
-    // Vérification de la session au chargement
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) {
-        setError("Session invalide ou expirée. Veuillez redemander un lien.");
+    /**
+     * Vérification de la session au chargement.
+     * Le lien de récupération crée une session temporaire via le token dans l'URL.
+     */
+    const checkInitialSession = async () => {
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !session) {
+        setError("Session invalide ou expirée. Veuillez redemander un lien de récupération.");
+      } else {
+        setError(null);
+      }
+    };
+    
+    checkInitialSession();
+
+    // Écouteur pour capturer les changements d'état (utile si le hash met du temps à être parsé)
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session) {
+        setError(null);
       }
     });
-  }, []);
 
-  // Fonction de validation Regex
-  const validatePassword = (pass: string) => {
-    const minLength = pass.length >= 8;
-    const hasUpper = /[A-Z]/.test(pass);
-    const hasLower = /[a-z]/.test(pass);
-    const hasNumber = /[0-9]/.test(pass);
-    const hasSymbol = /[!@#$%^&*(),.?":{}|<>]/.test(pass);
-    return minLength && hasUpper && hasLower && hasNumber && hasSymbol;
-  };
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
 
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
     // 1. Validation de la force du mot de passe
-    if (!validatePassword(password)) {
-      setError("Le mot de passe ne respecte pas les critères de sécurité.");
+    if (!requirements.length || !requirements.case || !requirements.numberAndSymbol) {
+      setError("Le mot de passe ne respecte pas les critères de sécurité requis.");
       return;
     }
 
-    // 2. Validation de la correspondance
+    // 2. Vérification de la correspondance
     if (password !== confirmPassword) {
-      setError("Les mots de passe ne correspondent pas.");
+      setError("Les mots de passe saisis ne sont pas identiques.");
       return;
     }
 
     setLoading(true);
     
+    // Mise à jour du mot de passe dans Supabase Auth
     const { error: updateError } = await supabase.auth.updateUser({
       password: password
     });
@@ -59,73 +77,90 @@ const ResetPasswordPage: React.FC = () => {
       setLoading(false);
     } else {
       setSuccess(true);
+      // Redirection après 3 secondes
       setTimeout(() => {
         navigate("/login");
-      }, 3000);
+      }, 3500);
     }
   };
 
   return (
-    <div className="page-container flex justify-center items-center min-h-screen bg-slate-900">
+    <div className="page-container flex justify-center items-center min-h-screen bg-slate-900 px-4">
       <div className="surface-card p-8 w-full max-w-md space-y-6 bg-slate-800 rounded-xl shadow-2xl border border-slate-700">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-white">Réinitialisation</h1>
-          <p className="text-slate-400 text-sm mt-2">Choisissez votre nouveau mot de passe</p>
+          <p className="text-slate-400 text-sm mt-2">Définissez votre nouveau mot de passe</p>
         </div>
 
+        {/* Affichage des erreurs */}
         {error && (
           <div className="rounded-lg border border-red-500/40 bg-red-500/10 p-3 text-center text-sm text-red-200">
             {error}
           </div>
         )}
 
+        {/* Affichage du succès */}
         {success ? (
-          <div className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 p-4 text-center text-sm text-emerald-200">
-            ✅ Mot de passe mis à jour ! Redirection...
+          <div className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 p-4 text-center text-sm text-emerald-200 animate-pulse font-medium">
+            ✅ Mot de passe mis à jour avec succès ! <br />
+            Redirection vers la connexion...
           </div>
         ) : (
           <form onSubmit={handleUpdatePassword} className="space-y-5">
-            {/* Champ 1 */}
-            <div className="space-y-1">
-              <label className="block text-sm font-medium text-white">Nouveau mot de passe</label>
+            {/* Nouveau mot de passe */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-white ml-1">
+                Nouveau mot de passe
+              </label>
               <input
                 type="password"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full p-3 rounded bg-white text-slate-900 border border-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none"
+                className="w-full p-3 rounded bg-white text-slate-900 border border-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
               />
             </div>
 
-            {/* Champ 2 */}
-            <div className="space-y-1">
-              <label className="block text-sm font-medium text-white">Confirmez le mot de passe</label>
+            {/* Confirmation */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-white ml-1">
+                Confirmez le mot de passe
+              </label>
               <input
                 type="password"
                 placeholder="••••••••"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
-                className="w-full p-3 rounded bg-white text-slate-900 border border-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none"
+                className="w-full p-3 rounded bg-white text-slate-900 border border-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
               />
             </div>
 
-            {/* Instructions de sécurité */}
-            <div className="text-[11px] text-slate-300 bg-slate-700/50 p-3 rounded-lg leading-relaxed border border-slate-600">
-              <p className="font-semibold mb-1 text-indigo-300">Exigences de sécurité :</p>
-              <ul className="list-disc pl-4 space-y-0.5">
-                <li>Au moins 8 caractères</li>
-                <li>Une majuscule et une minuscule</li>
-                <li>Un chiffre et un caractère spécial (!@#$...)</li>
+            {/* Liste visuelle des critères */}
+            <div className="text-[11px] text-slate-300 bg-slate-700/50 p-4 rounded-lg leading-relaxed border border-slate-600 shadow-inner">
+              <p className="font-semibold mb-2 text-indigo-300 uppercase tracking-wider text-[10px]">Critères obligatoires :</p>
+              <ul className="space-y-2 ml-1">
+                <li className={`flex items-center transition-colors ${requirements.length ? 'text-emerald-400' : 'text-slate-400'}`}>
+                   <span className="mr-2 text-sm font-bold">{requirements.length ? '✓' : '○'}</span>
+                   Au moins 8 caractères
+                </li>
+                <li className={`flex items-center transition-colors ${requirements.case ? 'text-emerald-400' : 'text-slate-400'}`}>
+                   <span className="mr-2 text-sm font-bold">{requirements.case ? '✓' : '○'}</span>
+                   Une majuscule et une minuscule
+                </li>
+                <li className={`flex items-center transition-colors ${requirements.numberAndSymbol ? 'text-emerald-400' : 'text-slate-400'}`}>
+                   <span className="mr-2 text-sm font-bold">{requirements.numberAndSymbol ? '✓' : '○'}</span>
+                   Un chiffre et un symbole (!@#$...)
+                </li>
               </ul>
             </div>
 
             <Button 
               type="submit" 
-              className="w-full !mt-2 py-3 bg-indigo-600 hover:bg-indigo-700 text-white transition-all shadow-lg" 
+              className="w-full !mt-2 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold transition-all shadow-lg active:scale-95 disabled:opacity-50" 
               isLoading={loading}
-              disabled={loading || (!!error && error.includes("expirée"))}
+              disabled={loading || !!error}
             >
               Enregistrer le mot de passe
             </Button>
