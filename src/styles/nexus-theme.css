@@ -1,0 +1,20 @@
+:root{
+  --nexus-primary: #2563EB;
+  --nexus-primary-hover: #1D4ED8;
+  --nexus-bg-dark: #0F172A;
+  --nexus-surface: #020617;
+  --nexus-border: #1E293B;
+  --nexus-ia: #7C3AED;
+  --nexus-ia-glow: rgba(124,58,237,0.35);
+  --nexus-cyan: #22D3EE;
+  --nexus-white: #FFFFFF;
+  --nexus-ui-gray: #E5E7EB;
+  --nexus-text-gray: #94A3B8;
+  --nexus-resolved: #22C55E;
+  --nexus-warning: #EAB308;
+  --nexus-urgent: #EF4444;
+  --nexus-new: #22D3EE;
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  --base-radius: 12px;
+  --card-elevation: 0 8px 24px rgba(2,6,23,0.5);
+}
