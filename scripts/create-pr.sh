@@ -52,7 +52,7 @@ echo ""
 echo "To create the PR, run:"
 echo ""
 echo "gh pr create --base master --head $BRANCH_NAME --title \"fix(db): migrate internal_notes -> jsonb & tighten RLS; normalize chat/messages and edge function safety\" --body \"
-- Adds a safe, non-destructive migration file to migrate \\\`tickets.internal_notes\\\` into structured JSON arrays and idempotent RLS policy creation. The user executed the migration on staging and will run the final ALTER TABLE DROP/RENAME after the code is deployed.
+- Adds a safe, non-destructive migration file to migrate \\\`tickets.internal_notes\\\` into structured JSON arrays and idempotent RLS policy creation. The user will run the migration on staging and will run the final ALTER TABLE DROP/RENAME after the code is deployed.
 - Adds app helpers to normalize usage of \\\`chat_messages.message_text\\\` and to parse \\\`internal_notes\\\` robustly.
 - Adds safer Edge Function snippets for atomic activation code consumption and Gemini history limiting + key check.
 - Adds automation script to create the PR branch.
