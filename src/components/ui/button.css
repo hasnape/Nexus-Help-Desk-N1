@@ -1,0 +1,8 @@
+.nexus-btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 16px; min-height:44px; border-radius: 10px; border: none; cursor: pointer; font-weight: 600; transition: transform .06s ease, box-shadow .12s ease; }
+.nexus-btn--primary { background: linear-gradient(180deg, var(--nexus-primary), var(--nexus-primary-hover)); color: var(--nexus-white); box-shadow: 0 6px 18px rgba(37,99,235,0.18); }
+.nexus-btn--primary:hover { transform: translateY(-1px); }
+.nexus-btn--ia { background: linear-gradient(180deg, var(--nexus-ia), rgba(0,0,0,0.08)); color: var(--nexus-white); box-shadow: 0 6px 18px rgba(124,58,237,0.14); }
+.nexus-btn--ia:hover { box-shadow: 0 8px 22px var(--nexus-ia-glow); }
+.nexus-btn--secondary { background: transparent; border: 1px solid var(--nexus-border); color: var(--nexus-white); }
+.nexus-btn--ghost { background: transparent; color: var(--nexus-primary); }
+.nexus-btn:disabled { opacity:0.6; cursor:not-allowed; transform:none; }

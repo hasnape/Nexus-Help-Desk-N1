@@ -1,0 +1,182 @@
+name: Create UI/UX improvements PR (Nexus theme)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  create-ui-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Add Nexus UI theme + components
+        run: |
+          set -e
+          mkdir -p src/styles src/components/ui src/components/layout scripts
+
+          # nexus theme (tokens from user's spec)
+          cat > src/styles/nexus-theme.css <<'CSS_EOF'
+:root{
+  --nexus-primary: #2563EB;
+  --nexus-primary-hover: #1D4ED8;
+  --nexus-bg-dark: #0F172A;
+  --nexus-surface: #020617;
+  --nexus-border: #1E293B;
+  --nexus-ia: #7C3AED;
+  --nexus-ia-glow: rgba(124,58,237,0.35);
+  --nexus-cyan: #22D3EE;
+  --nexus-white: #FFFFFF;
+  --nexus-ui-gray: #E5E7EB;
+  --nexus-text-gray: #94A3B8;
+  --nexus-resolved: #22C55E;
+  --nexus-warning: #EAB308;
+  --nexus-urgent: #EF4444;
+  --nexus-new: #22D3EE;
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  --base-radius: 12px;
+  --card-elevation: 0 8px 24px rgba(2,6,23,0.5);
+}
+CSS_EOF
+
+          cat > src/styles/global.css <<'CSS_EOF'
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import './nexus-theme.css';
+
+* { box-sizing: border-box; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+html,body,#root { height:100%; margin:0; background:var(--nexus-bg-dark); color: var(--nexus-white); font-family: var(--font-sans); }
+.container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+.h1 { font-size: 20px; font-weight: 700; color: var(--nexus-white); margin: 0 0 8px;}
+.card { background: var(--nexus-surface); border: 1px solid var(--nexus-border); border-radius: var(--base-radius); box-shadow: var(--card-elevation); padding: 16px; color: var(--nexus-white); }
+.input { width:100%; padding: 10px 12px; border:1px solid var(--nexus-border); border-radius: 10px; background: transparent; color: var(--nexus-white); }
+a { color: var(--nexus-primary); text-decoration: none; }
+@media (max-width:720px) { .container { padding: 12px; } .h1 { font-size: 18px; } }
+CSS_EOF
+
+          cat > src/components/ui/Button.tsx <<'TS_EOF'
+import React from 'react';
+import './button.css';
+
+type Props = React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  variant?: 'primary'|'secondary'|'ghost'|'ia';
+  children: React.ReactNode;
+};
+
+export const Button: React.FC<Props> = ({ variant = 'primary', children, ...rest }) => {
+  const cls = `nexus-btn nexus-btn--${variant}`;
+  return (
+    <button className={cls} {...rest}>
+      {children}
+    </button>
+  );
+};
+
+export default Button;
+TS_EOF
+
+          cat > src/components/ui/button.css <<'CSS_EOF'
+.nexus-btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 16px; min-height:44px; border-radius: 10px; border: none; cursor: pointer; font-weight: 600; transition: transform .06s ease, box-shadow .12s ease; }
+.nexus-btn--primary { background: linear-gradient(180deg, var(--nexus-primary), var(--nexus-primary-hover)); color: var(--nexus-white); box-shadow: 0 6px 18px rgba(37,99,235,0.18); }
+.nexus-btn--primary:hover { transform: translateY(-1px); }
+.nexus-btn--ia { background: linear-gradient(180deg, var(--nexus-ia), rgba(0,0,0,0.08)); color: var(--nexus-white); box-shadow: 0 6px 18px rgba(124,58,237,0.14); }
+.nexus-btn--ia:hover { box-shadow: 0 8px 22px var(--nexus-ia-glow); }
+.nexus-btn--secondary { background: transparent; border: 1px solid var(--nexus-border); color: var(--nexus-white); }
+.nexus-btn--ghost { background: transparent; color: var(--nexus-primary); }
+.nexus-btn:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
+CSS_EOF
+
+          cat > src/components/layout/Header.tsx <<'TS_EOF'
+import React from 'react';
+import './header.css';
+
+export const Header: React.FC = () => {
+  return (
+    <header className="nexus-header">
+      <div className="container nexus-header__inner">
+        <div className="brand">
+          <div className="brand__logo">N</div>
+          <span className="brand__title">Nexus Help Desk</span>
+        </div>
+        <nav className="nexus-nav">
+          <a href="/">Home</a>
+          <a href="/tickets">Tickets</a>
+          <a href="/help">Help</a>
+        </nav>
+      </div>
+    </header>
+  );
+};
+
+export default Header;
+TS_EOF
+
+          cat > src/components/layout/header.css <<'CSS_EOF'
+.nexus-header { background: var(--nexus-bg-dark); color: var(--nexus-white); padding: 12px 0; box-shadow: 0 1px 0 rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.02); }
+.nexus-header__inner { display:flex; align-items:center; justify-content:space-between; gap:16px; }
+.brand { display:flex; align-items:center; gap:12px; }
+.brand__logo { width:40px; height:40px; border-radius:10px; background: linear-gradient(90deg, rgba(37,99,235,0.9), rgba(124,58,237,0.9)); display:inline-flex; align-items:center; justify-content:center; font-weight:700; color:var(--nexus-white); }
+.brand__title { font-weight:700; color:var(--nexus-white); }
+.nexus-nav a { color: rgba(255,255,255,0.9); margin-left:14px; font-weight:600; }
+.nexus-nav a:hover { color: var(--nexus-cyan); text-decoration: none; }
+CSS_EOF
+
+          cat > src/components/ui/AIButton.tsx <<'TS_EOF'
+import React from 'react';
+import './ai-button.css';
+
+export const AIButton: React.FC<{ onClick?: ()=>void }> = ({ onClick }) => {
+  return (
+    <button className="nexus-ai-btn" onClick={onClick} aria-label="AI Assistant">
+      ✨
+    </button>
+  );
+};
+
+export default AIButton;
+TS_EOF
+
+          cat > src/components/ui/ai-button.css <<'CSS_EOF'
+.nexus-ai-btn { position: fixed; right: 20px; bottom: 20px; width:56px; height:56px; border-radius: 999px; border: none; display:flex; align-items:center; justify-content:center; background: linear-gradient(180deg, var(--nexus-ia), var(--nexus-primary)); color: var(--nexus-white); box-shadow: 0 8px 28px rgba(4,6,10,0.4); cursor:pointer; animation: nexus-ai-pulse 3s infinite; }
+@keyframes nexus-ai-pulse { 0% { box-shadow: 0 8px 24px rgba(124,58,237,0.14); transform: scale(1); } 50% { box-shadow: 0 14px 40px rgba(124,58,237,0.22); transform: scale(1.03); } 100% { box-shadow: 0 8px 24px rgba(124,58,237,0.14); transform: scale(1); } }
+CSS_EOF
+
+          cat > scripts/create-ui-pr.sh <<'SH_EOF'
+#!/bin/sh
+set -e
+BRANCH="chore/ui-ux-improvements"
+git fetch origin
+git checkout -b "$BRANCH"
+git add src/styles src/components scripts
+git commit -m "chore(ui): add Nexus theme tokens, global styles and base UI components (Button, Header, AI Button)"
+git push --set-upstream origin "$BRANCH"
+echo "Branch pushed: $BRANCH"
+echo "Create PR with:"
+echo "gh pr create --base master --head $BRANCH --title 'chore(ui): improve UX baseline & theme' --body 'Adds Nexus theme tokens, global styles and base components (Button, Header, AI Button). Review and integrate progressively.' --draft"
+SH_EOF
+
+          chmod +x scripts/create-ui-pr.sh
+          git add src/styles src/components scripts || true
+          git commit -m "chore(ui): add Nexus theme tokens, global styles and base UI components" || echo "no changes to commit"
+      - name: Create UI Pull Request (draft)
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore(ui): add Nexus theme tokens, global styles and base UI components"
+          branch: chore/ui-ux-improvements
+          title: chore(ui): improve UX baseline & theme
+          body: |
+            This draft PR adds:
+            - Nexus theme CSS variables (src/styles/nexus-theme.css) and global.css
+            - A minimal Button UI component (src/components/ui/Button.tsx + CSS)
+            - A minimal Header layout component and styles (src/components/layout/Header.tsx)
+            - A floating AI assistant button (src/components/ui/AIButton.tsx)
+            - scripts/create-ui-pr.sh to create the branch locally if desired
+            Review visual changes, adjust colors to exact brand tokens, and integrate components on pages gradually.
+          draft: true
+          labels: "ui,ux,design"
