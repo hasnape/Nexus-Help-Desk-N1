@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install ESLint dependencies
+        run: |
+          npm install --save-dev eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin \
+            eslint-plugin-react eslint-plugin-react-hooks eslint-plugin-jsx-a11y
+
+      - name: Run ESLint
+        run: npx eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 100
+        continue-on-error: true
+
+      - name: Run TypeScript type check
+        run: npm run typecheck
+        continue-on-error: true
+
+      - name: Build project
+        run: npm run build --if-present
+        continue-on-error: true
+
+      - name: Check i18n locales
+        run: npm run i18n:check
+        continue-on-error: true

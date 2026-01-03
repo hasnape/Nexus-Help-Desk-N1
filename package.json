@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
     "merge-locales": "node scripts/merge-locales.mjs",
     "i18n:check": "node scripts/locales-csv-report.mjs"
   },
@@ -34,11 +35,9 @@
     "@types/react": "^18.3.27",
     "@types/react-dom": "^18.3.7",
     "@types/react-i18next": "^8.1.0",
-    "@types/react-router-dom": "^5.3.3",
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.19",
     "postcss": "^8.4.39",
-    "supabase": "^2.58.5",
     "tailwindcss": "^3.4.4",
     "typescript": "^5.5.3",
     "vite": "^7.1.2"
