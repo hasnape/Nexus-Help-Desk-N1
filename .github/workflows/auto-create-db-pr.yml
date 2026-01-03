@@ -1,0 +1,66 @@
+name: Auto Create DB Alignment PR
+
+on:
+  workflow_dispatch:
+
+jobs:
+  create-db-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: master
+
+      - name: Create branch chore/db-align-rls
+        run: |
+          git checkout -b chore/db-align-rls || git checkout chore/db-align-rls
+
+      - name: Ensure migration file exists
+        run: |
+          mkdir -p supabase/migrations
+          if [ ! -f supabase/migrations/2026-01-03-rls-and-internal-notes.sql ]; then
+            echo "Migration file should already exist in the repository"
+          fi
+
+      - name: Ensure app-fixes file exists
+        run: |
+          mkdir -p src/app-fixes
+          if [ ! -f src/app-fixes/chat-and-notes.ts ]; then
+            echo "App-fixes file should already exist in the repository"
+          fi
+
+      - name: Ensure edge function patches exist
+        run: |
+          mkdir -p supabase/functions/_patches
+          if [ ! -f supabase/functions/_patches/auth-signup-consumeActivationCode.ts ]; then
+            echo "Auth signup patch should already exist in the repository"
+          fi
+          if [ ! -f supabase/functions/_patches/nexus-ai-limits.ts ]; then
+            echo "Nexus AI limits patch should already exist in the repository"
+          fi
+
+      - name: Ensure script exists
+        run: |
+          mkdir -p scripts
+          if [ ! -f scripts/create-pr.sh ]; then
+            echo "Create-PR script should already exist in the repository"
+          fi
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "fix(db+app): migrate internal_notes -> jsonb, add idempotent RLS policies; normalize chat/messages and edge fn safety"
+          branch: chore/db-align-rls
+          base: master
+          title: "fix(db): migrate internal_notes -> jsonb & tighten RLS; normalize chat/messages and edge function safety"
+          body: |
+            - Adds a safe, non-destructive migration file to migrate `tickets.internal_notes` into structured JSON arrays and idempotent RLS policy creation. The user executed the migration on staging and will run the final ALTER TABLE DROP/RENAME after the code is deployed.
+            - Adds app helpers to normalize usage of `chat_messages.message_text` and to parse `internal_notes` robustly.
+            - Adds safer Edge Function snippets for atomic activation code consumption and Gemini history limiting + key check.
+            - Adds an automation script and a workflow to create the branch/PR locally if needed.
+
+            **Notes for reviewers:**
+            - Run the migration on staging and validate `internal_notes_json` content before performing final `ALTER TABLE` DROP/RENAME.
+            - Deploy edge functions and application code to staging first. After successful validation, perform final column swap (DROP/RENAME) in staging and then in production.
