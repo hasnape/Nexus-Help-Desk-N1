@@ -7,6 +7,7 @@ import { TICKET_CATEGORY_KEYS, TICKET_PRIORITY_KEYS } from '../constants';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useLanguage } from '../contexts/LanguageContext';
 import { summarizeAndCategorizeChat } from '../services/geminiService';
+import { supabase } from '../services/supabaseClient';
 
 const NewTicketPage: React.FC = () => {
   const { addTicket, user } = useApp();
@@ -52,6 +53,7 @@ const NewTicketPage: React.FC = () => {
 
       } catch (e: any) {
         if (!isMounted) return;
+
         console.error('Failed to get summary from AI:', e);
 
         setErrors({
@@ -89,9 +91,27 @@ const NewTicketPage: React.FC = () => {
     if (description.trim().length < 10) newErrors.description = t('newTicket.form.error.descriptionMinLength');
     if (!category) newErrors.category = t('newTicket.form.error.categoryRequired');
     if (!priority) newErrors.priority = t('newTicket.form.error.priorityRequired');
+    if (workstationId.trim().length > 50) {
+      newErrors.workstationId = t(
+        'newTicket.form.error.workstationIdMaxLength',
+        { default: 'Workstation ID must be 50 characters or less.' }
+      );
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const handleReturnToDashboard = () => {
+    let dashboardPath = '/dashboard';
+
+    if (user?.role === UserRole.AGENT) {
+      dashboardPath = '/agent/dashboard';
+    } else if (user?.role === UserRole.MANAGER) {
+      dashboardPath = '/manager/dashboard';
+    }
+
+    navigate(dashboardPath, { replace: true });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -100,60 +120,59 @@ const NewTicketPage: React.FC = () => {
 
     setIsLoading(true);
 
-    // On prépare les données en utilisant les infos déjà présentes dans 'user'
-    // sans refaire d'appel Supabase direct ici pour éviter le bug 406
-    const ticketData = {
-      title: title.trim(),
-      description: description.trim(),
-      category,
-      priority,
-      status: TicketStatus.OPEN,
-      workstation_id: workstationId.trim() || undefined,
-      summary: aiSummary?.trim() || null,
-      summary_updated_at: new Date().toISOString(),
-      user_id: user.id,
-      company_id: user.company_id,
-      company_name: user.company_name
-    };
+    try {
+      // 1. RÉCUPÉRATION DU PROFIL (CORRECTION ERREUR 406)
+      // On utilise .select('*') et .maybeSingle() pour plus de stabilité
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('*') 
+        .eq('auth_uid', user.id)
+        .maybeSingle();
 
-    const newTicket = await addTicket(ticketData, chatHistoryRef.current);
-
-    setIsLoading(false);
-
-    if (newTicket) {
-      let dashboardPath = '/dashboard';
-
-      if (user.role === UserRole.AGENT) {
-        dashboardPath = '/agent/dashboard';
-      } else if (user.role === UserRole.MANAGER) {
-        dashboardPath = '/manager/dashboard';
+      if (userError) {
+        console.error('Supabase Error:', userError);
+        throw new Error(`Erreur de connexion: ${userError.message}`);
       }
 
-      navigate(dashboardPath, { replace: true });
-    } else {
+      if (!userData || !userData.company_id) {
+        throw new Error("Impossible de valider votre organisation. Vérifiez que votre profil utilisateur est bien configuré.");
+      }
+
+      // 2. Préparation des données du ticket
+      const ticketData = {
+        title: title.trim(),
+        description: description.trim(),
+        category,
+        priority,
+        status: TicketStatus.OPEN,
+        workstation_id: workstationId.trim() || undefined,
+        summary: aiSummary?.trim() || undefined,
+        summary_updated_at: new Date().toISOString(),
+        user_id: user.id, 
+        company_id: userData.company_id, 
+        company_name: userData.company_name
+      };
+
+      // 3. Ajout via le contexte App
+      const newTicket = await addTicket(ticketData, chatHistoryRef.current);
+
+      if (newTicket) {
+        const dashboardPath = user.role === UserRole.AGENT ? '/agent/dashboard' : 
+                            user.role === UserRole.MANAGER ? '/manager/dashboard' : '/dashboard';
+        navigate(dashboardPath, { replace: true });
+      } else {
+        throw new Error(t('newTicket.error.failedToCreate'));
+      }
+    } catch (err: any) {
+      console.error('Submit Error:', err);
       setErrors(prev => ({
         ...prev,
-        form: t('newTicket.error.failedToCreate')
+        form: err.message || "Une erreur est survenue lors de la création du ticket."
       }));
+    } finally {
+      setIsLoading(false);
     }
   };
-
-  // Affichage du chargement (ton code original)
-  if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh]">
-        <LoadingSpinner
-          size="lg"
-          text={t('newTicket.loadingMessageSummary', {
-            default: 'Analyzing conversation and preparing your ticket...'
-          })}
-        />
-        <p className="mt-4 text-slate-600">
-          {t('newTicket.loadingSubMessage')}
-        </p>
-      </div>
-    );
-  }
 
   const priorityOptions = Object.values(TICKET_PRIORITY_KEYS).map(prioKey => ({
     value: prioKey,
@@ -165,6 +184,7 @@ const NewTicketPage: React.FC = () => {
     label: t(catKey)
   }));
 
+  // Style pour l'écriture noire
   const inputStyle = { backgroundColor: 'white', color: 'black' };
 
   return (
@@ -173,58 +193,100 @@ const NewTicketPage: React.FC = () => {
         <h1 className="text-3xl font-bold text-textPrimary">
           {t('newTicket.titleFinalize', { default: 'Finalize Your Support Ticket' })}
         </h1>
+        <p className="text-sm text-textSecondary mt-1">
+          {t('newTicket.subtitleFinalize', {
+            default: 'Your conversation has been summarized by our AI. Please review and edit the details below before submitting.'
+          })}
+        </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <Input
-          label={t('newTicket.form.ticketTitleLabel')}
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          error={errors.title}
-          style={inputStyle}
-          required
-        />
+      {errors.form && (
+        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md text-sm">
+          {errors.form}
+        </div>
+      )}
 
-        <Textarea
-          label={t('newTicket.form.detailedDescriptionLabel')}
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          error={errors.description}
-          rows={8}
-          style={inputStyle}
-          required
-        />
+      {isLoading && !aiSummary ? (
+        <div className="flex justify-center py-10">
+          <LoadingSpinner size="lg" />
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <Input
+            label={t('newTicket.form.ticketTitleLabel')}
+            id="title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder={t('newTicket.form.ticketTitlePlaceholder')}
+            error={errors.title}
+            maxLength={100}
+            required
+            style={inputStyle} 
+          />
 
-        <Input
-          label={t('newTicket.form.workstationIdLabel', { default: 'Workstation ID' })}
-          value={workstationId}
-          onChange={(e) => setWorkstationId(e.target.value)}
-          style={inputStyle}
-        />
+          <Textarea
+            label={t('newTicket.form.detailedDescriptionLabel')}
+            id="description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder={t('newTicket.form.detailedDescriptionPlaceholder')}
+            rows={8}
+            error={errors.description}
+            minLength={10}
+            required
+            style={inputStyle} 
+          />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Input
+            label={t('newTicket.form.workstationIdLabel', {
+              default: 'Workstation ID / Poste (Optional)'
+            })}
+            id="workstationId"
+            value={workstationId}
+            onChange={(e) => setWorkstationId(e.target.value)}
+            placeholder={t('newTicket.form.workstationIdPlaceholder', {
+              default: 'e.g., COMP-123, Asset Tag'
+            })}
+            error={errors.workstationId}
+            maxLength={50}
+            style={inputStyle} 
+          />
+
           <Select
             label={t('newTicket.form.categoryLabel')}
+            id="category"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
             options={categoryOptions}
+            error={errors.category}
             required
           />
+
           <Select
             label={t('newTicket.form.priorityLabel')}
+            id="priority"
             value={priority}
             onChange={(e) => setPriority(e.target.value as TicketPriority)}
             options={priorityOptions}
+            error={errors.priority}
             required
+            placeholder={t('formElements.select.placeholderDefault')}
           />
-        </div>
 
-        <div className="flex justify-end pt-4">
-          <Button type="submit" variant="primary" isLoading={isLoading}>
-            {t('newTicket.form.submitButtonFinal')}
-          </Button>
-        </div>
-      </form>
+          <div className="flex justify-end pt-4 space-x-3 rtl:space-x-reverse">
+            <Button type="button" variant="outline" onClick={handleReturnToDashboard}>
+              {t('newTicket.form.returnToDashboardButton', {
+                default: 'Return to Dashboard'
+              })}
+            </Button>
+            <Button type="submit" variant="primary" isLoading={isLoading}>
+              {isLoading
+                ? t('newTicket.form.submitButtonLoading')
+                : t('newTicket.form.submitButtonFinal')}
+            </Button>
+          </div>
+        </form>
+      )}
     </div>
   );
 };
