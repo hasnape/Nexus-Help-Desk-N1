@@ -100,20 +100,23 @@ export function normalizeInternalNotes(notes: any): InternalNote[] {
     return [];
   }
 
+  // Use consistent timestamp for all notes created in this operation
+  const now = Date.now();
+
   // Already an array of note objects
   if (Array.isArray(notes)) {
     return notes.map((note) => {
       if (typeof note === 'object' && note.text) {
         return {
           text: note.text,
-          timestamp: note.timestamp || Date.now(),
+          timestamp: note.timestamp || now,
           author: note.author || 'unknown',
         };
       }
       // Array of strings
       return {
         text: String(note),
-        timestamp: Date.now(),
+        timestamp: now,
         author: 'system',
       };
     });
@@ -131,7 +134,7 @@ export function normalizeInternalNotes(notes: any): InternalNote[] {
         return [
           {
             text: parsed.text || JSON.stringify(parsed),
-            timestamp: parsed.timestamp || Date.now(),
+            timestamp: parsed.timestamp || now,
             author: parsed.author || 'system',
           },
         ];
@@ -144,7 +147,7 @@ export function normalizeInternalNotes(notes: any): InternalNote[] {
     return [
       {
         text: notes,
-        timestamp: Date.now(),
+        timestamp: now,
         author: 'system',
       },
     ];
@@ -155,7 +158,7 @@ export function normalizeInternalNotes(notes: any): InternalNote[] {
     return [
       {
         text: (notes as any).text || JSON.stringify(notes),
-        timestamp: (notes as any).timestamp || Date.now(),
+        timestamp: (notes as any).timestamp || now,
         author: (notes as any).author || 'system',
       },
     ];
@@ -165,7 +168,7 @@ export function normalizeInternalNotes(notes: any): InternalNote[] {
   return [
     {
       text: String(notes),
-      timestamp: Date.now(),
+      timestamp: now,
       author: 'system',
     },
   ];
