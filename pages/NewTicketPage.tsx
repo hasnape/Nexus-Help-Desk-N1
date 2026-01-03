@@ -49,7 +49,7 @@ const NewTicketPage: React.FC = () => {
         setDescription(summary.description);
         setCategory(summary.category);
         setPriority(summary.priority);
-        setAiSummary(summary.description); 
+        setAiSummary(summary.summary ?? summary.description);
 
       } catch (e: any) {
         if (!isMounted) return;
@@ -122,11 +122,18 @@ const NewTicketPage: React.FC = () => {
 
     try {
       // 1. RÉCUPÉRATION DU PROFIL (CORRECTION ERREUR 406)
-      // On utilise .select('*') et .maybeSingle() pour plus de stabilité
+      // On utilise .maybeSingle() pour plus de stabilité
+      const { data: authData } = await supabase.auth.getUser();
+      const authUid = (user.auth_uid ?? authData?.user?.id ?? "").trim();
+
+      if (!authUid) {
+        throw new Error("unauthorized");
+      }
+
       const { data: userData, error: userError } = await supabase
         .from('users')
-        .select('*') 
-        .eq('auth_uid', user.id)
+        .select('company_id, company_name') 
+        .eq('auth_uid', authUid)
         .maybeSingle();
 
       if (userError) {
