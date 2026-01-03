@@ -16,36 +16,42 @@ jobs:
         run: |
           git checkout -b chore/db-align-rls || git checkout chore/db-align-rls
 
-      - name: Ensure migration file exists
+      - name: Verify required files exist
         run: |
-          mkdir -p supabase/migrations
+          echo "Verifying all required files are present..."
+          MISSING_FILES=0
+          
           if [ ! -f supabase/migrations/2026-01-03-rls-and-internal-notes.sql ]; then
-            echo "Migration file should already exist in the repository"
+            echo "ERROR: Migration file missing: supabase/migrations/2026-01-03-rls-and-internal-notes.sql"
+            MISSING_FILES=1
           fi
-
-      - name: Ensure app-fixes file exists
-        run: |
-          mkdir -p src/app-fixes
+          
           if [ ! -f src/app-fixes/chat-and-notes.ts ]; then
-            echo "App-fixes file should already exist in the repository"
+            echo "ERROR: App-fixes file missing: src/app-fixes/chat-and-notes.ts"
+            MISSING_FILES=1
           fi
-
-      - name: Ensure edge function patches exist
-        run: |
-          mkdir -p supabase/functions/_patches
+          
           if [ ! -f supabase/functions/_patches/auth-signup-consumeActivationCode.ts ]; then
-            echo "Auth signup patch should already exist in the repository"
+            echo "ERROR: Auth signup patch missing: supabase/functions/_patches/auth-signup-consumeActivationCode.ts"
+            MISSING_FILES=1
           fi
+          
           if [ ! -f supabase/functions/_patches/nexus-ai-limits.ts ]; then
-            echo "Nexus AI limits patch should already exist in the repository"
+            echo "ERROR: Nexus AI limits patch missing: supabase/functions/_patches/nexus-ai-limits.ts"
+            MISSING_FILES=1
           fi
-
-      - name: Ensure script exists
-        run: |
-          mkdir -p scripts
+          
           if [ ! -f scripts/create-pr.sh ]; then
-            echo "Create-PR script should already exist in the repository"
+            echo "ERROR: Create-PR script missing: scripts/create-pr.sh"
+            MISSING_FILES=1
           fi
+          
+          if [ $MISSING_FILES -eq 1 ]; then
+            echo "One or more required files are missing. Cannot proceed."
+            exit 1
+          fi
+          
+          echo "All required files are present."
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
