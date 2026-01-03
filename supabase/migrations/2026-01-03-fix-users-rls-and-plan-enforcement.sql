@@ -156,8 +156,8 @@ ALTER TABLE public.company_plans ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "company_plans_select_policy" ON public.company_plans;
 CREATE POLICY "company_plans_select_policy" ON public.company_plans
   FOR SELECT USING (
+    -- Users can only read their own company's plan
     company_id = public.current_company_id()
-    OR public.is_company_manager()
   );
 
 -- Only managers can modify plans
@@ -266,8 +266,12 @@ BEGIN
 END;
 $$;
 
--- Re-create the trigger (if needed by business logic, otherwise can be omitted)
--- Note: This trigger is currently disabled by the TG_TABLE_NAME check above
+-- Re-create the trigger on users table
+-- Note: The function intentionally skips enforcement for TG_TABLE_NAME = 'users'
+-- to prevent blocking user profile creation/repair during onboarding.
+-- This allows user rows to be created even when no company plan exists.
+-- If you need the trigger on other tables (e.g., a future agents table), 
+-- create additional triggers on those tables without the TG_TABLE_NAME skip.
 CREATE TRIGGER enforce_agent_cap_trigger
   BEFORE INSERT OR UPDATE ON public.users
   FOR EACH ROW

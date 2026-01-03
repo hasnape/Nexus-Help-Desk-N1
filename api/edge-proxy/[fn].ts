@@ -172,9 +172,9 @@ export default async function handler(req: Request): Promise<Response> {
       status: supabaseResponse.status,
       headers: respHeaders,
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     // Handle timeout errors
-    if (err.name === "AbortError") {
+    if (err instanceof Error && err.name === "AbortError") {
       console.error(`Timeout calling Supabase function ${fn}`);
       return jsonError(
         `Request timeout while calling function "${fn}". Please try again.`,
@@ -184,7 +184,7 @@ export default async function handler(req: Request): Promise<Response> {
 
     // Handle network errors
     console.error("Edge proxy error for function:", fn, err);
-    const errorMessage = err.message || "Unknown error";
+    const errorMessage = err instanceof Error ? err.message : "Unknown error";
     
     // Check for specific error types
     if (errorMessage.includes("ENOTFOUND") || errorMessage.includes("ECONNREFUSED")) {
