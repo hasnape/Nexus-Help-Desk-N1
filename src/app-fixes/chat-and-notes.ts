@@ -236,9 +236,9 @@ export function reviveTicketDates<T extends Record<string, any>>(ticket: T): T {
       try {
         // Keep as ISO string but validate it's a valid date
         const date = new Date(revived[field]);
-        if (!isNaN(date.getTime())) {
-          // Date is valid, keep the string format
-          revived[field] = revived[field];
+        if (isNaN(date.getTime())) {
+          // Invalid date, remove field
+          delete revived[field];
         }
       } catch {
         // Invalid date, remove field
