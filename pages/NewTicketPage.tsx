@@ -26,6 +26,7 @@ const NewTicketPage: React.FC = () => {
 
   const chatHistoryRef = useRef<ChatMessage[]>([]);
 
+  // --- EFFET : RÉCUPÉRATION DE L'HISTORIQUE ET RÉSUMÉ IA ---
   useEffect(() => {
     let isMounted = true;
 
@@ -53,12 +54,11 @@ const NewTicketPage: React.FC = () => {
 
       } catch (e: any) {
         if (!isMounted) return;
-
         console.error('Failed to get summary from AI:', e);
 
         setErrors({
           form: t('newTicket.error.summaryFailed', {
-            default: `Failed to get AI summary: ${e.message}. Please fill out the form manually.`
+            default: `Failed to get AI summary. Please fill out the form manually.`
           })
         });
 
@@ -82,6 +82,7 @@ const NewTicketPage: React.FC = () => {
     };
   }, [location.state, navigate, language, t]);
 
+  // --- VALIDATION DU FORMULAIRE ---
   const validateForm = (): boolean => {
     const newErrors: { [key: string]: string } = {};
 
@@ -91,29 +92,18 @@ const NewTicketPage: React.FC = () => {
     if (description.trim().length < 10) newErrors.description = t('newTicket.form.error.descriptionMinLength');
     if (!category) newErrors.category = t('newTicket.form.error.categoryRequired');
     if (!priority) newErrors.priority = t('newTicket.form.error.priorityRequired');
-    if (workstationId.trim().length > 50) {
-      newErrors.workstationId = t(
-        'newTicket.form.error.workstationIdMaxLength',
-        { default: 'Workstation ID must be 50 characters or less.' }
-      );
-    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleReturnToDashboard = () => {
-    let dashboardPath = '/dashboard';
-
-    if (user?.role === UserRole.AGENT) {
-      dashboardPath = '/agent/dashboard';
-    } else if (user?.role === UserRole.MANAGER) {
-      dashboardPath = '/manager/dashboard';
-    }
-
+    const dashboardPath = user?.role === UserRole.AGENT ? '/agent/dashboard' : 
+                         user?.role === UserRole.MANAGER ? '/manager/dashboard' : '/dashboard';
     navigate(dashboardPath, { replace: true });
   };
 
+  // --- SOUMISSION DU TICKET ---
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !validateForm()) return;
@@ -122,23 +112,23 @@ const NewTicketPage: React.FC = () => {
 
     try {
       // 1. RÉCUPÉRATION DU PROFIL (CORRECTION ERREUR 406)
-      // On utilise .select('*') et .maybeSingle() pour plus de stabilité
       const { data: userData, error: userError } = await supabase
         .from('users')
         .select('*') 
         .eq('auth_uid', user.id)
         .maybeSingle();
 
-      if (userError) {
-        console.error('Supabase Error:', userError);
-        throw new Error(`Erreur de connexion: ${userError.message}`);
+      if (userError) throw new Error(`Erreur de connexion: ${userError.message}`);
+
+      // Utilisation des données récupérées ou fallback sur le contexte
+      const finalCompanyId = userData?.company_id || user.company_id;
+      const finalCompanyName = userData?.company_name || user.company_name;
+
+      if (!finalCompanyId) {
+        throw new Error("Impossible de valider votre organisation.");
       }
 
-      if (!userData || !userData.company_id) {
-        throw new Error("Impossible de valider votre organisation. Vérifiez que votre profil utilisateur est bien configuré.");
-      }
-
-      // 2. Préparation des données du ticket
+      // 2. Préparation des données
       const ticketData = {
         title: title.trim(),
         description: description.trim(),
@@ -149,11 +139,11 @@ const NewTicketPage: React.FC = () => {
         summary: aiSummary?.trim() || undefined,
         summary_updated_at: new Date().toISOString(),
         user_id: user.id, 
-        company_id: userData.company_id, 
-        company_name: userData.company_name
+        company_id: finalCompanyId, 
+        company_name: finalCompanyName
       };
 
-      // 3. Ajout via le contexte App
+      // 3. Enregistrement
       const newTicket = await addTicket(ticketData, chatHistoryRef.current);
 
       if (newTicket) {
@@ -184,7 +174,6 @@ const NewTicketPage: React.FC = () => {
     label: t(catKey)
   }));
 
-  // Style pour l'écriture noire
   const inputStyle = { backgroundColor: 'white', color: 'black' };
 
   return (
@@ -195,7 +184,7 @@ const NewTicketPage: React.FC = () => {
         </h1>
         <p className="text-sm text-textSecondary mt-1">
           {t('newTicket.subtitleFinalize', {
-            default: 'Your conversation has been summarized by our AI. Please review and edit the details below before submitting.'
+            default: 'Your conversation has been summarized by our AI. Please review and edit the details below.'
           })}
         </p>
       </div>
@@ -217,7 +206,6 @@ const NewTicketPage: React.FC = () => {
             id="title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder={t('newTicket.form.ticketTitlePlaceholder')}
             error={errors.title}
             maxLength={100}
             required
@@ -229,26 +217,17 @@ const NewTicketPage: React.FC = () => {
             id="description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder={t('newTicket.form.detailedDescriptionPlaceholder')}
             rows={8}
             error={errors.description}
-            minLength={10}
             required
             style={inputStyle} 
           />
 
           <Input
-            label={t('newTicket.form.workstationIdLabel', {
-              default: 'Workstation ID / Poste (Optional)'
-            })}
+            label={t('newTicket.form.workstationIdLabel', { default: 'Workstation ID' })}
             id="workstationId"
             value={workstationId}
             onChange={(e) => setWorkstationId(e.target.value)}
-            placeholder={t('newTicket.form.workstationIdPlaceholder', {
-              default: 'e.g., COMP-123, Asset Tag'
-            })}
-            error={errors.workstationId}
-            maxLength={50}
             style={inputStyle} 
           />
 
@@ -270,19 +249,14 @@ const NewTicketPage: React.FC = () => {
             options={priorityOptions}
             error={errors.priority}
             required
-            placeholder={t('formElements.select.placeholderDefault')}
           />
 
-          <div className="flex justify-end pt-4 space-x-3 rtl:space-x-reverse">
+          <div className="flex justify-end pt-4 space-x-3">
             <Button type="button" variant="outline" onClick={handleReturnToDashboard}>
-              {t('newTicket.form.returnToDashboardButton', {
-                default: 'Return to Dashboard'
-              })}
+              {t('newTicket.form.returnToDashboardButton', { default: 'Return' })}
             </Button>
             <Button type="submit" variant="primary" isLoading={isLoading}>
-              {isLoading
-                ? t('newTicket.form.submitButtonLoading')
-                : t('newTicket.form.submitButtonFinal')}
+              {t('newTicket.form.submitButtonFinal')}
             </Button>
           </div>
         </form>
