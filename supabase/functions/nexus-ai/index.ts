@@ -27,11 +27,22 @@ import {
 // --------------------
 const MODEL_NAME = "gemini-2.5-flash";
 
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
-const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY")!;
+// Validate required environment variables
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
 
-const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
+if (!SUPABASE_URL) {
+  console.error("[nexus-ai] FATAL: SUPABASE_URL is not configured");
+}
+if (!SERVICE_ROLE_KEY) {
+  console.error("[nexus-ai] FATAL: SUPABASE_SERVICE_ROLE_KEY is not configured");
+}
+if (!GEMINI_API_KEY) {
+  console.error("[nexus-ai] FATAL: GEMINI_API_KEY is not configured");
+}
+
+const supabase = createClient(SUPABASE_URL!, SERVICE_ROLE_KEY!, {
   global: {
     headers: {
       "x-client-info": "nexus-ai-edge-fn",
@@ -39,7 +50,7 @@ const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
   },
 });
 
-const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
+const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY! });
 
 type FollowUpPayload = {
   mode: "followUp";
@@ -474,13 +485,29 @@ serve(async (req: Request) => {
   if (guard instanceof Response) return guard;
   const corsHeaders = guard; // Record<string, string>
 
+  // 3) Check environment variables before processing
+  if (!SUPABASE_URL || !SERVICE_ROLE_KEY || !GEMINI_API_KEY) {
+    console.error("[nexus-ai] Missing required environment variables");
+    return json(
+      {
+        error: "configuration_error",
+        message: "Server configuration error: Missing required environment variables. Please contact support.",
+      },
+      500,
+      corsHeaders,
+    );
+  }
+
   let body: RequestBody;
   try {
     body = (await req.json()) as RequestBody;
   } catch (err) {
     console.error("[nexus-ai] invalid JSON body:", err);
     return json(
-      { error: "Invalid JSON body" },
+      { 
+        error: "invalid_request",
+        message: "Invalid JSON body" 
+      },
       400,
       corsHeaders,
     );
@@ -511,17 +538,42 @@ serve(async (req: Request) => {
     }
 
     return json(
-      { error: "Unsupported mode" },
+      { 
+        error: "unsupported_mode",
+        message: `Unsupported mode: ${(body as any)?.mode || 'unknown'}` 
+      },
       400,
       corsHeaders,
     );
   } catch (err: any) {
-    console.error("[nexus-ai] internal error:", (body as any)?.mode, err);
+    const mode = (body as any)?.mode ?? "unknown";
+    console.error("[nexus-ai] internal error:", mode, err);
+    
+    // Extract meaningful error message
+    let userMessage = "An internal error occurred while processing your request.";
+    
+    if (err instanceof Error) {
+      // Check for specific error types
+      if (err.message.includes("API key")) {
+        userMessage = "AI service configuration error. Please contact support.";
+      } else if (err.message.includes("rate limit") || err.message.includes("quota")) {
+        userMessage = "AI service rate limit exceeded. Please try again in a few minutes.";
+      } else if (err.message.includes("timeout")) {
+        userMessage = "AI service timeout. Please try again.";
+      } else if (err.message.includes("network") || err.message.includes("fetch")) {
+        userMessage = "Network error connecting to AI service. Please try again.";
+      } else {
+        // Use the actual error message if it's user-friendly
+        userMessage = err.message;
+      }
+    }
+    
     return json(
       {
         error: "internal_ai_error",
-        mode: (body as any)?.mode ?? null,
-        message: err instanceof Error ? err.message : String(err),
+        mode,
+        message: userMessage,
+        details: err instanceof Error ? err.message : String(err),
       },
       500,
       corsHeaders,
