@@ -178,13 +178,15 @@ export default async function handler(req: Request): Promise<Response> {
     if (!supabaseResponse.ok) {
       const status = supabaseResponse.status;
       
-      // Try to get error details from response
-      let errorDetails = "";
+      // Try to get error details from response body
+      let errorBody: any = null;
       try {
-        const errorJson = await supabaseResponse.json();
-        errorDetails = errorJson.message || errorJson.error || "";
+        const responseText = await supabaseResponse.text();
+        if (responseText) {
+          errorBody = JSON.parse(responseText);
+        }
       } catch {
-        // Ignore JSON parse errors
+        // Ignore parse errors
       }
 
       if (status === 429) {
@@ -194,6 +196,7 @@ export default async function handler(req: Request): Promise<Response> {
           429
         );
       } else if (status === 401 || status === 403) {
+        const errorDetails = errorBody?.message || errorBody?.error || "";
         console.error(
           `[edge-proxy] Authentication/authorization error for function ${fn}: ${errorDetails}`
         );
@@ -202,10 +205,22 @@ export default async function handler(req: Request): Promise<Response> {
           status
         );
       } else if (status >= 500) {
+        const errorDetails = errorBody?.message || errorBody?.error || "";
         console.error(
           `[edge-proxy] Supabase function ${fn} returned server error ${status}: ${errorDetails}`
         );
+        // Return the actual error from the backend
+        return new Response(JSON.stringify(errorBody || { error: "Internal server error" }), {
+          status,
+          headers: respHeaders,
+        });
       }
+
+      // For other error statuses, return the response as-is
+      return new Response(JSON.stringify(errorBody || { error: "Request failed" }), {
+        status,
+        headers: respHeaders,
+      });
     }
 
     return new Response(supabaseResponse.body, {
