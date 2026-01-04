@@ -74,13 +74,13 @@ if (!res.ok) {
 **Changes:**
 - Added detailed error logging with `[edge-proxy]` prefix for easy filtering
 - Enhanced validation messages for missing/invalid environment variables
-- Fixed the issue where error response body was consumed twice
+- Fixed the issue where error response body was consumed twice (only consumed for error cases)
 - Better CORS handling and error forwarding
 - Specific error messages for different failure scenarios
 
 **Key Improvements:**
 - Environment variable validation with clear "Please contact support" messages
-- Proper error response forwarding (reads body once, then returns it)
+- Proper error response forwarding (reads body once for errors, passes through stream for success)
 - Enhanced logging for debugging (request URL, response status, error details)
 - Network error detection (ENOTFOUND, ECONNREFUSED)
 
@@ -91,6 +91,8 @@ if (!res.ok) {
 - Improved error messages to be more user-friendly
 - Added specific error handling for common failure scenarios
 - Enhanced error response format with `details` field for debugging
+- Added null safety checks for AI and Supabase clients before use
+- Conditional client initialization only when environment variables are present
 
 **Error Detection:**
 ```typescript
@@ -105,6 +107,24 @@ if (err.message.includes("API key")) {
 }
 ```
 
+**Null Safety:**
+```typescript
+// Clients are only initialized if env vars are present
+const supabase = SUPABASE_URL && SERVICE_ROLE_KEY
+  ? createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {...})
+  : null;
+
+const ai = GEMINI_API_KEY ? new GoogleGenAI({ apiKey: GEMINI_API_KEY }) : null;
+
+// Each handler checks for null before use
+async function handleSummarizeAndCategorizeChat(body: SummarizePayload) {
+  if (!ai) {
+    throw new Error("AI service is not configured");
+  }
+  // ... rest of function
+}
+```
+
 ### 4. Better User Experience in NewTicketPage (`pages/NewTicketPage.tsx`)
 
 **Changes:**
@@ -112,12 +132,17 @@ if (err.message.includes("API key")) {
 - Separated error cases (auth error, missing user data, missing company_id)
 - Provided actionable error messages with clear next steps
 - Enhanced error handling in the AI summarization with specific guidance
+- **Used translation system for all error messages for proper i18n support**
 
 **Error Messages:**
-- **Auth Error**: "Erreur d'authentification: {details}. Veuillez vous reconnecter."
-- **Missing Profile**: "Profil utilisateur introuvable. Veuillez vous déconnecter et vous reconnecter..."
-- **Missing Company ID**: "Impossible de valider votre organisation. Vérifiez que votre profil... Si le problème persiste, veuillez contacter votre administrateur..."
-- **AI Summary Errors**: Specific messages for configuration, rate limit, timeout, and network errors
+- **Auth Error**: Uses `t()` with proper translation keys
+- **Missing Profile**: Uses `t()` with proper translation keys
+- **Missing Company ID**: Uses `t()` with proper translation keys
+- **AI Summary Errors**: Uses `t()` with specific translation keys for each error type:
+  - `newTicket.error.aiConfigurationError`
+  - `newTicket.error.aiRateLimitError`
+  - `newTicket.error.aiTimeoutError`
+  - `newTicket.error.aiNetworkError`
 
 ## Validation Steps
 
@@ -180,10 +205,24 @@ Look for these log patterns:
 
 ## Files Changed
 
-- `services/geminiService.ts` - Enhanced error parsing and logging
-- `api/edge-proxy/[fn].ts` - Improved validation, error handling, and response forwarding
-- `supabase/functions/nexus-ai/index.ts` - Better error messages and environment validation
-- `pages/NewTicketPage.tsx` - Enhanced user error messages and validation
+- `services/geminiService.ts` - Enhanced error parsing and logging (29 lines changed)
+- `api/edge-proxy/[fn].ts` - Improved validation, error handling, and response forwarding (104 lines changed)
+- `supabase/functions/nexus-ai/index.ts` - Better error messages, environment validation, and null safety (88 lines changed)
+- `pages/NewTicketPage.tsx` - Enhanced user error messages with i18n support (60 lines changed)
+- `docs/API_ERROR_HANDLING_FIX.md` - Comprehensive documentation (new file)
+
+## Code Review Feedback Addressed
+
+### Round 1:
+- ✅ Added null safety checks for AI client (`ai`) before calling Gemini API
+- ✅ Added null safety checks for Supabase client (`supabase`) before database operations
+- ✅ Conditional client initialization only when env vars are present
+
+### Round 2:
+- ✅ Explained that returning null for optional features (company knowledge) is appropriate
+- ✅ Main handler validates environment variables before any processing
+- ✅ Extracted hardcoded French error messages to translation system using `t()` function
+- ✅ Added translation keys for all error types: `aiConfigurationError`, `aiRateLimitError`, `aiTimeoutError`, `aiNetworkError`
 
 ## Safety Notes
 
@@ -191,7 +230,7 @@ Look for these log patterns:
 - ✅ **Build verified**: Project builds successfully with all changes
 - ✅ **Minimal changes**: Only error handling logic was modified, no business logic changes
 - ✅ **Better logging**: Enhanced debugging capabilities without exposing sensitive data
-- ✅ **User-friendly**: Error messages are in French for the primary user base
+- ✅ **Internationalized**: All error messages use translation system for proper i18n support
 
 ## Next Steps
 
