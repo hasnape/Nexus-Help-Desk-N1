@@ -38,9 +38,12 @@ export default async function handler(req: Request): Promise<Response> {
   // Get and validate Supabase Functions URL
   const baseFromEnv = process.env.SUPABASE_FUNCTIONS_URL;
   if (!baseFromEnv) {
-    console.error("SUPABASE_FUNCTIONS_URL is not configured");
+    console.error(
+      "[edge-proxy] CRITICAL: SUPABASE_FUNCTIONS_URL is not configured. " +
+      "This must be set in the deployment environment variables."
+    );
     return jsonError(
-      "SUPABASE_FUNCTIONS_URL is not configured in environment.",
+      "Server configuration error: SUPABASE_FUNCTIONS_URL is not configured. Please contact support.",
       500
     );
   }
@@ -49,16 +52,25 @@ export default async function handler(req: Request): Promise<Response> {
   let parsedBase: URL;
   try {
     parsedBase = new URL(baseFromEnv);
-  } catch {
-    console.error("SUPABASE_FUNCTIONS_URL is not a valid URL");
-    return jsonError("Invalid SUPABASE_FUNCTIONS_URL configuration.", 500);
+  } catch (parseError) {
+    console.error(
+      `[edge-proxy] CRITICAL: SUPABASE_FUNCTIONS_URL is not a valid URL: ${baseFromEnv}`,
+      parseError
+    );
+    return jsonError(
+      "Server configuration error: Invalid SUPABASE_FUNCTIONS_URL. Please contact support.",
+      500
+    );
   }
 
   if (!parsedBase.hostname.endsWith("functions.supabase.co")) {
     console.error(
-      `SUPABASE_FUNCTIONS_URL hostname does not end with 'functions.supabase.co': ${parsedBase.hostname}`
+      `[edge-proxy] CRITICAL: SUPABASE_FUNCTIONS_URL hostname does not end with 'functions.supabase.co': ${parsedBase.hostname}`
     );
-    return jsonError("Invalid SUPABASE_FUNCTIONS_URL hostname.", 500);
+    return jsonError(
+      "Server configuration error: Invalid SUPABASE_FUNCTIONS_URL hostname. Please contact support.",
+      500
+    );
   }
 
   // Optional: enforce allowlist from environment
@@ -96,13 +108,19 @@ export default async function handler(req: Request): Promise<Response> {
   const anonKey =
     process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
 
-  if (anonKey) {
-    forwardHeaders.set("apikey", anonKey);
-    forwardHeaders.set("authorization", `Bearer ${anonKey}`);
-  } else {
-    console.error("SUPABASE_ANON_KEY not configured");
-    return jsonError("Server configuration error: missing API key.", 500);
+  if (!anonKey) {
+    console.error(
+      "[edge-proxy] CRITICAL: SUPABASE_ANON_KEY not configured. " +
+      "This must be set in the deployment environment variables."
+    );
+    return jsonError(
+      "Server configuration error: Missing API key. Please contact support.",
+      500
+    );
   }
+
+  forwardHeaders.set("apikey", anonKey);
+  forwardHeaders.set("authorization", `Bearer ${anonKey}`);
 
   // Handle request body
   const method = req.method.toUpperCase();
@@ -112,7 +130,7 @@ export default async function handler(req: Request): Promise<Response> {
     try {
       body = await req.arrayBuffer();
     } catch (err) {
-      console.error("Failed to read request body:", err);
+      console.error("[edge-proxy] Failed to read request body:", err);
       return jsonError("Failed to read request body.", 400);
     }
   }
@@ -123,6 +141,8 @@ export default async function handler(req: Request): Promise<Response> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000);
 
+    console.log(`[edge-proxy] Forwarding request to: ${targetUrl}`);
+
     const supabaseResponse = await fetch(targetUrl, {
       method,
       headers: forwardHeaders,
@@ -131,6 +151,10 @@ export default async function handler(req: Request): Promise<Response> {
     });
 
     clearTimeout(timeoutId);
+
+    console.log(
+      `[edge-proxy] Received response from ${fn}: HTTP ${supabaseResponse.status}`
+    );
 
     const respHeaders = new Headers(supabaseResponse.headers);
 
@@ -153,19 +177,50 @@ export default async function handler(req: Request): Promise<Response> {
     // Handle specific HTTP error statuses with better messages
     if (!supabaseResponse.ok) {
       const status = supabaseResponse.status;
+      
+      // Try to get error details from response body
+      let errorBody: any = null;
+      try {
+        const responseText = await supabaseResponse.text();
+        if (responseText) {
+          errorBody = JSON.parse(responseText);
+        }
+      } catch {
+        // Ignore parse errors
+      }
+
       if (status === 429) {
-        console.error(`Rate limit exceeded for function ${fn}`);
+        console.error(`[edge-proxy] Rate limit exceeded for function ${fn}`);
         return jsonError(
           "Rate limit exceeded. Please try again later.",
           429
         );
       } else if (status === 401 || status === 403) {
-        console.error(`Authentication/authorization error for function ${fn}`);
+        const errorDetails = errorBody?.message || errorBody?.error || "";
+        console.error(
+          `[edge-proxy] Authentication/authorization error for function ${fn}: ${errorDetails}`
+        );
         return jsonError(
           "Authentication failed. Please check your credentials.",
           status
         );
+      } else if (status >= 500) {
+        const errorDetails = errorBody?.message || errorBody?.error || "";
+        console.error(
+          `[edge-proxy] Supabase function ${fn} returned server error ${status}: ${errorDetails}`
+        );
+        // Return the actual error from the backend
+        return new Response(JSON.stringify(errorBody || { error: "Internal server error" }), {
+          status,
+          headers: respHeaders,
+        });
       }
+
+      // For other error statuses, return the response as-is
+      return new Response(JSON.stringify(errorBody || { error: "Request failed" }), {
+        status,
+        headers: respHeaders,
+      });
     }
 
     return new Response(supabaseResponse.body, {
@@ -175,27 +230,34 @@ export default async function handler(req: Request): Promise<Response> {
   } catch (err: unknown) {
     // Handle timeout errors
     if (err instanceof Error && err.name === "AbortError") {
-      console.error(`Timeout calling Supabase function ${fn}`);
+      console.error(`[edge-proxy] Timeout calling Supabase function ${fn}`);
       return jsonError(
-        `Request timeout while calling function "${fn}". Please try again.`,
+        `Request timeout while calling function "${fn}". The AI service is taking too long to respond. Please try again.`,
         504
       );
     }
 
     // Handle network errors
-    console.error("Edge proxy error for function:", fn, err);
+    console.error("[edge-proxy] Network error for function:", fn, err);
     const errorMessage = err instanceof Error ? err.message : "Unknown error";
     
     // Check for specific error types
     if (errorMessage.includes("ENOTFOUND") || errorMessage.includes("ECONNREFUSED")) {
+      console.error(
+        `[edge-proxy] Cannot reach Supabase function ${fn}. DNS or connection error.`
+      );
       return jsonError(
-        `Cannot reach Supabase function "${fn}". Service may be unavailable.`,
+        `Cannot reach Supabase function "${fn}". Service may be unavailable. Please try again later.`,
         503
       );
     }
 
+    console.error(
+      `[edge-proxy] Unexpected error calling Supabase function ${fn}:`,
+      errorMessage
+    );
     return jsonError(
-      `Edge proxy error while calling Supabase function "${fn}".`,
+      `Unexpected error while calling function "${fn}". Please try again later.`,
       502
     );
   }

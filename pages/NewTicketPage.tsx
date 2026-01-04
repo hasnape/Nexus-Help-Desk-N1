@@ -56,10 +56,31 @@ const NewTicketPage: React.FC = () => {
 
         console.error('Failed to get summary from AI:', e);
 
+        // Provide more helpful error messages based on error type
+        let errorMessage = t('newTicket.error.summaryFailed', {
+          default: `Failed to get AI summary: ${e.message}. Please fill out the form manually.`
+        });
+
+        if (e.message.includes('configuration')) {
+          errorMessage = t('newTicket.error.aiConfigurationError', {
+            default: 'AI summary service is temporarily unavailable (configuration error). Please fill out the form manually.'
+          });
+        } else if (e.message.includes('rate limit')) {
+          errorMessage = t('newTicket.error.aiRateLimitError', {
+            default: 'AI request limit reached. Please fill out the form manually or try again in a few minutes.'
+          });
+        } else if (e.message.includes('timeout')) {
+          errorMessage = t('newTicket.error.aiTimeoutError', {
+            default: 'AI service is taking too long to respond. Please fill out the form manually.'
+          });
+        } else if (e.message.includes('network') || e.message.includes('fetch')) {
+          errorMessage = t('newTicket.error.aiNetworkError', {
+            default: 'Network error connecting to AI service. Please fill out the form manually.'
+          });
+        }
+
         setErrors({
-          form: t('newTicket.error.summaryFailed', {
-            default: `Failed to get AI summary: ${e.message}. Please fill out the form manually.`
-          })
+          form: errorMessage
         });
 
         const fallbackDescription = state.chatHistory
@@ -123,11 +144,17 @@ const NewTicketPage: React.FC = () => {
     try {
       // 1. RÉCUPÉRATION DU PROFIL (CORRECTION ERREUR 406)
       // On utilise .maybeSingle() pour plus de stabilité
-      const { data: authData } = await supabase.auth.getUser();
+      const { data: authData, error: authError } = await supabase.auth.getUser();
+      
+      if (authError) {
+        console.error('Auth Error:', authError);
+        throw new Error(`Erreur d'authentification: ${authError.message}. Veuillez vous reconnecter.`);
+      }
+      
       const authUid = (user.auth_uid ?? authData?.user?.id ?? "").trim();
 
       if (!authUid) {
-        throw new Error("unauthorized");
+        throw new Error("Session expirée. Veuillez vous reconnecter.");
       }
 
       const { data: userData, error: userError } = await supabase
@@ -138,11 +165,23 @@ const NewTicketPage: React.FC = () => {
 
       if (userError) {
         console.error('Supabase Error:', userError);
-        throw new Error(`Erreur de connexion: ${userError.message}`);
+        throw new Error(`Erreur de connexion à la base de données: ${userError.message}. Veuillez réessayer.`);
       }
 
-      if (!userData || !userData.company_id) {
-        throw new Error("Impossible de valider votre organisation. Vérifiez que votre profil utilisateur est bien configuré.");
+      if (!userData) {
+        console.error('No user data found for auth_uid:', authUid);
+        throw new Error(
+          "Profil utilisateur introuvable. Veuillez vous déconnecter et vous reconnecter, " +
+          "ou contacter le support si le problème persiste."
+        );
+      }
+
+      if (!userData.company_id) {
+        console.error('User data missing company_id:', userData);
+        throw new Error(
+          "Impossible de valider votre organisation. Vérifiez que votre profil utilisateur est bien configuré. " +
+          "Si le problème persiste, veuillez contacter votre administrateur ou le support."
+        );
       }
 
       // 2. Préparation des données du ticket
@@ -172,9 +211,16 @@ const NewTicketPage: React.FC = () => {
       }
     } catch (err: any) {
       console.error('Submit Error:', err);
+      
+      // Provide user-friendly error message
+      let errorMessage = "Une erreur est survenue lors de la création du ticket.";
+      if (err.message) {
+        errorMessage = err.message;
+      }
+      
       setErrors(prev => ({
         ...prev,
-        form: err.message || "Une erreur est survenue lors de la création du ticket."
+        form: errorMessage
       }));
     } finally {
       setIsLoading(false);

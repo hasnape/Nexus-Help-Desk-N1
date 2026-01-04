@@ -123,14 +123,35 @@ async function callNexusAi<TResponse>(
   let json: any = null;
   try {
     json = await res.json();
-  } catch {
+  } catch (parseError) {
     // Réponse non JSON (erreur interne grave)
+    console.error("[callNexusAi] Failed to parse JSON response:", parseError);
+    if (!res.ok) {
+      throw new Error(`Nexus AI backend error (HTTP ${res.status}): Unable to parse response`);
+    }
   }
 
   if (!res.ok) {
-    const msg =
-      (json && (json.error || json.message)) ||
-      `Nexus AI backend error (HTTP ${res.status})`;
+    // Backend returns errors in format: { error: "internal_ai_error", message: "actual error", mode: "..." }
+    // We need to extract the actual error message properly
+    let msg = `Nexus AI backend error (HTTP ${res.status})`;
+    
+    if (json) {
+      // Priority: message > error field
+      if (json.message && typeof json.message === 'string') {
+        msg = json.message;
+      } else if (json.error && typeof json.error === 'string') {
+        // If error is a descriptive string (not just "internal_ai_error"), use it
+        if (json.error !== 'internal_ai_error') {
+          msg = json.error;
+        } else if (json.message) {
+          // If error is "internal_ai_error", use the message field
+          msg = json.message;
+        }
+      }
+    }
+    
+    console.error("[callNexusAi] Backend error:", { status: res.status, response: json, message: msg });
     throw new Error(msg);
   }
 

@@ -27,19 +27,34 @@ import {
 // --------------------
 const MODEL_NAME = "gemini-2.5-flash";
 
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
-const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY")!;
+// Validate required environment variables
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
 
-const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
-  global: {
-    headers: {
-      "x-client-info": "nexus-ai-edge-fn",
-    },
-  },
-});
+if (!SUPABASE_URL) {
+  console.error("[nexus-ai] FATAL: SUPABASE_URL is not configured");
+}
+if (!SERVICE_ROLE_KEY) {
+  console.error("[nexus-ai] FATAL: SUPABASE_SERVICE_ROLE_KEY is not configured");
+}
+if (!GEMINI_API_KEY) {
+  console.error("[nexus-ai] FATAL: GEMINI_API_KEY is not configured");
+}
 
-const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
+// Only create clients if all env vars are present
+// If they're missing, the handler will return an error before using these
+const supabase = SUPABASE_URL && SERVICE_ROLE_KEY
+  ? createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
+      global: {
+        headers: {
+          "x-client-info": "nexus-ai-edge-fn",
+        },
+      },
+    })
+  : null;
+
+const ai = GEMINI_API_KEY ? new GoogleGenAI({ apiKey: GEMINI_API_KEY }) : null;
 
 type FollowUpPayload = {
   mode: "followUp";
@@ -105,8 +120,8 @@ async function buildCompanyKnowledgeContext(
   companyId?: string,
   language?: "fr" | "en" | "ar",
 ): Promise<string | null> {
-  if (!companyId) {
-    console.warn("[nexus-ai] buildCompanyKnowledgeContext: missing companyId");
+  if (!companyId || !supabase) {
+    console.warn("[nexus-ai] buildCompanyKnowledgeContext: missing companyId or supabase client");
     return null;
   }
 
@@ -158,7 +173,7 @@ ${blocks.join("\n\n")}`;
 async function loadCompanyAiSettings(
   companyId?: string | null,
 ): Promise<CompanyAiSettings | null> {
-  if (!companyId) return null;
+  if (!companyId || !supabase) return null;
 
   const { data, error } = await supabase
     .from("company_ai_settings")
@@ -182,6 +197,10 @@ async function loadCompanyAiSettings(
 async function handleSummarizeAndCategorizeChat(
   body: SummarizePayload,
 ) {
+  if (!ai) {
+    throw new Error("AI service is not configured");
+  }
+
   const {
     language,
     targetLanguage,
@@ -251,6 +270,10 @@ Do not add any explanations or text outside of the JSON object.`;
 // 2) followUp (N1/N2 + FAQ)
 // --------------------
 async function handleFollowUp(body: FollowUpPayload) {
+  if (!ai) {
+    throw new Error("AI service is not configured");
+  }
+
   const {
     language,
     ticketTitle,
@@ -329,7 +352,7 @@ async function handleFollowUp(body: FollowUpPayload) {
   const parsed = JSON.parse(jsonStr);
   const result = profile.processModelJson(parsed, ctx);
 
-  if (result.attorneySummary && ticketId) {
+  if (result.attorneySummary && ticketId && supabase) {
     const { error: noteError } = await supabase.from("internal_notes").insert({
       ticket_id: ticketId,
       agent_id: null,
@@ -343,7 +366,7 @@ async function handleFollowUp(body: FollowUpPayload) {
     }
   }
 
-  if (result.intakeData && ticketId) {
+  if (result.intakeData && ticketId && supabase) {
     const { error: intakeError } = await supabase.from("ticket_intake_data").upsert(
       {
         ticket_id: ticketId,
@@ -369,6 +392,10 @@ async function handleFollowUp(body: FollowUpPayload) {
 // 3) ticketSummary
 // --------------------
 async function handleTicketSummary(body: TicketSummaryPayload) {
+  if (!ai) {
+    throw new Error("AI service is not configured");
+  }
+
   const { language, targetLanguage, ticket } = body;
 
   const ticketContext = `Ticket Title: "${ticket.title}"
@@ -474,13 +501,29 @@ serve(async (req: Request) => {
   if (guard instanceof Response) return guard;
   const corsHeaders = guard; // Record<string, string>
 
+  // 3) Check environment variables before processing
+  if (!SUPABASE_URL || !SERVICE_ROLE_KEY || !GEMINI_API_KEY) {
+    console.error("[nexus-ai] Missing required environment variables");
+    return json(
+      {
+        error: "configuration_error",
+        message: "Server configuration error: Missing required environment variables. Please contact support.",
+      },
+      500,
+      corsHeaders,
+    );
+  }
+
   let body: RequestBody;
   try {
     body = (await req.json()) as RequestBody;
   } catch (err) {
     console.error("[nexus-ai] invalid JSON body:", err);
     return json(
-      { error: "Invalid JSON body" },
+      { 
+        error: "invalid_request",
+        message: "Invalid JSON body" 
+      },
       400,
       corsHeaders,
     );
@@ -511,17 +554,42 @@ serve(async (req: Request) => {
     }
 
     return json(
-      { error: "Unsupported mode" },
+      { 
+        error: "unsupported_mode",
+        message: `Unsupported mode: ${(body as any)?.mode || 'unknown'}` 
+      },
       400,
       corsHeaders,
     );
   } catch (err: any) {
-    console.error("[nexus-ai] internal error:", (body as any)?.mode, err);
+    const mode = (body as any)?.mode ?? "unknown";
+    console.error("[nexus-ai] internal error:", mode, err);
+    
+    // Extract meaningful error message
+    let userMessage = "An internal error occurred while processing your request.";
+    
+    if (err instanceof Error) {
+      // Check for specific error types
+      if (err.message.includes("API key")) {
+        userMessage = "AI service configuration error. Please contact support.";
+      } else if (err.message.includes("rate limit") || err.message.includes("quota")) {
+        userMessage = "AI service rate limit exceeded. Please try again in a few minutes.";
+      } else if (err.message.includes("timeout")) {
+        userMessage = "AI service timeout. Please try again.";
+      } else if (err.message.includes("network") || err.message.includes("fetch")) {
+        userMessage = "Network error connecting to AI service. Please try again.";
+      } else {
+        // Use the actual error message if it's user-friendly
+        userMessage = err.message;
+      }
+    }
+    
     return json(
       {
         error: "internal_ai_error",
-        mode: (body as any)?.mode ?? null,
-        message: err instanceof Error ? err.message : String(err),
+        mode,
+        message: userMessage,
+        details: err instanceof Error ? err.message : String(err),
       },
       500,
       corsHeaders,
