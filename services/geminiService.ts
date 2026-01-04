@@ -144,15 +144,16 @@ async function callNexusAi<TResponse>(
         // If error is a descriptive string (not just "internal_ai_error"), use it
         if (json.error !== 'internal_ai_error') {
           msg = json.error;
-        } else if (json.message) {
-          // If error is "internal_ai_error", use the message field
-          msg = json.message;
         }
       }
     }
     
     console.error("[callNexusAi] Backend error:", { status: res.status, response: json, message: msg });
-    throw new Error(msg);
+    const err = new Error(msg);
+    (err as any).status = res.status;
+    (err as any).code = json?.error;
+    (err as any).retryAfter = res.headers.get("retry-after");
+    throw err;
   }
 
   return json as TResponse;
@@ -183,6 +184,33 @@ export async function summarizeAndCategorizeChat(
     description: string;
     category: string;
     priority: TicketPriority | string;
+  };
+
+  const fallbackFromHistory = () => {
+    const lastUserMessage = [...chatHistory]
+      .reverse()
+      .find((msg) => msg.sender === "user")?.text?.trim();
+    const rawTitle = lastUserMessage || "Support request";
+    const title = rawTitle.slice(0, 80);
+
+    const historySlice = chatHistory.slice(-8);
+    const description = historySlice
+      .map((msg) => `[${msg.sender}] ${msg.text}`)
+      .join("\n")
+      .slice(0, 600);
+
+    const fallbackCategory =
+      validCategories.find((cat) => cat.includes("General")) ||
+      validCategories[0] ||
+      "ticketCategory.GeneralQuestion";
+
+    return {
+      title,
+      description: description || rawTitle,
+      category: fallbackCategory,
+      priority: TicketPriority.MEDIUM,
+      summary: description || rawTitle,
+    };
   };
 
   try {
@@ -224,6 +252,18 @@ export async function summarizeAndCategorizeChat(
     };
   } catch (error: any) {
     console.error("Error summarizing and categorizing chat (backend):", error);
+    const errorMessage = String(error?.message || "");
+    const status = error?.status;
+    const code = error?.code;
+    if (
+      status === 429 ||
+      code === "ai_rate_limited" ||
+      errorMessage.toLowerCase().includes("rate") ||
+      errorMessage.toLowerCase().includes("quota")
+    ) {
+      return fallbackFromHistory();
+    }
+
     throw new Error(
       `Failed to process chat summary. ${
         error.message || "Unknown AI backend error"
@@ -306,7 +346,27 @@ You can try again shortly or provide more details, and a human agent will follow
     const textAr = `واجه مساعد الذكاء الاصطناعي مشكلة غير متوقعة.
 يمكنك المحاولة لاحقًا أو تقديم مزيد من التفاصيل، وسيقوم عميل بشري بمتابعة طلبك عند الحاجة.`;
 
+    const rateLimitFr = `L’assistant IA est temporairement saturé (limite de débit atteinte). Je peux quand même créer un ticket et transmettre le contexte à un agent.`;
+    const rateLimitEn = `The AI assistant is temporarily rate-limited. I can still create a ticket and pass the context to an agent.`;
+    const rateLimitAr = `المساعد الذكي متاح مؤقتًا بشكل محدود بسبب تجاوز الحد. يمكنني مع ذلك إنشاء تذكرة وإرسال السياق إلى أحد الوكلاء.`;
+
     let text = textFr;
+    const errorMessage = String(error?.message || "");
+    const status = error?.status;
+    const code = error?.code;
+    const isRateLimited =
+      status === 429 ||
+      code === "ai_rate_limited" ||
+      errorMessage.toLowerCase().includes("rate") ||
+      errorMessage.toLowerCase().includes("quota");
+
+    if (isRateLimited) {
+      if (language === "en") text = rateLimitEn;
+      if (language === "ar") text = rateLimitAr;
+      if (language === "fr") text = rateLimitFr;
+      return { text, escalationSuggested: true };
+    }
+
     if (language === "en") text = textEn;
     if (language === "ar") text = textAr;
 
@@ -352,6 +412,25 @@ export async function getTicketSummary(
     return data.summary;
   } catch (error: any) {
     console.error("Error getting ticket summary from backend:", error);
+
+    const errorMessage = String(error?.message || "");
+    const status = error?.status;
+    const code = error?.code;
+    const isRateLimited =
+      status === 429 ||
+      code === "ai_rate_limited" ||
+      errorMessage.toLowerCase().includes("rate") ||
+      errorMessage.toLowerCase().includes("quota");
+
+    if (isRateLimited) {
+      if (language === "fr") {
+        return "L’IA est temporairement limitée (quota atteint).";
+      }
+      if (language === "ar") {
+        return "الذكاء الاصطناعي محدود مؤقتًا (تجاوز الحصة).";
+      }
+      return "AI is temporarily rate-limited (quota reached).";
+    }
 
     if (language === "fr")
       return `Désolé, impossible de générer le résumé du ticket pour le moment. Erreur: ${

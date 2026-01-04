@@ -167,6 +167,26 @@ const HelpChatPage: React.FC = () => {
 
     } catch (error: any) {
       console.error("Error getting AI follow-up response:", JSON.stringify(error, null, 2));
+      const errorMessage = String(error?.message || "");
+      const isRateLimited =
+        error?.status === 429 ||
+        error?.code === "ai_rate_limited" ||
+        errorMessage.toLowerCase().includes("rate") ||
+        errorMessage.toLowerCase().includes("quota");
+
+      if (isRateLimited) {
+        const aiText = `${t("appContext.error.aiRateLimited")} ${t("helpChat.createTicketExplanation")}`;
+        const errorMsg: ChatMessage = {
+          id: crypto.randomUUID(),
+          sender: 'ai',
+          text: aiText,
+          timestamp: new Date()
+        };
+        setChatHistory(prev => [...prev, errorMsg]);
+        setShowCreateTicketButton(true);
+        return;
+      }
+
       const errorMsg: ChatMessage = {
         id: crypto.randomUUID(),
         sender: 'ai',
