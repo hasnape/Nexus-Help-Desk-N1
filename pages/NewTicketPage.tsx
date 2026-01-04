@@ -62,17 +62,21 @@ const NewTicketPage: React.FC = () => {
         });
 
         if (e.message.includes('configuration')) {
-          errorMessage = "Service de résumé AI temporairement indisponible (erreur de configuration). " +
-                        "Veuillez remplir le formulaire manuellement.";
+          errorMessage = t('newTicket.error.aiConfigurationError', {
+            default: 'AI summary service is temporarily unavailable (configuration error). Please fill out the form manually.'
+          });
         } else if (e.message.includes('rate limit')) {
-          errorMessage = "Limite de requêtes AI atteinte. Veuillez remplir le formulaire manuellement " +
-                        "ou réessayer dans quelques minutes.";
+          errorMessage = t('newTicket.error.aiRateLimitError', {
+            default: 'AI request limit reached. Please fill out the form manually or try again in a few minutes.'
+          });
         } else if (e.message.includes('timeout')) {
-          errorMessage = "Le service AI prend trop de temps à répondre. " +
-                        "Veuillez remplir le formulaire manuellement.";
+          errorMessage = t('newTicket.error.aiTimeoutError', {
+            default: 'AI service is taking too long to respond. Please fill out the form manually.'
+          });
         } else if (e.message.includes('network') || e.message.includes('fetch')) {
-          errorMessage = "Erreur réseau lors de la connexion au service AI. " +
-                        "Veuillez remplir le formulaire manuellement.";
+          errorMessage = t('newTicket.error.aiNetworkError', {
+            default: 'Network error connecting to AI service. Please fill out the form manually.'
+          });
         }
 
         setErrors({
