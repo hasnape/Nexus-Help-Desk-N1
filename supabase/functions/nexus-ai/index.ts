@@ -42,15 +42,19 @@ if (!GEMINI_API_KEY) {
   console.error("[nexus-ai] FATAL: GEMINI_API_KEY is not configured");
 }
 
-const supabase = createClient(SUPABASE_URL!, SERVICE_ROLE_KEY!, {
-  global: {
-    headers: {
-      "x-client-info": "nexus-ai-edge-fn",
-    },
-  },
-});
+// Only create clients if all env vars are present
+// If they're missing, the handler will return an error before using these
+const supabase = SUPABASE_URL && SERVICE_ROLE_KEY
+  ? createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
+      global: {
+        headers: {
+          "x-client-info": "nexus-ai-edge-fn",
+        },
+      },
+    })
+  : null;
 
-const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY! });
+const ai = GEMINI_API_KEY ? new GoogleGenAI({ apiKey: GEMINI_API_KEY }) : null;
 
 type FollowUpPayload = {
   mode: "followUp";
@@ -116,8 +120,8 @@ async function buildCompanyKnowledgeContext(
   companyId?: string,
   language?: "fr" | "en" | "ar",
 ): Promise<string | null> {
-  if (!companyId) {
-    console.warn("[nexus-ai] buildCompanyKnowledgeContext: missing companyId");
+  if (!companyId || !supabase) {
+    console.warn("[nexus-ai] buildCompanyKnowledgeContext: missing companyId or supabase client");
     return null;
   }
 
@@ -169,7 +173,7 @@ ${blocks.join("\n\n")}`;
 async function loadCompanyAiSettings(
   companyId?: string | null,
 ): Promise<CompanyAiSettings | null> {
-  if (!companyId) return null;
+  if (!companyId || !supabase) return null;
 
   const { data, error } = await supabase
     .from("company_ai_settings")
@@ -193,6 +197,10 @@ async function loadCompanyAiSettings(
 async function handleSummarizeAndCategorizeChat(
   body: SummarizePayload,
 ) {
+  if (!ai) {
+    throw new Error("AI service is not configured");
+  }
+
   const {
     language,
     targetLanguage,
@@ -262,6 +270,10 @@ Do not add any explanations or text outside of the JSON object.`;
 // 2) followUp (N1/N2 + FAQ)
 // --------------------
 async function handleFollowUp(body: FollowUpPayload) {
+  if (!ai) {
+    throw new Error("AI service is not configured");
+  }
+
   const {
     language,
     ticketTitle,
@@ -340,7 +352,7 @@ async function handleFollowUp(body: FollowUpPayload) {
   const parsed = JSON.parse(jsonStr);
   const result = profile.processModelJson(parsed, ctx);
 
-  if (result.attorneySummary && ticketId) {
+  if (result.attorneySummary && ticketId && supabase) {
     const { error: noteError } = await supabase.from("internal_notes").insert({
       ticket_id: ticketId,
       agent_id: null,
@@ -354,7 +366,7 @@ async function handleFollowUp(body: FollowUpPayload) {
     }
   }
 
-  if (result.intakeData && ticketId) {
+  if (result.intakeData && ticketId && supabase) {
     const { error: intakeError } = await supabase.from("ticket_intake_data").upsert(
       {
         ticket_id: ticketId,
@@ -380,6 +392,10 @@ async function handleFollowUp(body: FollowUpPayload) {
 // 3) ticketSummary
 // --------------------
 async function handleTicketSummary(body: TicketSummaryPayload) {
+  if (!ai) {
+    throw new Error("AI service is not configured");
+  }
+
   const { language, targetLanguage, ticket } = body;
 
   const ticketContext = `Ticket Title: "${ticket.title}"
