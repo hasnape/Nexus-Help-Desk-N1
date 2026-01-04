@@ -54,6 +54,9 @@ const Footer: React.FC = () => {
                   "Centre d'assistance intelligent avec IA pour une gestion efficace des tickets et un support client optimisé.",
               })}
             </p>
+            <p className="text-xs text-slate-400 max-w-md">
+              {t("footer.aiAvailabilityNotice")}
+            </p>
 
             {/* Lien vers la vidéo promotionnelle */}
             <div className="mb-4">

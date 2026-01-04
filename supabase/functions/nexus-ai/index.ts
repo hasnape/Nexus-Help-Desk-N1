@@ -56,6 +56,56 @@ const supabase = SUPABASE_URL && SERVICE_ROLE_KEY
 
 const ai = GEMINI_API_KEY ? new GoogleGenAI({ apiKey: GEMINI_API_KEY }) : null;
 
+function truncateMessage(message: string, maxLength = 400): string {
+  if (message.length <= maxLength) return message;
+  return `${message.slice(0, maxLength)}…`;
+}
+
+function normalizeErrorMessage(err: unknown): string {
+  if (err instanceof Error) {
+    return err.message;
+  }
+  return String(err ?? "");
+}
+
+function isRateLimitError(message: string): boolean {
+  const normalized = message.toLowerCase();
+  return (
+    normalized.includes("429") ||
+    normalized.includes("resource_exhausted") ||
+    normalized.includes("quota") ||
+    normalized.includes("rate limit")
+  );
+}
+
+function isTimeoutError(message: string, err: unknown): boolean {
+  if (err instanceof Error && err.name === "AbortError") {
+    return true;
+  }
+  const normalized = message.toLowerCase();
+  return normalized.includes("timeout") || normalized.includes("timed out");
+}
+
+function errorResponse(
+  error: string,
+  message: string,
+  status: number,
+  corsHeaders: Record<string, string>,
+  extraHeaders?: Record<string, string>,
+): Response {
+  return json(
+    {
+      error,
+      message: truncateMessage(message),
+    },
+    status,
+    {
+      ...corsHeaders,
+      ...(extraHeaders ?? {}),
+    },
+  );
+}
+
 type FollowUpPayload = {
   mode: "followUp";
   language: "fr" | "en" | "ar";
@@ -198,7 +248,7 @@ async function handleSummarizeAndCategorizeChat(
   body: SummarizePayload,
 ) {
   if (!ai) {
-    throw new Error("AI service is not configured");
+    throw new Error("ai_not_configured");
   }
 
   const {
@@ -271,7 +321,7 @@ Do not add any explanations or text outside of the JSON object.`;
 // --------------------
 async function handleFollowUp(body: FollowUpPayload) {
   if (!ai) {
-    throw new Error("AI service is not configured");
+    throw new Error("ai_not_configured");
   }
 
   const {
@@ -393,7 +443,7 @@ async function handleFollowUp(body: FollowUpPayload) {
 // --------------------
 async function handleTicketSummary(body: TicketSummaryPayload) {
   if (!ai) {
-    throw new Error("AI service is not configured");
+    throw new Error("ai_not_configured");
   }
 
   const { language, targetLanguage, ticket } = body;
@@ -502,13 +552,21 @@ serve(async (req: Request) => {
   const corsHeaders = guard; // Record<string, string>
 
   // 3) Check environment variables before processing
-  if (!SUPABASE_URL || !SERVICE_ROLE_KEY || !GEMINI_API_KEY) {
-    console.error("[nexus-ai] Missing required environment variables");
-    return json(
-      {
-        error: "configuration_error",
-        message: "Server configuration error: Missing required environment variables. Please contact support.",
-      },
+  if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
+    console.error("[nexus-ai] Missing Supabase server configuration");
+    return errorResponse(
+      "server_not_configured",
+      "Server configuration error: Missing Supabase configuration. Please contact support.",
+      500,
+      corsHeaders,
+    );
+  }
+
+  if (!GEMINI_API_KEY) {
+    console.error("[nexus-ai] Missing Gemini API key");
+    return errorResponse(
+      "ai_not_configured",
+      "AI service is not configured. Please contact support.",
       500,
       corsHeaders,
     );
@@ -519,11 +577,9 @@ serve(async (req: Request) => {
     body = (await req.json()) as RequestBody;
   } catch (err) {
     console.error("[nexus-ai] invalid JSON body:", err);
-    return json(
-      { 
-        error: "invalid_request",
-        message: "Invalid JSON body" 
-      },
+    return errorResponse(
+      "invalid_request",
+      "Invalid JSON body",
       400,
       corsHeaders,
     );
@@ -553,44 +609,40 @@ serve(async (req: Request) => {
       return json(result, 200, corsHeaders);
     }
 
-    return json(
-      { 
-        error: "unsupported_mode",
-        message: `Unsupported mode: ${(body as any)?.mode || 'unknown'}` 
-      },
+    return errorResponse(
+      "unsupported_mode",
+      `Unsupported mode: ${(body as any)?.mode || "unknown"}`,
       400,
       corsHeaders,
     );
   } catch (err: any) {
     const mode = (body as any)?.mode ?? "unknown";
     console.error("[nexus-ai] internal error:", mode, err);
-    
-    // Extract meaningful error message
-    let userMessage = "An internal error occurred while processing your request.";
-    
-    if (err instanceof Error) {
-      // Check for specific error types
-      if (err.message.includes("API key")) {
-        userMessage = "AI service configuration error. Please contact support.";
-      } else if (err.message.includes("rate limit") || err.message.includes("quota")) {
-        userMessage = "AI service rate limit exceeded. Please try again in a few minutes.";
-      } else if (err.message.includes("timeout")) {
-        userMessage = "AI service timeout. Please try again.";
-      } else if (err.message.includes("network") || err.message.includes("fetch")) {
-        userMessage = "Network error connecting to AI service. Please try again.";
-      } else {
-        // Use the actual error message if it's user-friendly
-        userMessage = err.message;
-      }
+
+    const rawMessage = normalizeErrorMessage(err);
+
+    if (isRateLimitError(rawMessage)) {
+      return errorResponse(
+        "ai_rate_limited",
+        "rate_limited",
+        429,
+        corsHeaders,
+        { "Retry-After": "60" },
+      );
     }
-    
-    return json(
-      {
-        error: "internal_ai_error",
-        mode,
-        message: userMessage,
-        details: err instanceof Error ? err.message : String(err),
-      },
+
+    if (isTimeoutError(rawMessage, err)) {
+      return errorResponse(
+        "ai_timeout",
+        "timeout",
+        504,
+        corsHeaders,
+      );
+    }
+
+    return errorResponse(
+      "internal_ai_error",
+      rawMessage || "internal_error",
       500,
       corsHeaders,
     );

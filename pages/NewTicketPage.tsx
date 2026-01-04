@@ -142,45 +142,31 @@ const NewTicketPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // 1. RÉCUPÉRATION DU PROFIL (CORRECTION ERREUR 406)
-      // On utilise .maybeSingle() pour plus de stabilité
-      const { data: authData, error: authError } = await supabase.auth.getUser();
-      
-      if (authError) {
-        console.error('Auth Error:', authError);
-        throw new Error(`Erreur d'authentification: ${authError.message}. Veuillez vous reconnecter.`);
-      }
-      
-      const authUid = (user.auth_uid ?? authData?.user?.id ?? "").trim();
+      let companyId = (user as any)?.company_id?.trim();
+      let companyName = (user as any)?.company_name ?? null;
 
-      if (!authUid) {
-        throw new Error("Session expirée. Veuillez vous reconnecter.");
-      }
+      if (!companyId) {
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('company_id, company_name') 
+          .eq('id', user.id)
+          .maybeSingle();
 
-      const { data: userData, error: userError } = await supabase
-        .from('users')
-        .select('company_id, company_name') 
-        .eq('auth_uid', authUid)
-        .maybeSingle();
+        if (userError) {
+          console.error('Supabase Error:', userError);
+          throw new Error(`Erreur de connexion à la base de données: ${userError.message}. Veuillez réessayer.`);
+        }
 
-      if (userError) {
-        console.error('Supabase Error:', userError);
-        throw new Error(`Erreur de connexion à la base de données: ${userError.message}. Veuillez réessayer.`);
+        companyId = userData?.company_id?.trim();
+        companyName = userData?.company_name ?? companyName;
       }
 
-      if (!userData) {
-        console.error('No user data found for auth_uid:', authUid);
+      if (!companyId) {
         throw new Error(
-          "Profil utilisateur introuvable. Veuillez vous déconnecter et vous reconnecter, " +
-          "ou contacter le support si le problème persiste."
-        );
-      }
-
-      if (!userData.company_id) {
-        console.error('User data missing company_id:', userData);
-        throw new Error(
-          "Impossible de valider votre organisation. Vérifiez que votre profil utilisateur est bien configuré. " +
-          "Si le problème persiste, veuillez contacter votre administrateur ou le support."
+          t('newTicket.error.companyMissing', {
+            default:
+              "Impossible de valider votre organisation (profil incomplet). Veuillez vous déconnecter/reconnecter ou contacter le support.",
+          })
         );
       }
 
@@ -195,8 +181,8 @@ const NewTicketPage: React.FC = () => {
         summary: aiSummary?.trim() || undefined,
         summary_updated_at: new Date().toISOString(),
         user_id: user.id, 
-        company_id: userData.company_id, 
-        company_name: userData.company_name
+        company_id: companyId, 
+        company_name: companyName
       };
 
       // 3. Ajout via le contexte App

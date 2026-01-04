@@ -114,6 +114,12 @@ const LandingPage: React.FC = () => {
           </p>
         </section>
 
+        <section className="surface-card text-center max-w-3xl mx-auto">
+          <p className="muted-copy">
+            {t("landing.aiFallbackNotice")}
+          </p>
+        </section>
+
         <section
           id="presentation"
           className="grid gap-8 lg:grid-cols-[minmax(0,1.3fr),minmax(0,1fr)] items-start"
